@@ -1,0 +1,119 @@
+/*.custom-navbar{
+  background-color: rgb(0, 76, 70);
+  color: white;
+  
+}
+
+
+.navbar-nav .nav-link {
+  color: white;
+  transition: color 0.3s; 
+}
+
+
+.navbar-nav .nav-link:hover {
+  color:black;
+  transition: color 0.3s; 
+}
+
+.navbar-brand{
+  color: white;
+}
+
+.navbar:hover{
+  color:black;
+
+}
+*/
+
+
+/* Add a custom focus style for the search input */
+/* input.form-control:focus {
+  border-color: rgb(0, 0, 0);
+  box-shadow: none;
+}
+
+/*button.btn.btn-outline-success{
+  border: 1px solid white;
+  color: white ;
+  transition: transform 0.2s, border-color 0.2s, color 0.2s;
+
+} */
+
+/*button.btn.btn-outline-success:hover{
+  border: 1px solid black;
+  color: black ;
+  
+}
+
+button.btn.btn-outline-success:active{
+  border: 1px solid whitesmoke;
+  color: whitesmoke ;
+  transform: scale(0.95); 
+  
+}
+button.btn.btn-outline-success:target-text{
+  border: 1px solid whitesmoke;
+  color: whitesmoke ;
+  transform: scale(0.95); 
+  
+}*/
+
+.bgimage{
+  height: 100vh;
+  background: url(./images/imagebg.jpg);
+  position:relative ;
+  background-size: cover;
+} 
+
+/* text css above hero image*/
+.Ajin-title {
+  font-size: 4.5rem;
+}
+.Ajin-para {
+  font-size: 2rem;
+}
+.Ajin-text {
+  text-align: center;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: white;
+}
+
+
+
+.AboutImagepage {
+  width:130%;
+  
+  
+}
+
+ul.list-unstyled li:first-child {
+  font-weight: bold;
+}
+
+.Strongtext{
+  text-align: center;
+}
+
+.Strongicon{
+  font-size: 40px;
+  text-align: center;
+  width: 100%;
+  color:rgb(0, 81, 113);
+}
+
+.Strongtext.card{
+  height:240px;
+  cursor: pointer;
+}
+
+.Strongtext.card:hover .Strongicon{
+  color: #0d6efd;
+}
+
+.Strongtext:hover{
+  border:1px solid #0d6efd;
+}
