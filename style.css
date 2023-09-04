@@ -85,7 +85,7 @@ button.btn.btn-outline-success:target-text{
 
 
 .AboutImagepage {
-  width:130%;
+  width:100%;
   
   
 }
@@ -121,3 +121,9 @@ ul.list-unstyled li:first-child {
 .navbarScroll.navbarDark {
   background-color: rgba(0, 0, 0, 0.777);
 }
+
+.cardsize.card{
+  height: 440px;
+  cursor: pointer;
+}
+
