@@ -149,3 +149,26 @@ ul.list-unstyled li:first-child {
 [data-animation="fade-in"].animate {
   opacity: 1;
 }
+
+
+  /* Styling for the footer */
+#footer {
+  background-color: #000000; /* Background color for the footer */
+  color: #fff; /* Text color for the icons */
+  text-align: center;
+ 
+}
+
+/* Style for the social media icons */
+.social-icons a {
+  font-size: 40px; /* Adjust the icon size as needed */
+  margin: 0 10px 0 10px; /* Add spacing between the icons */
+  color: #fff; /* Icon color */
+  text-decoration: none;
+  transition: color 0.3s ease; /* Smooth color transition on hover */
+}
+
+.social-icons a:hover {
+  color:#0d6efd; /* Change color on hover */
+
+}
