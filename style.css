@@ -128,3 +128,24 @@ ul.list-unstyled li:first-child {
   text-align: center;
 }
 
+/* Slide-in Animation */
+[data-animation="slide-in"] {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.5s ease, transform 0.5s ease;
+}
+
+[data-animation="slide-in"].animate {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Fade-in Animation */
+[data-animation="fade-in"] {
+  opacity: 0;
+  transition: opacity 0.5s ease;
+}
+
+[data-animation="fade-in"].animate {
+  opacity: 1;
+}
