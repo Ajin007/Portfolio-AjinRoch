@@ -172,3 +172,24 @@ ul.list-unstyled li:first-child {
   color:#0d6efd; /* Change color on hover */
 
 }
+
+.carousel-inner .carousel-item img{
+
+  
+  border-width: 1px; /* Width of the outer border */
+  border-style: double; /* Double border style */
+  border-color: #5e636e; /* Color of the outer border */
+  border-top-width: 0; /* Set top border width to 0 to create a double border effect */
+  border-left-width: 0; /* Set left border width to 0 to create a double border effect */
+  border-right-width: 0; /* Set right border width to 0 to create a double border effect */
+  border-bottom-color: rgb(23, 22, 22); /* Color of the inner border */
+  border-radius: 5px; /* Optional: Add rounded corners */
+  width: 100%;
+  height: auto;
+  max-height: 400px; /* Set a maximum height for the image (adjust as needed) */
+
+}
+.custom-caption {
+  display: flex; /* Use "flex" to define a flex container */
+
+}
