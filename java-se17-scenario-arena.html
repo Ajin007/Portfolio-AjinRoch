@@ -193,11 +193,33 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
 .vizcode .cq{color:var(--text-muted);font-style:italic}
 
 /* execution trace timeline */
+/* step controls */
+.stepctrl{display:flex;align-items:center;gap:10px;margin-bottom:16px;flex-wrap:wrap}
+.stepbtn{background:var(--bg-surface-hi);border:none;cursor:pointer;color:var(--text-secondary);font:800 11px var(--font);letter-spacing:.05em;padding:9px 16px;border-radius:99px;transition:.15s;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.08)}
+.stepbtn:hover:not(:disabled){color:var(--text-primary);box-shadow:inset 0 0 0 1px rgba(59,91,255,0.5)}
+.stepbtn:focus-visible{outline:2px solid rgba(59,91,255,0.6);outline-offset:2px}
+.stepbtn:disabled{opacity:.35;cursor:default}
+.stepbtn.primary{background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;box-shadow:0 4px 14px -6px rgba(3,37,189,.8)}
+.stepbtn.primary:hover:not(:disabled){transform:translateY(-1px);color:#fff}
+.stepbtn.play.on{background:rgba(245,197,66,0.16);color:var(--yellow);box-shadow:inset 0 0 0 1px rgba(245,197,66,.4)}
+.stepcount{margin-left:auto;font:800 11px var(--mono);color:var(--text-muted);letter-spacing:.04em}
+.stepcount b{color:var(--at);font-size:13px}
+
 .trace{position:relative;padding-left:4px}
-.tstep{display:flex;gap:14px;padding-bottom:16px;position:relative;opacity:0;transform:translateX(-8px)}
-.trace.play .tstep{animation:traceIn .4s ease forwards}
-@keyframes traceIn{to{opacity:1;transform:translateX(0)}}
+.tstep{display:flex;gap:14px;padding-bottom:16px;position:relative;cursor:pointer}
+.tstep.hidden-step{display:none}
+.tstep.active{animation:traceIn .42s cubic-bezier(.2,.7,.3,1)}
+@keyframes traceIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .tstep:last-child{padding-bottom:0}
+.tstep.done{opacity:.78}
+.tstep.done:hover{opacity:1}
+.tstep.active::before{content:none}
+.tstep.active .tn{box-shadow:0 0 0 3px rgba(3,37,189,0.28);transition:box-shadow .2s}
+.tstep.active .tcode{box-shadow:inset 0 0 0 1.5px rgba(59,91,255,0.55)}
+.tstep.final.active .tn{animation:pop .4s ease}
+.tstep.final.active .tcode{box-shadow:inset 0 0 0 1.5px rgba(34,211,165,0.55)}
+.trace .donemark{display:none}
+.tstep.done .donemark{display:inline}
 .tstep .tn{flex:none;width:26px;height:26px;border-radius:99px;background:rgba(3,37,189,0.16);color:var(--at);font:800 12px/26px var(--font);text-align:center;position:relative;z-index:1}
 .tstep:not(:last-child)::before{content:'';position:absolute;left:12.5px;top:26px;bottom:0;width:1.5px;background:linear-gradient(180deg,rgba(3,37,189,0.4),rgba(3,37,189,0.08))}
 .tstep .tx{flex:1;padding-top:2px;min-width:0}
@@ -470,6 +492,7 @@ function showAnswered(fresh){
 }
 
 /* ---------- Code Walkthrough Visualizer ---------- */
+let vizStepIdx=0, vizStepN=0, vizAutoId=null;
 const OBJ_MAP={
   'Streams/Lambda':'Working with Streams & Lambda Expressions',
   'JPMS':'Packaging & Deploying Java Code · JPMS',
@@ -695,10 +718,16 @@ function openViz(i){
 
   const codeHtml=`<div class="vizcode">${esc(scenario)}</div>`;
 
+  const ctrlHtml=`<div class="stepctrl">
+      <button class="stepbtn" id="stepPrevBtn" onclick="vizPrev()">◀ Prev</button>
+      <button class="stepbtn primary" id="stepNextBtn" onclick="vizNext()">Next Step ▶</button>
+      <button class="stepbtn play" id="stepPlayBtn" onclick="vizPlay()">▶ Auto-run</button>
+      <span class="stepcount" id="stepCount"></span>
+    </div>`;
   const traceHtml=`<div class="trace" id="vizTrace">`+
     steps.map((st,i)=>{
       const last=i===steps.length-1;
-      return `<div class="tstep${last?' final':''}"><div class="tn">${last?'✓':(i+1)}</div><div class="tx">`+
+      return `<div class="tstep${last?' final':''}" data-i="${i}" onclick="vizStepClick(${i})"><div class="tn">${last?'✓':(i+1)}</div><div class="tx">`+
         (st.s?`<code class="tcode">${esc(st.s)}</code>`:'')+
         `<div class="tnote">${esc(st.r)}</div></div></div>`;
     }).join('')+
@@ -719,25 +748,61 @@ function openViz(i){
   $('vizBody').innerHTML=
     `<div class="vizsec"><div class="sl">Exam Objective</div>${objHtml}</div>`+
     `<div class="vizsec"><div class="sl">${hasCode?'The Code':'The Scenario'}</div>${codeHtml}</div>`+
-    `<div class="vizsec"><div class="sl">How the Code Executes · Step by Step</div>${traceHtml}</div>`+
+    `<div class="vizsec"><div class="sl">How the Code Executes · Step by Step</div>${ctrlHtml}${traceHtml}</div>`+
     `<div class="vizsec"><div class="sl">All Options · Correct vs. Distractors</div>${optsHtml}</div>`+
     `<div class="vizsec"><div class="sl">Bottom Line</div><div class="vizexp"><strong>Correct answer — ${KEYS[q.answer]}:</strong> ${esc(q.options[q.answer].replace(/\n/g,' ⏎ '))}. ${esc(q.explanation)}</div></div>`;
 
   const ov=$('vizOverlay');
   ov.classList.add('show');
   document.body.style.overflow='hidden';
-  // animate the trace steps in sequence
-  const tr=$('vizTrace');
-  tr.querySelectorAll('.tstep').forEach((el,i)=>{el.style.animationDelay=(i*140)+'ms';});
-  requestAnimationFrame(()=>tr.classList.add('play'));
   $('vizBody').scrollTop=0;
+  // start the interactive stepper at the first line
+  vizStepN=steps.length; vizStepIdx=0; vizStopAuto();
+  renderVizSteps();
+}
+
+// ---- interactive step engine ----
+function renderVizSteps(){
+  const els=document.querySelectorAll('#vizTrace .tstep');
+  els.forEach((el,i)=>{
+    el.classList.remove('active','done','hidden-step');
+    if(i<vizStepIdx) el.classList.add('done');
+    else if(i===vizStepIdx){
+      el.classList.add('active');
+      el.style.animation='none'; void el.offsetWidth; el.style.animation='';
+    } else el.classList.add('hidden-step');
+  });
+  const last=vizStepIdx===vizStepN-1;
+  const cc=$('stepCount'); if(cc) cc.innerHTML='Step <b>'+(vizStepIdx+1)+'</b> / '+vizStepN;
+  const nb=$('stepNextBtn'); if(nb){ nb.disabled=last; nb.textContent=last?'✓ Output reached':(vizStepIdx===vizStepN-2?'View Output ▶':'Next Step ▶'); }
+  const pb=$('stepPrevBtn'); if(pb) pb.disabled=vizStepIdx===0;
+  const act=els[vizStepIdx]; if(act) act.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+function vizNext(){ if(vizStepIdx<vizStepN-1){ vizStepIdx++; renderVizSteps(); } if(vizStepIdx===vizStepN-1) vizStopAuto(); }
+function vizPrev(){ if(vizStepIdx>0){ vizStopAuto(); vizStepIdx--; renderVizSteps(); } }
+function vizStepClick(i){ if(i===vizStepIdx){ vizNext(); } else { vizStopAuto(); vizStepIdx=i; renderVizSteps(); } }
+function vizStopAuto(){ if(vizAutoId){ clearInterval(vizAutoId); vizAutoId=null; } const b=$('stepPlayBtn'); if(b){ b.classList.remove('on'); b.textContent=(vizStepIdx===vizStepN-1?'▶ Replay':'▶ Auto-run'); } }
+function vizPlay(){
+  if(vizAutoId){ vizStopAuto(); return; }
+  if(vizStepIdx===vizStepN-1){ vizStepIdx=0; renderVizSteps(); }
+  const b=$('stepPlayBtn'); b.classList.add('on'); b.textContent='❚❚ Pause';
+  vizAutoId=setInterval(()=>{
+    if(vizStepIdx>=vizStepN-1){ vizStopAuto(); return; }
+    vizStepIdx++; renderVizSteps();
+  },1600);
 }
 
 function closeViz(){
+  vizStopAuto();
   $('vizOverlay').classList.remove('show');
   document.body.style.overflow='';
 }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('vizOverlay').classList.contains('show'))closeViz(); });
+document.addEventListener('keydown',e=>{
+  if(!$('vizOverlay').classList.contains('show')) return;
+  if(e.key==='Escape') closeViz();
+  else if(e.key==='ArrowRight'||e.key===' '){ e.preventDefault(); vizNext(); }
+  else if(e.key==='ArrowLeft') vizPrev();
+});
 
 function rankFor(pct){
   if(pct>=90)return['ORACLE ARCHITECT','var(--green)','rgba(34,211,165,0.12)'];
