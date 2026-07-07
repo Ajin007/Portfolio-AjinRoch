@@ -100,7 +100,8 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
 .opt.dim{opacity:.42}
 
 /* ---------- Hint ---------- */
-.toolrow{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+.toolrow{display:flex;justify-content:flex-start;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+.toolrow #worthLbl{margin-left:auto}
 .ghostbtn{background:transparent;border:none;cursor:pointer;font:800 11px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);padding:9px 16px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.09);transition:all .15s}
 .ghostbtn:hover:not(:disabled){color:var(--yellow);box-shadow:inset 0 0 0 1px rgba(245,197,66,0.4)}
 .ghostbtn:disabled{opacity:.4;cursor:default}
@@ -161,6 +162,65 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
 .rv.open .ra{display:block}
 .rv .ra b{color:var(--green)}
 .hidden{display:none}
+
+/* ---------- Code Walkthrough button ---------- */
+.vizbtn{background:linear-gradient(135deg,var(--purple),#7C3AED);border:none;cursor:pointer;font:800 11px var(--font);letter-spacing:.09em;text-transform:uppercase;color:#fff;padding:9px 18px;border-radius:99px;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,box-shadow .15s;box-shadow:0 4px 16px -6px rgba(168,85,247,.7)}
+.vizbtn:hover{transform:translateY(-1px);box-shadow:0 8px 22px -6px rgba(168,85,247,.85)}
+.vizbtn:focus-visible{outline:2px solid var(--purple);outline-offset:3px}
+.vizbtn .g{font-size:14px;line-height:1}
+
+/* ---------- Visualizer modal ---------- */
+.vizoverlay{position:fixed;inset:0;z-index:100;background:rgba(6,8,13,0.74);backdrop-filter:blur(6px);display:none;opacity:0;transition:opacity .25s}
+.vizoverlay.show{display:flex;opacity:1}
+.vizpanel{margin:auto;width:min(860px,94vw);max-height:92vh;overflow-y:auto;background:linear-gradient(180deg,var(--bg-secondary),var(--bg-primary));border-radius:20px;box-shadow:0 30px 80px -20px rgba(0,0,0,.8),inset 0 0 0 1px rgba(255,255,255,0.06);transform:translateY(18px) scale(.98);transition:transform .28s ease;position:relative}
+.vizoverlay.show .vizpanel{transform:translateY(0) scale(1)}
+.vizhead{position:sticky;top:0;z-index:2;display:flex;align-items:center;gap:12px;padding:18px 22px;background:rgba(15,17,23,0.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,0.06);border-radius:20px 20px 0 0}
+.vizhead .vic{width:34px;height:34px;flex:none;border-radius:10px;background:rgba(168,85,247,.16);color:var(--purple);display:flex;align-items:center;justify-content:center;font-size:17px}
+.vizhead .vt{font:900 15px var(--font);letter-spacing:-.01em}
+.vizhead .vs{font:600 11px var(--mono);color:var(--text-muted);margin-top:2px}
+.vizclose{margin-left:auto;flex:none;width:34px;height:34px;border-radius:10px;border:none;cursor:pointer;background:var(--bg-surface-hi);color:var(--text-secondary);font-size:18px;transition:.15s}
+.vizclose:hover{background:var(--bg-4);color:var(--text-primary)}
+.vizclose:focus-visible{outline:2px solid var(--purple);outline-offset:2px}
+.vizbody{padding:6px 22px 26px}
+.vizsec{margin-top:22px}
+.vizsec .sl{font:800 10px var(--font);letter-spacing:.14em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.vizsec .sl::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,0.08),transparent)}
+.objrow{display:flex;flex-wrap:wrap;gap:8px}
+.objtag{font:800 10px var(--font);letter-spacing:.05em;padding:5px 12px;border-radius:99px;background:rgba(3,37,189,0.14);color:var(--at)}
+.objtag.obj{background:rgba(168,85,247,0.12);color:var(--purple)}
+.objtag.sub{background:var(--bg-surface-hi);color:var(--text-secondary);font-family:var(--mono);font-weight:600;letter-spacing:0}
+.vizcode{background:var(--bg-primary);border-radius:12px;padding:16px 18px;font:400 12.5px/1.65 var(--mono);color:#C9D1E8;white-space:pre;overflow-x:auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06)}
+.vizcode .cq{color:var(--text-muted);font-style:italic}
+
+/* execution trace timeline */
+.trace{position:relative;padding-left:4px}
+.tstep{display:flex;gap:14px;padding-bottom:16px;position:relative;opacity:0;transform:translateX(-8px)}
+.trace.play .tstep{animation:traceIn .4s ease forwards}
+@keyframes traceIn{to{opacity:1;transform:translateX(0)}}
+.tstep:last-child{padding-bottom:0}
+.tstep .tn{flex:none;width:26px;height:26px;border-radius:99px;background:rgba(3,37,189,0.16);color:var(--at);font:800 12px/26px var(--font);text-align:center;position:relative;z-index:1}
+.tstep:not(:last-child)::before{content:'';position:absolute;left:12.5px;top:26px;bottom:0;width:1.5px;background:linear-gradient(180deg,rgba(3,37,189,0.4),rgba(3,37,189,0.08))}
+.tstep .tx{font:500 13.5px/1.6 var(--font);color:var(--text-secondary);padding-top:3px}
+.tstep.final .tn{background:rgba(34,211,165,0.18);color:var(--green)}
+.tstep.final .tx{color:var(--text-primary);font-weight:700}
+
+/* option matrix */
+.optmatrix{display:flex;flex-direction:column;gap:10px}
+.omc{display:flex;gap:13px;align-items:flex-start;border-radius:12px;padding:13px 15px;background:var(--bg-surface);position:relative;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05)}
+.omc.right{background:rgba(34,211,165,0.08);box-shadow:inset 0 0 0 1.5px rgba(34,211,165,0.4)}
+.omc.wrongopt{background:rgba(239,68,68,0.05);box-shadow:inset 0 0 0 1px rgba(239,68,68,0.22)}
+.omc .ok{flex:none;width:24px;height:24px;border-radius:7px;font:800 11px/24px var(--font);text-align:center}
+.omc.right .ok{background:rgba(34,211,165,0.2);color:var(--green)}
+.omc.wrongopt .ok{background:rgba(239,68,68,0.15);color:var(--red)}
+.omc .ob{flex:1}
+.omc .otxt{font:400 12.5px/1.5 var(--mono);color:var(--text-primary);white-space:pre-wrap;word-break:break-word}
+.omc .otag{display:inline-block;margin-top:7px;font:800 9px var(--font);letter-spacing:.09em;text-transform:uppercase;padding:3px 9px;border-radius:99px}
+.omc.right .otag{background:rgba(34,211,165,0.16);color:var(--green)}
+.omc.wrongopt .otag{background:rgba(239,68,68,0.12);color:var(--red)}
+.vizexp{background:rgba(34,211,165,0.06);border-radius:12px;padding:14px 16px;font:400 13.5px/1.7 var(--font);color:var(--text-secondary);box-shadow:inset 0 0 0 1px rgba(34,211,165,0.2)}
+.vizexp strong{color:var(--green)}
+@media(max-width:700px){.vizbody{padding:6px 16px 22px}.vizhead{padding:16px}}
+
 .statusbar{position:fixed;left:0;right:0;bottom:0;height:26px;background:rgba(11,13,18,0.96);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font:400 10px var(--mono);color:var(--text-muted);z-index:50}
 .statusbar .sdot{width:6px;height:6px;border-radius:99px;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-right:6px;animation:blink 2.5s infinite}
 @media(max-width:700px){
@@ -227,6 +287,7 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
       <div class="opts" id="opts"></div>
       <div class="toolrow" id="toolRow">
         <button class="ghostbtn" id="hintBtn" onclick="showHint()">◈ Reveal Hint · −50% XP</button>
+        <button class="vizbtn" id="vizBtn" onclick="openViz()"><span class="g">⟐</span> Code Walkthrough</button>
         <span style="font:600 10px var(--mono);color:var(--text-muted)" id="worthLbl"></span>
       </div>
       <div class="hintbox" id="hintBox">
@@ -252,6 +313,21 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
 
   <!-- END -->
   <div id="endScreen" class="card hero hidden"></div>
+</div>
+
+<!-- CODE WALKTHROUGH VISUALIZER -->
+<div class="vizoverlay" id="vizOverlay" role="dialog" aria-modal="true" aria-labelledby="vizTitle" onclick="if(event.target===this)closeViz()">
+  <div class="vizpanel">
+    <div class="vizhead">
+      <div class="vic">⟐</div>
+      <div>
+        <div class="vt" id="vizTitle">Code Walkthrough</div>
+        <div class="vs" id="vizSub"></div>
+      </div>
+      <button class="vizclose" onclick="closeViz()" aria-label="Close walkthrough">✕</button>
+    </div>
+    <div class="vizbody" id="vizBody"></div>
+  </div>
 </div>
 
 <div class="statusbar">
@@ -389,6 +465,88 @@ function showAnswered(fresh){
   $('fbExp').innerHTML='<strong>Why:</strong> '+esc(q.explanation);
 }
 
+/* ---------- Code Walkthrough Visualizer ---------- */
+const OBJ_MAP={
+  'Streams/Lambda':'Working with Streams & Lambda Expressions',
+  'JPMS':'Packaging & Deploying Java Code · JPMS',
+  'Collections/Generics':'Working with Arrays & Collections',
+  'Exceptions':'Handling Exceptions',
+  'OOP / Interfaces':'Utilizing the Java Object-Oriented Approach',
+  'Records':'Utilizing the Java Object-Oriented Approach · Records',
+  'Sealed Classes':'Utilizing the Java Object-Oriented Approach · Sealed Types',
+  'Pattern Matching':'Utilizing the Java Object-Oriented Approach · Pattern Matching',
+  'Switch / Flow':'Controlling Program Flow',
+  'Enums':'Utilizing the Java Object-Oriented Approach · Enums',
+  'Data Types / Flow':'Handling Numeric, Text & Boolean Values',
+  'Strings':'Handling Numeric, Text & Boolean Values · Strings',
+  'Localization / Date-Time':'Implementing Localization & Date/Time',
+  'I/O & NIO.2':'Using the Java I/O API',
+  'JDBC':'Accessing Databases with JDBC',
+  'Concurrency':'Managing Concurrent Code Execution'
+};
+
+// split an explanation into ordered reasoning steps (never splits on decimals / i.e. / e.g.)
+function toSteps(text){
+  const parts=text.split(/(?<=[.])\s+(?=[A-Z0-9])/).map(s=>s.trim()).filter(Boolean);
+  return parts.length?parts:[text];
+}
+
+function openViz(i){
+  const qi=(typeof i==='number')?i:idx;
+  const q=QS[qi];
+  $('vizSub').textContent='Q'+String(qi+1).padStart(2,'0')+' · '+q.topic+' — '+q.subtopic;
+  const obj=OBJ_MAP[q.topic]||q.topic;
+  const hasCode=!!q.code;
+  const scenario=hasCode?q.code:(q.intro+(q.outro?('\n\n'+q.outro):''));
+  const steps=toSteps(q.explanation);
+
+  const objHtml=`<div class="objrow">
+    <span class="objtag obj">◈ 1Z0-829 · ${esc(obj)}</span>
+    <span class="objtag">${esc(q.difficulty)} · ${esc(q.bloom)}</span>
+    <span class="objtag sub">${esc(q.subtopic)}</span>
+  </div>`;
+
+  const codeHtml=`<div class="vizcode">${esc(scenario)}</div>`;
+
+  const traceHtml=`<div class="trace" id="vizTrace">`+
+    steps.map((s,i)=>`<div class="tstep${i===steps.length-1?' final':''}"><div class="tn">${i===steps.length-1?'✓':(i+1)}</div><div class="tx">${esc(s)}</div></div>`).join('')+
+    `</div>`;
+
+  const optsHtml=`<div class="optmatrix">`+
+    q.options.map((o,i)=>{
+      const right=i===q.answer;
+      return `<div class="omc ${right?'right':'wrongopt'}">
+        <div class="ok">${KEYS[i]}</div>
+        <div class="ob">
+          <div class="otxt">${esc(o)}</div>
+          <span class="otag">${right?'✓ Observed result · correct':'✕ Distractor · not what runs'}</span>
+        </div>
+      </div>`;
+    }).join('')+`</div>`;
+
+  $('vizBody').innerHTML=
+    `<div class="vizsec"><div class="sl">Exam Objective</div>${objHtml}</div>`+
+    `<div class="vizsec"><div class="sl">${hasCode?'The Code':'The Scenario'}</div>${codeHtml}</div>`+
+    `<div class="vizsec"><div class="sl">How the Answer Is Derived · Step by Step</div>${traceHtml}</div>`+
+    `<div class="vizsec"><div class="sl">All Options · Correct vs. Distractors</div>${optsHtml}</div>`+
+    `<div class="vizsec"><div class="sl">Bottom Line</div><div class="vizexp"><strong>Correct answer — ${KEYS[q.answer]}:</strong> ${esc(q.options[q.answer].replace(/\n/g,' ⏎ '))}. ${esc(q.explanation)}</div></div>`;
+
+  const ov=$('vizOverlay');
+  ov.classList.add('show');
+  document.body.style.overflow='hidden';
+  // animate the trace steps in sequence
+  const tr=$('vizTrace');
+  tr.querySelectorAll('.tstep').forEach((el,i)=>{el.style.animationDelay=(i*140)+'ms';});
+  requestAnimationFrame(()=>tr.classList.add('play'));
+  $('vizBody').scrollTop=0;
+}
+
+function closeViz(){
+  $('vizOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',e=>{ if(e.key==='Escape'&&$('vizOverlay').classList.contains('show'))closeViz(); });
+
 function rankFor(pct){
   if(pct>=90)return['ORACLE ARCHITECT','var(--green)','rgba(34,211,165,0.12)'];
   if(pct>=75)return['CERTIFICATION READY','var(--at)','rgba(3,37,189,0.14)'];
@@ -418,7 +576,9 @@ function finish(){
     rev='<div class="review"><h3>Review · '+wrongL.length+' to master (tap to expand)</h3>'+
       wrongL.map(w=>`<div class="rv" onclick="this.classList.toggle('open')">
         <div class="rq">Q${w.i+1} · ${esc(w.q.subtopic)}</div>
-        <div class="ra"><b>Answer: ${KEYS[w.q.answer]}</b> — ${esc(w.q.explanation)}</div>
+        <div class="ra"><b>Answer: ${KEYS[w.q.answer]}</b> — ${esc(w.q.explanation)}
+          <div style="margin-top:10px"><button class="vizbtn" onclick="event.stopPropagation();openViz(${w.i})"><span class="g">⟐</span> Code Walkthrough</button></div>
+        </div>
       </div>`).join('')+'</div>';
   }
   $('endScreen').innerHTML=`
