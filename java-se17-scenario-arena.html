@@ -200,9 +200,13 @@ body{font-family:var(--font);background:var(--bg-primary);color:var(--text-prima
 .tstep:last-child{padding-bottom:0}
 .tstep .tn{flex:none;width:26px;height:26px;border-radius:99px;background:rgba(3,37,189,0.16);color:var(--at);font:800 12px/26px var(--font);text-align:center;position:relative;z-index:1}
 .tstep:not(:last-child)::before{content:'';position:absolute;left:12.5px;top:26px;bottom:0;width:1.5px;background:linear-gradient(180deg,rgba(3,37,189,0.4),rgba(3,37,189,0.08))}
-.tstep .tx{font:500 13.5px/1.6 var(--font);color:var(--text-secondary);padding-top:3px}
+.tstep .tx{flex:1;padding-top:2px;min-width:0}
+.tcode{display:block;font:600 12px/1.55 var(--mono);color:#C9D1E8;background:var(--bg-primary);border-radius:7px;padding:6px 11px;margin-bottom:7px;white-space:pre-wrap;word-break:break-word;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.06)}
+.tnote{font:500 13px/1.6 var(--font);color:var(--text-secondary)}
 .tstep.final .tn{background:rgba(34,211,165,0.18);color:var(--green)}
-.tstep.final .tx{color:var(--text-primary);font-weight:700}
+.tstep.final .tcode{color:#EAFFF6;box-shadow:inset 0 0 0 1px rgba(34,211,165,0.3)}
+.tstep.final .tnote{color:var(--text-primary);font-weight:700}
+.tstep.final .tnote::before{content:'▶ OUTPUT · ';font-family:var(--mono);font-weight:700;font-size:10px;letter-spacing:.06em;color:var(--green)}
 
 /* option matrix */
 .optmatrix{display:flex;flex-direction:column;gap:10px}
@@ -485,6 +489,188 @@ const OBJ_MAP={
   'Concurrency':'Managing Concurrent Code Execution'
 };
 
+// Per-question line-by-line execution trace: {s: code/operation, r: resulting state / output}
+// Last step is rendered as the OUTPUT. Questions without a trace fall back to the explanation.
+const TRACE={
+0:[{s:`Collectors.groupingBy(Rope::color)`,r:`Groups by the colours actually present → keys RED, BLUE (GREEN never appears) → map1.size() = 2`},
+{s:`Collectors.groupingBy(Rope::length)`,r:`Groups by length → keys 100, 200, 300 → map2.size() = 3`},
+{s:`Collectors.teeing(byColor, byLength, Group::new)`,r:`teeing feeds every element to BOTH collectors, then merges results into Group(map1, map2)`},
+{s:`result.map1().size() + result.map2().size()`,r:`5`}],
+1:[{s:`employees = [ {Jack,10000}, {Lucy,12000} ]`,r:`Stream source of two MUTABLE Employee objects`},
+{s:`.peek(e -> e.setSalary(e.getSalary()+1000))`,r:`Intermediate op runs per element as it flows — mutating each object BEFORE forEach sees it`},
+{s:`forEach → Jack`,r:`peek raised Jack to 11000.0, then it is printed`},
+{s:`forEach → Lucy`,r:`{Jack, 11000.0}\n{Lucy, 13000.0}`}],
+2:[{s:`list = [Z, Y, X]`,r:`Backing ArrayList`},
+{s:`list.stream().sorted().findFirst().get()`,r:`Builds a NEW sorted pipeline [X,Y,Z] and returns "X"; the source list is never mutated`},
+{s:`list.get(2)`,r:`X`}],
+3:[{s:`IntStream.range(10, 1)`,r:`range(start,end) counts UP from start(incl) to end(excl); since 10 ≥ 1 the range is empty — it never counts downward`},
+{s:`.count()`,r:`0`}],
+4:[{s:`extractor = curr -> curr.unit()`,r:`Extracts the int unit`},
+{s:`operator = i -> i % 100`,r:`Reduces a value modulo 100`},
+{s:`extractor.andThen(operator)`,r:`andThen = extractor FIRST, then operator → 8921→21, 99→99, 17689→89`},
+{s:`.reduce(0, (a,b) -> a+b)`,r:`21 + 99 + 89 = 209`}],
+5:[{s:`Goal: print which modules are resolved and why, at startup`,r:`Need the launcher flag that logs the resolution trace`},
+{s:`--list-modules`,r:`Only lists observable modules + versions — NOT the resolution trace`},
+{s:`--module-resolution / --list-module-resolution / --display-module-resolution`,r:`None of these are valid java flags`},
+{s:`--show-module-resolution`,r:`Prints the full module-resolution trace ✓`}],
+6:[{s:`class Student overrides equals() but NOT hashCode()`,r:`A HashSet buckets elements by hashCode FIRST, then uses equals() only within a bucket`},
+{s:`add(new Student("Bill",25))`,r:`Stored using its default (identity) hashCode`},
+{s:`add(new Student("Bill",25)) // logically equal`,r:`Different identity hashCode → different bucket → equals() is never consulted → stored again`},
+{s:`add(new Student("Bill",26))`,r:`A third distinct element`},
+{s:`students.size()`,r:`3`}],
+7:[{s:`list = [P, O, T]`,r:``},
+{s:`subList(1, 2)`,r:`Returns a VIEW over index 1 only → [O], backed by the original list`},
+{s:`subList.set(0, "E")`,r:`Writes THROUGH the view to the backing list → list becomes [P, E, T]`},
+{s:`String.join("", list)`,r:`PET`}],
+8:[{s:`for(String f : dryFruits)`,r:`Enhanced-for uses the ArrayList fail-fast iterator`},
+{s:`dryFruits.remove(f) // on "Apricot"`,r:`Removes directly on the LIST (not the iterator) → modCount changes`},
+{s:`next loop → iterator.next()`,r:`Detects the modCount mismatch → throws ConcurrentModificationException at runtime`}],
+9:[{s:`push(Boolean.valueOf("abc"))`,r:`valueOf is true only for "true" (any case) → false. Stack top→bottom: false`},
+{s:`push(Boolean.valueOf("tRuE"))`,r:`→ true. Stack: true, false`},
+{s:`push(Boolean.valueOf("FALSE"))`,r:`→ false. Stack: false, true, false`},
+{s:`push(true)`,r:`Stack: true, false, true, false (4 items; push adds to the head)`},
+{s:`pop() + ":" + peek() + ":" + size()`,r:`true:false:3`}],
+10:[{s:`list = [T, S, R, I, F]`,r:``},
+{s:`list.listIterator(5)`,r:`Cursor placed AFTER the last element; index 5 == size() is the highest legal start → no exception`},
+{s:`while(hasPrevious()) print(previous())`,r:`Walks backward: F, I, R, S, T`},
+{s:`console`,r:`FIRST`}],
+11:[{s:`Boolean[] arr = new Boolean[2]`,r:`Boolean is a REFERENCE (wrapper) type; new reference-array slots default to null (not false)`},
+{s:`arr[0] + ":" + arr[1]`,r:`Concatenation turns each null reference into the text "null" (no unboxing → no NPE)`},
+{s:`console`,r:`null:null`}],
+12:[{s:`catch(NullPointerException | RuntimeException ex)`,r:`Multi-catch alternatives must be DISJOINT — none may be a subclass of another`},
+{s:`NullPointerException extends RuntimeException`,r:`They overlap → the multi-catch is illegal`},
+{s:`javac`,r:`Compilation error — types in multi-catch must be disjoint`}],
+13:[{s:`check(): throw new RuntimeException()`,r:`A plain RuntimeException is thrown`},
+{s:`catch(RuntimeException e) → println(1)`,r:`Prints 1`},
+{s:`(ArithmeticException) e`,r:`Actual object is only a RuntimeException → the downcast fails → ClassCastException thrown here, so "2" never prints`},
+{s:`propagates to main → e.getClass().getName()`,r:`1\njava.lang.ClassCastException`}],
+14:[{s:`Student::compareByAge`,r:`Static-method reference matching Comparator<Student>, comparing by ascending age`},
+{s:`ages = [25, 21, 23]`,r:`Arrays.asList is fixed-size but reorderable in place → Collections.sort works (no exception)`},
+{s:`sort ascending by age`,r:`[Student (lucy, 21), Student (ivy, 23), Student (john, 25)]`}],
+15:[{s:`interface Parent { ...; String toString(); }`,r:`Re-declaring an Object method (toString) does NOT count as a functional abstract method`},
+{s:`interface Child extends Parent { void play(); }`,r:`Adds exactly ONE real abstract method → Child is a valid functional interface`},
+{s:`Child child = () -> println("PLAYING CRICKET ... ")`,r:`Lambda legally supplies play()`},
+{s:`child.play()`,r:`PLAYING CRICKET ...`}],
+16:[{s:`class Animal { Animal(String name){...} }`,r:`Only a 1-arg constructor exists → Animal has NO implicit no-arg constructor`},
+{s:`Dog(String breed){ this.breed = breed; }`,r:`No explicit super(...) → compiler inserts super() — but Animal() does not exist`},
+{s:`Dog(String name, String breed){ super(name); ... }`,r:`Fine — it calls super(name) explicitly`},
+{s:`javac`,r:`Compilation error for the Dog(String) constructor`}],
+17:[{s:`Creator<String,Log> obj = Log::new`,r:`Constructor reference bound to Log(String); matches create(String) → Log`},
+{s:`obj.create(...) is never called`,r:`Assigning a constructor reference does NOT invoke any constructor`},
+{s:`run`,r:`Compiles & runs — no output`}],
+18:[{s:`class Outer { interface I1 { void m1(); } }`,r:`A class may contain a nested (member) interface`},
+{s:`nested interfaces are implicitly static`,r:`This is a normal, legal construct`},
+{s:`javac`,r:`Yes — it compiles successfully`}],
+19:[{s:`class Printer {} // no toString() override`,r:`Inherits Object.toString()`},
+{s:`println(printer)`,r:`Object.toString() = getClass().getName() + "@" + Integer.toHexString(hashCode())`},
+{s:`console`,r:`Text containing "@", e.g. Printer@1b6d3586`}],
+20:[{s:`record Calculator(int num) { ... }  // local record`,r:`Local records are implicitly STATIC`},
+{s:`int calc(){ return num * x; }`,r:`A static nested type cannot capture the enclosing method's local variable x — even though x is final`},
+{s:`javac`,r:`Compilation error at Line n2 (cannot reference x)`}],
+21:[{s:`Negate(5).calc() = -5,  Negate(10).calc() = -10`,r:`Negate returns -value`},
+{s:`Multiply(-5, -10).calc()`,r:`-5 * -10 = 50`},
+{s:`Add(Negate(25), Negate(25)).calc()`,r:`-25 + -25 = -50`},
+{s:`outer Add(50, -50).calc()`,r:`0`}],
+22:[{s:`record D() extends A`,r:`A record ALWAYS implicitly extends java.lang.Record`},
+{s:`explicit extends clause on a record`,r:`Not permitted — a record may implement an interface but never extend a class`},
+{s:`javac`,r:`Compilation error at Line n4`}],
+23:[{s:`1) Same module (in a named-module app)`,r:`Sealed type + permitted subtypes must share the module ✓`},
+{s:`2) Same package (in an unnamed module)`,r:`They must share the package ✓`},
+{s:`3) Direct extension`,r:`Each permitted subtype must DIRECTLY extend/implement the sealed type ✓`},
+{s:`4) Exactly one of final | sealed | non-sealed`,r:`Each permitted subtype must pick one modifier ✓`},
+{s:`count correct`,r:`All four statements are correct`}],
+24:[{s:`if(obj instanceof String str && str.length() > 2)`,r:`With &&, str is definitely assigned on the right side → Line n1 compiles`},
+{s:`if(obj instanceof int[] a || a.length > 2)`,r:`With ||, a.length is evaluated exactly WHEN the pattern is false → a was NOT bound`},
+{s:`javac`,r:`Compilation error at Line n2 (a is not definitely assigned)`}],
+25:[{s:`x = 20; arrow-label switch STATEMENT`,r:`Arrow labels never fall through — only the matching arm runs`},
+{s:`case 20 -> a *= 3`,r:`Only this arm executes: 5 * 3`},
+{s:`println(a)`,r:`15`}],
+26:[{s:`switch(score) // int selector`,r:`Each case label must be a compile-time CONSTANT of the selector type`},
+{s:`case score < 70:  /  case score >= 70:`,r:`These are boolean expressions, not constants`},
+{s:`javac`,r:`Compilation error`}],
+27:[{s:`furniture = "Sofa"; colon-label switch`,r:`Colon labels fall through until a break`},
+{s:`matches case "Sofa"`,r:`Prints SOFA`},
+{s:`falls through to case "Bed"`,r:`Prints BED, then break stops (default & earlier cases skipped)`},
+{s:`console`,r:`SOFA\nBED`}],
+28:[{s:`enum Flags { TRUE; Flags(){ println("HELLO"); } }`,r:`Each enum constant is ONE object, created once when the enum type initializes`},
+{s:`f1 = f2 = f3 = Flags.TRUE`,r:`Constructor already ran once; referencing TRUE again creates nothing`},
+{s:`console`,r:`HELLO printed once`}],
+29:[{s:`if(price>100000){model=...} else if(price<=100000){model=...}`,r:`No final else → the compiler cannot PROVE model is assigned on every path`},
+{s:`println(model)`,r:`Definite-assignment analysis fails`},
+{s:`javac`,r:`Compilation error — variable model might not have been initialized`}],
+30:[{s:`num = 10`,r:``},
+{s:`left  num++`,r:`Yields 10 (value before increment); num becomes 11`},
+{s:`right num++`,r:`Yields 11; num becomes 12`},
+{s:`10 == 11 ?`,r:`false → else branch runs`},
+{s:`println("NOT EQUAL " + num)`,r:`NOT EQUAL 12`}],
+31:[{s:`private int i = 100;  // inside main()`,r:`Access modifiers (private/public/protected) cannot be applied to LOCAL variables`},
+{s:`only 'final' is legal on a local`,r:`This is illegal syntax`},
+{s:`javac`,r:`Compilation error`}],
+32:[{s:`char c1 = 'a'`,r:`char is a 16-bit unsigned integral type; code point of 'a' is 97`},
+{s:`int i1 = c1`,r:`Widening primitive conversion char → int happens implicitly`},
+{s:`println(i1)`,r:`97`}],
+33:[{s:`sb = "INHALE "`,r:``},
+{s:`sb.toString()`,r:`Evaluated first → captures "INHALE "`},
+{s:`sb.append("EXHALE ")`,r:`Mutates the builder to "INHALE EXHALE " and returns the SAME builder`},
+{s:`"INHALE " + builder`,r:`"INHALE " + "INHALE EXHALE " = "INHALE INHALE EXHALE "`},
+{s:`.strip().length()`,r:`20`}],
+34:[{s:`str = " "  // single space`,r:``},
+{s:`str.isEmpty()`,r:`length is 1, not 0 → false`},
+{s:`str.isBlank()`,r:`only whitespace → true → Line n1 prints "false : true"`},
+{s:`str.strip()`,r:`Returns a NEW string but result is discarded; String is immutable → str unchanged`},
+{s:`re-check b1/b2 → Line n3`,r:`false : true  (both printed lines identical)`}],
+35:[{s:`opr1.andThen(opr2).compose(opr3)`,r:`Builds a NEW composed function — but it is never stored or applied → Line n1 has no effect`},
+{s:`opr1.apply("amar")`,r:`Only opr1 runs: prints 1, returns "AMAR"`},
+{s:`println(...)`,r:`1AMAR`}],
+36:[{s:`Period.of(0, 1000, 0)`,r:`of(years, months, days); Period does NOT normalize 1000 months into years`},
+{s:`toString()`,r:`"P" + only the non-zero fields (years 0 & days 0 omitted)`},
+{s:`console`,r:`P1000M`}],
+37:[{s:`Period.between(start, end) = end − start`,r:`But it is called as between(endDate = Mar 11, startDate = Mar 1)`},
+{s:`Mar 1 − Mar 11`,r:`= −10 days`},
+{s:`toString()`,r:`P-10D`}],
+38:[{s:`Files.readAllLines("Spell.txt").toArray()`,r:`In file order → args[0]="WINGARDIUM LEVIOSA", args[1]="EXPELLIARMUS"`},
+{s:`pattern "First cast {1} and then {0}."`,r:`{1} = EXPELLIARMUS, {0} = WINGARDIUM LEVIOSA`},
+{s:`mf.format(args)`,r:`First cast EXPELLIARMUS and then WINGARDIUM LEVIOSA.`}],
+39:[{s:`date = LocalDate.of(1987, 9, 1)`,r:`Has date fields only — no time-of-day`},
+{s:`date.format(DateTimeFormatter.ISO_DATE_TIME)`,r:`ISO_DATE_TIME requires HOUR/MINUTE/SECOND fields, which a LocalDate lacks`},
+{s:`runtime`,r:`Runtime exception — UnsupportedTemporalTypeException (Unsupported field: HourOfDay)`}],
+40:[{s:`Files.list(Paths.get(user.home))`,r:`Returns a Stream of entries located DIRECTLY inside the directory`},
+{s:`entries include files AND sub-directories`,r:`But it does not descend into them — non-recursive (Files.walk() would recurse)`},
+{s:`forEach(println)`,r:`Only the directories and files directly under HOME are printed`}],
+41:[{s:`try(oos = new ObjectOutputStream(...); ois = new ObjectInputStream(...))`,r:`Both are created in the try header → ois is constructed BEFORE anything is written`},
+{s:`new ObjectInputStream(new FileInputStream("data.ser"))`,r:`The constructor immediately tries to read the stream header from the empty, new file`},
+{s:`no header present`,r:`Runtime exception — EOFException (write/read logic never runs)`}],
+42:[{s:`setInt(1,101); setObject(3,"Smith"); setString(2,"John"); setDouble(4,12000.0)`,r:`The ORDER of setXxx calls doesn't matter — only the parameter index does`},
+{s:`setObject(3, "Smith")`,r:`A valid way to bind the 3rd parameter`},
+{s:`executeUpdate()`,r:`All four params bound → exactly one row is inserted`}],
+43:[{s:`stmt(TYPE_SCROLL_INSENSITIVE, CONCUR_UPDATABLE)`,r:`Scrollable, updatable ResultSet`},
+{s:`rs.moveToInsertRow()`,r:`Cursor moves to the special INSERT row (only for building a new row via updateXxx + insertRow())`},
+{s:`rs.updateInt/updateString(...)`,r:`Populates the insert row`},
+{s:`rs.deleteRow()`,r:`Illegal on the insert row — there is no real row to delete → SQLException thrown here`}],
+44:[{s:`Q: from which JDBC version are class-path drivers auto-loaded?`,r:``},
+{s:`JDBC 4.0 added the ServiceLoader mechanism`,r:`META-INF/services/java.sql.Driver auto-registers any compliant driver`},
+{s:`Class.forName() no longer required`,r:`Older (< 4.0) drivers still need manual loading → answer: JDBC 4 and later`}],
+45:[{s:`es.submit(new Caller("Call"))`,r:`call() runs on the worker thread`},
+{s:`str.toUpperCase() → println`,r:`Prints CALL`},
+{s:`call() returns null; future.get()`,r:`Returns null → println prints "null"`},
+{s:`es.shutdown() is never called`,r:`Prints CALL then null, but the non-daemon worker keeps the JVM alive → program does NOT terminate`}],
+46:[{s:`static synchronized Util get()`,r:`The null-check-and-create is ATOMIC across threads`},
+{s:`first caller: obj == null → new Util()`,r:`Constructor runs once → ++ctr makes ctr = 1`},
+{s:`all later callers`,r:`obj already set → return the same object; constructor never runs again`},
+{s:`after 10,000 parallel calls`,r:`ctr is always 1`}],
+47:[{s:`es.execute(() -> println("HELLO"))`,r:`A no-arg, void lambda matches Runnable`},
+{s:`task runs on the pool's worker thread`,r:`Prints HELLO`},
+{s:`es.shutdown()`,r:`Orderly shutdown still lets the submitted task finish → clean exit. Output: HELLO`}],
+48:[{s:`Dependencies: client.jar → services.jar → database.jar`,r:`Bottom-up starts with the jar that depends on no other app jar`},
+{s:`1) modularize database.jar`,r:`Lowest layer first`},
+{s:`2) modularize services.jar`,r:`Now 'requires' the already-modular database`},
+{s:`3) modularize client.jar`,r:`'requires' the modular services → no automatic-module workarounds needed`}],
+49:[{s:`Need: open EXACTLY two packages for deep reflection`,r:``},
+{s:`open module internal {}`,r:`Opens EVERY package — more than requested`},
+{s:`open <package>;`,r:`Not valid directive syntax`},
+{s:`opens pkg1, pkg2;`,r:`module internal { opens com.skillcertpro.utility, com.skillcertpro.utility.database; }`}]
+};
+
 // split an explanation into ordered reasoning steps (never splits on decimals / i.e. / e.g.)
 function toSteps(text){
   const parts=text.split(/(?<=[.])\s+(?=[A-Z0-9])/).map(s=>s.trim()).filter(Boolean);
@@ -498,7 +684,8 @@ function openViz(i){
   const obj=OBJ_MAP[q.topic]||q.topic;
   const hasCode=!!q.code;
   const scenario=hasCode?q.code:(q.intro+(q.outro?('\n\n'+q.outro):''));
-  const steps=toSteps(q.explanation);
+  const hasTrace=Array.isArray(TRACE[qi])&&TRACE[qi].length;
+  const steps=hasTrace?TRACE[qi]:toSteps(q.explanation).map(t=>({s:'',r:t}));
 
   const objHtml=`<div class="objrow">
     <span class="objtag obj">◈ 1Z0-829 · ${esc(obj)}</span>
@@ -509,7 +696,12 @@ function openViz(i){
   const codeHtml=`<div class="vizcode">${esc(scenario)}</div>`;
 
   const traceHtml=`<div class="trace" id="vizTrace">`+
-    steps.map((s,i)=>`<div class="tstep${i===steps.length-1?' final':''}"><div class="tn">${i===steps.length-1?'✓':(i+1)}</div><div class="tx">${esc(s)}</div></div>`).join('')+
+    steps.map((st,i)=>{
+      const last=i===steps.length-1;
+      return `<div class="tstep${last?' final':''}"><div class="tn">${last?'✓':(i+1)}</div><div class="tx">`+
+        (st.s?`<code class="tcode">${esc(st.s)}</code>`:'')+
+        `<div class="tnote">${esc(st.r)}</div></div></div>`;
+    }).join('')+
     `</div>`;
 
   const optsHtml=`<div class="optmatrix">`+
@@ -527,7 +719,7 @@ function openViz(i){
   $('vizBody').innerHTML=
     `<div class="vizsec"><div class="sl">Exam Objective</div>${objHtml}</div>`+
     `<div class="vizsec"><div class="sl">${hasCode?'The Code':'The Scenario'}</div>${codeHtml}</div>`+
-    `<div class="vizsec"><div class="sl">How the Answer Is Derived · Step by Step</div>${traceHtml}</div>`+
+    `<div class="vizsec"><div class="sl">How the Code Executes · Step by Step</div>${traceHtml}</div>`+
     `<div class="vizsec"><div class="sl">All Options · Correct vs. Distractors</div>${optsHtml}</div>`+
     `<div class="vizsec"><div class="sl">Bottom Line</div><div class="vizexp"><strong>Correct answer — ${KEYS[q.answer]}:</strong> ${esc(q.options[q.answer].replace(/\n/g,' ⏎ '))}. ${esc(q.explanation)}</div></div>`;
 
