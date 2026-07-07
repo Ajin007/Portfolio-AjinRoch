@@ -8,7 +8,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#070B14;--panel:#0D1424;--panel2:#101A30;--line:#1D2A47;--line2:#2A3C64;--ink:#E8EFFA;--mut:#8CA0C2;--dim:#5C6E8F;--blue:#4D9FFF;--purple:#B18CFF;--green:#3DDC97;--gold:#FFD166;--r:16px}
+:root{--bg:#070B14;--panel:#0D1424;--panel2:#101A30;--line:#1D2A47;--line2:#2A3C64;--ink:#E8EFFA;--mut:#8CA0C2;--dim:#5C6E8F;--blue:#4D9FFF;--purple:#B18CFF;--green:#3DDC97;--gold:#FFD166;--oracle:#F80000;--oracle2:#FF5B4A;--r:16px}
 *{margin:0;padding:0;box-sizing:border-box}
 body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:48px 24px;
 background-image:radial-gradient(ellipse 800px 500px at 50% -120px,rgba(77,159,255,.12),transparent 60%),radial-gradient(ellipse 600px 400px at 85% 100%,rgba(177,140,255,.06),transparent 60%)}
@@ -29,6 +29,42 @@ a.card.c1{border-top:2px solid var(--purple)} a.card.c1 .go{color:var(--purple)}
 a.card.c2{border-top:2px solid var(--green)} a.card.c2 .go{color:var(--green)}
 a.card .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
 a.card .tags span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.06em;color:var(--dim);border:1px solid var(--line);border-radius:99px;padding:3px 9px}
+/* ── Oracle University ── */
+.oracle{margin-top:24px;max-width:1080px;width:100%}
+.oracle-card{background:linear-gradient(180deg,var(--panel),var(--panel2));border:1px solid var(--line);border-top:2px solid var(--oracle);border-radius:var(--r);overflow:hidden}
+.oracle-head{display:flex;align-items:center;gap:20px;padding:26px 28px;flex-wrap:wrap}
+.oracle-badge{width:52px;height:52px;flex:none;border-radius:13px;background:radial-gradient(circle at 30% 25%,rgba(255,91,74,.35),transparent 70%),#150a0a;border:1px solid rgba(248,0,0,.35);display:flex;align-items:center;justify-content:center;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:22px;color:var(--oracle2)}
+.oracle-meta{flex:1;min-width:200px}
+.oracle-meta .num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.18em}
+.oracle-meta h2{font-family:'Space Grotesk',sans-serif;font-size:21px;margin:6px 0 5px}
+.oracle-meta p{color:var(--mut);font-size:13px;line-height:1.55;max-width:560px}
+.oracle-toggle{flex:none;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.1em;color:var(--bg);background:linear-gradient(180deg,var(--oracle2),var(--oracle));border:none;border-radius:99px;padding:12px 22px;display:inline-flex;align-items:center;gap:9px;transition:.18s;box-shadow:0 6px 20px -8px rgba(248,0,0,.7)}
+.oracle-toggle:hover{transform:translateY(-2px);box-shadow:0 10px 26px -8px rgba(248,0,0,.85)}
+.oracle-toggle:focus-visible{outline:2px solid var(--oracle2);outline-offset:3px}
+.oracle-toggle .chev{transition:transform .3s}
+.oracle-card.open .oracle-toggle .chev{transform:rotate(180deg)}
+.sem-wrap{display:grid;grid-template-rows:0fr;transition:grid-template-rows .4s ease}
+.oracle-card.open .sem-wrap{grid-template-rows:1fr}
+.sem-inner{overflow:hidden;min-height:0}
+.sem-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:4px 28px 28px}
+.sem{display:flex;flex-direction:column;text-decoration:none;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 16px 15px;transition:.16s;position:relative;opacity:0;transform:translateY(8px)}
+.oracle-card.open .sem{animation:semIn .45s ease forwards}
+@keyframes semIn{to{opacity:1;transform:translateY(0)}}
+.sem .s-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--dim)}
+.sem .s-title{font-family:'Space Grotesk',sans-serif;font-size:14.5px;font-weight:600;margin:8px 0 4px;line-height:1.25}
+.sem .s-state{margin-top:auto;padding-top:12px;font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.08em;color:var(--dim)}
+.sem.live{border-color:rgba(61,220,151,.5);background:linear-gradient(180deg,rgba(61,220,151,.08),var(--bg));cursor:pointer}
+.sem.live:hover{transform:translateY(-3px);border-color:var(--green)}
+.sem.live .s-state{color:var(--green);display:inline-flex;align-items:center;gap:6px}
+.sem.live .s-title{color:#eafff5}
+.sem.live .s-num{color:var(--green)}
+.sem.live::after{content:"→";position:absolute;top:14px;right:15px;color:var(--green);font-size:16px;opacity:0;transition:.16s}
+.sem.live:hover::after{opacity:1;transform:translateX(3px)}
+.sem.soon{cursor:default}
+.sem.soon:hover{border-color:var(--line2)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
+@media(max-width:920px){.sem-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.sem-grid{grid-template-columns:1fr}}
 footer{margin-top:52px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
 footer .social{display:flex;gap:16px}
 footer a{color:var(--mut);text-decoration:none;letter-spacing:.06em}
@@ -64,6 +100,54 @@ footer a:hover{color:var(--blue)}
     <div class="go">OPEN BLUEPRINT →</div>
   </a>
 </div>
+
+<section class="oracle">
+  <div class="oracle-card" id="oracleCard">
+    <div class="oracle-head">
+      <div class="oracle-badge">O</div>
+      <div class="oracle-meta">
+        <div class="num">PROGRAM 03</div>
+        <h2>Oracle University</h2>
+        <p>A structured 7-semester Oracle Cloud &amp; Java learning track — from SQL foundations to Enterprise AI on the cloud. Semester 4 links to my live Java SE 17 Scenario Arena.</p>
+      </div>
+      <button class="oracle-toggle" id="oracleToggle" aria-expanded="false" aria-controls="semGrid">
+        <span class="lbl">EXPLORE SEMESTERS</span>
+        <span class="chev">▾</span>
+      </button>
+    </div>
+    <div class="sem-wrap">
+      <div class="sem-inner">
+        <div class="sem-grid" id="semGrid">
+          <div class="sem soon"><div class="s-num">SEM 01</div><div class="s-title">SQL on Cloud</div><div class="s-state">MODULE</div></div>
+          <div class="sem soon"><div class="s-num">SEM 02</div><div class="s-title">PL/SQL</div><div class="s-state">MODULE</div></div>
+          <div class="sem soon"><div class="s-num">SEM 03</div><div class="s-title">Foundations of Java</div><div class="s-state">MODULE</div></div>
+          <a class="sem live" href="java-se17-scenario-arena.html"><div class="s-num">SEM 04</div><div class="s-title">Java Development 17</div><div class="s-state"><span class="dot"></span>OPEN ARENA</div></a>
+          <div class="sem soon"><div class="s-num">SEM 05</div><div class="s-title">Oracle App Development on Cloud</div><div class="s-state">MODULE</div></div>
+          <div class="sem soon"><div class="s-num">SEM 06</div><div class="s-title">Data on Cloud</div><div class="s-state">MODULE</div></div>
+          <div class="sem soon"><div class="s-num">SEM 07</div><div class="s-title">Enterprise AI on Cloud</div><div class="s-state">MODULE</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+(function(){
+  var card=document.getElementById('oracleCard'),
+      btn=document.getElementById('oracleToggle'),
+      lbl=btn.querySelector('.lbl');
+  btn.addEventListener('click',function(){
+    var open=card.classList.toggle('open');
+    btn.setAttribute('aria-expanded',open);
+    lbl.textContent=open?'HIDE SEMESTERS':'EXPLORE SEMESTERS';
+    if(open){
+      card.querySelectorAll('.sem').forEach(function(s,i){s.style.animationDelay=(i*55)+'ms';});
+      card.scrollIntoView({behavior:'smooth',block:'nearest'});
+    }
+  });
+})();
+</script>
+
 <footer>
   <div class="social">
     <a href="https://www.linkedin.com/in/ajin-roch-antony" target="_blank" rel="noopener">LINKEDIN</a>

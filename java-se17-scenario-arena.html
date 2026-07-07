@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java SE 17 · 1Z0-829 Scenario Arena</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg-primary:#0B0D12;--bg-secondary:#0F1117;--bg-surface:#141720;--bg-surface-hi:#191D28;
+  --bg-4:#1E2230;--bg-5:#232840;--border:rgba(255,255,255,0.06);
+  --text-primary:#EEF0F8;--text-secondary:#9AA0BC;--text-muted:#5A6080;
+  --accent:#0325BD;--accent2:#1530C4;--at:#C5C9F0;
+  --green:#22D3A5;--yellow:#F5C542;--red:#EF4444;--purple:#A855F7;--cyan:#06B6D4;
+  --font:'Nunito',sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font);background:var(--bg-primary);color:var(--text-primary);min-height:100vh;line-height:1.65}
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.10);border-radius:99px}
+@keyframes fadeup{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes btnpulse{0%,100%{box-shadow:0 4px 18px rgba(3,37,189,0.4)}50%{box-shadow:0 6px 28px rgba(3,37,189,0.58)}}
+@keyframes shimmer{from{transform:translateX(-100%)}to{transform:translateX(200%)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.35}}
+@keyframes pop{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+
+.wrap{max-width:960px;margin:0 auto;padding:24px 20px 80px}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 0 20px}
+.brand{display:flex;align-items:center;gap:10px}
+.brand .dot{width:8px;height:8px;border-radius:99px;background:var(--green);box-shadow:0 0 8px var(--green);animation:blink 2.5s infinite}
+.brand b{font:900 15px var(--font);letter-spacing:.04em;text-transform:uppercase}
+.backlink{font:700 11px var(--mono);letter-spacing:.06em;text-decoration:none;color:var(--text-secondary);background:var(--bg-surface);border:1px solid var(--border);border-radius:99px;padding:6px 13px;margin-right:6px;transition:.16s}
+.backlink:hover{color:var(--text-primary);border-color:var(--accent2);background:var(--bg-surface-hi);transform:translateX(-2px)}
+.backlink:focus-visible{outline:2px solid var(--accent2);outline-offset:2px}
+.brand span{font:800 10px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);background:var(--bg-surface);padding:4px 10px;border-radius:99px}
+
+.card{position:relative;background:var(--bg-surface);border-radius:16px;padding:24px;overflow:hidden}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.06),transparent)}
+
+/* ---------- HUD ---------- */
+.hud{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;margin-bottom:12px}
+.hudstat{background:var(--bg-surface);border-radius:12px;padding:10px 16px;text-align:center;min-width:88px;position:relative;overflow:hidden}
+.hudstat::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent)}
+.hudstat .v{font:900 22px/1 var(--font);font-variant-numeric:tabular-nums}
+.hudstat .l{font:800 9px var(--font);letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted);margin-top:4px}
+.hudstat.xp .v{color:var(--at)}
+.hudstat.streak .v{color:var(--yellow)}
+.hudstat.acc .v{color:var(--green)}
+.progresswrap{background:var(--bg-surface);border-radius:12px;padding:12px 16px}
+.progresswrap .pl{display:flex;justify-content:space-between;font:800 9px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:8px}
+.progresswrap .pl b{color:var(--text-secondary);font-family:var(--mono);font-weight:600;letter-spacing:0}
+.pbar{height:6px;border-radius:99px;background:rgba(255,255,255,0.06);overflow:hidden;position:relative}
+.pbar .fill{height:100%;border-radius:99px;background:linear-gradient(90deg,var(--accent),#3B5BFF);transition:width .4s ease;position:relative;overflow:hidden}
+.pbar .fill::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.35),transparent);animation:shimmer 1.6s infinite}
+
+/* ---------- Question navigator ---------- */
+.navpanel{background:var(--bg-surface);border-radius:12px;padding:12px 16px;margin-bottom:16px;position:relative;overflow:hidden}
+.navpanel::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,0.05),transparent)}
+.navhead{display:flex;justify-content:space-between;align-items:center;cursor:pointer;user-select:none}
+.navhead .nl{font:800 10px var(--font);letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted)}
+.navhead .legend{display:flex;gap:12px;font:800 9px var(--font);letter-spacing:.08em;text-transform:uppercase;color:var(--text-muted)}
+.legend i{width:8px;height:8px;border-radius:3px;display:inline-block;margin-right:5px;vertical-align:-1px;font-style:normal}
+.navgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(36px,1fr));gap:6px;margin-top:12px}
+.navgrid.collapsed{display:none}
+.qchip{height:32px;border:none;border-radius:8px;background:var(--bg-surface-hi);color:var(--text-muted);font:700 11px var(--mono);cursor:pointer;transition:all .15s;position:relative}
+.qchip:hover{background:var(--bg-4);color:var(--text-secondary);transform:translateY(-1px)}
+.qchip:focus-visible{outline:2px solid rgba(59,91,255,0.6);outline-offset:1px}
+.qchip.ok{background:rgba(34,211,165,0.12);color:var(--green)}
+.qchip.ko{background:rgba(239,68,68,0.11);color:var(--red)}
+.qchip.cur{box-shadow:0 0 0 1.5px rgba(59,91,255,0.7),0 0 12px rgba(3,37,189,0.35);color:var(--at)}
+.qchip.cur.ok{color:var(--green)}
+.qchip.cur.ko{color:var(--red)}
+
+/* ---------- Question ---------- */
+.badges{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:16px}
+.badge{display:inline-flex;align-items:center;gap:6px;font:800 10px var(--font);letter-spacing:.07em;text-transform:uppercase;padding:4px 11px;border-radius:99px}
+.badge i{width:5px;height:5px;border-radius:99px;background:currentColor;font-style:normal}
+.b-blue{background:rgba(3,37,189,0.14);color:var(--at)}
+.b-purple{background:rgba(168,85,247,0.10);color:var(--purple)}
+.b-yellow{background:rgba(245,197,66,0.10);color:var(--yellow)}
+.b-red{background:rgba(239,68,68,0.10);color:var(--red)}
+.qintro{font:600 15px/1.7 var(--font);color:var(--text-primary);white-space:pre-wrap;margin-bottom:14px}
+.qoutro{font:800 15px var(--font);color:var(--at);margin:14px 0 4px;white-space:pre-wrap}
+.codeblock{background:var(--bg-primary);border-radius:12px;padding:16px 18px;font:400 12.5px/1.6 var(--mono);color:#C9D1E8;white-space:pre;overflow-x:auto;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.05)}
+
+/* ---------- Options ---------- */
+.opts{display:flex;flex-direction:column;gap:10px;margin-top:18px}
+.opt{display:flex;gap:14px;align-items:flex-start;text-align:left;width:100%;background:var(--bg-surface-hi);border:none;border-radius:12px;padding:14px 16px;cursor:pointer;color:var(--text-primary);font-family:var(--font);transition:background .15s,transform .15s,box-shadow .15s;position:relative}
+.opt:hover:not(:disabled){background:var(--bg-4);transform:translateY(-1px)}
+.opt:focus-visible{outline:2px solid rgba(59,91,255,0.6);outline-offset:2px}
+.opt .key{flex:none;width:26px;height:26px;border-radius:8px;background:rgba(3,37,189,0.14);color:var(--at);font:800 12px/26px var(--font);text-align:center}
+.opt .txt{font:400 13px/1.55 var(--mono);white-space:pre-wrap;padding-top:3px;word-break:break-word}
+.opt:disabled{cursor:default}
+.opt.correct{background:rgba(34,211,165,0.10);box-shadow:0 0 0 1.5px rgba(34,211,165,0.45),0 0 18px rgba(34,211,165,0.12)}
+.opt.correct .key{background:rgba(34,211,165,0.18);color:var(--green)}
+.opt.wrong{background:rgba(239,68,68,0.09);box-shadow:0 0 0 1.5px rgba(239,68,68,0.45)}
+.opt.wrong.fresh{animation:shake .3s ease}
+.opt.dim{opacity:.42}
+
+/* ---------- Hint ---------- */
+.toolrow{display:flex;justify-content:space-between;align-items:center;margin-top:18px;gap:12px;flex-wrap:wrap}
+.ghostbtn{background:transparent;border:none;cursor:pointer;font:800 11px var(--font);letter-spacing:.1em;text-transform:uppercase;color:var(--text-secondary);padding:9px 16px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.09);transition:all .15s}
+.ghostbtn:hover:not(:disabled){color:var(--yellow);box-shadow:inset 0 0 0 1px rgba(245,197,66,0.4)}
+.ghostbtn:disabled{opacity:.4;cursor:default}
+.hintbox{display:none;margin-top:14px;background:rgba(245,197,66,0.07);border-radius:12px;padding:14px 16px;animation:pop .2s ease}
+.hintbox.show{display:block}
+.hintbox .hl{font:800 10px var(--font);letter-spacing:.12em;text-transform:uppercase;color:var(--yellow);margin-bottom:6px}
+.hintbox .ht{font:600 13px var(--font);color:var(--text-secondary)}
+
+/* ---------- Feedback ---------- */
+.feedback{display:none;margin-top:18px;border-radius:14px;padding:18px 20px;animation:fadeup .3s ease;position:relative;overflow:hidden}
+.feedback.show{display:block}
+.feedback.ok{background:rgba(34,211,165,0.08);box-shadow:inset 0 0 0 1px rgba(34,211,165,0.25)}
+.feedback.bad{background:rgba(239,68,68,0.07);box-shadow:inset 0 0 0 1px rgba(239,68,68,0.25)}
+.fhead{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.fhead .ic{width:30px;height:30px;border-radius:99px;display:flex;align-items:center;justify-content:center;flex:none}
+.feedback.ok .ic{background:rgba(34,211,165,0.16);color:var(--green)}
+.feedback.bad .ic{background:rgba(239,68,68,0.16);color:var(--red)}
+.fhead b{font:900 15px var(--font)}
+.feedback.ok .fhead b{color:var(--green)}
+.feedback.bad .fhead b{color:var(--red)}
+.fhead .xpgain{margin-left:auto;font:800 11px var(--mono);color:var(--at);background:rgba(3,37,189,0.14);padding:4px 10px;border-radius:99px}
+.fans{font:800 12px var(--font);color:var(--text-secondary);margin-bottom:8px}
+.fans b{color:var(--green);font-family:var(--mono);font-weight:600}
+.fexp{font:400 13.5px/1.7 var(--font);color:var(--text-secondary)}
+.fexp strong{color:var(--text-primary)}
+
+.primarybtn{display:inline-flex;align-items:center;gap:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;border:none;cursor:pointer;font:800 12px var(--font);letter-spacing:.09em;text-transform:uppercase;padding:12px 26px;border-radius:99px;animation:btnpulse 3s infinite;transition:transform .15s}
+.primarybtn:hover{transform:translateY(-1px)}
+.primarybtn:focus-visible{outline:2px solid rgba(197,201,240,0.8);outline-offset:3px}
+.primarybtn:disabled{opacity:.4;cursor:default;animation:none;box-shadow:none}
+.navbtn{background:transparent;border:none;cursor:pointer;font:800 12px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--text-secondary);padding:12px 22px;border-radius:99px;box-shadow:inset 0 0 0 1px rgba(255,255,255,0.09);transition:all .15s}
+.navbtn:hover:not(:disabled){color:var(--at);box-shadow:inset 0 0 0 1px rgba(59,91,255,0.45)}
+.navbtn:disabled{opacity:.35;cursor:default}
+.navrow{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-top:18px;flex-wrap:wrap}
+.navrow .right{display:flex;gap:10px;margin-left:auto}
+
+/* ---------- Start / End ---------- */
+.hero{text-align:center;padding:48px 24px}
+.hero .eyebrow{font:800 11px var(--font);letter-spacing:.18em;text-transform:uppercase;color:var(--text-muted);margin-bottom:14px}
+.hero h1{font:900 34px/1.15 var(--font);letter-spacing:-0.02em;margin-bottom:12px}
+.hero h1 span{background:linear-gradient(90deg,#5B7BFF,var(--purple));-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero p{font:600 14px var(--font);color:var(--text-secondary);max-width:520px;margin:0 auto 28px}
+.statgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;max-width:640px;margin:0 auto 32px}
+.sg{background:var(--bg-surface-hi);border-radius:12px;padding:16px 12px}
+.sg .v{font:900 26px/1 var(--font);font-variant-numeric:tabular-nums}
+.sg .l{font:800 9px var(--font);letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted);margin-top:6px}
+.rank{display:inline-flex;align-items:center;gap:8px;font:900 13px var(--font);letter-spacing:.08em;text-transform:uppercase;padding:8px 20px;border-radius:99px;margin-bottom:20px}
+.topicbars{max-width:560px;margin:26px auto 0;text-align:left}
+.tb{margin-bottom:12px}
+.tb .tl{display:flex;justify-content:space-between;font:800 10px var(--font);letter-spacing:.09em;text-transform:uppercase;color:var(--text-secondary);margin-bottom:5px}
+.tb .tl span{font-family:var(--mono);font-weight:600;letter-spacing:0}
+.review{max-width:720px;margin:30px auto 0;text-align:left}
+.review h3{font:800 12px var(--font);letter-spacing:.13em;text-transform:uppercase;color:var(--text-muted);margin-bottom:12px}
+.rv{background:var(--bg-surface-hi);border-radius:12px;padding:14px 16px;margin-bottom:10px;cursor:pointer;transition:background .15s}
+.rv:hover{background:var(--bg-4)}
+.rv .rq{font:700 13px var(--font);color:var(--text-primary)}
+.rv .ra{font:600 12px var(--font);color:var(--text-secondary);margin-top:6px;display:none}
+.rv.open .ra{display:block}
+.rv .ra b{color:var(--green)}
+.hidden{display:none}
+.statusbar{position:fixed;left:0;right:0;bottom:0;height:26px;background:rgba(11,13,18,0.96);backdrop-filter:blur(8px);border-top:1px solid rgba(255,255,255,0.05);display:flex;align-items:center;justify-content:space-between;padding:0 16px;font:400 10px var(--mono);color:var(--text-muted);z-index:50}
+.statusbar .sdot{width:6px;height:6px;border-radius:99px;background:var(--green);box-shadow:0 0 6px var(--green);display:inline-block;margin-right:6px;animation:blink 2.5s infinite}
+@media(max-width:700px){
+  .hud{grid-template-columns:1fr 1fr 1fr}
+  .progresswrap{grid-column:1/-1}
+  .hero h1{font-size:26px}
+  .navgrid{grid-template-columns:repeat(auto-fill,minmax(32px,1fr))}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="topbar">
+    <div class="brand">
+      <a class="backlink" href="index.html" aria-label="Back to Dashboard">← Dashboard</a>
+      <span class="dot" style="width:8px"></span><b>iamneo</b><span>1Z0-829 Arena</span>
+    </div>
+    <div class="brand"><span style="font:600 10px var(--mono);color:var(--text-muted)">JAVA SE 17 · 50Q</span></div>
+  </div>
+
+  <!-- START -->
+  <div id="startScreen" class="card hero" style="animation:fadeup .35s ease">
+    <div class="eyebrow">Oracle Certification Prep · Scenario Mode</div>
+    <h1>Java SE 17 <span>Scenario Arena</span></h1>
+    <p>50 real-world scenario MCQs mapped to 1Z0-829 objectives. Answer to earn XP, keep your streak alive, and use hints wisely — they cost half the XP. Jump to any question from the map.</p>
+    <div class="statgrid">
+      <div class="sg"><div class="v">50</div><div class="l">Questions</div></div>
+      <div class="sg"><div class="v" style="color:var(--yellow)">19</div><div class="l">Medium · 10 XP</div></div>
+      <div class="sg"><div class="v" style="color:var(--red)">31</div><div class="l">Hard · 15 XP</div></div>
+      <div class="sg"><div class="v" style="color:var(--purple)">16</div><div class="l">Topics</div></div>
+    </div>
+    <button class="primarybtn" onclick="startQuiz()">Start Mission ▸</button>
+  </div>
+
+  <!-- QUIZ -->
+  <div id="quizScreen" class="hidden">
+    <div class="hud">
+      <div class="progresswrap">
+        <div class="pl"><span>Answered</span><b id="qCount">Q01 · 0 / 50 DONE</b></div>
+        <div class="pbar"><div class="fill" id="pFill" style="width:0%"></div></div>
+      </div>
+      <div class="hudstat xp"><div class="v" id="xpVal">0</div><div class="l">XP</div></div>
+      <div class="hudstat streak"><div class="v" id="stVal">0</div><div class="l">Streak</div></div>
+      <div class="hudstat acc"><div class="v" id="accVal">–</div><div class="l">Accuracy</div></div>
+    </div>
+
+    <div class="navpanel">
+      <div class="navhead" onclick="toggleNav()">
+        <span class="nl">Question Map · Jump Anywhere <span id="navArrow">▾</span></span>
+        <span class="legend">
+          <span><i style="background:var(--green)"></i>Correct</span>
+          <span><i style="background:var(--red)"></i>Wrong</span>
+          <span><i style="background:var(--bg-4)"></i>Unseen</span>
+        </span>
+      </div>
+      <div class="navgrid" id="navGrid"></div>
+    </div>
+
+    <div class="card" id="qCard">
+      <div class="badges" id="badges"></div>
+      <div class="qintro" id="qIntro"></div>
+      <div class="codeblock" id="qCode"></div>
+      <div class="qoutro" id="qOutro"></div>
+      <div class="opts" id="opts"></div>
+      <div class="toolrow" id="toolRow">
+        <button class="ghostbtn" id="hintBtn" onclick="showHint()">◈ Reveal Hint · −50% XP</button>
+        <span style="font:600 10px var(--mono);color:var(--text-muted)" id="worthLbl"></span>
+      </div>
+      <div class="hintbox" id="hintBox">
+        <div class="hl">Hint</div>
+        <div class="ht" id="hintTxt"></div>
+      </div>
+      <div class="feedback" id="fb">
+        <div class="fhead">
+          <div class="ic" id="fbIc">✓</div><b id="fbTitle"></b><span class="xpgain" id="fbXp"></span>
+        </div>
+        <div class="fans" id="fbAns"></div>
+        <div class="fexp" id="fbExp"></div>
+      </div>
+      <div class="navrow">
+        <button class="navbtn" id="prevBtn" onclick="prevQ()">◂ Previous</button>
+        <div class="right">
+          <button class="primarybtn" id="finishBtn" onclick="finish()" style="display:none">View Results ▸</button>
+          <button class="navbtn" id="nextBtn" onclick="nextQ()">Next ▸</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- END -->
+  <div id="endScreen" class="card hero hidden"></div>
+</div>
+
+<div class="statusbar">
+  <span><span class="sdot"></span>SCENARIO ENGINE ONLINE</span>
+  <span id="clock"></span>
+  <span>v1.1 · NEO-SPRITE · SWIFT OPS</span>
+</div>
+
+<script>
+const QS = [{"intro": "The analytics team at a cable-manufacturing company needs a single-pass inventory report that groups rope stock by colour and, simultaneously, by length, because iterating the dataset twice is too slow for the nightly batch. A developer implements this with Collectors.teeing(), feeding the stream into two groupingBy collectors and merging their maps into a Group record, then prints the sum of the two map sizes. Reviewing the submitted code:", "code": "enum Color { RED, GREEN, BLUE; }\nrecord Rope(int length, Color color) {}\nrecord Group(Map<Color, List> map1, Map<Integer, List> map2) {}\npublic class Test {\n  public static void main(String[] args) {\n    var ropes = Stream.of(new Rope(100, Color.RED), new Rope(200, Color.BLUE),\n        new Rope(200, Color.RED), new Rope(300, Color.RED), new Rope(100, Color.BLUE));\n    var result = ropes.collect(Collectors.teeing(\n        Collectors.groupingBy(Rope::color),\n        Collectors.groupingBy(Rope::length),\n        Group::new));\n    System.out.println(result.map1().size() + result.map2().size());\n  }\n}", "outro": "What is the result?", "options": ["2", "3", "10", "5"], "answer": 3, "explanation": "Collectors.teeing() forwards every element to two downstream collectors and merges their results with the supplied BiFunction (Group::new). groupingBy(Rope::color) produces keys for the colors actually present - RED and BLUE - so map1 has size 2 (GREEN never appears). groupingBy(Rope::length) produces keys 100, 200 and 300, so map2 has size 3. The printed sum is 2 + 3 = 5.", "difficulty": "Hard", "topic": "Streams/Lambda", "subtopic": "Collectors.teeing / groupingBy", "bloom": "Analyze"}, {"intro": "In a payroll microservice a teammate has written a routine meant to give every employee a flat 1000 raise and print the updated roster in one pipeline, placing the salary mutation inside peek() immediately before forEach(). During code review you must state precisely what the program prints. Given the code:", "code": "class Employee {\n  private String name; private double salary;\n  public Employee(String name, double salary){ this.name=name; this.salary=salary; }\n  public double getSalary(){ return salary; }\n  public void setSalary(double s){ this.salary=s; }\n  public String toString(){ return \"{\" + name + \", \" + salary + \"}\"; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    List employees = Arrays.asList(new Employee(\"Jack\",10000), new Employee(\"Lucy\",12000));\n    employees.stream()\n      .peek(e -> e.setSalary(e.getSalary() + 1000))\n      .forEach(System.out::println);\n  }\n}", "outro": "What is the result?", "options": ["{Jack, 10000.0}\n{Lucy, 12000.0}", "{Lucy, 12000.0}\n{Jack, 10000.0}", "{Jack, 11000.0}\n{Lucy, 13000.0}", "{Lucy, 13000.0}\n{Jack, 11000.0}"], "answer": 2, "explanation": "peek() is an intermediate operation that runs its consumer as each element flows through the pipeline. For each Employee, peek raises the salary by 1000 (a genuine mutation of the mutable object) BEFORE forEach prints it. So Jack prints as 11000.0 and Lucy as 13000.0, in encounter order. The values are not printed before the increment because peek executes upstream of forEach for the same element.", "difficulty": "Medium", "topic": "Streams/Lambda", "subtopic": "Stream.peek side effects", "bloom": "Analyze"}, {"intro": "A new team member is convinced that calling sorted() on a list's stream also reorders the backing list in place, and has written code that sorts a stream, discards the result, then reads the original list by index. Before approving the change you trace what actually happens to the source list. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    List list = new ArrayList<>(Arrays.asList(\"Z\", \"Y\", \"X\"));\n    list.stream().sorted().findFirst().get();\n    System.out.println(list.get(2));\n  }\n}", "outro": "What is the result?", "options": ["Z", "X", "Runtime Exception", "Y"], "answer": 1, "explanation": "A stream never mutates its source. sorted() creates a new ordered pipeline and findFirst().get() simply retrieves 'X' from that pipeline, but the original list is left untouched in its original order [Z, Y, X]. Therefore list.get(2) returns 'X'. No exception occurs because index 2 is valid for a three-element list.", "difficulty": "Medium", "topic": "Streams/Lambda", "subtopic": "Streams do not mutate source", "bloom": "Analyze"}, {"intro": "A data-processing utility builds numeric ranges dynamically from user-supplied bounds, and a QA engineer is worried about the edge case where the 'from' bound exceeds the 'to' bound. To confirm the behaviour they call IntStream.range with reversed arguments and print the count. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    System.out.println(IntStream.range(10, 1).count());\n  }\n}", "outro": "What is the result?", "options": ["Runtime Exception", "10", "1", "0"], "answer": 3, "explanation": "IntStream.range(start, end) produces values from start (inclusive) up to end (exclusive), stepping upward by one. When start (10) is greater than or equal to end (1), the range is empty - it does not count downward. count() therefore returns 0, and no exception is thrown.", "difficulty": "Medium", "topic": "Streams/Lambda", "subtopic": "IntStream.range semantics", "bloom": "Understand"}, {"intro": "A fintech dashboard computes a portfolio checksum by taking each coin's unit count, reducing it modulo 100, and summing those values across all holdings. The developer wires an extractor to an operator using Function.andThen() inside a stream map-reduce. Given the code:", "code": "record CryptoCurrency(String name, int unit) {}\npublic class Test {\n  public static void main(String[] args) {\n    Function<CryptoCurrency, Integer> extractor = curr -> curr.unit();\n    UnaryOperator<Integer> operator = i -> i % 100;\n    int val = Stream.of(new CryptoCurrency(\"DOGE\",8921),\n        new CryptoCurrency(\"ETH\",99), new CryptoCurrency(\"LTC\",17689))\n      .map(extractor.andThen(operator))\n      .reduce(0, (a, b) -> a + b);\n    System.out.println(val);\n  }\n}", "outro": "What is the result?", "options": ["219989", "165", "209", "890176"], "answer": 2, "explanation": "extractor.andThen(operator) first extracts the unit, then applies i % 100. For 8921 -> 21, for 99 -> 99, for 17689 -> 89. reduce(0, sum) adds them: 21 + 99 + 89 = 209. andThen applies the extractor first and the operator second, which is the key to the correct order.", "difficulty": "Hard", "topic": "Streams/Lambda", "subtopic": "Function.andThen + reduce", "bloom": "Analyze"}, {"intro": "A DevOps engineer is investigating why a freshly deployed modular service pulls in more modules than expected at startup, and wants the java launcher to print the complete module-resolution trace so they can see which modules are resolved and why.\n\nWhich option of the java command displays the module resolution output?", "code": "", "outro": "", "options": ["--list-modules", "--module-resolution", "--show-module-resolution", "--list-module-resolution", "--display-module-resolution"], "answer": 2, "explanation": "The java launcher flag --show-module-resolution prints the module resolution steps (which modules are resolved and why) at startup. --list-modules lists observable modules and their versions but does not show the resolution trace. The other three options are not valid java command flags.", "difficulty": "Medium", "topic": "JPMS", "subtopic": "java command module flags", "bloom": "Understand"}, {"intro": "A backend developer is de-duplicating student records by loading them into a HashSet, relying on a custom equals() that compares name and age — but they did not override hashCode(). A reviewer must predict the reported set size. Given the code:", "code": "class Student {\n  private String name; private int age;\n  Student(String name,int age){ this.name=name; this.age=age; }\n  public String toString(){ return \"Student[\" + name + \", \" + age + \"]\"; }\n  public boolean equals(Object obj){\n    if(obj instanceof Student){ Student s=(Student)obj; return this.name.equals(s.name) && this.age==s.age; }\n    return false;\n  }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Set students = new HashSet<>();\n    students.add(new Student(\"Bill\",25));\n    students.add(new Student(\"Bill\",25));\n    students.add(new Student(\"Bill\",26));\n    System.out.println(students.size());\n  }\n}", "outro": "What is the result?", "options": ["1", "3", "Runtime Exception", "2"], "answer": 1, "explanation": "Student overrides equals() but NOT hashCode(). A HashSet first buckets elements by hashCode; two logically equal 'Bill,25' objects have different default (identity) hash codes, so they land in different buckets and equals() is never consulted to detect the duplicate. All three objects are stored, giving size 3. This is the classic equals-without-hashCode trap.", "difficulty": "Hard", "topic": "Collections/Generics", "subtopic": "HashSet equals/hashCode contract", "bloom": "Analyze"}, {"intro": "While trimming a configuration list, a developer obtains a sublist view and edits one element through it, assuming the original list stays untouched. During review you determine what the join of the original list actually prints. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    List<String> list = new ArrayList<>();\n    list.add(\"P\"); list.add(\"O\"); list.add(\"T\");\n    List<String> subList = list.subList(1, 2); // Line n1\n    subList.set(0, \"E\");                        // Line n2\n    System.out.println(String.join(\"\", list));\n  }\n}", "outro": "What is the result?", "options": ["PET", "POT", "An exception is thrown by Line n2", "Compilation error"], "answer": 0, "explanation": "List.subList(1, 2) returns a VIEW backed by the original list, covering index 1 only (the element 'O'). Calling set(0, \"E\") on the view writes through to the backing list, replacing 'O' with 'E'. The list becomes [P, E, T], so String.join prints PET. set() is a non-structural change, so no ConcurrentModificationException occurs.", "difficulty": "Hard", "topic": "Collections/Generics", "subtopic": "subList view write-through", "bloom": "Analyze"}, {"intro": "A developer is filtering a shopping list by removing every item that starts with 'A', looping over the collection with an enhanced for-loop and calling remove() directly on the list. A reviewer must state the runtime outcome. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    List<String> dryFruits = new ArrayList<>();\n    dryFruits.add(\"Walnut\"); dryFruits.add(\"Apricot\");\n    dryFruits.add(\"Almond\"); dryFruits.add(\"Date\");\n    for(String dryFruit : dryFruits) {\n      if(dryFruit.startsWith(\"A\")) { dryFruits.remove(dryFruit); }\n    }\n    System.out.println(dryFruits);\n  }\n}", "outro": "What is the result?", "options": ["Compilation error", "[Walnut, Apricot, Almond, Date]", "An exception is thrown at runtime", "[Walnut, Date]"], "answer": 2, "explanation": "The enhanced for-loop uses the ArrayList iterator, which is fail-fast. Calling dryFruits.remove(...) directly on the list (not via the iterator) changes the list's modCount, so the next call to iterator.next() detects the mismatch and throws ConcurrentModificationException at runtime. The safe alternative is removeIf() or Iterator.remove().", "difficulty": "Hard", "topic": "Collections/Generics", "subtopic": "Fail-fast iterator / CME", "bloom": "Analyze"}, {"intro": "A feature-flag service pushes parsed boolean values onto a stack (ArrayDeque) and later pops the most recent flag. A teammate parses several strings with Boolean.valueOf and needs to know the pop / peek / size output. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    Deque<Boolean> deque = new ArrayDeque<>();\n    deque.push(Boolean.valueOf(\"abc\"));\n    deque.push(Boolean.valueOf(\"tRuE\"));\n    deque.push(Boolean.valueOf(\"FALSE\"));\n    deque.push(true);\n    System.out.println(deque.pop() + \":\" + deque.peek() + \":\" + deque.size());\n  }\n}", "outro": "What is the result?", "options": ["false:false:3", "false:true:3", "true:false:3", "true:true:3"], "answer": 2, "explanation": "Boolean.valueOf(String) is true only when the text equals \"true\" ignoring case. So valueOf(\"abc\")=false, valueOf(\"tRuE\")=true, valueOf(\"FALSE\")=false, and push(true)=true. push() adds to the head, so top-to-bottom the deque is true, false, true, false. pop() removes and returns the head true; peek() then reads the new head false; four pushes minus one pop leaves size 3. Result: true:false:3.", "difficulty": "Hard", "topic": "Collections/Generics", "subtopic": "ArrayDeque LIFO + Boolean.valueOf", "bloom": "Analyze"}, {"intro": "A text-rendering component walks a list of characters backwards using a ListIterator positioned at the end, reconstructing a word in reverse-insertion order. A reviewer verifies the printed output and whether the starting index is legal. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    List<String> list = Arrays.asList(\"T\", \"S\", \"R\", \"I\", \"F\");\n    ListIterator<String> iter = list.listIterator(5);\n    while(iter.hasPrevious()) { System.out.print(iter.previous()); }\n  }\n}", "outro": "What is the result?", "options": ["FIRST", "IRST", "Runtime Exception", "TSRIF"], "answer": 0, "explanation": "listIterator(5) positions the cursor after the last element (index 5 is a valid cursor position for a 5-element list). hasPrevious()/previous() then walk backward: F, I, R, S, T, printing FIRST. No exception is thrown because 5 equals list.size(), which is the highest legal starting index for a list iterator.", "difficulty": "Hard", "topic": "Collections/Generics", "subtopic": "ListIterator backward traversal", "bloom": "Analyze"}, {"intro": "A developer initialises a fixed-size array of Boolean flags and prints the first two slots before assigning them, assuming they default to false. During review you must state what is actually printed. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    Boolean[] arr = new Boolean[2];\n    System.out.println(arr[0] + \":\" + arr[1]);\n  }\n}", "outro": "What is the result?", "options": ["false:false", "An Exception is thrown at runtime", "null:null", "true:true"], "answer": 2, "explanation": "Boolean is a reference (wrapper) type, not the primitive boolean. Elements of a newly allocated reference array default to null, not false. String concatenation converts each null reference to the text \"null\", so the output is null:null. No NullPointerException occurs because no auto-unboxing is triggered by concatenation.", "difficulty": "Medium", "topic": "Exceptions", "subtopic": "Array default values (wrapper vs primitive)", "bloom": "Understand"}, {"intro": "A developer hardens a method against null access by catching both NullPointerException and RuntimeException in a single multi-catch clause. A reviewer must first check whether the code even compiles. Given the code:", "code": "public class Test {\n  private static String s;\n  public static void main(String[] args) {\n    try {\n      System.out.println(s.length());\n    } catch(NullPointerException | RuntimeException ex) {\n      System.out.println(\"DONE\");\n    }\n  }\n}", "outro": "What is the result?", "options": ["Executes successfully but no output", "DONE", "Compilation error", "None of the other options"], "answer": 2, "explanation": "In a multi-catch clause the alternative exception types must be disjoint - none may be a subclass of another. NullPointerException is a subclass of RuntimeException, so 'NullPointerException | RuntimeException' is rejected by the compiler with an error such as 'Types in multi-catch must be disjoint'. The code never runs, so DONE is never printed.", "difficulty": "Hard", "topic": "Exceptions", "subtopic": "Multi-catch disjoint types rule", "bloom": "Analyze"}, {"intro": "During incident triage a developer inspects a nested try/catch that rethrows an exception after attempting to downcast a generic RuntimeException to a more specific type. You must determine which class name is finally reported. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    try { check(); }\n    catch(RuntimeException e) { System.out.println(e.getClass().getName()); }\n  }\n  private static void check() {\n    try {\n      RuntimeException re = new RuntimeException();\n      throw re;\n    } catch(RuntimeException e) {\n      System.out.println(1);\n      ArithmeticException ex = (ArithmeticException) e; // Line n4\n      System.out.println(2);\n      throw ex;\n    }\n  }\n}", "outro": "What is the result?", "options": ["1\\n2\\njava.lang.ArithmeticException", "1\\njava.lang.ArithmeticException", "1\\n2\\njava.lang.RuntimeException", "1\\njava.lang.ClassCastException", "1\\njava.lang.RuntimeException"], "answer": 3, "explanation": "check() throws a plain RuntimeException and catches it, printing 1. Line n4 then tries to downcast that RuntimeException to ArithmeticException; since the actual object is only a RuntimeException, the cast fails with ClassCastException immediately - so 2 is never printed. The ClassCastException (itself a RuntimeException) propagates to main, whose catch prints java.lang.ClassCastException. Output: 1 then java.lang.ClassCastException.", "difficulty": "Hard", "topic": "Exceptions", "subtopic": "Invalid downcast -> ClassCastException", "bloom": "Analyze"}, {"intro": "A student-management module sorts a list of Student records by age using a static comparator method reference. A reviewer confirms whether it compiles and what order is printed. Given the code:", "code": "record Student(String name, int age) {\n  public String toString(){ return \"Student (\" + name + \", \" + age + \")\"; }\n  public static int compareByAge(Student s1, Student s2){ return s1.age() - s2.age(); }\n}\npublic class Test {\n  public static void main(String[] args) {\n    List<Student> students = Arrays.asList(new Student(\"john\",25),\n        new Student(\"lucy\",21), new Student(\"ivy\",23));\n    Collections.sort(students, Student::compareByAge);\n    System.out.println(students);\n  }\n}", "outro": "What is the result?", "options": ["Compilation error", "[Student (lucy, 21), Student (ivy, 23), Student (john, 25)]", "An exception is thrown at runtime", "[Student (john, 25), Student (ivy, 23), Student (lucy, 21)]"], "answer": 1, "explanation": "Student::compareByAge is a static-method reference matching Comparator<Student>, comparing by ascending age. Sorting [25, 21, 23] by age gives lucy(21), ivy(23), john(25). Arrays.asList produces a fixed-size but mutable-in-place list, so Collections.sort (which only reorders elements) works without throwing. Output is the age-ascending order.", "difficulty": "Medium", "topic": "Exceptions", "subtopic": "Comparator via static method reference", "bloom": "Apply"}, {"intro": "An API designer declares a Parent interface that also re-declares toString(), plus a Child interface that adds a single behaviour, then supplies a Child implementation as a lambda. A reviewer must decide whether Child is a valid functional interface and what executes. Given the code:", "code": "interface Parent {\n  default void earn(){ System.out.println(\"Earning for the family\"); }\n  static void plan(){ }\n  String toString();\n}\ninterface Child extends Parent { void play(); }\npublic class Test {\n  public static void main(String[] args) {\n    Child child = () -> System.out.println(\"PLAYING CRICKET ... \"); // Line n1\n    child.play();\n  }\n}", "outro": "What is the result?", "options": ["On execution, Test class throws an Exception", "Compilation error in Parent interface", "On execution, Test class prints PLAYING CRICKET... on to the console", "Compilation error in Test class", "Compilation error in Child interface"], "answer": 2, "explanation": "Parent legally re-declares the public abstract method toString() (a java.lang.Object method), which does NOT count as a functional-interface abstract method. Child adds one genuine abstract method, play(), so Child is a valid functional interface and can be a lambda target. The lambda supplies play(), and child.play() prints PLAYING CRICKET.... Methods from Object never prevent an interface from being functional.", "difficulty": "Hard", "topic": "OOP / Interfaces", "subtopic": "Functional interface + Object methods", "bloom": "Analyze"}, {"intro": "A developer models an Animal / Dog hierarchy in which the base class defines only a one-argument constructor, and one of the Dog constructors forgets to call super(...). A reviewer must pinpoint which constructor fails to compile. Given the code:", "code": "abstract class Animal {\n  private String name;\n  Animal(String name){ this.name = name; }\n  public String getName(){ return name; }\n}\nclass Dog extends Animal {\n  private String breed;\n  Dog(String breed){ this.breed = breed; }               // constructor A\n  Dog(String name, String breed){ super(name); this.breed = breed; } // constructor B\n  public String getBreed(){ return breed; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Dog dog1 = new Dog(\"Beagle\");\n    Dog dog2 = new Dog(\"Bubbly\", \"Poodle\");\n    System.out.println(dog1.getName()+\":\"+dog1.getBreed()+\":\"+dog2.getName()+\":\"+dog2.getBreed());\n  }\n}", "outro": "What is the result?", "options": ["Compilation error for Dog(String, String) constructor", ":Beagle:Bubbly:Poodle", "null:Beagle:Bubbly:Poodle", "Compilation error for Dog(String) constructor", "Compilation error for Animal(String) constructor"], "answer": 3, "explanation": "Animal declares only Animal(String), so it has no no-argument constructor. Dog(String breed) does not call super(...) explicitly, so the compiler inserts an implicit super() call - but Animal() does not exist, producing a compilation error for the Dog(String) constructor. Dog(String, String) is fine because it explicitly calls super(name).", "difficulty": "Hard", "topic": "OOP / Interfaces", "subtopic": "Implicit super() with no no-arg parent ctor", "bloom": "Analyze"}, {"intro": "A logging framework exposes a Creator functional interface and binds it to a Log constructor via a constructor reference, but never actually calls create(). A reviewer must state what, if anything, is printed. Given the code:", "code": "interface Creator<T, R> { R create(T t); }\nclass Log {\n  Log(){ System.out.println(1); }\n  Log(String name){ System.out.println(2); }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Creator<String, Log> obj = Log::new;\n  }\n}", "outro": "What is the result?", "options": ["1", "Compilation error", "It executes fine but no output", "2"], "answer": 2, "explanation": "Log::new is a constructor reference bound to the functional interface Creator<String, Log>, whose method create(String) returns a Log. It matches the Log(String) constructor. However, assigning the reference does NOT invoke any constructor - create() is never called - so no Log object is built and nothing is printed. The code compiles and runs with no output.", "difficulty": "Hard", "topic": "OOP / Interfaces", "subtopic": "Constructor reference is not invocation", "bloom": "Analyze"}, {"intro": "A developer is organising related contracts by nesting an interface inside a class in a shared utility module, and a colleague questions whether Java even allows that.\n\nWill the below code compile successfully?", "code": "class Outer {\n  interface I1 { void m1(); }\n}", "outro": "", "options": ["No", "Yes"], "answer": 1, "explanation": "A class may contain a nested (member) interface. Nested interfaces are implicitly static and are a normal, legal construct. Outer.I1 with a single abstract method m1() is valid Java, so the code compiles successfully.", "difficulty": "Medium", "topic": "OOP / Interfaces", "subtopic": "Nested interface declaration", "bloom": "Understand"}, {"intro": "A developer prints a freshly created domain object for debugging, expecting a readable representation, but the class does not override toString(). A reviewer must describe the console output. Given the code:", "code": "class Printer {}\npublic class Test {\n  public static void main(String[] args) {\n    Printer printer = new Printer();\n    System.out.println(printer);\n  }\n}", "outro": "What is the result?", "options": ["Compilation error for Printer class", "Compilation error for Test class", "Some text containing @ symbol"], "answer": 2, "explanation": "Printer does not override toString(), so it inherits Object.toString(), which returns getClass().getName() + '@' + Integer.toHexString(hashCode()). println therefore prints something like com...Printer@1b6d3586 - text containing an @ symbol. Both classes compile without error.", "difficulty": "Medium", "topic": "OOP / Interfaces", "subtopic": "Default Object.toString()", "bloom": "Understand"}, {"intro": "A developer refactors a calculation helper by declaring a local record inside a method and referencing an enclosing final local variable from within the record's method. A reviewer must find which line breaks compilation. Given the code:", "code": "class Number {\n  public void find() {\n    final int x = 10;\n    record Calculator(int num) {          // Line n1\n      int calc(){ return num * x; }       // Line n2\n    }\n    System.out.println(new Calculator(10).calc()); // Line n3\n  }\n}\npublic class Test {\n  public static void main(String[] args) { new Number().find(); }\n}", "outro": "What is the result?", "options": ["Line n4 causes compilation error", "Line n1 causes compilation error", "Line n2 causes compilation error", "Output of the given code is 100", "Line n3 causes compilation error"], "answer": 2, "explanation": "A local record is implicitly static, so - like any static nested type - it cannot capture local variables of the enclosing method, even effectively-final ones. Referencing the enclosing method's local variable x inside calc() at Line n2 is therefore a compilation error. The record declaration itself (Line n1) and its instantiation (Line n3) are otherwise valid.", "difficulty": "Hard", "topic": "Records", "subtopic": "Local records are implicitly static", "bloom": "Analyze"}, {"intro": "A team builds a small expression evaluator as a sealed Calculator interface implemented by Add, Multiply and Negate records, then composes a deeply nested expression. A reviewer must compute the printed result. Given the code:", "code": "sealed interface Calculator { int calc(); }\nrecord Add(Calculator c1, Calculator c2) implements Calculator { public int calc(){ return c1.calc() + c2.calc(); } }\nrecord Multiply(Calculator c1, Calculator c2) implements Calculator { public int calc(){ return c1.calc() * c2.calc(); } }\nrecord Negate(int value) implements Calculator { public int calc(){ return -value; } }\npublic class Test {\n  public static void main(String... args) {\n    Calculator calculator = new Add(\n        new Multiply(new Negate(5), new Negate(10)),\n        new Add(new Negate(25), new Negate(25)));\n    System.out.println(calculator.calc());\n  }\n}", "outro": "What is the result?", "options": ["-100", "50", "100", "-50", "0"], "answer": 4, "explanation": "Records may implement a sealed interface and provide the abstract method. Evaluating bottom-up: Negate(5)=-5, Negate(10)=-10, so Multiply=-5*-10=50. Negate(25)=-25 twice, so the inner Add=-25+-25=-50. The outer Add=50+(-50)=0. The composition of records evaluates to 0.", "difficulty": "Hard", "topic": "Records", "subtopic": "Records implementing sealed interface", "bloom": "Analyze"}, {"intro": "A developer is designing a sealed class hierarchy and tries to add a record as one of the permitted subtypes using an extends clause. A reviewer must identify the offending line. Given the code:", "code": "sealed abstract class A { }          // Line n1\nfinal class B extends A { }           // Line n2\nnon-sealed class C extends A { }      // Line n3\nfinal record D() extends A { }        // Line n4\npublic class Test {\n  public static void main(String[] args) { System.out.println(\"SEALED CLASS\"); }\n}", "outro": "What is the result?", "options": ["It compiles successfully and output is: SEALED CLASS", "Line n2 causes compilation error", "Line n4 causes compilation error", "Line n1 causes compilation error", "Line n3 causes compilation error"], "answer": 2, "explanation": "A record always implicitly extends java.lang.Record and is not permitted to have an explicit extends clause for any class. 'record D() extends A' at Line n4 is therefore illegal and causes a compilation error. A record could instead implement a sealed interface, but it can never extend a (sealed) class. Lines n1-n3 are valid sealed-hierarchy declarations.", "difficulty": "Hard", "topic": "Sealed Classes", "subtopic": "Records cannot extend a class", "bloom": "Analyze"}, {"intro": "An architect is documenting the rules a team must follow when introducing sealed classes into a modular codebase, and drafts four statements about permitted subtypes, module/package placement, and required modifiers.\n\nConsider the statements about sealed types:\n1. In a modular application using named modules, a sealed class and its permitted subclasses must belong to the same module.\n2. If declared in an unnamed module, the sealed class and its permitted subclasses must be in the same package.\n3. Every permitted subclass must directly extend the sealed class.\n4. Every permitted subclass must use exactly one of: sealed, non-sealed or final.\nHow many of the above statements are correct?", "code": "", "outro": "", "options": ["Only two statements", "Only one statement", "All four statements", "Only three statements"], "answer": 2, "explanation": "All four rules are part of the sealed-classes specification. Permitted subtypes must be in the same module (named) or same package (unnamed), must directly extend/implement the sealed type, and must each be declared final, sealed, or non-sealed so the hierarchy's closedness is unambiguous. Hence all four statements are correct.", "difficulty": "Hard", "topic": "Sealed Classes", "subtopic": "Sealed hierarchy constraints", "bloom": "Evaluate"}, {"intro": "A developer iterates a mixed Object[] and uses instanceof pattern variables, combining one test with && and another with ||, to print matching elements. A reviewer must find the line that fails to compile because of pattern-variable flow scoping. Given the code:", "code": "public class Test {\n  public static void main(String... args) {\n    Object[] arr = { new Object(), \"JAVA\", new int[]{1,2,3} };\n    for(var obj : arr) {\n      if(obj instanceof String str && str.length() > 2)      // Line n1\n        System.out.print(str);\n      if(obj instanceof int[] a || a.length > 2)              // Line n2\n        System.out.print(a[1]);\n    }\n  }\n}", "outro": "What is the result?", "options": ["Compilation error at Line n2", "JAVA1", "JAVA2", "Compilation error at Line n1", "Given code compiles successfully but produces no output"], "answer": 0, "explanation": "With the && form at Line n1 the pattern variable str is definitely assigned on the right side, so it compiles. But at Line n2 the || form means the right operand a.length is evaluated exactly when 'obj instanceof int[] a' is false - i.e. when a was NOT bound. Because a is not definitely assigned there, referencing it is a compilation error at Line n2 (flow scoping with || fails).", "difficulty": "Hard", "topic": "Pattern Matching", "subtopic": "instanceof pattern flow scoping with ||", "bloom": "Analyze"}, {"intro": "A pricing engine multiplies a base value depending on a tier code using an arrow-style switch. A teammate expects fall-through behaviour across the arms; you must state the actual printed value. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    var a = 5; var x = 20;\n    switch(x) {\n      case 10 -> a *= 2;\n      case 20 -> a *= 3;\n      case 30 -> a *= 4;\n    }\n    System.out.println(a);\n  }\n}", "outro": "What is the result?", "options": ["10", "5", "120", "30", "15"], "answer": 4, "explanation": "This is an arrow-label switch STATEMENT. Arrow labels never fall through: only the single arm matching the selector executes. x is 20, so only 'a *= 3' runs, giving 5 * 3 = 15. Because there is no fall-through, the case 30 arm does not also execute.", "difficulty": "Medium", "topic": "Switch / Flow", "subtopic": "Arrow switch has no fall-through", "bloom": "Apply"}, {"intro": "A developer writes a grading switch that tries to branch on boolean expressions such as 'score < 70' as case labels. A reviewer must check whether this even compiles. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    int score = 60;\n    switch (score) {\n      default: System.out.println(\"Not a valid score\");\n      case score < 70: System.out.println(\"Failed\"); break;\n      case score >= 70: System.out.println(\"Passed\"); break;\n    }\n  }\n}", "outro": "What is the result?", "options": ["Passed", "Not a valid score", "Failed", "Compilation error", "Failed then Passed"], "answer": 3, "explanation": "In a switch on an int, each case label must be a compile-time constant expression compatible with the selector type. 'case score < 70' and 'case score >= 70' are boolean expressions, not constants, so the compiler rejects them. The code fails to compile; none of the print statements execute.", "difficulty": "Hard", "topic": "Switch / Flow", "subtopic": "Case labels must be constants", "bloom": "Analyze"}, {"intro": "A furniture catalogue maps product names to labels using a traditional colon-style switch on a String, and a teammate is unsure how fall-through behaves once a case matches. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    String furniture = new String(new char[]{'S','o','f','a'});\n    switch (furniture) {\n      default: System.out.println(\"CHAIR\");\n      case \"Recliner\": System.out.println(\"RECLINER\");\n      case \"Sofa\": System.out.println(\"SOFA\");\n      case \"Bed\": System.out.println(\"BED\"); break;\n    }\n  }\n}", "outro": "What is the result?", "options": ["CHAIR\\nSOFA\\nBED", "SOFA\\nBED", "CHAIR\\nRECLINER\\nSOFA", "SOFA", "CHAIR"], "answer": 1, "explanation": "This is a traditional colon-label switch, which falls through until a break. The selector equals \"Sofa\", so control jumps to case \"Sofa\", prints SOFA, then falls through to case \"Bed\" and prints BED, where break stops execution. default and the earlier cases are skipped because a matching case label exists. Output: SOFA then BED.", "difficulty": "Hard", "topic": "Switch / Flow", "subtopic": "Colon-label fall-through on String", "bloom": "Analyze"}, {"intro": "A developer adds a constructor that logs a message to an enum used for feature flags, then references the same constant several times, and wonders how many times the log line appears. Given the code:", "code": "enum Flags {\n  TRUE;\n  Flags(){ System.out.println(\"HELLO\"); }\n}\npublic class Test {\n  public static void main(String[] args) {\n    Flags f1 = Flags.TRUE;\n    Flags f2 = Flags.TRUE;\n    Flags f3 = Flags.TRUE;\n  }\n}", "outro": "What is the result?", "options": ["HELLO is printed twice", "HELLO is printed once", "HELLO is not printed on to the console", "HELLO is printed thrice"], "answer": 1, "explanation": "Each enum constant corresponds to exactly one object created once, when the enum type is initialized. Flags has a single constant TRUE, so its constructor runs a single time regardless of how many variables reference TRUE. HELLO is therefore printed once.", "difficulty": "Medium", "topic": "Enums", "subtopic": "Enum constants are singletons", "bloom": "Understand"}, {"intro": "A developer assigns a car model based on price using an if / else-if chain with no final else, then prints the model. A reviewer must state whether this compiles. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    double price = 90000;\n    String model;\n    if(price > 100000) { model = \"Tesla Model X\"; }\n    else if(price <= 100000) { model = \"Tesla Model S\"; }\n    System.out.println(model);\n  }\n}", "outro": "What is the result?", "options": ["Compilation Error", "Tesla Model S", "Tesla Model X"], "answer": 0, "explanation": "The compiler performs definite-assignment analysis. Because the construct is if / else-if with no final else, the compiler cannot prove that model is assigned on every path (it does not evaluate the runtime condition price <= 100000 as exhaustive). Using a possibly-unassigned local at println is a compilation error: 'variable model might not have been initialized'.", "difficulty": "Hard", "topic": "Data Types / Flow", "subtopic": "Definite assignment of locals", "bloom": "Analyze"}, {"intro": "During a debugging session a developer compares a counter against itself using post-increment on both sides of ==, then prints the counter. You must predict which branch is taken and the final value. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    int num = 10;\n    if(num++ == num++) { System.out.println(\"EQUAL \" + num); }\n    else { System.out.println(\"NOT EQUAL \" + num); }\n  }\n}", "outro": "What is the result?", "options": ["EQUAL 12", "EQUAL 11", "NOT EQUAL 11", "NOT EQUAL 12"], "answer": 3, "explanation": "Post-increment yields the value before incrementing. The left num++ evaluates to 10 (num becomes 11); the right num++ evaluates to 11 (num becomes 12). The comparison 10 == 11 is false, so the else branch runs. By then num is 12, giving NOT EQUAL 12.", "difficulty": "Medium", "topic": "Data Types / Flow", "subtopic": "Post-increment evaluation order", "bloom": "Apply"}, {"intro": "A developer declares local variables inside main() with a private access modifier, expecting field-style encapsulation. A reviewer must check compilation. Given the code:", "code": "class Rectangle {\n  private int height, width;\n  public Rectangle(int height,int width){ this.height=height; this.width=width; }\n  public int getHeight(){ return height; }\n  public int getWidth(){ return width; }\n}\npublic class TestRectangle {\n  public static void main(String[] args) {\n    private int i = 100;\n    private int j = 200;\n    Rectangle rect = new Rectangle(i, j);\n    System.out.println(rect.getHeight() + \", \" + rect.getWidth());\n  }\n}", "outro": "What is the result?", "options": ["Compilation Error", "200, 100", "100, 200", "0, 0"], "answer": 0, "explanation": "Access modifiers such as private, public and protected cannot be applied to local variables. Declaring 'private int i' and 'private int j' inside main() is illegal syntax and causes a compilation error. Local variables may only use the modifier final.", "difficulty": "Medium", "topic": "Data Types / Flow", "subtopic": "No access modifiers on locals", "bloom": "Understand"}, {"intro": "A developer stores a character's code point in an int by assigning a char to it, expecting the numeric value. A reviewer confirms what is printed. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    char c1 = 'a'; // ASCII code of 'a' is 97\n    int i1 = c1;   // Line n1\n    System.out.println(i1);\n  }\n}", "outro": "What is the result?", "options": ["Line n1 causes runtime error", "97", "Line n1 causes compilation failure", "a"], "answer": 1, "explanation": "char is a 16-bit unsigned integral type. Assigning a char to an int is a widening primitive conversion that happens implicitly, converting the character to its numeric code point. 'a' has code 97, so i1 becomes 97 and that integer is printed.", "difficulty": "Medium", "topic": "Data Types / Flow", "subtopic": "char to int widening", "bloom": "Understand"}, {"intro": "A developer concatenates a StringBuilder's current snapshot with the result of appending to that same builder in a single expression, then measures the stripped length. A reviewer must compute the exact length. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    StringBuilder sb = new StringBuilder(\"INHALE \");\n    String s = sb.toString() + (sb.append(\"EXHALE \"));\n    System.out.println(s.strip().length());\n  }\n}", "outro": "What is the result?", "options": ["23", "28", "21", "20", "17"], "answer": 3, "explanation": "sb.toString() is evaluated first and captures \"INHALE \". Then sb.append(\"EXHALE \") mutates the builder to \"INHALE EXHALE \" and returns the SAME builder, whose toString() is used in the concatenation. So s = \"INHALE \" + \"INHALE EXHALE \" = \"INHALE INHALE EXHALE \". After strip() the trailing space is removed, leaving \"INHALE INHALE EXHALE\", which is 6+1+6+1+6 = 20 characters.", "difficulty": "Hard", "topic": "Strings", "subtopic": "StringBuilder aliasing + strip()", "bloom": "Analyze"}, {"intro": "A developer validates a single-space input using isEmpty() and isBlank(), calls strip(), then re-checks the flags, assuming strip() mutates the string in place. A reviewer must state both printed lines. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    String str = \" \"; // single space\n    boolean b1 = str.isEmpty();\n    boolean b2 = str.isBlank();\n    System.out.println(b1 + \" : \" + b2); // Line n1\n    str.strip();                           // Line n2\n    b1 = str.isEmpty();\n    b2 = str.isBlank();\n    System.out.println(b1 + \" : \" + b2); // Line n3\n  }\n}", "outro": "What is the result?", "options": ["false : false\\ntrue : true", "false : true\\nfalse : true", "true : true\\nfalse : true", "true : false\\ntrue : false", "false : true\\ntrue : false"], "answer": 1, "explanation": "isEmpty() is true only when length() is 0; a single space has length 1, so isEmpty() is false. isBlank() (Java 11+) is true when the string is empty or contains only whitespace, so it is true. str.strip() at Line n2 returns a new string but the result is discarded and strings are immutable, so str is unchanged. Both lines therefore print 'false : true'.", "difficulty": "Hard", "topic": "Strings", "subtopic": "isEmpty vs isBlank + immutability", "bloom": "Analyze"}, {"intro": "A text-transform utility chains UnaryOperators with andThen() and compose() on a single line but never stores the composed function, then applies only the first operator. A reviewer must state the exact output. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    UnaryOperator<String> opr1 = s -> { System.out.print(1); return s.toUpperCase(); };\n    UnaryOperator<String> opr2 = s -> { System.out.print(2); return new StringBuilder(s).reverse().toString(); };\n    UnaryOperator<String> opr3 = s -> { System.out.print(3); return s.substring(2); };\n    opr1.andThen(opr2).compose(opr3);      // Line n1\n    System.out.println(opr1.apply(\"amar\")); // Line n2\n  }\n}", "outro": "What is the result?", "options": ["213MA", "1AMAR", "123RA", "312RA", "1RAMA"], "answer": 1, "explanation": "andThen/compose return NEW composed functions; Line n1 builds one but never stores or applies it, so it has no effect. Line n2 invokes only opr1 on \"amar\": opr1 prints 1 and returns \"AMAR\". println then prints AMAR. The combined output is 1AMAR. The trap is assuming Line n1 rewires opr1 - it does not.", "difficulty": "Hard", "topic": "Strings", "subtopic": "Function composition is not in-place", "bloom": "Analyze"}, {"intro": "A scheduling service constructs a Period of 1000 months and logs it, and a teammate expects the value to be normalised into years and months. A reviewer states the printed representation. Given the code:", "code": "import java.time.Period;\npublic class Test {\n  public static void main(String[] args) {\n    Period period = Period.of(0, 1000, 0);\n    System.out.println(period);\n  }\n}", "outro": "What is the result?", "options": ["P0Y1000M0D", "p1000m", "P1000M", "p0y1000m0d"], "answer": 2, "explanation": "Period.of(years, months, days) here is (0, 1000, 0); Period does NOT normalize 1000 months into years. Its toString() begins with 'P' and appends only the non-zero fields in uppercase: years 0 and days 0 are omitted, leaving the months component as 1000M. The result is exactly P1000M.", "difficulty": "Medium", "topic": "Localization / Date-Time", "subtopic": "Period.toString formatting", "bloom": "Understand"}, {"intro": "A booking system computes the gap between two March dates using Period.between, but the arguments are accidentally passed end-date first. A reviewer must state the printed period. Given the code:", "code": "import java.time.*;\npublic class Test {\n  public static void main(String[] args) {\n    LocalDate startDate = LocalDate.of(2023, Month.MARCH, 1);\n    LocalDate endDate = LocalDate.of(2023, Month.MARCH, 11);\n    System.out.println(Period.between(endDate, startDate));\n  }\n}", "outro": "What is the result?", "options": ["P-11D", "P10D", "P-10D", "P11D"], "answer": 2, "explanation": "Period.between(start, end) computes end minus start. Here it is called as between(endDate=Mar 11, startDate=Mar 1), i.e. Mar 1 minus Mar 11 = negative ten days. The resulting Period is -10 days, whose toString() is P-10D.", "difficulty": "Medium", "topic": "Localization / Date-Time", "subtopic": "Period.between argument order", "bloom": "Apply"}, {"intro": "A localisation team stores a spell-casting message template with positional placeholders in a resource bundle and feeds two lines read from a file, in file order, as the format arguments. A reviewer must state the rendered sentence. Given the following project files:\n\n// Spell.properties (on CLASSPATH)\nactions=First cast {1} and then {0}.\n// Spell.txt (lines)\nWINGARDIUM LEVIOSA\nEXPELLIARMUS\n// Test.java", "code": "public class Test {\n  public static void main(String[] args) throws IOException {\n    var loc = new Locale(\"en\", \"US\");\n    var bundle = ResourceBundle.getBundle(\"Spell\", loc);\n    var mf = new MessageFormat(bundle.getString(\"actions\"));\n    System.out.println(mf.format(\n        Files.readAllLines(Paths.get(\"C:\",\"magic\",\"Spell.txt\")).toArray()));\n  }\n}", "outro": "What is the result?", "options": ["First cast EXPELLIARMUS and then WINGARDIUM LEVIOSA.", "First cast {1} and then {0}.", "MissingResourceException is thrown at runtime", "First cast WINGARDIUM LEVIOSA and then EXPELLIARMUS."], "answer": 0, "explanation": "readAllLines returns the file lines in order, so the argument array is index 0 = 'WINGARDIUM LEVIOSA', index 1 = 'EXPELLIARMUS'. The MessageFormat pattern 'First cast {1} and then {0}.' substitutes {1} first (EXPELLIARMUS) and {0} second (WINGARDIUM LEVIOSA). The output is 'First cast EXPELLIARMUS and then WINGARDIUM LEVIOSA.'", "difficulty": "Hard", "topic": "Localization / Date-Time", "subtopic": "ResourceBundle + MessageFormat indices", "bloom": "Analyze"}, {"intro": "A reporting module formats a LocalDate with DateTimeFormatter.ISO_DATE_TIME, and a teammate expects a clean date-time string. A reviewer must state the runtime outcome. Given the code:", "code": "import java.time.LocalDate;\nimport java.time.format.DateTimeFormatter;\npublic class Test {\n  public static void main(String[] args) {\n    var date = LocalDate.of(1987, 9, 1);\n    var str = date.format(DateTimeFormatter.ISO_DATE_TIME);\n    System.out.println(\"Date is: \" + str);\n  }\n}", "outro": "What is the result?", "options": ["Runtime exception", "Given code executes but output does not match the options", "Date is: 01-09-1987", "Date is: 1987-01-09", "Date is: 1987-09-01"], "answer": 0, "explanation": "ISO_DATE_TIME requires time-of-day fields (hour, minute, second). A LocalDate has only date fields and no time, so formatting it with ISO_DATE_TIME throws a java.time.temporal.UnsupportedTemporalTypeException (Unsupported field: HourOfDay) at runtime. A LocalDateTime would be needed for that formatter.", "difficulty": "Hard", "topic": "Localization / Date-Time", "subtopic": "LocalDate with ISO_DATE_TIME", "bloom": "Analyze"}, {"intro": "An operations tool lists the contents of the user's home directory using Files.list and prints each path, and a teammate is unsure whether the listing recurses into sub-directories. Given the code:", "code": "public class Test {\n  public static void main(String[] args) throws IOException {\n    var files = Files.list(Paths.get(System.getProperty(\"user.home\")));\n    files.forEach(System.out::println);\n  }\n}\n(user.home returns the HOME directory on Windows and Linux.)", "outro": "What is the result?", "options": ["It prints paths of directories, sub-directories and files under HOME (recursive)", "It only prints paths of directories and files directly under HOME", "It prints paths of files (not directories) under HOME and its sub-directories", "It only prints paths of files (not directories) under HOME"], "answer": 1, "explanation": "Files.list(dir) is non-recursive: it returns a Stream of the entries located directly inside the given directory, both files and sub-directories, but does not descend into them. For recursive traversal you would use Files.walk() instead. So it prints the immediate directories and files under HOME only.", "difficulty": "Medium", "topic": "I/O & NIO.2", "subtopic": "Files.list is non-recursive", "bloom": "Understand"}, {"intro": "A persistence utility serialises an Optional to a file and immediately reads it back, opening the ObjectOutputStream and ObjectInputStream together in one try-with-resources on a brand-new, empty file. A reviewer must state the outcome. Given the code:", "code": "public class Test {\n  public static void main(String[] args) throws IOException, ClassNotFoundException {\n    var optional = Optional.of(List.of(\"O\", \"N\"));\n    try (var oos = new ObjectOutputStream(new FileOutputStream(\"data.ser\"));\n         var ois = new ObjectInputStream(new FileInputStream(\"data.ser\"))) {\n      oos.writeObject(optional);\n      var object = (Optional) ois.readObject();\n      System.out.println(object.get());\n    }\n  }\n}\n(data.ser does not exist initially.)", "outro": "What is the result?", "options": ["Runtime Exception", "[N, O]", "Compilation error", "[O, N]"], "answer": 0, "explanation": "Both streams are created in the try-with-resources header, so the ObjectInputStream is constructed BEFORE any object is written. The ObjectInputStream constructor immediately tries to read the stream header from the (empty, newly created) file and, finding no header, throws a java.io.EOFException (a runtime failure). The write/read logic is never reached.", "difficulty": "Hard", "topic": "I/O & NIO.2", "subtopic": "ObjectInputStream header read on construction", "bloom": "Analyze"}, {"intro": "A developer inserts one employee row through a PreparedStatement, binding the four parameters out of order and using setObject for one of them. A reviewer must confirm whether exactly one row is inserted.\n\nGiven structure: EMPLOYEE(ID integer, FIRSTNAME varchar, LASTNAME varchar, SALARY real, PRIMARY KEY(ID))", "code": "String query = \"INSERT INTO EMPLOYEE VALUES(?, ?, ?, ?)\";\ntry (var con = DriverManager.getConnection(url, user, password);\n     var ps = con.prepareStatement(query)) {\n  ps.setInt(1, 101);\n  ps.setObject(3, \"Smith\");\n  ps.setString(2, \"John\");\n  ps.setDouble(4, 12000.0);\n  ps.executeUpdate();\n}\n(URL/credentials/driver all valid; table initially empty.)", "outro": "What is the result?", "options": ["The program executes successfully and one record is inserted", "The program executes successfully but no record is inserted", "Compilation error", "An exception is thrown at runtime"], "answer": 0, "explanation": "All four bind variables are set before executeUpdate(); the order of the setXxx calls does not matter, only the parameter index does. setObject(3, ...) is a valid way to bind the third parameter. With ID=101, FIRSTNAME=John, LASTNAME=Smith, SALARY=12000.0 all bound, executeUpdate inserts exactly one row.", "difficulty": "Medium", "topic": "JDBC", "subtopic": "PreparedStatement parameter binding", "bloom": "Apply"}, {"intro": "A developer uses a scroll-insensitive, updatable ResultSet, moves to the insert row, populates it with a new employee, then calls deleteRow() before refreshing. A reviewer must identify the failing call.\n\nGiven EMPLOYEE has rows 101..104. Given code:", "code": "try (var con = DriverManager.getConnection(url, user, password);\n     var stmt = con.createStatement(ResultSet.TYPE_SCROLL_INSENSITIVE, ResultSet.CONCUR_UPDATABLE)) {\n  var rs = stmt.executeQuery(query);\n  rs.absolute(1);\n  rs.moveToInsertRow();\n  rs.updateInt(1, 105); rs.updateString(2, \"Chris\");\n  rs.updateString(3, \"Morris\"); rs.updateDouble(4, 25000);\n  rs.deleteRow();\n  rs.refreshRow();\n  System.out.println(rs.getInt(1));\n}", "outro": "What is the result?", "options": ["An exception is thrown by rs.refreshRow();", "102", "An exception is thrown by rs.deleteRow();", "104", "105"], "answer": 2, "explanation": "moveToInsertRow() positions the cursor on the special insert row, which is used only to build a new row via updateXxx and insertRow(). Calling deleteRow() while on the insert row is illegal and throws a SQLException, because there is no actual result-set row to delete at that position. The failure occurs at rs.deleteRow().", "difficulty": "Hard", "topic": "JDBC", "subtopic": "Updatable ResultSet insert row rules", "bloom": "Analyze"}, {"intro": "A developer migrating a legacy application removes all explicit Class.forName() driver-loading calls, trusting that modern JDBC auto-registers drivers found on the class path, and wants to confirm from which JDBC version this behaviour applies.\n\nConsider the statement: 'Any __________ drivers that are found in your class path are automatically loaded.'\nWhich option correctly fills the blank?", "code": "", "outro": "", "options": ["JDBC 4 and later", "JDBC 2 and later", "JDBC 1 and later", "JDBC 3 and later"], "answer": 0, "explanation": "Since JDBC 4.0, the DriverManager uses the Service Provider (java.sql.Driver in META-INF/services) mechanism to auto-load any compliant driver present on the class path, so an explicit Class.forName() call is no longer required. Drivers older than JDBC 4.0 lack this service entry and must be loaded manually.", "difficulty": "Medium", "topic": "JDBC", "subtopic": "JDBC 4 automatic driver loading", "bloom": "Understand"}, {"intro": "A developer submits a Callable to a single-thread executor and prints the future's result, but forgets to shut the executor down. A reviewer must state what prints and whether the program terminates. Given the code:", "code": "class Caller implements Callable<Void> {\n  String str;\n  public Caller(String s){ this.str = s; }\n  public Void call() throws Exception { System.out.println(str.toUpperCase()); return null; }\n}\npublic class Test {\n  public static void main(String[] args) throws InterruptedException, ExecutionException {\n    var es = Executors.newSingleThreadExecutor();\n    var future = es.submit(new Caller(\"Call\"));\n    System.out.println(future.get());\n  }\n}", "outro": "What is the result?", "options": ["The program terminates after printing: CALL then null", "The program does not terminate but prints: null null", "The program does not terminate but prints: CALL then null", "The program does not terminate but prints: CALL CALL null", "Compilation error"], "answer": 2, "explanation": "call() prints CALL (uppercase of 'Call') and returns null; future.get() then returns that null, which println prints as 'null'. However es.shutdown() is never called, so the single-thread executor keeps a non-daemon worker thread alive, and the JVM does not exit. The program prints CALL and null but does not terminate.", "difficulty": "Hard", "topic": "Concurrency", "subtopic": "ExecutorService non-daemon threads / shutdown", "bloom": "Analyze"}, {"intro": "A high-throughput service lazily creates a singleton through a static synchronized factory and then hammers it from 10,000 parallel tasks across a 100-thread pool. A reviewer must state the value of the instance counter afterwards. Given the code:", "code": "class Util {\n  int ctr = 0;\n  private static Util obj;\n  private Util(){ ++ctr; }\n  static synchronized Util get(){ if(obj == null) obj = new Util(); return obj; }\n}\npublic class Test {\n  public static void main(String[] args) {\n    var es = Executors.newFixedThreadPool(100);\n    IntStream.rangeClosed(1, 10000).parallel().forEach(x -> es.submit(() -> Util.get()));\n    es.shutdown();\n    // Line n1\n  }\n}", "outro": "What will be the value of 'ctr' when execution reaches Line n1?", "options": ["It is always 1", "It is always 0", "It is always 2", "It can be any number between 0 and 10000"], "answer": 0, "explanation": "get() is static synchronized, so the null-check-and-create is atomic across threads: the first caller creates the single Util instance and every later caller returns that same object. The constructor runs exactly once, so the instance field ctr is incremented exactly once to 1 and never again, regardless of how many tasks call get(). The value is always 1.", "difficulty": "Hard", "topic": "Concurrency", "subtopic": "Thread-safe lazy singleton", "bloom": "Analyze"}, {"intro": "A developer schedules a simple greeting task on a single-thread executor with execute() and then shuts it down. A reviewer must state the output. Given the code:", "code": "public class Test {\n  public static void main(String[] args) {\n    var es = Executors.newSingleThreadExecutor();\n    es.execute(() -> System.out.println(\"HELLO\"));\n    es.shutdown();\n  }\n}", "outro": "What is the result?", "options": ["Compilation error", "HELLO", "An exception is thrown at runtime"], "answer": 1, "explanation": "execute(Runnable) accepts a no-argument, void lambda, which matches Runnable. The submitted task runs on the pool's worker thread and prints HELLO. shutdown() performs an orderly shutdown that still allows the already-submitted task to complete, so HELLO is printed and the program ends cleanly.", "difficulty": "Medium", "topic": "Concurrency", "subtopic": "ExecutorService.execute(Runnable)", "bloom": "Understand"}, {"intro": "An enterprise team is migrating a legacy three-jar application to the Java Platform Module System. client.jar depends on services.jar, which depends on database.jar, and the team has chosen a bottom-up migration strategy to avoid automatic-module workarounds.\n\nWhich is the correct way to do this migration?", "code": "", "outro": "", "options": ["Modularize client.jar, automate services.jar and leave database.jar", "Modularize database.jar and leave services.jar", "Modularize client.jar and convert services.jar and database.jar to automatic modules", "Modularize database.jar, then services.jar and finally client.jar", "Modularize services.jar and convert database.jar to an automatic module"], "answer": 3, "explanation": "The bottom-up approach starts with the code that has no dependencies on other application jars. database.jar is the lowest layer, so it is modularized first, then services.jar (which requires database), and finally client.jar (which requires services). This ordering lets each newly modularized jar 'requires' an already-modular dependency, so no automatic-module workarounds are needed.", "difficulty": "Hard", "topic": "JPMS", "subtopic": "Bottom-up modular migration", "bloom": "Evaluate"}, {"intro": "A team integrates a reflection-based serialization library that must access members of two packages in their 'internal' module at runtime. They need the module descriptor to open both packages for deep reflection without opening the entire module.\n\nWhich module descriptor opens BOTH packages for reflection?", "code": "", "outro": "", "options": ["module internal { open com.skillcertpro.utility; open com.skillcertpro.utility.database; }", "open module internal {}", "module internal { open com.skillcertpro.utility; }", "module internal { opens com.skillcertpro.utility, com.skillcertpro.utility.database; }", "module internal { open; }"], "answer": 3, "explanation": "The correct directive is 'opens' (not 'open') at package level, and multiple packages are given as a comma-separated list: opens com.skillcertpro.utility, com.skillcertpro.utility.database;. 'open module internal {}' would open every package (more than requested), while 'open <package>;' is not valid directive syntax. Hence option 4 opens exactly the two named packages for reflection.", "difficulty": "Hard", "topic": "JPMS", "subtopic": "opens directive syntax", "bloom": "Analyze"}];
+// per-question state: picked index (null = unanswered), hintUsed, gain
+const STATE = QS.map(()=>({picked:null,hintUsed:false,gain:0}));
+let idx=0, xp=0, streak=0, bestStreak=0;
+const $=id=>document.getElementById(id);
+const KEYS=['A','B','C','D','E'];
+
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function baseXP(q){return q.difficulty==='Hard'?15:10}
+function answeredCount(){return STATE.filter(s=>s.picked!==null).length}
+function correctCount(){return STATE.filter((s,i)=>s.picked===QS[i].answer).length}
+
+function startQuiz(){
+  $('startScreen').classList.add('hidden');
+  $('quizScreen').classList.remove('hidden');
+  buildNav(); renderQ(); 
+}
+
+function toggleNav(){
+  const g=$('navGrid');
+  g.classList.toggle('collapsed');
+  $('navArrow').textContent=g.classList.contains('collapsed')?'▸':'▾';
+}
+
+function buildNav(){
+  $('navGrid').innerHTML=QS.map((_,i)=>
+    `<button class="qchip" id="chip${i}" onclick="goTo(${i})" aria-label="Go to question ${i+1}">${i+1}</button>`).join('');
+}
+
+function refreshNav(){
+  QS.forEach((q,i)=>{
+    const c=$('chip'+i), s=STATE[i];
+    c.className='qchip'+(s.picked===null?'':(s.picked===q.answer?' ok':' ko'))+(i===idx?' cur':'');
+  });
+}
+
+function refreshHud(){
+  const done=answeredCount(), corr=correctCount();
+  $('qCount').textContent='Q'+String(idx+1).padStart(2,'0')+' · '+done+' / '+QS.length+' DONE';
+  $('pFill').style.width=(done/QS.length*100)+'%';
+  $('xpVal').textContent=xp;
+  $('stVal').textContent=streak+(streak>=3?' 🔥':'');
+  $('accVal').textContent=done?Math.round(corr/done*100)+'%':'–';
+  $('finishBtn').style.display=done===QS.length?'inline-flex':'none';
+  $('prevBtn').disabled=idx===0;
+  $('nextBtn').disabled=idx===QS.length-1;
+}
+
+function goTo(i){ idx=i; renderQ(); }
+function prevQ(){ if(idx>0){idx--; renderQ();} }
+function nextQ(){ if(idx<QS.length-1){idx++; renderQ();} }
+
+function renderQ(){
+  const q=QS[idx], s=STATE[idx];
+  $('qCard').style.animation='none'; void $('qCard').offsetWidth; $('qCard').style.animation='fadeup .3s ease';
+  const dcls=q.difficulty==='Hard'?'b-red':'b-yellow';
+  $('badges').innerHTML=
+    `<span class="badge b-blue"><i></i>${esc(q.topic)}</span>`+
+    `<span class="badge ${dcls}"><i></i>${esc(q.difficulty)}</span>`+
+    `<span class="badge b-purple"><i></i>${esc(q.bloom)}</span>`;
+  $('qIntro').textContent=q.intro;
+  if(q.code){$('qCode').textContent=q.code;$('qCode').style.display='block'}else{$('qCode').style.display='none'}
+  if(q.outro){$('qOutro').textContent=q.outro;$('qOutro').style.display='block'}else{$('qOutro').style.display='none'}
+  $('opts').innerHTML=q.options.map((o,i)=>
+    `<button class="opt" data-i="${i}" onclick="pick(${i})"><span class="key">${KEYS[i]}</span><span class="txt">${esc(o)}</span></button>`).join('');
+  // hint state
+  $('hintBox').classList.toggle('show', s.hintUsed);
+  if(s.hintUsed) $('hintTxt').textContent=hintText(q);
+  $('hintBtn').disabled=s.hintUsed||s.picked!==null;
+  $('worthLbl').textContent=s.picked!==null?'':('WORTH '+(s.hintUsed?Math.ceil(baseXP(q)/2)+' XP (HINT USED)':baseXP(q)+' XP'));
+  // answered? restore locked feedback view
+  if(s.picked!==null){ showAnswered(false); } else { $('fb').className='feedback'; }
+  refreshNav(); refreshHud();
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function hintText(q){
+  return 'This scenario tests: '+q.subtopic+'. Think about what the '+q.topic+' rules say in this exact situation before picking an output by instinct.';
+}
+
+function showHint(){
+  const q=QS[idx]; STATE[idx].hintUsed=true;
+  $('hintBtn').disabled=true;
+  $('hintTxt').textContent=hintText(q);
+  $('hintBox').classList.add('show');
+  $('worthLbl').textContent='WORTH '+Math.ceil(baseXP(q)/2)+' XP (HINT USED)';
+}
+
+function pick(i){
+  const q=QS[idx], s=STATE[idx];
+  if(s.picked!==null) return;
+  s.picked=i;
+  const isRight=i===q.answer;
+  let gain=0;
+  if(isRight){
+    streak++; bestStreak=Math.max(bestStreak,streak);
+    gain=s.hintUsed?Math.ceil(baseXP(q)/2):baseXP(q);
+    if(streak>=3)gain+=2;
+    xp+=gain;
+  } else { streak=0; }
+  s.gain=gain;
+  showAnswered(true);
+  refreshNav(); refreshHud();
+  $('fb').scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+// renders the locked/answered view; fresh=true animates (just picked), false = revisiting
+function showAnswered(fresh){
+  const q=QS[idx], s=STATE[idx];
+  const isRight=s.picked===q.answer;
+  document.querySelectorAll('.opt').forEach((b,j)=>{
+    b.disabled=true;
+    if(j===q.answer)b.classList.add('correct');
+    else if(j===s.picked)b.classList.add('wrong',...(fresh?['fresh']:[]));
+    else b.classList.add('dim');
+  });
+  $('hintBtn').disabled=true;
+  $('worthLbl').textContent='';
+  const fb=$('fb');
+  fb.className='feedback show '+(isRight?'ok':'bad');
+  if(!fresh) fb.style.animation='none'; else fb.style.animation='';
+  $('fbIc').textContent=isRight?'✓':'✕';
+  $('fbTitle').textContent=isRight?(fresh&&streak>=3?'Correct — streak bonus +2 XP!':'Correct!'):'Not quite.';
+  $('fbXp').textContent='+'+s.gain+' XP';
+  $('fbAns').innerHTML=isRight?'':'Correct answer: <b>'+KEYS[q.answer]+'</b> — <b>'+esc(q.options[q.answer]).replace(/\n/g,' ⏎ ')+'</b>';
+  $('fbExp').innerHTML='<strong>Why:</strong> '+esc(q.explanation);
+}
+
+function rankFor(pct){
+  if(pct>=90)return['ORACLE ARCHITECT','var(--green)','rgba(34,211,165,0.12)'];
+  if(pct>=75)return['CERTIFICATION READY','var(--at)','rgba(3,37,189,0.14)'];
+  if(pct>=60)return['ALMOST THERE','var(--yellow)','rgba(245,197,66,0.12)'];
+  return['KEEP GRINDING','var(--red)','rgba(239,68,68,0.12)'];
+}
+
+function finish(){
+  $('quizScreen').classList.add('hidden');
+  const corr=correctCount(), pct=Math.round(corr/QS.length*100);
+  const[rk,rc,rb]=rankFor(pct);
+  const topicStats={};
+  QS.forEach((q,i)=>{
+    topicStats[q.topic]=topicStats[q.topic]||{c:0,n:0};
+    topicStats[q.topic].n++;
+    if(STATE[i].picked===q.answer)topicStats[q.topic].c++;
+  });
+  const topics=Object.entries(topicStats).sort((a,b)=>b[1].n-a[1].n);
+  let tb=topics.map(([t,s])=>{
+    const p=Math.round(s.c/s.n*100);
+    const col=p>=75?'var(--green)':p>=50?'var(--yellow)':'var(--red)';
+    return `<div class="tb"><div class="tl"><span>${esc(t)}</span><span>${s.c}/${s.n}</span></div><div class="pbar"><div class="fill" style="width:${p}%;background:${col}"></div></div></div>`;
+  }).join('');
+  const wrongL=QS.map((q,i)=>({q,i})).filter(w=>STATE[w.i].picked!==QS[w.i].answer);
+  let rev='';
+  if(wrongL.length){
+    rev='<div class="review"><h3>Review · '+wrongL.length+' to master (tap to expand)</h3>'+
+      wrongL.map(w=>`<div class="rv" onclick="this.classList.toggle('open')">
+        <div class="rq">Q${w.i+1} · ${esc(w.q.subtopic)}</div>
+        <div class="ra"><b>Answer: ${KEYS[w.q.answer]}</b> — ${esc(w.q.explanation)}</div>
+      </div>`).join('')+'</div>';
+  }
+  $('endScreen').innerHTML=`
+    <div class="eyebrow">Mission Complete</div>
+    <div class="rank" style="color:${rc};background:${rb}">◈ ${rk}</div>
+    <h1>${pct}% <span>· ${corr}/${QS.length}</span></h1>
+    <div class="statgrid" style="margin-top:24px">
+      <div class="sg"><div class="v" style="color:var(--at)">${xp}</div><div class="l">Total XP</div></div>
+      <div class="sg"><div class="v" style="color:var(--yellow)">${bestStreak}</div><div class="l">Best Streak</div></div>
+      <div class="sg"><div class="v" style="color:var(--green)">${corr}</div><div class="l">Correct</div></div>
+      <div class="sg"><div class="v" style="color:var(--red)">${QS.length-corr}</div><div class="l">Missed</div></div>
+    </div>
+    <div class="topicbars">${tb}</div>
+    ${rev}
+    <div style="margin-top:30px"><button class="primarybtn" onclick="location.reload()">Restart Mission ⟳</button></div>`;
+  $('endScreen').classList.remove('hidden');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+// keyboard: ← → navigate, 1-5/A-E answer
+document.addEventListener('keydown',e=>{
+  if($('quizScreen').classList.contains('hidden'))return;
+  if(e.key==='ArrowLeft')prevQ();
+  else if(e.key==='ArrowRight')nextQ();
+  else{
+    const k=e.key.toUpperCase();
+    let i=KEYS.indexOf(k); if(i<0&&/^[1-5]$/.test(k))i=+k-1;
+    if(i>=0&&i<QS[idx].options.length&&STATE[idx].picked===null)pick(i);
+  }
+});
+
+setInterval(()=>{
+  const n=new Date();
+  $('clock').textContent='IST '+n.toLocaleTimeString('en-IN',{hour12:false,timeZone:'Asia/Kolkata'});
+},1000);
+</script>
+</body>
+</html>
