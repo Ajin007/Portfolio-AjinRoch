@@ -1,0 +1,1286 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Void Express · 1Z0-913 PL/SQL Cert Train</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Russo+One&family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600;700&family=Archivo+Black&display=swap" rel="stylesheet">
+<style>
+/* ============ VOID EXPRESS — design tokens (dark-arcade void) ============ */
+:root{
+  --bg:#04050C; --bg2:#080B18; --panel:#0D1222; --panel-hi:#141B33; --line:rgba(140,170,255,.12);
+  --ink:#EAF0FF; --mut:#93A0C8; --dim:#57628C;
+  --cyan:#45E6C8; --cyan-d:#0E8F78; --ember:#FF8A4A; --ember-d:#C2531A;
+  --violet:#9B7BFF; --gold:#FFC94A; --red:#FF5568; --green:#3DF0A8;
+  --disp:'Russo One',sans-serif; --body:'Space Grotesk',sans-serif; --mono:'JetBrains Mono',monospace; --meme:'Archivo Black',sans-serif;
+  --r-lg:20px; --r-md:14px; --r-sm:9px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:var(--body);background:var(--bg);color:var(--ink);line-height:1.55;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit}
+::-webkit-scrollbar{width:8px;height:8px}::-webkit-scrollbar-thumb{background:rgba(140,170,255,.18);border-radius:99px}
+:focus-visible{outline:3px solid var(--cyan);outline-offset:2px;border-radius:8px}
+
+/* ============ void backdrop: nebula + stars + drifting debris ============ */
+.void{position:fixed;inset:0;z-index:0;background:
+  radial-gradient(90% 60% at 80% -10%,rgba(155,123,255,.16),transparent 60%),
+  radial-gradient(70% 50% at 10% 110%,rgba(69,230,200,.10),transparent 60%),
+  radial-gradient(120% 90% at 50% 0%,#0A0E20,var(--bg) 70%)}
+.stars{position:absolute;inset:0;background-image:
+  radial-gradient(1.6px 1.6px at 12% 22%,#fff,transparent),
+  radial-gradient(1.2px 1.2px at 32% 68%,#bfe9ff,transparent),
+  radial-gradient(1.6px 1.6px at 55% 14%,#fff,transparent),
+  radial-gradient(1px 1px at 71% 41%,#d9d4ff,transparent),
+  radial-gradient(1.4px 1.4px at 86% 74%,#fff,transparent),
+  radial-gradient(1px 1px at 44% 87%,#bffcec,transparent),
+  radial-gradient(1.2px 1.2px at 92% 12%,#fff,transparent),
+  radial-gradient(1px 1px at 5% 55%,#fff,transparent);
+  opacity:.55;animation:twinkle 6s ease-in-out infinite alternate}
+@keyframes twinkle{to{opacity:.9}}
+.debris{position:absolute;font-size:clamp(22px,3vw,40px);opacity:.14;filter:grayscale(.4);animation:drift linear infinite;will-change:transform}
+@keyframes drift{from{transform:translateX(110vw) rotate(0deg)}to{transform:translateX(-14vw) rotate(340deg)}}
+
+#app{position:relative;z-index:1;min-height:100%}
+.screen{display:none;min-height:100vh}
+.screen.on{display:block;animation:screenIn .45s ease}
+@keyframes screenIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* ============ FX layers ============ */
+#fx{position:fixed;inset:0;pointer-events:none;z-index:80}
+.shake{animation:shake .4s cubic-bezier(.36,.07,.19,.97)}
+@keyframes shake{10%{transform:translate(-6px,3px)}25%{transform:translate(7px,-4px)}40%{transform:translate(-7px,-2px)}55%{transform:translate(6px,4px)}70%{transform:translate(-4px,-3px)}85%{transform:translate(3px,2px)}100%{transform:none}}
+.flash-red{position:fixed;inset:0;background:radial-gradient(circle at 50% 65%,transparent 25%,rgba(255,85,104,.32));opacity:0;pointer-events:none;z-index:70}
+.flash-red.on{animation:fr .55s ease}
+@keyframes fr{15%{opacity:1}100%{opacity:0}}
+.flash-boost{position:fixed;inset:0;background:linear-gradient(100deg,transparent 30%,rgba(69,230,200,.14) 50%,transparent 70%);opacity:0;pointer-events:none;z-index:70}
+.flash-boost.on{animation:fb .6s ease}
+@keyframes fb{20%{opacity:1}100%{opacity:0}}
+.floater{position:fixed;z-index:90;font:clamp(20px,3.6vw,32px)/1 var(--disp);pointer-events:none;text-shadow:0 3px 0 rgba(0,0,0,.5);animation:floatUp 1.05s cubic-bezier(.2,.8,.3,1) forwards}
+@keyframes floatUp{0%{transform:translate(-50%,0) scale(.4);opacity:0}18%{transform:translate(-50%,-16px) scale(1.15);opacity:1}100%{transform:translate(-50%,-100px) scale(1);opacity:0}}
+.spark{position:fixed;z-index:85;width:8px;height:8px;border-radius:2px;pointer-events:none;animation:sparkFly .8s cubic-bezier(.15,.85,.35,1) forwards}
+@keyframes sparkFly{from{opacity:1;transform:translate(0,0) rotate(0)}to{opacity:0;transform:translate(var(--dx),var(--dy)) rotate(300deg)}}
+
+/* ============ topbar ============ */
+.topbar{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:11px clamp(12px,4vw,28px);backdrop-filter:blur(12px);background:rgba(4,5,12,.66);border-bottom:1px solid var(--line)}
+.logo{display:flex;align-items:center;gap:10px}
+.logo .mk{width:36px;height:36px;border-radius:11px;background:linear-gradient(135deg,var(--ember),var(--ember-d));display:grid;place-items:center;font-size:19px;box-shadow:0 6px 20px -6px var(--ember)}
+.logo b{font:400 17px/1.1 var(--disp);letter-spacing:.03em}
+.logo span{display:block;font:700 8.5px var(--body);letter-spacing:.2em;color:var(--cyan);text-transform:uppercase}
+.spacer{flex:1}
+.backbtn{font:700 11px var(--body);letter-spacing:.1em;text-transform:uppercase;color:var(--mut);padding:9px 14px;border-radius:11px;background:var(--panel);border:1px solid var(--line);transition:.18s ease}
+.backbtn:hover{color:var(--ink);transform:translateX(-3px)}
+.pill{display:inline-flex;align-items:center;gap:7px;font:700 12.5px var(--body);padding:7px 13px;border-radius:99px;background:var(--panel);border:1px solid var(--line);font-variant-numeric:tabular-nums;transition:transform .18s ease}
+.pill .i{font-size:14px}
+.pill.scrap{color:var(--gold)} .pill.streak{color:var(--ember)} .pill.bump{animation:bump .35s ease}
+@keyframes bump{40%{transform:scale(1.22)}}
+.hull{display:inline-flex;gap:4px;font-size:17px;padding:6px 12px;border-radius:99px;background:var(--panel);border:1px solid var(--line)}
+.hull .pl{transition:.3s ease;filter:drop-shadow(0 1px 5px rgba(69,230,200,.5))}
+.hull .pl.gone{filter:grayscale(1) brightness(.35);transform:scale(.78);opacity:.5}
+.hull .pl.breaking{animation:plateBreak .55s both}
+@keyframes plateBreak{0%{transform:scale(1.45) rotate(-14deg)}45%{transform:scale(.65) rotate(12deg)}100%{transform:scale(.78);opacity:.5}}
+
+/* ============ HOME ============ */
+.home-wrap{max-width:1060px;margin:0 auto;padding:clamp(26px,6vw,64px) 20px 100px;text-align:center;position:relative}
+.hero-badge{display:inline-block;font:700 10.5px var(--body);letter-spacing:.24em;text-transform:uppercase;color:var(--cyan);background:rgba(69,230,200,.08);border:1px solid rgba(69,230,200,.3);padding:8px 18px;border-radius:99px;margin-bottom:22px;animation:pop .55s .05s both}
+h1.title{font:400 clamp(38px,9vw,88px)/.95 var(--disp);letter-spacing:.01em;margin-bottom:10px;animation:pop .55s .12s both}
+h1.title .a{color:var(--ember);text-shadow:0 5px 0 var(--ember-d),0 10px 30px rgba(255,138,74,.4)}
+h1.title .b{background:linear-gradient(180deg,#B8FFF0,var(--cyan) 60%,var(--cyan-d));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{font:600 clamp(13.5px,2.3vw,18px) var(--body);color:var(--mut);max-width:640px;margin:0 auto 30px;animation:pop .55s .2s both}
+.tagline b{color:var(--ink)}
+@keyframes pop{from{opacity:0;transform:scale(.85) translateY(16px)}to{opacity:1;transform:none}}
+
+.hero-train{font-size:clamp(40px,8vw,76px);margin:6px 0 24px;animation:pop .55s .28s both;display:inline-block}
+.hero-train .cars{display:inline-block;transform:scaleX(-1);animation:chug 1.6s ease-in-out infinite}
+@keyframes chug{0%,100%{transform:scaleX(-1) translateY(0)}50%{transform:scaleX(-1) translateY(-6px)}}
+
+.stat-row{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:38px;animation:pop .55s .34s both}
+.stat{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 24px;min-width:120px;transition:.18s ease}
+.stat:hover{transform:translateY(-3px);border-color:rgba(69,230,200,.4)}
+.stat .v{font:400 28px/1 var(--disp);font-variant-numeric:tabular-nums}
+.stat .l{font:700 9px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin-top:7px}
+.stat.c1 .v{color:var(--cyan)} .stat.c2 .v{color:var(--gold)} .stat.c3 .v{color:var(--ember)}
+
+.boardbtn{display:inline-flex;align-items:center;gap:12px;font:400 clamp(17px,2.6vw,22px)/1 var(--disp);letter-spacing:.04em;color:#04120D;background:linear-gradient(180deg,#7CF5DE,var(--cyan) 55%,#23BFA1);padding:19px 44px;border-radius:18px;box-shadow:0 12px 34px -8px rgba(69,230,200,.55),inset 0 2px 0 rgba(255,255,255,.5);transition:.18s cubic-bezier(.34,1.56,.64,1);animation:pop .55s .42s both;text-transform:uppercase}
+.boardbtn:hover{transform:translateY(-4px) scale(1.03);box-shadow:0 20px 44px -10px rgba(69,230,200,.7),inset 0 2px 0 rgba(255,255,255,.5)}
+.boardbtn:active{transform:translateY(0) scale(.98)}
+
+.how{display:grid;grid-template-columns:repeat(auto-fit,minmax(215px,1fr));gap:14px;max-width:940px;margin:52px auto 0;text-align:left}
+.how .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:20px;opacity:0;transform:translateY(18px)}
+.how .card.reveal{animation:rise .55s ease forwards}
+@keyframes rise{to{opacity:1;transform:none}}
+.how .ic{font-size:26px;margin-bottom:10px}
+.how h3{font:400 15px var(--disp);letter-spacing:.03em;margin-bottom:6px}
+.how p{font:500 12.5px var(--body);color:var(--mut)}
+
+.zones{max-width:940px;margin:54px auto 0;text-align:left}
+.zones h2{font:400 13px var(--disp);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:16px;text-align:center}
+.zone-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px}
+.zone{display:flex;gap:13px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:14px 16px;opacity:0;transform:translateY(18px);transition:border-color .18s ease}
+.zone.reveal{animation:rise .55s ease forwards}
+.zone:hover{border-color:rgba(155,123,255,.45)}
+.zone .zi{width:44px;height:44px;flex:none;border-radius:12px;display:grid;place-items:center;font-size:22px;background:var(--panel-hi);box-shadow:inset 0 0 0 1px var(--line)}
+.zone .zn{font:400 13.5px var(--disp);letter-spacing:.02em}
+.zone .zc{font:600 11px var(--body);color:var(--dim);margin-top:2px}
+
+/* ============ GAME ============ */
+.game-wrap{max-width:980px;margin:0 auto;padding:14px clamp(10px,3vw,24px) 60px}
+
+/* rail line with 20 stations + moving train */
+.railbox{position:relative;background:linear-gradient(180deg,rgba(13,18,34,.9),rgba(13,18,34,.55));border:1px solid var(--line);border-radius:var(--r-lg);padding:30px 22px 14px;margin:10px 0 18px;overflow:hidden}
+.railbox .haze{position:absolute;inset:0;background:radial-gradient(70% 120% at 50% -30%,rgba(155,123,255,.12),transparent 60%);pointer-events:none}
+.rail{position:relative;height:6px;border-radius:99px;background:repeating-linear-gradient(90deg,#232B4A 0 14px,#2E3860 14px 18px);margin:0 8px}
+.rail .done{position:absolute;left:0;top:0;bottom:0;border-radius:99px;background:linear-gradient(90deg,var(--cyan-d),var(--cyan));box-shadow:0 0 14px rgba(69,230,200,.6);transition:width .8s cubic-bezier(.22,.9,.3,1);width:0}
+.stops{position:relative;display:flex;justify-content:space-between;margin:0 8px;transform:translateY(-11px)}
+.stop{width:16px;height:16px;border-radius:50%;background:var(--panel-hi);border:2px solid #2E3860;transition:.3s ease;position:relative}
+.stop.hit{background:var(--cyan);border-color:#9FFFEC;box-shadow:0 0 12px rgba(69,230,200,.8);transform:scale(1.1)}
+.stop.miss{background:var(--red);border-color:#FFB3BC;box-shadow:0 0 12px rgba(255,85,104,.7)}
+.stop.now{border-color:var(--gold);animation:pulse 1.3s ease-in-out infinite}
+@keyframes pulse{50%{transform:scale(1.35);box-shadow:0 0 0 6px rgba(255,201,74,.15)}}
+.train{position:absolute;bottom:26px;font-size:clamp(26px,4.4vw,40px);transition:left .8s cubic-bezier(.22,.9,.3,1);transform:translateX(-50%);filter:drop-shadow(0 6px 12px rgba(0,0,0,.6));will-change:left}
+.train .cars{display:inline-block;transform:scaleX(-1);animation:chug 1.4s ease-in-out infinite}
+.train.boost .cars{animation:boostChug .28s ease-in-out 3}
+@keyframes boostChug{50%{transform:scaleX(-1) translate(-10px,-8px)}}
+.train .smoke{position:absolute;right:-4px;top:-14px;font-size:.5em;opacity:0}
+.train.boost .smoke{animation:puff .9s ease-out 2}
+@keyframes puff{0%{opacity:.9;transform:translate(0,0) scale(.6)}100%{opacity:0;transform:translate(26px,-26px) scale(1.5)}}
+.rail-label{display:flex;justify-content:space-between;font:700 9.5px var(--body);letter-spacing:.16em;text-transform:uppercase;color:var(--dim);margin:14px 8px 0}
+
+/* question card */
+.qcard{background:var(--panel);border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(18px,3.4vw,30px);animation:screenIn .4s ease}
+.qhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.ztag{display:inline-flex;align-items:center;gap:7px;font:700 10.5px var(--body);letter-spacing:.14em;text-transform:uppercase;padding:6px 13px;border-radius:99px;border:1px solid}
+.station-name{font:400 clamp(17px,3vw,24px)/1.2 var(--disp);letter-spacing:.02em;margin-bottom:4px}
+.station-sub{font:600 12px var(--body);color:var(--dim);letter-spacing:.06em;text-transform:uppercase;margin-bottom:14px}
+.qtext{font:600 clamp(14.5px,2.2vw,17px)/1.6 var(--body);color:var(--ink);margin-bottom:16px}
+.codebox{background:#070A16;border:1px solid var(--line);border-radius:var(--r-md);margin-bottom:18px;overflow:hidden}
+.codebox .chead{display:flex;align-items:center;gap:7px;padding:9px 14px;border-bottom:1px solid var(--line);font:700 10px var(--body);letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+.codebox .dot3{display:flex;gap:5px}
+.codebox .dot3 i{width:9px;height:9px;border-radius:50%;background:#2E3860}
+.codebox pre{padding:14px 16px;overflow-x:auto;font:600 clamp(11.5px,1.7vw,13.5px)/1.7 var(--mono);color:#C9E4FF}
+.codebox pre .kw{color:var(--violet)} .codebox pre .cm{color:#55648F} .codebox pre .st{color:var(--green)}
+
+.opts{display:grid;gap:10px}
+.opt{display:flex;align-items:flex-start;gap:13px;text-align:left;background:var(--panel-hi);border:1.5px solid var(--line);border-radius:var(--r-md);padding:14px 16px;font:600 clamp(13px,1.9vw,14.5px)/1.5 var(--body);transition:.18s ease;width:100%}
+.opt .key{flex:none;width:30px;height:30px;border-radius:9px;display:grid;place-items:center;font:400 13px var(--disp);background:#1B2340;color:var(--mut);transition:.18s ease}
+.opt .ot{flex:1;font-family:var(--mono);font-weight:600;font-size:.94em}
+.opt:not(:disabled):hover{transform:translateY(-3px);border-color:var(--cyan);box-shadow:0 12px 28px -14px rgba(69,230,200,.5)}
+.opt:not(:disabled):hover .key{background:var(--cyan);color:#04120D}
+.opt:disabled{cursor:default;opacity:.88}
+.opt.right{border-color:var(--green);background:rgba(61,240,168,.1);animation:rightPop .5s cubic-bezier(.34,1.56,.64,1)}
+.opt.right .key{background:var(--green);color:#04120D}
+@keyframes rightPop{35%{transform:scale(1.03)}}
+.opt.wrong{border-color:var(--red);background:rgba(255,85,104,.1);animation:wrongJit .4s ease}
+.opt.wrong .key{background:var(--red);color:#fff}
+@keyframes wrongJit{25%{transform:translateX(-7px)}50%{transform:translateX(6px)}75%{transform:translateX(-4px)}}
+.opt.dim2{opacity:.42}
+
+/* feedback: verdict banner + meme */
+.feedback{display:none;margin-top:20px}
+.feedback.on{display:block;animation:screenIn .4s ease}
+.verdict{display:flex;align-items:center;gap:12px;font:400 clamp(17px,3vw,24px)/1.15 var(--disp);letter-spacing:.02em;margin-bottom:16px}
+.verdict.good{color:var(--green)} .verdict.bad{color:var(--red)}
+.verdict .sub{font:600 12px var(--body);color:var(--mut);letter-spacing:.04em;display:block;margin-top:3px;text-transform:none}
+
+.meme{max-width:430px;margin:0 auto 20px;background:#070A16;border:1px solid var(--line);border-radius:var(--r-md);padding:20px 18px;text-align:center;animation:memeIn .55s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes memeIn{from{opacity:0;transform:scale(.7) rotate(-3deg)}to{opacity:1;transform:none}}
+.meme .cap{font-family:var(--meme);font-size:clamp(13px,2.4vw,17px);letter-spacing:.04em;text-transform:uppercase;color:#fff;text-shadow:2px 2px 0 #000,-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000}
+.meme .art{font-size:clamp(38px,7vw,58px);margin:12px 0;filter:drop-shadow(0 6px 14px rgba(0,0,0,.5))}
+.meme .tag{font:700 9px var(--body);letter-spacing:.22em;text-transform:uppercase;color:var(--dim);margin-top:10px}
+
+/* visualizer */
+.viz{background:#070A16;border:1px solid var(--line);border-radius:var(--r-lg);padding:clamp(16px,3vw,24px);margin-top:6px}
+.viz h3{display:flex;align-items:center;gap:9px;font:400 14px var(--disp);letter-spacing:.1em;text-transform:uppercase;color:var(--cyan);margin-bottom:14px}
+.viz h3 .ln{flex:1;height:1px;background:var(--line)}
+.steps{display:grid;gap:9px;margin-bottom:22px}
+.step{display:flex;gap:12px;align-items:flex-start;background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--violet);border-radius:var(--r-sm);padding:11px 14px;opacity:0;transform:translateX(-14px)}
+.step.reveal{animation:stepIn .45s ease forwards}
+@keyframes stepIn{to{opacity:1;transform:none}}
+.step .n{flex:none;width:24px;height:24px;border-radius:8px;background:rgba(155,123,255,.16);color:var(--violet);display:grid;place-items:center;font:400 11.5px var(--disp)}
+.step .t{font:500 13px/1.55 var(--body);color:#C9D4F2}
+.step .t code,.vrow .t code,.pearl code{font:600 .92em var(--mono);color:var(--cyan);background:rgba(69,230,200,.09);padding:1px 6px;border-radius:5px;white-space:nowrap}
+.vgrid{display:grid;gap:9px;margin-bottom:20px}
+.vrow{display:flex;gap:12px;align-items:flex-start;border-radius:var(--r-sm);padding:11px 14px;border:1px solid var(--line);opacity:0;transform:translateY(10px)}
+.vrow.reveal{animation:rise .45s ease forwards}
+.vrow.ok{background:rgba(61,240,168,.07);border-color:rgba(61,240,168,.35)}
+.vrow.no{background:rgba(255,85,104,.05)}
+.vrow .mark{flex:none;width:24px;height:24px;border-radius:8px;display:grid;place-items:center;font-weight:800;font-size:13px}
+.vrow.ok .mark{background:rgba(61,240,168,.18);color:var(--green)}
+.vrow.no .mark{background:rgba(255,85,104,.14);color:var(--red)}
+.vrow .t{font:500 12.8px/1.55 var(--body);color:#B9C4E4}
+.vrow .t b{color:var(--ink)}
+.pearl{display:flex;gap:12px;align-items:flex-start;background:linear-gradient(90deg,rgba(255,201,74,.1),transparent 70%);border:1px solid rgba(255,201,74,.3);border-radius:var(--r-md);padding:14px 16px;font:600 13px/1.6 var(--body);color:#F4E7C3}
+.pearl .pi{font-size:20px;flex:none}
+.pearl b{color:var(--gold)}
+
+.nextrow{display:flex;justify-content:center;margin-top:22px}
+.nextbtn{display:inline-flex;align-items:center;gap:10px;font:400 15px var(--disp);letter-spacing:.06em;text-transform:uppercase;color:#04120D;background:linear-gradient(180deg,#7CF5DE,var(--cyan) 55%,#23BFA1);padding:14px 34px;border-radius:14px;box-shadow:0 10px 26px -8px rgba(69,230,200,.55);transition:.18s cubic-bezier(.34,1.56,.64,1)}
+.nextbtn:hover{transform:translateY(-3px) scale(1.02)}
+.kbd-hint{text-align:center;font:600 10.5px var(--body);letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin-top:14px}
+.kbd-hint kbd{font:700 10px var(--mono);background:var(--panel-hi);border:1px solid var(--line);border-bottom-width:2px;border-radius:5px;padding:2px 7px;color:var(--mut)}
+
+/* ============ END ============ */
+.end-wrap{max-width:900px;margin:0 auto;padding:clamp(26px,6vw,60px) 20px 100px;text-align:center}
+.rank-emb{font-size:clamp(58px,11vw,96px);margin-bottom:8px;animation:pop .6s .1s both;display:inline-block}
+.rank-name{font:400 clamp(30px,7vw,60px)/1 var(--disp);letter-spacing:.02em;margin-bottom:8px;animation:pop .6s .18s both}
+.rank-name.gold{color:var(--gold);text-shadow:0 5px 0 #A6741B,0 10px 30px rgba(255,201,74,.4)}
+.rank-name.cyan{color:var(--cyan)} .rank-name.violet{color:var(--violet)} .rank-name.red{color:var(--red)}
+.rank-sub{font:600 14px var(--body);color:var(--mut);max-width:520px;margin:0 auto 30px;animation:pop .6s .26s both}
+.end-stats{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:40px;animation:pop .6s .32s both}
+.badges{max-width:760px;margin:0 auto 44px;text-align:left}
+.badges h2,.review h2{font:400 13px var(--disp);letter-spacing:.2em;text-transform:uppercase;color:var(--dim);margin-bottom:16px;text-align:center}
+.badge-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:11px}
+.badge{display:flex;gap:12px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:var(--r-md);padding:13px 15px;opacity:0;transform:translateY(16px)}
+.badge.reveal{animation:rise .5s ease forwards}
+.badge.won{border-color:rgba(255,201,74,.45);background:linear-gradient(135deg,rgba(255,201,74,.09),var(--panel) 60%)}
+.badge.lost{opacity:.55;filter:grayscale(.7)}
+.badge.lost.reveal{animation:rise .5s ease forwards;opacity:0}
+.badge.lost.reveal{--endop:.55}
+.badge .bi{font-size:26px}
+.badge .bn{font:400 12.5px var(--disp)}
+.badge .bs{font:600 10.5px var(--body);color:var(--dim)}
+.review{max-width:820px;margin:0 auto 40px;text-align:left}
+.rev-item{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:var(--r-md);padding:15px 17px;margin-bottom:10px}
+.rev-item .rq{font:700 13px var(--body);margin-bottom:6px}
+.rev-item .ra{font:500 12.5px/1.6 var(--body);color:var(--mut)}
+.rev-item .ra b{color:var(--green)}
+.rev-clean{text-align:center;font:600 14px var(--body);color:var(--green);background:rgba(61,240,168,.07);border:1px solid rgba(61,240,168,.3);border-radius:var(--r-md);padding:18px}
+.end-actions{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+
+@media (max-width:560px){
+  .topbar{gap:7px}
+  .hull{font-size:14px}
+  .stops .stop{width:11px;height:11px}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation-duration:.001s !important;animation-delay:0s !important;transition-duration:.001s !important}
+}
+</style>
+</head>
+<body>
+
+<div class="void" aria-hidden="true">
+  <div class="stars"></div>
+  <div class="debris" style="top:16%;animation-duration:52s;animation-delay:-8s">🛰️</div>
+  <div class="debris" style="top:44%;animation-duration:70s;animation-delay:-30s">🪨</div>
+  <div class="debris" style="top:66%;animation-duration:60s;animation-delay:-18s">⚙️</div>
+  <div class="debris" style="top:82%;animation-duration:84s;animation-delay:-50s">🪐</div>
+  <div class="debris" style="top:28%;animation-duration:96s;animation-delay:-64s">📦</div>
+</div>
+<div id="fx" aria-hidden="true"></div>
+<div class="flash-red" id="flashRed" aria-hidden="true"></div>
+<div class="flash-boost" id="flashBoost" aria-hidden="true"></div>
+
+<div id="app">
+
+<!-- ================= HOME ================= -->
+<section class="screen on" id="scr-home">
+  <div class="topbar">
+    <a class="backbtn" href="index.html">← Portfolio</a>
+    <div class="spacer"></div>
+    <div class="logo"><div class="mk">🚂</div><div><b>VOID EXPRESS</b><span>1Z0-913 Cert Line</span></div></div>
+  </div>
+  <div class="home-wrap">
+    <div class="hero-badge">Oracle · PL/SQL Developer Certification · 20 Stations</div>
+    <h1 class="title"><span class="a">VOID</span> <span class="b">EXPRESS</span></h1>
+    <p class="tagline">Your exam prep is a train stranded in the void. Every correct answer <b>powers the engine one station forward</b>. Every miss <b>cracks a hull plate</b> — but the visualizer shows you exactly why, so it never happens twice.</p>
+    <div class="hero-train" aria-hidden="true"><span class="cars">🚂🚃🚃🚃</span></div>
+    <div class="stat-row">
+      <div class="stat c1"><div class="v">20</div><div class="l">Stations</div></div>
+      <div class="stat c2"><div class="v" id="homeBest">—</div><div class="l">Best Scrap</div></div>
+      <div class="stat c3"><div class="v">7</div><div class="l">Exam Zones</div></div>
+    </div>
+    <button class="boardbtn" id="boardBtn">🎫 Board the Train</button>
+
+    <div class="how" id="howGrid">
+      <div class="card"><div class="ic">⚡</div><h3>Answer &amp; Advance</h3><p>Each station is one intermediate-level 1Z0-913 question. Correct = the train boosts forward and you earn scrap.</p></div>
+      <div class="card"><div class="ic">🔥</div><h3>Streak Multiplier</h3><p>3+ correct in a row doubles your scrap. Miss once and the multiplier resets — just like exam momentum.</p></div>
+      <div class="card"><div class="ic">🔬</div><h3>Why-Visualizer</h3><p>After every answer: a step-by-step execution trace, plus a verdict on all four options — why the right one is right and each wrong one is wrong.</p></div>
+      <div class="card"><div class="ic">🏅</div><h3>Zone Badges</h3><p>Clear every station in a syllabus zone to forge its badge. Forge all 7 and you own the whole 1Z0-913 syllabus.</p></div>
+    </div>
+
+    <div class="zones">
+      <h2>— The Route · Full 1Z0-913 Syllabus Coverage —</h2>
+      <div class="zone-grid" id="zoneGrid"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= GAME ================= -->
+<section class="screen" id="scr-game">
+  <div class="topbar">
+    <button class="backbtn" id="quitBtn">← Abandon Run</button>
+    <div class="spacer"></div>
+    <span class="pill" id="stationPill"><span class="i">📍</span><span id="stationTxt">Station 1 / 20</span></span>
+    <span class="pill scrap" id="scrapPill"><span class="i">🔩</span><span id="scrapTxt">0</span></span>
+    <span class="pill streak" id="streakPill"><span class="i">🔥</span><span id="streakTxt">x1</span></span>
+    <span class="hull" id="hull" role="img" aria-label="Hull integrity"></span>
+  </div>
+
+  <div class="game-wrap">
+    <div class="railbox" aria-hidden="true">
+      <div class="haze"></div>
+      <div class="train" id="train"><span class="smoke">💨</span><span class="cars">🚂🚃🚃</span></div>
+      <div class="rail"><div class="done" id="railDone"></div></div>
+      <div class="stops" id="stops"></div>
+      <div class="rail-label"><span>Void Depot</span><span>Certification Gate</span></div>
+    </div>
+
+    <div class="qcard" id="qcard">
+      <div class="qhead" id="qhead"></div>
+      <div class="station-name" id="stationName"></div>
+      <div class="station-sub" id="stationSub"></div>
+      <p class="qtext" id="qtext"></p>
+      <div class="codebox" id="codebox">
+        <div class="chead"><span class="dot3"><i></i><i></i><i></i></span><span>train_console.sql</span></div>
+        <pre id="codepre"></pre>
+      </div>
+      <div class="opts" id="opts" role="group" aria-label="Answer options"></div>
+
+      <div class="feedback" id="feedback" aria-live="polite">
+        <div class="verdict" id="verdictBox"></div>
+        <div class="meme" id="memeBox"></div>
+        <div class="viz">
+          <h3>🔬 Why-Visualizer <span class="ln"></span></h3>
+          <div class="steps" id="vizSteps"></div>
+          <h3>⚖️ Option Verdicts <span class="ln"></span></h3>
+          <div class="vgrid" id="vizVerdicts"></div>
+          <div class="pearl" id="pearlBox"></div>
+        </div>
+        <div class="nextrow"><button class="nextbtn" id="nextBtn">Next Station →</button></div>
+      </div>
+      <div class="kbd-hint">Keys <kbd>1</kbd><kbd>2</kbd><kbd>3</kbd><kbd>4</kbd> answer · <kbd>Enter</kbd> next station</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= END ================= -->
+<section class="screen" id="scr-end">
+  <div class="topbar">
+    <div class="logo"><div class="mk">🚂</div><div><b>VOID EXPRESS</b><span>Run Report</span></div></div>
+    <div class="spacer"></div>
+  </div>
+  <div class="end-wrap">
+    <div class="rank-emb" id="rankEmb">🏆</div>
+    <div class="rank-name" id="rankName"></div>
+    <p class="rank-sub" id="rankSub"></p>
+    <div class="end-stats">
+      <div class="stat c1"><div class="v" id="endCorrect">0/20</div><div class="l">Stations Cleared</div></div>
+      <div class="stat c2"><div class="v" id="endScrap">0</div><div class="l">Scrap Earned</div></div>
+      <div class="stat c3"><div class="v" id="endStreak">0</div><div class="l">Best Streak</div></div>
+      <div class="stat c1"><div class="v" id="endAcc">0%</div><div class="l">Accuracy</div></div>
+    </div>
+    <div class="badges">
+      <h2>— Zone Badges Forged —</h2>
+      <div class="badge-grid" id="badgeGrid"></div>
+    </div>
+    <div class="review">
+      <h2>— Repair Bay · Stations You Missed —</h2>
+      <div id="reviewList"></div>
+    </div>
+    <div class="end-actions">
+      <button class="boardbtn" id="againBtn">🔁 Ride Again</button>
+      <a class="backbtn" href="index.html" style="align-self:center;padding:14px 22px">← Back to Portfolio</a>
+    </div>
+  </div>
+</section>
+
+</div>
+
+<script>
+"use strict";
+/* ================================================================
+   VOID EXPRESS — 1Z0-913 PL/SQL Cert Train
+   20 intermediate questions spanning the full exam syllabus.
+   ================================================================ */
+
+const ZONES = [
+  {icon:"⚙️", name:"Engine Core",     sub:"Blocks · Variables · Control Flow", col:"#9B7BFF"},
+  {icon:"🎯", name:"Cursor Car",      sub:"Implicit & Explicit Cursors",       col:"#45E6C8"},
+  {icon:"📦", name:"Cargo Hold",      sub:"Records & Collections",             col:"#FF8A4A"},
+  {icon:"⚡", name:"Turbo Wagon",     sub:"BULK COLLECT & FORALL",             col:"#FFC94A"},
+  {icon:"🛡️", name:"Shield Bay",      sub:"Exception Handling",                col:"#FF5568"},
+  {icon:"🧰", name:"Crew Quarters",   sub:"Procedures · Functions · Packages", col:"#3DF0A8"},
+  {icon:"🔮", name:"Signal Tower",    sub:"Triggers · Dynamic SQL · Security", col:"#7BB8FF"}
+];
+
+/* Each Q: zone, station, topic, q, code[], opts[4], ans, steps[], verdicts[4], pearl */
+const QUESTIONS = [
+/* ---------- ZONE 0 · ENGINE CORE ---------- */
+{
+  zone:0, station:"Ignition Chamber", topic:"Block Structure & Variable Scope",
+  q:"The engineer runs this anonymous block. What does the console print?",
+  code:[
+    "DECLARE",
+    "  v_fuel NUMBER := 10;",
+    "BEGIN",
+    "  DECLARE",
+    "    v_fuel NUMBER := 99;",
+    "  BEGIN",
+    "    DBMS_OUTPUT.PUT_LINE('Inner: ' || v_fuel);",
+    "  END;",
+    "  DBMS_OUTPUT.PUT_LINE('Outer: ' || v_fuel);",
+    "END;"
+  ],
+  opts:["Inner: 99  then  Outer: 10","Inner: 99  then  Outer: 99","Inner: 10  then  Outer: 10","Compilation error — v_fuel is declared twice"],
+  ans:0,
+  steps:[
+    "The outer block declares <code>v_fuel = 10</code>. Its scope is the whole outer block, including the nested block.",
+    "The inner block declares its OWN <code>v_fuel = 99</code>. Inside the inner block this declaration <b>shadows</b> (hides) the outer one.",
+    "The inner <code>PUT_LINE</code> sees the nearest declaration → prints <code>Inner: 99</code>.",
+    "When the inner block ends, its <code>v_fuel</code> dies. The outer variable was never touched → prints <code>Outer: 10</code>."
+  ],
+  verdicts:[
+    "Correct — inner scope wins inside, outer value is untouched outside. Shadowing, not overwriting.",
+    "Wrong — the inner declaration is a NEW variable, it never assigns 99 to the outer one.",
+    "Wrong — inside the nested block the inner declaration hides the outer 10; it cannot print 10 there.",
+    "Wrong — re-declaring the same name in a NESTED block is legal. It's only an error twice in the SAME declare section."
+  ],
+  pearl:"<b>Scope rule:</b> the innermost declaration wins. To reach a shadowed outer variable, label the outer block and qualify it: <code>&lt;&lt;outer&gt;&gt; ... outer.v_fuel</code>."
+},
+{
+  zone:0, station:"Blueprint Vault", topic:"%TYPE and %ROWTYPE Anchoring",
+  q:"This block loads a wagon record. Next sprint, the DBA adds a new column to the WAGONS table. What happens to this code?",
+  code:[
+    "DECLARE",
+    "  v_row wagons%ROWTYPE;",
+    "BEGIN",
+    "  SELECT * INTO v_row",
+    "  FROM   wagons",
+    "  WHERE  wagon_id = 7;",
+    "  DBMS_OUTPUT.PUT_LINE(v_row.cargo_name);",
+    "END;"
+  ],
+  opts:["v_row adapts automatically — %ROWTYPE re-derives the table's structure at compile time","It raises VALUE_ERROR forever until the DECLARE section is rewritten","%ROWTYPE froze the table shape permanently the first time it compiled","SELECT * INTO can never be used with a %ROWTYPE record"],
+  ans:0,
+  steps:[
+    "<code>%ROWTYPE</code> doesn't hard-code columns — it's an <b>anchor</b> that asks the data dictionary for the table's current shape.",
+    "When WAGONS changes, dependent PL/SQL is invalidated and <b>recompiles automatically</b> on next use.",
+    "On recompile, <code>v_row</code> re-derives all columns — including the new one — and <code>SELECT *</code> still matches field-for-field.",
+    "Zero code edits. That's exactly why the exam loves %TYPE/%ROWTYPE: change-resilient declarations."
+  ],
+  verdicts:[
+    "Correct — anchored declarations track the table. Invalidation + auto-recompile keeps SELECT * and the record in sync.",
+    "Wrong — no VALUE_ERROR: the record grows a matching field, so the INTO still lines up.",
+    "Wrong — %ROWTYPE is resolved at each compilation, never frozen. That's its entire purpose.",
+    "Wrong — SELECT * INTO a %ROWTYPE record is the classic idiom; it's fully supported."
+  ],
+  pearl:"<b>Anchor everything:</b> <code>col%TYPE</code> for one column, <code>table%ROWTYPE</code> for a full row. Schema evolves → your code follows for free."
+},
+{
+  zone:0, station:"Signal Junction", topic:"Loop Control — CONTINUE WHEN",
+  q:"The fuel counter runs this loop. What value does it print?",
+  code:[
+    "DECLARE",
+    "  v_total NUMBER := 0;",
+    "BEGIN",
+    "  FOR i IN 1..6 LOOP",
+    "    CONTINUE WHEN MOD(i, 2) = 0;",
+    "    v_total := v_total + i;",
+    "  END LOOP;",
+    "  DBMS_OUTPUT.PUT_LINE(v_total);",
+    "END;"
+  ],
+  opts:["9","21","12","0"],
+  ans:0,
+  steps:[
+    "<code>CONTINUE WHEN</code> skips the REST of the current iteration when the condition is TRUE — it does not exit the loop.",
+    "i=1 → MOD=1, no skip → total 1. &nbsp; i=2 → MOD=0, <b>skip add</b>.",
+    "i=3 → total 4. &nbsp; i=4 → skip. &nbsp; i=5 → total 9. &nbsp; i=6 → skip.",
+    "Loop ends normally after i=6 → prints <code>9</code> (only odd numbers were summed: 1+3+5)."
+  ],
+  verdicts:[
+    "Correct — even iterations are skipped, so only 1+3+5 = 9 accumulates.",
+    "Wrong — 21 would be the sum 1..6 with NO skipping. CONTINUE WHEN did fire on evens.",
+    "Wrong — 12 is the sum of evens (2+4+6): that's what got SKIPPED, not what got added.",
+    "Wrong — CONTINUE is not EXIT. The loop keeps running; odd iterations still add."
+  ],
+  pearl:"<b>CONTINUE</b> = skip to next iteration. <b>EXIT</b> = leave the loop. Both accept a <code>WHEN condition</code> guard — a favorite exam swap."
+},
+
+/* ---------- ZONE 1 · CURSOR CAR ---------- */
+{
+  zone:1, station:"Ghost Platform", topic:"Implicit Cursor Attributes",
+  q:"No crew member has id 999. What happens when this block runs?",
+  code:[
+    "BEGIN",
+    "  UPDATE crew",
+    "  SET    rank = 'CAPTAIN'",
+    "  WHERE  crew_id = 999;",
+    "  DBMS_OUTPUT.PUT_LINE('Rows: ' || SQL%ROWCOUNT);",
+    "END;"
+  ],
+  opts:["Prints  Rows: 0  — no exception is raised","NO_DATA_FOUND is raised because no row matched","Prints  Rows:   (SQL%ROWCOUNT is NULL)","INVALID_CURSOR — no cursor was opened"],
+  ans:0,
+  steps:[
+    "UPDATE / DELETE / INSERT that touch <b>zero rows are a success</b>, not an error. Only <code>SELECT INTO</code> complains about empty results.",
+    "Oracle runs every DML through the implicit cursor <code>SQL</code>, and it's managed automatically.",
+    "After the UPDATE, <code>SQL%ROWCOUNT = 0</code> and <code>SQL%FOUND = FALSE</code> — both perfectly readable.",
+    "The block prints <code>Rows: 0</code> and completes successfully."
+  ],
+  verdicts:[
+    "Correct — zero-row DML succeeds silently; SQL%ROWCOUNT reports 0.",
+    "Wrong — NO_DATA_FOUND belongs to SELECT INTO only. UPDATE never raises it.",
+    "Wrong — after any DML in the session, SQL%ROWCOUNT is a real number (0 here), not NULL. It's NULL only before the first DML.",
+    "Wrong — the implicit cursor is opened and closed by Oracle itself; INVALID_CURSOR is an explicit-cursor mistake."
+  ],
+  pearl:"<b>If your UPDATE must hit a row</b>, check <code>SQL%ROWCOUNT = 0</code> and raise your own exception — Oracle won't do it for you."
+},
+{
+  zone:1, station:"Crowded Terminal", topic:"SELECT INTO Exceptions",
+  q:"Three wagons weigh more than 10 tons. What does this block do?",
+  code:[
+    "DECLARE",
+    "  v_cargo wagons.cargo_name%TYPE;",
+    "BEGIN",
+    "  SELECT cargo_name INTO v_cargo",
+    "  FROM   wagons",
+    "  WHERE  weight_tons > 10;",
+    "  DBMS_OUTPUT.PUT_LINE(v_cargo);",
+    "END;"
+  ],
+  opts:["Raises TOO_MANY_ROWS (ORA-01422)","Silently stores the first row and ignores the rest","Raises NO_DATA_FOUND","Returns all three rows as a collection"],
+  ans:0,
+  steps:[
+    "<code>SELECT INTO</code> is a contract: <b>exactly one row</b>. Not zero, not two.",
+    "The query matches 3 rows → the contract is broken on the 'too many' side.",
+    "Oracle raises predefined exception <code>TOO_MANY_ROWS</code> (ORA-01422) — and note: the variable's value after this is undefined.",
+    "Zero rows would have raised <code>NO_DATA_FOUND</code> (ORA-01403) instead. Multiple rows need an explicit cursor or BULK COLLECT."
+  ],
+  verdicts:[
+    "Correct — more than one row breaks the SELECT INTO contract → TOO_MANY_ROWS.",
+    "Wrong — that's how some other databases behave. Oracle PL/SQL refuses ambiguity and raises an error.",
+    "Wrong — NO_DATA_FOUND is the ZERO-row case; here we have three.",
+    "Wrong — a scalar variable can't hold a result set. You'd need BULK COLLECT INTO a collection for that."
+  ],
+  pearl:"<b>SELECT INTO = exactly 1 row.</b> 0 rows → <code>NO_DATA_FOUND</code>. 2+ rows → <code>TOO_MANY_ROWS</code>. Many rows on purpose → explicit cursor or <code>BULK COLLECT</code>."
+},
+{
+  zone:1, station:"Loop Yard", topic:"Cursor FOR Loops",
+  q:"The manifest printer uses a cursor FOR loop. Which statement about it is TRUE?",
+  code:[
+    "DECLARE",
+    "  CURSOR c_wagons IS",
+    "    SELECT wagon_id, cargo_name FROM wagons;",
+    "BEGIN",
+    "  FOR rec IN c_wagons LOOP",
+    "    DBMS_OUTPUT.PUT_LINE(rec.wagon_id || ': ' || rec.cargo_name);",
+    "  END LOOP;",
+    "END;"
+  ],
+  opts:["OPEN, FETCH and CLOSE happen implicitly, and rec needs no declaration","rec must be declared as c_wagons%ROWTYPE in the DECLARE section","The loop fails with INVALID_CURSOR because c_wagons was never opened","You must CLOSE c_wagons after the loop or it leaks"],
+  ans:0,
+  steps:[
+    "A cursor FOR loop is PL/SQL's automated fetch machine: it <b>OPENs</b> the cursor at loop start.",
+    "Each iteration it <b>FETCHes</b> one row into <code>rec</code> — a record implicitly declared as <code>c_wagons%ROWTYPE</code>, alive only inside the loop.",
+    "When rows run out (or an exception escapes), it <b>CLOSEs</b> the cursor automatically.",
+    "Hand-written OPEN/FETCH/EXIT WHEN %NOTFOUND/CLOSE gives the same result with 4 extra chances for bugs."
+  ],
+  verdicts:[
+    "Correct — full lifecycle is automatic and rec is auto-declared for the loop's scope.",
+    "Wrong — declaring rec yourself is unnecessary; the loop creates its own loop-scoped record.",
+    "Wrong — the FOR loop itself performs the OPEN. INVALID_CURSOR happens when YOU fetch/close a cursor that isn't open.",
+    "Wrong — the loop closes the cursor even on early EXIT or an exception. No leak, no manual CLOSE (in fact %ISOPEN is FALSE right after)."
+  ],
+  pearl:"Exam trap: after a cursor FOR loop, <code>c_wagons%ISOPEN</code> is <b>FALSE</b> and <code>rec</code> is <b>out of scope</b>. Both are asked constantly."
+},
+{
+  zone:1, station:"Lockdown Rail", topic:"FOR UPDATE & WHERE CURRENT OF",
+  q:"The refuel job updates rows through a cursor. What must be true for line 9 to compile and work?",
+  code:[
+    "DECLARE",
+    "  CURSOR c_low IS",
+    "    SELECT wagon_id, fuel_pct FROM wagons",
+    "    WHERE  fuel_pct < 20",
+    "    FOR UPDATE;              -- line 5",
+    "BEGIN",
+    "  FOR rec IN c_low LOOP",
+    "    UPDATE wagons SET fuel_pct = 100",
+    "    WHERE CURRENT OF c_low;  -- line 9",
+    "  END LOOP;",
+    "END;"
+  ],
+  opts:["The cursor query must include FOR UPDATE — it locks the rows and enables WHERE CURRENT OF","The cursor must have an ORDER BY so Oracle can track the current row","c_low must be declared with a parameter for the row id","WHERE CURRENT OF also works on any table named in the block"],
+  ans:0,
+  steps:[
+    "<code>WHERE CURRENT OF cursor</code> means: update/delete <b>the exact row the cursor just fetched</b>.",
+    "To guarantee that row can't move or be changed underneath you, the cursor must <b>lock</b> its rows: that's <code>FOR UPDATE</code> at line 5.",
+    "Without FOR UPDATE, line 9 fails (ORA-01001-style errors / 'cursor not FOR UPDATE').",
+    "Bonus effect: FOR UPDATE locks the selected rows at OPEN time until COMMIT/ROLLBACK — which also ends the ability to keep fetching across a commit."
+  ],
+  verdicts:[
+    "Correct — FOR UPDATE acquires row locks and gives the cursor a 'current row' that WHERE CURRENT OF can target.",
+    "Wrong — ORDER BY is irrelevant to row identity here (and older versions even disallowed it with FOR UPDATE).",
+    "Wrong — parameterized cursors filter rows at OPEN; they have nothing to do with WHERE CURRENT OF.",
+    "Wrong — it only targets the table locked by THAT cursor's FOR UPDATE query, not any table you like."
+  ],
+  pearl:"<b>Pair rule:</b> <code>FOR UPDATE</code> in the cursor ⟷ <code>WHERE CURRENT OF</code> in the DML. One without the other is either pointless locking or a compile error."
+},
+
+/* ---------- ZONE 2 · CARGO HOLD ---------- */
+{
+  zone:2, station:"Twin Crates", topic:"PL/SQL Records",
+  q:"Two record variables hold identical data. What happens at line 8?",
+  code:[
+    "DECLARE",
+    "  TYPE t_stop IS RECORD (id NUMBER, name VARCHAR2(30));",
+    "  r1 t_stop;",
+    "  r2 t_stop;",
+    "BEGIN",
+    "  r1 := t_stop(1, 'Nebula Dock');   -- 21c+ constructor",
+    "  r2 := r1;                          -- copies all fields",
+    "  IF r1 = r2 THEN                    -- line 8",
+    "    DBMS_OUTPUT.PUT_LINE('same');",
+    "  END IF;",
+    "END;"
+  ],
+  opts:["Compile error — records cannot be compared with = ; compare field by field","Prints 'same' because every field matches","Prints nothing — record comparison yields NULL","Runtime error VALUE_ERROR at line 8"],
+  ans:0,
+  steps:[
+    "Records support <b>assignment</b> (<code>r2 := r1</code> copies every field) when both are the same type — line 7 is fine.",
+    "But records have <b>no equality operator</b>. PL/SQL has no rule for what '=' means across multiple fields (what about NULLs?).",
+    "So line 8 fails at COMPILE time: <code>PLS-00306</code>-family error — wrong types for '='.",
+    "The fix: compare fields explicitly — <code>r1.id = r2.id AND r1.name = r2.name</code> — or write a comparison function."
+  ],
+  verdicts:[
+    "Correct — assignment yes, '=' no. Record comparison must be done field by field.",
+    "Wrong — it never gets to run; the comparison doesn't compile.",
+    "Wrong — NULL results happen in SQL comparisons; this is a PL/SQL compile-time type error.",
+    "Wrong — VALUE_ERROR is a runtime size/conversion problem. This code is rejected before running."
+  ],
+  pearl:"Same rule for collections: no <code>=</code> between two records or two collections (except nested tables via SQL MULTISET operators). <b>Assign: yes. Compare: field by field.</b>"
+},
+{
+  zone:2, station:"Index Bazaar", topic:"Associative Arrays",
+  q:"The quartermaster tracks supplies with this structure. Which statement is TRUE?",
+  code:[
+    "DECLARE",
+    "  TYPE t_supply IS TABLE OF NUMBER",
+    "       INDEX BY VARCHAR2(20);",
+    "  v_stock t_supply;",
+    "BEGIN",
+    "  v_stock('fuel cells') := 12;",
+    "  v_stock('oxygen')     := 4;",
+    "  DBMS_OUTPUT.PUT_LINE(v_stock.COUNT);",
+    "END;"
+  ],
+  opts:["It needs no constructor and no EXTEND — assign to any key and it exists","It must be initialized with t_supply() before first use","EXTEND is required before adding each element","It can only be indexed by sequential integers starting at 1"],
+  ans:0,
+  steps:[
+    "<code>INDEX BY</code> makes this an <b>associative array</b> — PL/SQL's hash map, living only in memory (never stored in a table column).",
+    "Unlike nested tables and varrays, it is <b>never null</b>: it springs into existence empty, no constructor call.",
+    "Assigning to a key creates the element — sparse, any order, string keys welcome. No EXTEND exists for it.",
+    "The block prints <code>2</code>. Iterate with <code>FIRST</code>/<code>NEXT(key)</code> since keys aren't sequential."
+  ],
+  verdicts:[
+    "Correct — no constructor, no EXTEND, sparse by nature, VARCHAR2 keys allowed.",
+    "Wrong — constructors belong to nested tables and varrays. Associative arrays don't have one at all.",
+    "Wrong — EXTEND is a nested-table/varray method. Calling it on an associative array won't even compile.",
+    "Wrong — dense integer indexing describes varrays. This one indexes by string or any integer, gaps allowed."
+  ],
+  pearl:"<b>3 collections, 1 table:</b> Assoc. array = no init, sparse, memory-only. Nested table = constructor + EXTEND, storable, can go sparse via DELETE. Varray = constructor, dense, bounded, storable."
+},
+{
+  zone:2, station:"Null Cargo Bay", topic:"Nested Table Initialization",
+  q:"A rookie writes this nested-table code. What happens at line 6?",
+  code:[
+    "DECLARE",
+    "  TYPE t_list IS TABLE OF VARCHAR2(20);",
+    "  v_items t_list;",
+    "BEGIN",
+    "  -- no initialization here",
+    "  v_items(1) := 'SCRAP METAL';   -- line 6",
+    "END;"
+  ],
+  opts:["ORA-06531 COLLECTION_IS_NULL — the table was never initialized with its constructor","It works — element 1 is created automatically","ORA-06533 SUBSCRIPT_BEYOND_COUNT is raised","Compile error — nested tables can't hold VARCHAR2"],
+  ans:0,
+  steps:[
+    "A nested table variable starts life <b>atomically null</b> — the collection itself doesn't exist yet.",
+    "Touching any element of a null collection raises <code>COLLECTION_IS_NULL</code> (ORA-06531) at runtime.",
+    "Fix step 1: initialize with the constructor → <code>v_items := t_list();</code> (or with values: <code>t_list('A','B')</code>).",
+    "Fix step 2: make room before assigning → <code>v_items.EXTEND;</code> then <code>v_items(1) := ...</code>. Skipping EXTEND on an empty (but initialized) table raises SUBSCRIPT_BEYOND_COUNT instead."
+  ],
+  verdicts:[
+    "Correct — null collection touched → ORA-06531. Constructor first, EXTEND second, assign third.",
+    "Wrong — auto-creation on assignment is associative-array behavior; nested tables demand a constructor.",
+    "Wrong — SUBSCRIPT_BEYOND_COUNT is the NEXT error you'd hit after initializing but forgetting EXTEND. Know both!",
+    "Wrong — nested tables of VARCHAR2 are completely legal; the type declaration is fine."
+  ],
+  pearl:"Two-error ladder the exam loves: null collection → <code>COLLECTION_IS_NULL</code>; initialized-but-too-small → <code>SUBSCRIPT_BEYOND_COUNT</code>. Different bugs, different fixes."
+},
+
+/* ---------- ZONE 3 · TURBO WAGON ---------- */
+{
+  zone:3, station:"Turbo Intake", topic:"BULK COLLECT with LIMIT",
+  q:"The cargo scanner processes 250 rows in batches of 100. How many rows actually get processed?",
+  code:[
+    "OPEN c_cargo;   -- 250 rows total",
+    "LOOP",
+    "  FETCH c_cargo BULK COLLECT",
+    "    INTO v_rows LIMIT 100;",
+    "  EXIT WHEN c_cargo%NOTFOUND;   -- suspicious...",
+    "  process(v_rows);",
+    "END LOOP;",
+    "CLOSE c_cargo;"
+  ],
+  opts:["200 — the final 50 rows are fetched but never processed","All 250 — %NOTFOUND respects the LIMIT batches","Exactly 100 — the loop exits after the first batch","None — infinite loop"],
+  ans:0,
+  steps:[
+    "Fetch 1: 100 rows, cursor NOT exhausted → %NOTFOUND is FALSE → process(100). ✔",
+    "Fetch 2: rows 101–200, still more behind → process(100). ✔ (200 so far)",
+    "Fetch 3: only 50 rows remain. They ARE loaded into v_rows, but the fetch hit the end → <code>%NOTFOUND = TRUE</code>.",
+    "<code>EXIT</code> fires <b>before</b> process() → the last 50 rows sit in the collection, silently unprocessed. Classic production bug."
+  ],
+  verdicts:[
+    "Correct — the partial last batch is fetched, then the EXIT skips its processing. 200 processed, 50 lost.",
+    "Wrong — %NOTFOUND goes TRUE on any fetch that returns fewer than LIMIT rows-at-end, even though data arrived.",
+    "Wrong — the first fetch fills the full LIMIT and %NOTFOUND stays FALSE, so the loop continues.",
+    "Wrong — the cursor does exhaust, so the loop does exit — just one line too early for the last batch."
+  ],
+  pearl:"With LIMIT, exit on the <b>collection</b>, not the cursor: <code>EXIT WHEN v_rows.COUNT = 0;</code> placed right after FETCH — or process first, then <code>EXIT WHEN c%NOTFOUND</code> at the loop bottom."
+},
+{
+  zone:3, station:"Piston Array", topic:"FORALL & SAVE EXCEPTIONS",
+  q:"The purge job deletes 500 wagons in bulk. Which statement about this FORALL is TRUE?",
+  code:[
+    "BEGIN",
+    "  FORALL i IN 1 .. v_ids.COUNT SAVE EXCEPTIONS",
+    "    DELETE FROM wagons WHERE wagon_id = v_ids(i);",
+    "EXCEPTION",
+    "  WHEN OTHERS THEN",
+    "    FOR j IN 1 .. SQL%BULK_EXCEPTIONS.COUNT LOOP",
+    "      log_error(SQL%BULK_EXCEPTIONS(j).ERROR_INDEX);",
+    "    END LOOP;",
+    "END;"
+  ],
+  opts:["FORALL sends ONE bulk DML to SQL; SAVE EXCEPTIONS collects row failures and raises ORA-24381 at the end","FORALL is just a faster FOR loop and can contain several statements","Without SAVE EXCEPTIONS, failed rows are skipped silently","SQL%BULK_EXCEPTIONS holds the failed rows' full data for retry"],
+  ans:0,
+  steps:[
+    "<code>FORALL</code> is <b>not a loop</b> — it binds the whole collection and ships a single DML statement to the SQL engine. One context switch instead of 500.",
+    "<code>SAVE EXCEPTIONS</code> says: don't stop at the first bad row — keep going, remember each failure.",
+    "After all rows are attempted, Oracle raises <code>ORA-24381</code> once, which the handler catches.",
+    "<code>SQL%BULK_EXCEPTIONS(j).ERROR_INDEX</code> gives the collection subscript that failed; <code>.ERROR_CODE</code> gives the (positive) error number."
+  ],
+  verdicts:[
+    "Correct — one bulk dispatch, per-row failures collected, single ORA-24381 raised after the batch finishes.",
+    "Wrong — FORALL allows exactly ONE DML statement and no other logic. It's a bulk bind, not a control structure.",
+    "Wrong — without SAVE EXCEPTIONS the first failure stops the FORALL and prior rows' work is rolled back per statement-level rules. Nothing is silently skipped.",
+    "Wrong — it stores ERROR_INDEX and ERROR_CODE only; you look up the original values in your own collection via that index."
+  ],
+  pearl:"<b>Bulk pattern:</b> <code>BULK COLLECT</code> pulls rows into memory, <code>FORALL</code> pushes changes back. Together they eliminate the row-by-row context-switch tax — the #1 PL/SQL performance topic on the exam."
+},
+
+/* ---------- ZONE 4 · SHIELD BAY ---------- */
+{
+  zone:4, station:"Cracked Airlock", topic:"Exceptions in the DECLARE Section",
+  q:"NUMBER(2) can hold at most 99. Does the local handler catch this?",
+  code:[
+    "DECLARE",
+    "  v_code NUMBER(2) := 999;   -- boom?",
+    "BEGIN",
+    "  DBMS_OUTPUT.PUT_LINE('running');",
+    "EXCEPTION",
+    "  WHEN VALUE_ERROR THEN",
+    "    DBMS_OUTPUT.PUT_LINE('caught here');",
+    "END;"
+  ],
+  opts:["No — exceptions raised in the DECLARE section propagate straight to the enclosing block","Yes — 'caught here' is printed","No error — 999 is silently truncated to 99","It fails at compile time"],
+  ans:0,
+  steps:[
+    "The assignment <code>:= 999</code> runs during the <b>declaration phase</b>, before the BEGIN section starts.",
+    "999 doesn't fit NUMBER(2) → <code>VALUE_ERROR</code> is raised at that moment.",
+    "A block's own EXCEPTION section only guards its <b>executable</b> (and exception) sections — not its declarations.",
+    "So the handler is skipped and the exception flies to the enclosing block / caller. 'running' and 'caught here' never print."
+  ],
+  verdicts:[
+    "Correct — declaration-time exceptions bypass the local handler by design.",
+    "Wrong — the handler would catch VALUE_ERROR from the BEGIN section, but this one fired before BEGIN.",
+    "Wrong — Oracle never silently truncates a PL/SQL assignment; precision overflow raises VALUE_ERROR.",
+    "Wrong — it compiles fine; 999 vs NUMBER(2) is a runtime value problem, not a syntax one."
+  ],
+  pearl:"Same rule for the EXCEPTION section itself: an exception raised INSIDE a handler also propagates outward. A block never handles its own declaration/handler failures — <b>wrap it in an outer block</b> if you must catch them."
+},
+{
+  zone:4, station:"Alarm Console", topic:"User-Defined Errors — RAISE_APPLICATION_ERROR",
+  q:"The conductor wants callers (including plain SQL clients) to see a custom error. Which call is valid?",
+  code:[
+    "IF v_fuel_pct < 5 THEN",
+    "  -- tell the caller loudly:",
+    "  raise_application_error( ??? ,",
+    "     'Fuel critical: refuse departure');",
+    "END IF;"
+  ],
+  opts:["raise_application_error(-20042, '...') — the number must be between -20000 and -20999","raise_application_error(20042, '...') — positive user codes","raise_application_error(-42, '...') — any negative number works","raise_application_error(-21042, '...') — anything below -21000"],
+  ans:0,
+  steps:[
+    "Oracle reserves the range <code>-20000 .. -20999</code> exclusively for application-defined errors — 1000 slots that Oracle itself will never use.",
+    "<code>RAISE_APPLICATION_ERROR(-20042, 'msg')</code> stops execution and returns your number + message to the caller like a real ORA- error.",
+    "Outside PL/SQL (SQL*Plus, JDBC, APEX) the client sees <code>ORA-20042: Fuel critical...</code> — that's the whole point: it crosses the PL/SQL boundary cleanly.",
+    "Related tool, opposite direction: <code>PRAGMA EXCEPTION_INIT(my_exc, -2292)</code> attaches a NAME to an existing ORA- code so you can write <code>WHEN my_exc</code>."
+  ],
+  verdicts:[
+    "Correct — -20000 to -20999 is the reserved user range; anything else is rejected (ORA-21000).",
+    "Wrong — positive numbers are invalid here; the call raises ORA-21000 'error number argument out of range'.",
+    "Wrong — -42 belongs to Oracle's own error space. Only the -20xxx window is yours.",
+    "Wrong — -21042 is outside the reserved window; the call itself errors out."
+  ],
+  pearl:"<b>Three tools, one table:</b> <code>RAISE my_exc</code> (named, PL/SQL-internal) · <code>RAISE_APPLICATION_ERROR</code> (numbered, visible to clients) · <code>PRAGMA EXCEPTION_INIT</code> (name an existing ORA- code). Know which direction each one maps."
+},
+
+/* ---------- ZONE 5 · CREW QUARTERS ---------- */
+{
+  zone:5, station:"Crew Manifest", topic:"Parameter Modes IN / OUT / IN OUT",
+  q:"The engineer writes this procedure. What happens?",
+  code:[
+    "CREATE OR REPLACE PROCEDURE load_wagon (",
+    "  p_qty     IN  NUMBER,",
+    "  p_status  OUT VARCHAR2",
+    ") IS",
+    "BEGIN",
+    "  p_qty    := p_qty + 1;      -- line 6",
+    "  p_status := 'LOADED';",
+    "END;"
+  ],
+  opts:["Compile error at line 6 — an IN parameter is read-only inside the procedure","It compiles; p_qty is incremented only for this call","Runtime error VALUE_ERROR at line 6","It compiles only if the caller passes a variable, not a literal"],
+  ans:0,
+  steps:[
+    "<code>IN</code> parameters act like <b>constants</b> inside the body — read them, never assign them. Line 6 breaks that → <code>PLS-00363</code> at compile time.",
+    "<code>OUT</code> is the reverse: it arrives <b>NULL</b> (regardless of what the caller's variable held) and exists to be written.",
+    "<code>IN OUT</code> is the read-and-write mode — the only mode that carries a value in AND back out.",
+    "Also: IN params can have DEFAULT values and accept literals; OUT/IN OUT require a real variable at the call site."
+  ],
+  verdicts:[
+    "Correct — assigning to an IN parameter is a compile-time error (PLS-00363).",
+    "Wrong — it never compiles, so there is no 'this call' behavior to discuss.",
+    "Wrong — VALUE_ERROR is a runtime conversion/size issue; this bug is caught by the compiler.",
+    "Wrong — caller-side argument kinds can't fix a body that illegally writes to an IN parameter."
+  ],
+  pearl:"<b>Mode cheat-card:</b> IN = read-only, defaults allowed, literals OK. OUT = starts NULL, must receive a variable. IN OUT = both ways. Exam twist: on an unhandled exception, OUT/IN OUT actual values are <i>not</i> updated (unless NOCOPY was used — then they may be)."
+},
+{
+  zone:5, station:"Pay Terminal", topic:"Functions Called from SQL",
+  q:"This function is called as  SELECT bonus(salary) FROM crew;  What happens?",
+  code:[
+    "CREATE OR REPLACE FUNCTION bonus (p_sal NUMBER)",
+    "  RETURN NUMBER IS",
+    "BEGIN",
+    "  INSERT INTO audit_log(msg)          -- side effect!",
+    "  VALUES ('bonus computed');",
+    "  RETURN p_sal * 0.10;",
+    "END;"
+  ],
+  opts:["Runtime error ORA-14551 — a function invoked from a query cannot perform DML","Works fine — one audit row per crew member","Compile error — INSERT is illegal inside any function","The INSERT runs once, then is cached for later rows"],
+  ans:0,
+  steps:[
+    "The function compiles happily — PL/SQL functions ARE allowed to do DML in general (e.g. when called from a procedure).",
+    "The restriction appears at the <b>call site</b>: inside a SELECT, Oracle must guarantee the query doesn't change the database.",
+    "So at runtime the INSERT triggers <code>ORA-14551: cannot perform a DML operation inside a query</code>.",
+    "Rules for SQL-callable functions: no DML, no TCL (COMMIT/ROLLBACK), return a SQL type, params are IN-only. (An AUTONOMOUS_TRANSACTION pragma is the loophole — separate transaction — but use with care.)"
+  ],
+  verdicts:[
+    "Correct — the purity rule is enforced when the function runs inside a query → ORA-14551.",
+    "Wrong — queries must be side-effect free; Oracle actively blocks the INSERT.",
+    "Wrong — functions may contain DML; calling THIS one from SQL is what fails. Called from PL/SQL it works.",
+    "Wrong — there's no such caching; the very first row's INSERT attempt raises the error."
+  ],
+  pearl:"<b>SQL-callable function checklist:</b> IN params only · SQL datatypes · no DML/COMMIT · schema-stable. Add <code>DETERMINISTIC</code> only when same-input⇒same-output truly holds (enables result reuse, required for function-based indexes)."
+},
+{
+  zone:5, station:"Package Vault", topic:"Package State & Sessions",
+  q:"Two different train terminals (sessions A and B) each call bump() twice. What does session B's last call print?",
+  code:[
+    "CREATE OR REPLACE PACKAGE counter_pkg IS",
+    "  g_count NUMBER := 0;          -- in the SPEC",
+    "  PROCEDURE bump;",
+    "END;",
+    "/",
+    "CREATE OR REPLACE PACKAGE BODY counter_pkg IS",
+    "  PROCEDURE bump IS",
+    "  BEGIN",
+    "    g_count := g_count + 1;",
+    "    DBMS_OUTPUT.PUT_LINE(g_count);",
+    "  END;",
+    "END;"
+  ],
+  opts:["2 — package state is per-session; each session gets its own g_count","4 — g_count is shared globally across all sessions","1 — g_count resets to 0 on every call","Neither compiles — variables aren't allowed in a package spec"],
+  ans:0,
+  steps:[
+    "A package is instantiated <b>once per session</b>, the first time that session touches it. <code>g_count := 0</code> runs at that moment.",
+    "From then on, package variables live for the whole session — they keep state <b>between calls</b>. That's why A's calls print 1, 2.",
+    "But sessions never share this memory: B gets a fresh instantiation → B's calls also print 1, 2.",
+    "Corollary the exam loves: recompiling the package while sessions hold state raises <code>ORA-04068: existing state of packages has been discarded</code> on their next call."
+  ],
+  verdicts:[
+    "Correct — state persists across calls within a session, isolated between sessions → B prints 1 then 2.",
+    "Wrong — package variables are session-private memory (UGA), not database-wide shared storage.",
+    "Wrong — initialization happens once per session, not on every call. State survives between calls.",
+    "Wrong — public variables in a spec are legal (that's what makes them public/global to the session)."
+  ],
+  pearl:"Spec = public contract, body = private implementation; body-only changes don't invalidate dependents. Packaged subprograms can also be <b>overloaded</b> — same name, parameter types of different families (VARCHAR2 vs NUMBER) — something standalone procedures can never do."
+},
+
+/* ---------- ZONE 6 · SIGNAL TOWER ---------- */
+{
+  zone:6, station:"Time Stamp Gate", topic:"Row Triggers — :NEW and :OLD",
+  q:"The auditor wants every new wagon stamped on arrival. What happens with this trigger?",
+  code:[
+    "CREATE OR REPLACE TRIGGER trg_stamp",
+    "AFTER INSERT ON wagons",
+    "FOR EACH ROW",
+    "BEGIN",
+    "  :NEW.loaded_at := SYSDATE;   -- stamp it",
+    "END;"
+  ],
+  opts:["ORA-04084 — you cannot change :NEW values in an AFTER trigger; use BEFORE INSERT","Works — every inserted row gets stamped","Fails — :NEW doesn't exist in row-level triggers","Works only if the trigger also has a WHEN clause"],
+  ans:0,
+  steps:[
+    "Row triggers see two pseudo-records: <code>:OLD</code> (the row before) and <code>:NEW</code> (the row after).",
+    "In a <b>BEFORE</b> row trigger, the row hasn't been written yet — so modifying <code>:NEW</code> changes what gets stored. That's the stamping pattern.",
+    "In an <b>AFTER</b> row trigger the row is already written; :NEW is read-only → <code>ORA-04084: cannot change NEW values for this trigger type</code>.",
+    "Availability grid: INSERT → :NEW only meaningful; DELETE → :OLD only; UPDATE → both. Statement-level triggers get neither."
+  ],
+  verdicts:[
+    "Correct — write to :NEW only in BEFORE row triggers. AFTER = too late, ORA-04084.",
+    "Wrong — the assignment is rejected because the row is already stored when AFTER fires.",
+    "Wrong — :NEW/:OLD exist precisely in FOR EACH ROW triggers; it's STATEMENT triggers that lack them.",
+    "Wrong — a WHEN clause filters which rows fire the trigger; it can't make :NEW writable in AFTER."
+  ],
+  pearl:"<b>Choose trigger timing by intent:</b> BEFORE row = validate/modify the incoming row. AFTER row = react/audit. And remember the mutating-table rule: a row trigger can't query its own firing table (ORA-04091) — a compound trigger is the standard workaround."
+},
+{
+  zone:6, station:"Phantom Query", topic:"Native Dynamic SQL — Binds vs Concatenation",
+  q:"Why is the table name concatenated while the id uses a placeholder?",
+  code:[
+    "PROCEDURE purge (p_table IN VARCHAR2,",
+    "                 p_id    IN NUMBER) IS",
+    "BEGIN",
+    "  EXECUTE IMMEDIATE",
+    "    'DELETE FROM ' ||",
+    "       DBMS_ASSERT.SIMPLE_SQL_NAME(p_table) ||",
+    "    ' WHERE wagon_id = :1'",
+    "  USING p_id;",
+    "END;"
+  ],
+  opts:["Bind placeholders can carry only VALUES — identifiers like table names must be concatenated (and validated)","Table names could use :binds too; the author just prefers concatenation","EXECUTE IMMEDIATE doesn't support USING with DELETE","Concatenating p_id would be equally safe and fast"],
+  ans:0,
+  steps:[
+    "The SQL engine must know <b>which objects</b> a statement touches at PARSE time — before bind values exist.",
+    "So placeholders (<code>:1</code>) can stand for <b>data values only</b>: numbers, strings, dates... never table/column names or keywords.",
+    "Identifiers must be glued into the text — which is exactly where SQL injection lives, hence <code>DBMS_ASSERT</code> validating the name.",
+    "The id, being a value, uses <code>USING p_id</code>: injection-proof, and the statement text stays identical across calls → one shared parse in the cursor cache."
+  ],
+  verdicts:[
+    "Correct — binds = values only; identifiers must be concatenated, ideally sanitized with DBMS_ASSERT.",
+    "Wrong — try it and the parser fails: it cannot resolve an object name that arrives after parsing.",
+    "Wrong — USING works with any dynamic statement that has placeholders: DML, DDL won't take binds but DELETE certainly does.",
+    "Wrong — concatenating values invites injection AND floods the shared pool with one-off SQL texts (hard parse per call)."
+  ],
+  pearl:"<b>Dynamic SQL doctrine:</b> values → <code>USING</code> binds. Identifiers → concatenate + <code>DBMS_ASSERT</code>. Dynamic SELECT INTO → <code>EXECUTE IMMEDIATE ... INTO</code>. And DDL (CREATE/DROP) is ONLY possible in PL/SQL via dynamic SQL."
+},
+{
+  zone:6, station:"Certification Gate", topic:"Definer vs Invoker Rights (AUTHID)",
+  q:"Final gate! HR_APP owns this function. When analyst LUNA calls it, whose CREW table is read?",
+  code:[
+    "CREATE OR REPLACE FUNCTION head_count",
+    "  RETURN NUMBER",
+    "  AUTHID CURRENT_USER IS",
+    "  v_n NUMBER;",
+    "BEGIN",
+    "  SELECT COUNT(*) INTO v_n FROM crew;",
+    "  RETURN v_n;",
+    "END;"
+  ],
+  opts:["LUNA's — CURRENT_USER resolves names and checks privileges as the INVOKER at run time","HR_APP's — the owner always wins for stored code","SYS's — invoker rights escalate to the superuser","Whoever compiled it last"],
+  ans:0,
+  steps:[
+    "Default stored code is <code>AUTHID DEFINER</code>: it runs with the <b>owner's</b> privileges, and unqualified names resolve in the <b>owner's</b> schema. Callers don't even need privileges on the underlying tables.",
+    "<code>AUTHID CURRENT_USER</code> flips it: at run time, privileges and name resolution follow the <b>invoker</b>.",
+    "So LUNA's call counts <code>LUNA.CREW</code> (or whatever CREW resolves to for LUNA via her synonyms) — and requires LUNA to hold SELECT on it.",
+    "Use definer rights to encapsulate and protect data behind an API; use invoker rights for generic utilities that must act on each caller's own objects."
+  ],
+  verdicts:[
+    "Correct — invoker-rights code resolves objects and checks privileges as the caller at run time.",
+    "Wrong — that's the DEFAULT (DEFINER) behavior; the AUTHID CURRENT_USER clause explicitly overrides it.",
+    "Wrong — invoker rights never escalate anything; if anything they narrow to the caller's own privileges.",
+    "Wrong — compilation identity is irrelevant; AUTHID decides the runtime identity model."
+  ],
+  pearl:"<b>DEFINER</b> (default) = owner's schema & privileges → controlled API over private tables. <b>CURRENT_USER</b> = caller's schema & privileges → shared utility code. This exact contrast is a guaranteed exam question."
+}
+];
+
+/* ================= MEMES ================= */
+const MEMES_RIGHT = [
+  {top:"COMPILED ON THE FIRST TRY", art:"😎🚂💨", bot:"PL/SQL procedure successfully completed."},
+  {top:"MOM, LOOK", art:"🏆🧠✨", bot:"I actually understand cursors now"},
+  {top:"ORACLE DOCS?", art:"🗿📖", bot:"I AM the documentation"},
+  {top:"STONKS", art:"📈🤵🔩", bot:"+scrap +xp +certification aura"},
+  {top:"ME AFTER ONE RIGHT ANSWER", art:"🧙‍♂️⚡", bot:"I am the DBA now"},
+  {top:"BRAIN STATUS", art:"🧠🌌", bot:"GALAXY MODE UNLOCKED"},
+  {top:"THE OPTIMIZER FEARS ME", art:"😤🛠️", bot:"full speed, no full scans"}
+];
+const MEMES_WRONG = [
+  {top:"THIS IS FINE", art:"🐶☕🔥", bot:"ORA-06550: it was not fine"},
+  {top:"TASK FAILED", art:"❌🤡✅", bot:"successfully"},
+  {top:"ONE DOES NOT SIMPLY", art:"🧙‍♂️🚫", bot:"guess their way through 1Z0-913"},
+  {top:"UNHANDLED EXCEPTION", art:"💀📉", bot:"propagated straight to your score"},
+  {top:"THE HULL TOOK DAMAGE", art:"🚂💥🔩", bot:"WHEN OTHERS THEN NULL; -- hiding the pain"},
+  {top:"ROLLBACK COMPLETE", art:"🔙😭", bot:"your confidence has been restored to a savepoint"},
+  {top:"SQL*PLUS HAS LEFT THE CHAT", art:"🏃💨🖥️", bot:"reconnect and read the visualizer"}
+];
+
+/* ================= STATE ================= */
+const HULL_MAX = 5;
+const BEST_KEY = "voidexpress-1z0913-best";
+const S = { i:0, scrap:0, streak:0, bestStreak:0, hull:HULL_MAX, correct:0, answers:[], lock:false };
+const reduceMotion = matchMedia("(prefers-reduced-motion: reduce)").matches;
+const $ = id => document.getElementById(id);
+const esc = s => s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+
+/* ================= FX helpers ================= */
+function floater(txt,color,x,y){
+  const f=document.createElement("div");
+  f.className="floater"; f.textContent=txt; f.style.color=color;
+  f.style.left=(x??innerWidth/2)+"px"; f.style.top=(y??innerHeight*0.4)+"px";
+  $("fx").appendChild(f); setTimeout(()=>f.remove(),1100);
+}
+function sparks(x,y,colors,n=14){
+  if(reduceMotion) return;
+  for(let k=0;k<n;k++){
+    const s=document.createElement("div");
+    s.className="spark";
+    s.style.background=colors[k%colors.length];
+    s.style.left=x+"px"; s.style.top=y+"px";
+    const a=Math.random()*Math.PI*2, d=60+Math.random()*110;
+    s.style.setProperty("--dx",Math.cos(a)*d+"px");
+    s.style.setProperty("--dy",Math.sin(a)*d-40+"px");
+    $("fx").appendChild(s); setTimeout(()=>s.remove(),850);
+  }
+}
+function flash(id){ const el=$(id); el.classList.remove("on"); void el.offsetWidth; el.classList.add("on"); }
+function bump(id){ const el=$(id); el.classList.remove("bump"); void el.offsetWidth; el.classList.add("bump"); }
+
+/* ================= HOME ================= */
+function paintHome(){
+  const best=localStorage.getItem(BEST_KEY);
+  $("homeBest").textContent=best?Number(best).toLocaleString():"—";
+  const zg=$("zoneGrid"); zg.innerHTML="";
+  ZONES.forEach((z,zi)=>{
+    const n=QUESTIONS.filter(q=>q.zone===zi).length;
+    const d=document.createElement("div");
+    d.className="zone";
+    d.innerHTML=`<div class="zi">${z.icon}</div><div><div class="zn" style="color:${z.col}">${z.name}</div><div class="zc">${z.sub} · ${n} station${n>1?"s":""}</div></div>`;
+    zg.appendChild(d);
+  });
+  const io=new IntersectionObserver(es=>es.forEach((e,)=>{ if(e.isIntersecting){ e.target.classList.add("reveal"); io.unobserve(e.target);} }),{threshold:.15});
+  document.querySelectorAll(".how .card, .zone").forEach((el,i)=>{ el.style.animationDelay=(i%4)*0.08+"s"; io.observe(el); });
+}
+
+/* ================= GAME RENDER ================= */
+function show(id){ document.querySelectorAll(".screen").forEach(s=>s.classList.remove("on")); $(id).classList.add("on"); window.scrollTo({top:0,behavior:reduceMotion?"auto":"smooth"}); }
+
+function paintHud(){
+  $("stationTxt").textContent=`Station ${Math.min(S.i+1,20)} / 20`;
+  $("scrapTxt").textContent=S.scrap.toLocaleString();
+  $("streakTxt").textContent="x"+(S.streak>=3?2:1)+(S.streak>0?` · ${S.streak}🔥`:"");
+  const h=$("hull"); h.innerHTML="";
+  for(let k=0;k<HULL_MAX;k++){
+    const sp=document.createElement("span");
+    sp.className="pl"+(k<S.hull?"":" gone"); sp.textContent="🛡️";
+    h.appendChild(sp);
+  }
+}
+function paintRail(){
+  const stops=$("stops");
+  if(!stops.children.length){
+    for(let k=0;k<20;k++){ const s=document.createElement("div"); s.className="stop"; stops.appendChild(s);}
+  }
+  [...stops.children].forEach((s,k)=>{
+    s.className="stop"+(S.answers[k]===true?" hit":S.answers[k]===false?" miss":"")+(k===S.i?" now":"");
+  });
+  const pct=(S.i/19)*100;
+  $("railDone").style.width=pct+"%";
+  $("train").style.left=(4+pct*0.92)+"%";
+}
+
+function renderQuestion(){
+  const q=QUESTIONS[S.i], z=ZONES[q.zone];
+  S.lock=false;
+  paintHud(); paintRail();
+  $("qhead").innerHTML=`<span class="ztag" style="color:${z.col};border-color:${z.col}55;background:${z.col}14">${z.icon} ${z.name}</span>
+    <span class="ztag" style="color:var(--mut);border-color:var(--line)">📚 ${esc(q.topic)}</span>`;
+  $("stationName").textContent=`Station ${S.i+1} · ${q.station}`;
+  $("stationSub").textContent="Intermediate · 1Z0-913 syllabus";
+  $("qtext").textContent=q.q;
+  $("codepre").innerHTML=highlight(q.code.map(esc).join("\n"));
+  const opts=$("opts"); opts.innerHTML="";
+  q.opts.forEach((o,idx)=>{
+    const b=document.createElement("button");
+    b.className="opt"; b.dataset.idx=idx;
+    b.innerHTML=`<span class="key">${idx+1}</span><span class="ot">${esc(o)}</span>`;
+    b.addEventListener("click",()=>answer(idx,b));
+    opts.appendChild(b);
+  });
+  $("feedback").classList.remove("on");
+  const qc=$("qcard"); qc.style.animation="none"; void qc.offsetWidth; qc.style.animation="";
+}
+
+function highlight(src){
+  return src
+    .replace(/(--[^\n]*)/g,'<span class="cm">$1</span>')
+    .replace(/(&#39;|')((?:[^'\n])*?)\1/g,'<span class="st">\'$2\'</span>')
+    .replace(/\b(DECLARE|BEGIN|END|IF|THEN|ELSE|ELSIF|LOOP|FOR|WHILE|IN|OUT|IS|AS|TYPE|RECORD|TABLE|OF|INDEX|BY|CURSOR|SELECT|INTO|FROM|WHERE|UPDATE|SET|DELETE|INSERT|VALUES|EXCEPTION|WHEN|OTHERS|RAISE|RETURN|CREATE|OR|REPLACE|PROCEDURE|FUNCTION|PACKAGE|BODY|TRIGGER|AFTER|BEFORE|EACH|ROW|ON|FORALL|SAVE|EXCEPTIONS|BULK|COLLECT|LIMIT|FETCH|OPEN|CLOSE|EXIT|CONTINUE|USING|EXECUTE|IMMEDIATE|AUTHID|CURRENT_USER|NUMBER|VARCHAR2|CONSTANT|NOT|NULL|AND|MOD|COUNT|EXTEND|CURRENT)\b/g,'<span class="kw">$1</span>');
+}
+
+/* ================= ANSWER FLOW ================= */
+function answer(idx,btn){
+  if(S.lock) return; S.lock=true;
+  const q=QUESTIONS[S.i], correct=idx===q.ans;
+  const buttons=[...$("opts").children];
+  buttons.forEach(b=>b.disabled=true);
+  buttons[q.ans].classList.add("right");
+  buttons.forEach((b,k)=>{ if(k!==q.ans&&k!==idx) b.classList.add("dim2"); });
+  const r=btn.getBoundingClientRect(), cx=r.left+r.width/2, cy=r.top;
+
+  if(correct){
+    S.correct++; S.streak++; S.bestStreak=Math.max(S.bestStreak,S.streak);
+    const mult=S.streak>=3?2:1, gain=100*mult;
+    S.scrap+=gain; S.answers[S.i]=true;
+    flash("flashBoost");
+    sparks(cx,cy,["#45E6C8","#3DF0A8","#FFC94A"]);
+    floater(`+${gain} 🔩${mult>1?" x2!":""}`,"var(--green)",cx,cy);
+    bump("scrapPill"); if(S.streak>=3) bump("streakPill");
+    const t=$("train"); t.classList.remove("boost"); void t.offsetWidth; t.classList.add("boost");
+    verdictUI(true,mult);
+  }else{
+    S.streak=0; S.hull=Math.max(0,S.hull-1); S.answers[S.i]=false;
+    buttons[idx].classList.add("wrong");
+    flash("flashRed");
+    if(!reduceMotion){ document.body.classList.remove("shake"); void document.body.offsetWidth; document.body.classList.add("shake"); }
+    sparks(cx,cy,["#FF5568","#FF8A4A"]);
+    floater("HULL -1 💥","var(--red)",cx,cy);
+    const plates=$("hull").children;
+    if(plates[S.hull]){ plates[S.hull].classList.add("breaking","gone"); }
+    verdictUI(false,1);
+  }
+  paintHud(); paintRail();
+  showVisualizer(q,correct);
+}
+
+function verdictUI(good,mult){
+  const v=$("verdictBox");
+  v.className="verdict "+(good?"good":"bad");
+  v.innerHTML=good
+    ? `✅ <div>STATION CLEARED!<span class="sub">+${100*mult} scrap${mult>1?" (streak x2 active 🔥)":""} — the Void Express rolls on.</span></div>`
+    : `💥 <div>SIGNAL FAILURE!<span class="sub">A hull plate cracked — read the visualizer so this concept never bites again.</span></div>`;
+  const pool=good?MEMES_RIGHT:MEMES_WRONG;
+  const m=pool[Math.floor(Math.random()*pool.length)];
+  $("memeBox").innerHTML=`<div class="cap">${m.top}</div><div class="art">${m.art}</div><div class="cap">${m.bot}</div><div class="tag">certified void meme · station ${S.i+1}</div>`;
+}
+
+function showVisualizer(q){
+  const st=$("vizSteps"); st.innerHTML="";
+  q.steps.forEach((s,k)=>{
+    const d=document.createElement("div");
+    d.className="step"; d.style.animationDelay=(0.25+k*0.35)+"s";
+    d.innerHTML=`<span class="n">${k+1}</span><span class="t">${s}</span>`;
+    d.classList.add("reveal");
+    st.appendChild(d);
+  });
+  const vg=$("vizVerdicts"); vg.innerHTML="";
+  q.verdicts.forEach((txt,k)=>{
+    const ok=k===q.ans;
+    const d=document.createElement("div");
+    d.className="vrow "+(ok?"ok":"no");
+    d.style.animationDelay=(0.3+q.steps.length*0.35+k*0.22)+"s";
+    d.innerHTML=`<span class="mark">${ok?"✓":"✗"}</span><span class="t"><b>Option ${k+1}:</b> ${txt}</span>`;
+    d.classList.add("reveal");
+    vg.appendChild(d);
+  });
+  $("pearlBox").innerHTML=`<span class="pi">💎</span><span><b>Exam Pearl · </b>${q.pearl}</span>`;
+  $("nextBtn").textContent=S.i===QUESTIONS.length-1?"Finish the Run 🏁":"Next Station →";
+  $("feedback").classList.add("on");
+  setTimeout(()=>$("feedback").scrollIntoView({behavior:reduceMotion?"auto":"smooth",block:"nearest"}),80);
+}
+
+function next(){
+  if(S.i>=QUESTIONS.length-1){ endRun(); return; }
+  S.i++; renderQuestion();
+}
+
+/* ================= END ================= */
+function endRun(){
+  S.i=19; paintRail();
+  const best=Number(localStorage.getItem(BEST_KEY)||0);
+  if(S.scrap>best) localStorage.setItem(BEST_KEY,String(S.scrap));
+  const c=S.correct;
+  const rank= c>=18?{e:"👑",n:"VOID CONDUCTOR",cls:"gold",s:"Total mastery. The Certification Gate opens itself for you — book the real 1Z0-913 and go collect it."}
+           : c>=14?{e:"🛠️",n:"RAIL ENGINEER",cls:"cyan",s:"Strong run! Patch the cracked plates below and the Conductor's seat is yours."}
+           : c>=10?{e:"📡",n:"SIGNAL OPERATOR",cls:"violet",s:"Solid signal, noisy line. Every miss below has a pearl — mine them and ride again."}
+           :       {e:"🎒",n:"STOWAWAY",cls:"red",s:"The void is undefeated... for now. Walk the Repair Bay, then board again — the train never leaves without you."};
+  $("rankEmb").textContent=rank.e;
+  const rn=$("rankName"); rn.textContent=rank.n; rn.className="rank-name "+rank.cls;
+  $("rankSub").textContent=rank.s;
+  $("endCorrect").textContent=`${c}/20`;
+  $("endScrap").textContent=S.scrap.toLocaleString();
+  $("endStreak").textContent=S.bestStreak;
+  $("endAcc").textContent=Math.round((c/20)*100)+"%";
+
+  const bg=$("badgeGrid"); bg.innerHTML="";
+  ZONES.forEach((z,zi)=>{
+    const qs=QUESTIONS.map((q,k)=>({q,k})).filter(x=>x.q.zone===zi);
+    const won=qs.every(x=>S.answers[x.k]===true);
+    const d=document.createElement("div");
+    d.className="badge "+(won?"won":"lost");
+    d.style.animationDelay=(zi*0.09)+"s"; d.classList.add("reveal");
+    d.innerHTML=`<div class="bi">${won?z.icon:"🔒"}</div><div><div class="bn" style="color:${won?z.col:"var(--dim)"}">${z.name}</div><div class="bs">${won?"BADGE FORGED":qs.filter(x=>S.answers[x.k]===true).length+"/"+qs.length+" — not yet"}</div></div>`;
+    bg.appendChild(d);
+  });
+
+  const rl=$("reviewList"); rl.innerHTML="";
+  const missed=QUESTIONS.map((q,k)=>({q,k})).filter(x=>S.answers[x.k]===false);
+  if(!missed.length){
+    rl.innerHTML=`<div class="rev-clean">🌟 Nothing to repair — a flawless run through the void. Legendary.</div>`;
+  }else{
+    missed.forEach(({q,k})=>{
+      const d=document.createElement("div");
+      d.className="rev-item";
+      d.innerHTML=`<div class="rq">Station ${k+1} · ${esc(q.station)} — ${esc(q.topic)}</div>
+        <div class="ra">Right answer: <b>${esc(q.opts[q.ans])}</b><br>💎 ${q.pearl}</div>`;
+      rl.appendChild(d);
+    });
+  }
+  show("scr-end");
+  if(!reduceMotion && c>=14){
+    let burst=0;
+    const iv=setInterval(()=>{
+      sparks(innerWidth*(0.2+Math.random()*0.6), innerHeight*0.25, ["#FFC94A","#45E6C8","#9B7BFF","#FF8A4A"],16);
+      if(++burst>5) clearInterval(iv);
+    },350);
+  }
+}
+
+/* ================= WIRING ================= */
+function startRun(){
+  S.i=0; S.scrap=0; S.streak=0; S.bestStreak=0; S.hull=HULL_MAX; S.correct=0; S.answers=[]; S.lock=false;
+  show("scr-game"); renderQuestion();
+}
+$("boardBtn").addEventListener("click",startRun);
+$("againBtn").addEventListener("click",startRun);
+$("nextBtn").addEventListener("click",next);
+$("quitBtn").addEventListener("click",()=>{ paintHome(); show("scr-home"); });
+
+document.addEventListener("keydown",e=>{
+  if(!$("scr-game").classList.contains("on")) return;
+  if(e.key>="1"&&e.key<="4"&&!S.lock){
+    const b=$("opts").children[Number(e.key)-1];
+    if(b) b.click();
+  }else if(e.key==="Enter"&&S.lock&&$("feedback").classList.contains("on")){
+    next();
+  }
+});
+
+paintHome();
+</script>
+</body>
+</html>
