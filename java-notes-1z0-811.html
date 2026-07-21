@@ -1,0 +1,3350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Foundations Notes · 1Z0-811</title>
+<meta name="description" content="Java Foundations 1Z0-811 study notes — 20 chapters plus a mock revision, paginated for daily reading.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#070B14;--panel:#0D1424;--panel2:#101A30;--line:#1D2A47;--line2:#2A3C64;--ink:#E8EFFA;--mut:#8CA0C2;--dim:#5C6E8F;--blue:#4D9FFF;--green:#3DDC97;--gold:#FFD166;--gold2:#FFB84D;--r:16px}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;min-height:100vh;padding:40px 24px 64px;
+background-image:radial-gradient(ellipse 800px 500px at 50% -120px,rgba(255,209,102,.08),transparent 60%),radial-gradient(ellipse 600px 400px at 85% 100%,rgba(77,159,255,.05),transparent 60%)}
+.wrap{max-width:1180px;margin:0 auto}
+.back a{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.14em;color:var(--mut);text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:.16s}
+.back a:hover{color:var(--gold)}
+.back a:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+header{margin:26px 0 10px}
+.eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+h1.page{font-family:'Space Grotesk',sans-serif;font-size:clamp(26px,4vw,40px);font-weight:700;letter-spacing:-.01em;line-height:1.1}
+h1.page em{font-style:normal;color:var(--gold)}
+.credit{margin-top:10px;color:var(--dim);font-size:12.5px;line-height:1.6;max-width:640px}
+.credit a{color:var(--mut);text-decoration:underline;text-underline-offset:3px}
+.credit a:hover{color:var(--gold)}
+/* ── layout ── */
+.layout{display:grid;grid-template-columns:250px 1fr;gap:22px;margin-top:26px;align-items:start}
+aside{position:sticky;top:20px;background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:12px;max-height:calc(100vh - 40px);overflow-y:auto}
+.toc-label{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.2em;color:var(--dim);padding:6px 10px 10px}
+.toc-item{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:none;border:none;border-radius:10px;padding:8px 10px;cursor:pointer;color:var(--mut);font-family:'Inter',sans-serif;font-size:12.5px;transition:.14s}
+.toc-item:hover{background:var(--panel2);color:var(--ink)}
+.toc-item:focus-visible{outline:2px solid var(--gold);outline-offset:-2px}
+.toc-item .t-num{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.08em;color:var(--dim);flex:none;width:30px}
+.toc-item.active{background:linear-gradient(90deg,rgba(255,209,102,.12),transparent);color:var(--ink)}
+.toc-item.active .t-num{color:var(--gold)}
+/* ── pager ── */
+.pager{display:flex;align-items:center;gap:10px;background:var(--panel);border:1px solid var(--line);border-radius:99px;padding:8px}
+.pager button{cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.1em;color:var(--ink);background:var(--panel2);border:1px solid var(--line2);border-radius:99px;padding:9px 18px;transition:.16s;display:inline-flex;align-items:center;gap:7px}
+.pager button:hover:not(:disabled){border-color:var(--gold);color:var(--gold);transform:translateY(-1px)}
+.pager button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pager button:disabled{opacity:.35;cursor:default}
+.pager .pos{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;color:var(--dim);flex:none;margin:0 4px}
+.pager .pos b{color:var(--gold);font-weight:500}
+.pager select{flex:1;min-width:0;cursor:pointer;appearance:none;font-family:'JetBrains Mono',monospace;font-size:10.5px;letter-spacing:.06em;color:var(--mut);background:var(--bg) url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="10" height="6"><path d="M1 1l4 4 4-4" stroke="%235C6E8F" fill="none" stroke-width="1.5"/></svg>') no-repeat right 14px center;border:1px solid var(--line);border-radius:99px;padding:9px 32px 9px 16px}
+.pager select:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+.pager.bottom{margin-top:22px}
+/* ── chapter ── */
+article{min-width:0}
+.chapter{background:var(--panel);border:1px solid var(--line);border-top:2px solid var(--gold);border-radius:var(--r);padding:34px 38px 40px;margin-top:18px;animation:chIn .35s ease}
+@keyframes chIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.ch-head{display:flex;align-items:baseline;gap:14px;padding-bottom:18px;border-bottom:1px solid var(--line);margin-bottom:24px;flex-wrap:wrap}
+.ch-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.2em;color:var(--gold)}
+.ch-name{font-family:'Space Grotesk',sans-serif;font-size:24px;font-weight:700}
+/* ── markdown content ── */
+.md{font-size:14.5px;line-height:1.75;color:var(--ink)}
+.md h1,.md h2,.md h3,.md h4{font-family:'Space Grotesk',sans-serif;letter-spacing:-.005em;line-height:1.25;margin:30px 0 12px}
+.md h1{font-size:23px;color:var(--gold)}
+.md h2{font-size:19.5px}
+.md h3{font-size:16.5px;color:var(--mut)}
+.md h4{font-size:14.5px;color:var(--mut)}
+.md >:first-child{margin-top:0}
+.md p{margin:0 0 14px;color:#C9D6EC}
+.md ul,.md ol{margin:0 0 16px;padding-left:24px;color:#C9D6EC}
+.md li{margin-bottom:6px}
+.md li::marker{color:var(--gold)}
+.md a{color:var(--blue);text-decoration:underline;text-underline-offset:3px}
+.md strong{color:var(--ink)}
+.md em{color:var(--mut)}
+.md hr{border:none;border-top:1px solid var(--line);margin:26px 0}
+.md blockquote{border-left:3px solid var(--gold);background:rgba(255,209,102,.05);border-radius:0 10px 10px 0;padding:12px 18px;margin:0 0 16px;color:var(--mut)}
+.md code{font-family:'JetBrains Mono',monospace;font-size:.86em;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:2px 6px;color:var(--gold)}
+.md pre{background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:16px 18px;margin:0 0 16px;overflow-x:auto}
+.md pre code{background:none;border:none;padding:0;color:#BFD4F5;font-size:12.5px;line-height:1.7}
+.md table{width:100%;max-width:100%;display:block;overflow-x:auto;border-collapse:collapse;margin:0 0 18px;font-size:13px}
+.md th,.md td{border:1px solid var(--line);padding:9px 13px;text-align:left;vertical-align:top;color:#C9D6EC}
+.md th{font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.04em;color:var(--gold);background:var(--panel2);white-space:nowrap}
+.md tr:nth-child(even) td{background:rgba(16,26,48,.5)}
+.codecell,.outcell{position:relative;margin:0 0 16px}
+.codecell pre,.outcell pre{background:var(--bg);border:1px solid var(--line2);border-radius:12px;padding:30px 18px 16px;overflow-x:auto}
+.codecell pre code,.outcell pre code{font-family:'JetBrains Mono',monospace;font-size:12.5px;line-height:1.7;color:#BFD4F5;background:none;border:none;padding:0}
+.outcell pre{border-style:dashed;border-color:var(--line)}
+.outcell pre code{color:var(--green)}
+.code-tag{position:absolute;top:9px;left:14px;font-family:'JetBrains Mono',monospace;font-size:8.5px;letter-spacing:.2em;color:var(--gold)}
+.out-tag{color:var(--green)}
+footer{margin-top:48px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-align:center}
+@media(max-width:860px){
+  .layout{grid-template-columns:1fr}
+  aside{position:static;max-height:none;display:flex;overflow-x:auto;gap:4px;padding:8px}
+  .toc-label{display:none}
+  .toc-item{flex:none;width:auto;white-space:nowrap}
+  .toc-item .t-num{width:auto}
+  .chapter{padding:24px 20px 28px}
+  .pager{flex-wrap:wrap}
+  .pager select{order:3;flex-basis:100%}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.chapter{animation:none}.pager button:hover:not(:disabled){transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="back"><a href="java-foundations-1z0-811.html">← BACK TO 1Z0-811 TRACK</a></div>
+  <header>
+    <div class="eyebrow">Oracle University · SEM 03 · Study Notes</div>
+    <h1 class="page">Java Foundations <em>Notes</em></h1>
+    <p class="credit">Full 1Z0-811 syllabus in 21 paginated chapters — restructured for the web from the open study notes by
+      <a href="https://github.com/nealbrophy/java_foundations_1Z0-811_study-notes" target="_blank" rel="noopener">Neal Brophy (GitHub)</a>.
+      Use ← → arrow keys to turn chapters; your last position is remembered.</p>
+  </header>
+
+  <div class="layout">
+    <aside aria-label="Chapters">
+      <div class="toc-label">CHAPTERS</div>
+      <button class="toc-item" data-ch="1"><span class="t-num">01</span><span class="t-name">Intro to Java</span></button>
+<button class="toc-item" data-ch="2"><span class="t-num">02</span><span class="t-name">Language Fundamentals</span></button>
+<button class="toc-item" data-ch="3"><span class="t-num">03</span><span class="t-name">Compilation &amp; Execution</span></button>
+<button class="toc-item" data-ch="4"><span class="t-num">04</span><span class="t-name">Declaring Variables</span></button>
+<button class="toc-item" data-ch="5"><span class="t-num">05</span><span class="t-name">Operators &amp; Typecasting</span></button>
+<button class="toc-item" data-ch="6"><span class="t-num">06</span><span class="t-name">Decision Constructs</span></button>
+<button class="toc-item" data-ch="7"><span class="t-num">07</span><span class="t-name">Looping</span></button>
+<button class="toc-item" data-ch="8"><span class="t-num">08</span><span class="t-name">Arrays</span></button>
+<button class="toc-item" data-ch="9"><span class="t-num">09</span><span class="t-name">ArrayList</span></button>
+<button class="toc-item" data-ch="10"><span class="t-num">10</span><span class="t-name">OOP Basics</span></button>
+<button class="toc-item" data-ch="11"><span class="t-num">11</span><span class="t-name">Encapsulation</span></button>
+<button class="toc-item" data-ch="12"><span class="t-num">12</span><span class="t-name">Inheritance</span></button>
+<button class="toc-item" data-ch="13"><span class="t-num">13</span><span class="t-name">Constructors</span></button>
+<button class="toc-item" data-ch="14"><span class="t-num">14</span><span class="t-name">Interfaces</span></button>
+<button class="toc-item" data-ch="15"><span class="t-num">15</span><span class="t-name">Importing Packages</span></button>
+<button class="toc-item" data-ch="16"><span class="t-num">16</span><span class="t-name">String Class</span></button>
+<button class="toc-item" data-ch="17"><span class="t-num">17</span><span class="t-name">Math Class</span></button>
+<button class="toc-item" data-ch="18"><span class="t-num">18</span><span class="t-name">Scanner Class</span></button>
+<button class="toc-item" data-ch="19"><span class="t-num">19</span><span class="t-name">Exceptions</span></button>
+<button class="toc-item" data-ch="20"><span class="t-num">20</span><span class="t-name">File I/O</span></button>
+<button class="toc-item" data-ch="21"><span class="t-num">MOCK</span><span class="t-name">Mock Revision</span></button>
+    </aside>
+
+    <article>
+      <nav class="pager" aria-label="Chapter pagination">
+        <button id="prevTop">← PREV</button>
+        <select id="chSelect" aria-label="Jump to chapter">
+<option value="1">01 · Intro to Java</option>
+<option value="2">02 · Language Fundamentals</option>
+<option value="3">03 · Compilation &amp; Execution</option>
+<option value="4">04 · Declaring Variables</option>
+<option value="5">05 · Operators &amp; Typecasting</option>
+<option value="6">06 · Decision Constructs</option>
+<option value="7">07 · Looping</option>
+<option value="8">08 · Arrays</option>
+<option value="9">09 · ArrayList</option>
+<option value="10">10 · OOP Basics</option>
+<option value="11">11 · Encapsulation</option>
+<option value="12">12 · Inheritance</option>
+<option value="13">13 · Constructors</option>
+<option value="14">14 · Interfaces</option>
+<option value="15">15 · Importing Packages</option>
+<option value="16">16 · String Class</option>
+<option value="17">17 · Math Class</option>
+<option value="18">18 · Scanner Class</option>
+<option value="19">19 · Exceptions</option>
+<option value="20">20 · File I/O</option>
+<option value="21">MOCK · Mock Revision</option>
+        </select>
+        <span class="pos"><b id="posNow">1</b> / 21</span>
+        <button id="nextTop">NEXT →</button>
+      </nav>
+
+<section class="chapter" id="ch-1" data-ch="1" hidden><div class="ch-head"><span class="ch-num">CHAPTER 01</span><span class="ch-name">Intro to Java</span></div><div class="md"><h1>Java SE Fundamentals</h1>
+<h2>Introduction to Java</h2>
+<p>The key concepts of Java programming are that it's:
+1. Object orientated
+2. Distributed
+3. Simple
+4. Multi-threaded
+5. Secure
+6. Platform independent</p>
+<h3>1. OOP: Object Orentated Programming</h3>
+<p>The main characteristics of OOP are:
+- modularity: the code for an object can be written/maintained independently of the code for other objects. After it's created an object can easily be passed around inside the system.
+- information-hiding: interacting with an objects methods only, the details of it's internals are hidden.
+- code re-use: if an object already exists it can be used in your program
+- pluggability and debugging ease: if a particular object has problems you can remove it and replace with a different object</p>
+<h3>2. Distributed</h3>
+<p>Java is considered to be a <em>distributed</em> language because it provides support for distributed network technologies (__R__emote __M__ethod __I__nvocation, __U__niversal __R__esource __L__ocator). Additionally the dynamic class loading of Java allows code to be downloaded via the internet and executed.</p>
+<h3>3. Simple</h3>
+<p>Java is considered <em>simple</em> for a number of reasons including: 
+- it's booleans can only have a <code>true</code> or <code>false</code> value as opposed to other languages where the booleans are represented by one and zero.
+- complex/obscure constructs such as pointers to memory locations (a feature of C and C++) have been removed. Instead Java only allows the manipulation of objects using object references.</p>
+<h3>4. Multi-threaded</h3>
+<p>Java supports <em>multi-threading</em> which allows several tasks to run concurrently, such as querying a database, performing long-running and complex calculations, and displaying a user interface. This allows Java to be resource efficient.</p>
+<h3>5. Secure</h3>
+<p>Java is considered secure because the JRE (runtime environment) and JDK (development kit) use security measures to protect programs from attack such as:
+- prohibiting distributed programs from reading/writing to hard disk
+- verifying that all Java technology programs contain valid code
+- support for digital signatures which allows you to "sign" code for verification
+- prohibiting the manipulation of memory pointers</p>
+<h3>6. Platform independent</h3>
+<p>Some languages such as C++ require different platform-specific compilers meaning that a Linux implementation is different from a Windows implementation which is different from a a Mac implementation. Java on the other hand compiles to platform-independent Java bytecode. After the bytecode is created it's interpreted by a bytecode interpreter (the __J__ava __V__irtual __M__achine). In addition to the JVM, Java also needs a collection of standard Java class libraries. The JVM and class libraries are bundled together in the __J__ava __R__untime __E__nvironment.</p>
+<h2>Java Technology Products</h2>
+<p><em>Java Technologies</em> like the <strong>JVM</strong> are included in three different categories of products:
+- Java SE
+    - Server
+    - Desktop
+    - Embedded
+- Java ME
+    - Embedded
+    - TV
+    - Mobile
+- Java Card
+    - Card</p>
+<h3>Java SE</h3>
+<p>The <em>Java Platform Standard Edition</em> is used to develop applets that run in web browsers and applications that run on server and desktop computers.
+- Java SE
+    - Web Browsers
+        - Applets
+    - Operating Systems
+        - Applications</p>
+<h3>Java EE</h3>
+<p>The <em>Java Platform Enterprise Edition</em> is used to create large enterprise server-side and client-side distributed applications. It's built on top of Java SE extending it.</p>
+<h3>Java ME</h3>
+<p>The <em>Java Platform Micro Edition</em> is used to create applications for "resource constrained" devices such as mobile phones.</p>
+<h2>Installing Java</h2>
+<p>In order to develop Java applications you need to install the __J__ava __D__evelopment __K__it. Included in this installation are:
+- Java Runtime Environment (JRE)
+- Java Virtual Machine (JVM)
+- Java class libraries for the relevant platform
+- Java Technology compiler
+- Additional utilities such as Java Archive (JAR) creation tool, debugging tools, and example programs.</p>
+<h2>Product Life Cycle</h2>
+<p>The <strong>Product Life Cycle</strong> (PLC) is an iterative process used to develop new products by solving problems. The stage of a PLC are:
+1. Analysis
+2. Design
+3. Development
+4. Testing
+5. Implementation
+6. Maintenance
+7. End-of-Life (EOL)</p>
+<h3>1. Analysis</h3>
+<p>Analysis is the process of investigating a problem you want to solve with your product. The breadth of the problem is referred to as the <em>scope</em> of the project. The better, more thorough your analysis of the problem the more suitable your design solution will be.</p>
+<h3>2. Design</h3>
+<p>The design stage involves using the requirements gathered during the <strong>analysis</strong> stage to create a blueprint for your project.</p>
+<h3>3. Development</h3>
+<p>The development stage uses the blueprints from the <strong>design</strong> stage to build components.</p>
+<h3>4. Testing</h3>
+<p>Testing is used to ensure that the product of the <strong>development</strong> stage meets the requirements from the <strong>analysis</strong> &amp; <strong>design</strong> stages. Testing is normally performed by a team who explicitly did not take part in the development process to ensure there is no bias.</p>
+<h3>5. Implementation</h3>
+<p>Implementation is the process of making the developed product available to end-users.</p>
+<h3>6.  Maintenance</h3>
+<p>Maintenance consists of releasing new versions of the products which fix problems found during use.</p>
+<h3>7. End-of-Life</h3>
+<p>End-of-Life is the process of ensuring that all users are aware that a product is no longer being supported and a new version should be used.</p></div></section>
+<section class="chapter" id="ch-2" data-ch="2" hidden><div class="ch-head"><span class="ch-num">CHAPTER 02</span><span class="ch-name">Language Fundamentals</span></div><div class="md"><h1>Java Language Fundamentals</h1>
+<p>Java programs consist of multiple classes made up of various components. There are several ways to test a program including:
+- Unit tests: testing individual components
+- End-to-End: testing the entire program in its intended environment</p>
+<p>A desktop application usually consists of one object, often called the <strong>controller</strong> object, which acts as the starting point for the program and interacts with other objects. For example, in an order management system you might have a main order entry object which in turn connects to a shipping object, a billing object and so on. Each object is an instance of its own blueprint class.</p>
+<h2>Printing</h2>
+<p>Java provides quite a few ways to output data to the screen in the <code>System.out</code> package. Below are some of the most common:
+- <code>print()</code> will "print" the characters passed two it on a single line
+    <br><code>System.out.print("Hello");</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.print(1);
+System.out.print(2);
+System.out.print(3);
+System.out.print(&quot;text&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>123textnull</code></pre></div>
+<ul>
+<li><code>println()</code> will print the characters passed to it and then jump to a new line
+    <br><code>System.out.println(Hello World!);</code></li>
+</ul>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(1);
+System.out.println(2);
+System.out.println(3);
+System.out.println(&quot;text&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>1
+2
+3
+text
+null</code></pre></div>
+<ul>
+<li><code>printf()</code> allows you to tell Java how to format the info you pass to it
+    <br><code>System.out.printf("Some text with a %s inside", var="variable");</code></li>
+</ul>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String var = &quot;variable&quot;;
+System.out.printf(&quot;Some text with a %s inserted&quot;, var); // %s acts as a place holder for a String value</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Some text with a variable insertednull</code></pre></div>
+<h3>Format specifiers</h3>
+<p>Below is a short reference of format speciers you can use.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Specifier</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>%a</code></td>
+<td style="text-align: left;">float value excluding <code>BigDecimal</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%b</code></td>
+<td style="text-align: left;">boolean value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%c</code></td>
+<td style="text-align: left;">char value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%d</code></td>
+<td style="text-align: left;">int value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%e</code></td>
+<td style="text-align: left;">float in scientific notation</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%f</code></td>
+<td style="text-align: left;">standard float</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%g</code></td>
+<td style="text-align: left;">float which will auto convert to scientific notation depending on precision &amp; value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%h</code></td>
+<td style="text-align: left;">hash code</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%o</code></td>
+<td style="text-align: left;">Octal number (integer incl. byte, short, int, long, bigint)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%s</code></td>
+<td style="text-align: left;">String value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%t</code></td>
+<td style="text-align: left;">Date/Time value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%x</code></td>
+<td style="text-align: left;">Hex string</td>
+</tr>
+</tbody>
+</table>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>// %b = boolean
+boolean myBool = true;
+System.out.printf(&quot;The boolean is %b!!\n&quot;, myBool);
+
+// %f = float
+float myFloat = 2.5f;
+System.out.printf(&quot;I&#x27;m going to eat %f pizzas!\n&quot;, myFloat);
+
+// %s = string
+String myString = &quot;bar&quot;;
+System.out.printf(&quot;Everything has gone fu%s\n&quot;, myString);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>The boolean is true!!
+I&#x27;m going to eat 2.500000 pizzas!
+Everything has gone fubar
+null</code></pre></div>
+<h2>Classes</h2>
+<p>Classes are composed of the Java code needed to instantiate objects. A Java class file can be divided into four separate sections:
+- the class declaration
+- field declarations
+- methods (optional)
+- comments (optional)</p>
+<p>Class attributes are called <strong>fields</strong>.</p>
+<h2>Variables</h2>
+<p>Variables are holders of value, containers of data, and the value/data can change during the course of the application. <em>Fields</em> are one type of variable. You can also have <strong>local</strong> variables. Variables can also be initialized at declaration time.</p>
+<h2>Class structure &amp; content</h2>
+<p>The code for a class is contained within a text file and needs to adhere to a certain structure.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>public class Car {
+    
+    public int carID = 0; // default id
+    public String description = 
+            &quot;-description required-&quot;; // default
+    // available colors are G=green, R=red, B=blue
+    public char colorCode = &#x27;G&#x27;;
+    public double price = 0.0;
+    // this method displays the values for an item
+    public void displayInfo() {
+        System.out.println(&quot;Car ID: &quot; + carID);
+        System.out.println(&quot;Car Desc: &quot; + description);
+        System.out.println(&quot;Car Colour: &quot; + colorCode);
+        System.out.println(&quot;Car Price: &quot; + price);
+    } // end of method
+} // end of class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>com.twosigma.beaker.javash.bkr27a68f43.Car</code></pre></div>
+<p>The following symbols can be used when defining a Java source:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>{}</code></td>
+<td style="text-align: left;">braces</td>
+<td style="text-align: left;">Signify a code block e.g. a method or a class</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>()</code></td>
+<td style="text-align: left;">parentheses</td>
+<td style="text-align: left;">Used to indicate arguments (i.e. inputs) that can be passed to a method</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>;</code></td>
+<td style="text-align: left;">semicolons</td>
+<td style="text-align: left;">Signify the end of a statement</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>,</code></td>
+<td style="text-align: left;">commas</td>
+<td style="text-align: left;">Used to separate multiple arguments/values</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>'</code></td>
+<td style="text-align: left;">single quotes</td>
+<td style="text-align: left;">Used to define single characters</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>"</code></td>
+<td style="text-align: left;">double quotes</td>
+<td style="text-align: left;">Used to define strings (multiple chars)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>//</code></td>
+<td style="text-align: left;">double forward slash</td>
+<td style="text-align: left;">Indicate a single-line comment</td>
+</tr>
+</tbody>
+</table>
+<h2>Class declaration</h2>
+<p>When defining a class you must write a class declaration. Class declarations are made up of three components:
+- modifiers (optional)
+    - a modifiers variable determines the accessibility that other classes have to this class. This is optional and can be public, abstract, or final.
+- <code>class</code> keyword
+    - a reserved keyword that denotes the start of a class definition
+- class identifier i.e. name
+    - class name should be a noun
+    - use title-case (first letter of every word capitalised) e.g. <code>MyClass</code>
+    - use whole words rather than abbreviations</p>
+<p>For example the <code>Car</code> class above has <code>public</code> as its modifier, <code>class</code> keyword, <code>Car</code> as its name.</p>
+<p>You can develop classes such that each class has its own file. Java requires that source code file names must match the <code>public</code> class name in the file and have a <code>.java</code> extension. For example, sticking with the <code>Car</code> class above we would save that in a file as:
+<br><code>Car.java</code></p>
+<h3>Class field declarations</h3>
+<p>The field declarations &amp; assignments should immediately follow the opening curly brace. Normally you would set-up all the attribute vars for the class here and use a semicolon at the end of each line of code. You should also put clear comments to make it clear what the code is doing.
+<br><code>[modifer] type name = value;</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>public class MyClass {
+    public char myLetter = &#x27;A&#x27;;
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>com.twosigma.beaker.javash.bkr27a68f43.MyClass</code></pre></div>
+<h3>Class method declarations</h3>
+<p>Method declarations should follow the field declarations. The syntax for declaring methods is as follows:
+<br><code>[modifier] return_type identifier(arguments) {method code block}</code></p>
+<p>The return type indicates the type of value returned by the method, if any. Returned values can be used by <em>calling</em> the method. Any method can return <strong>at most</strong> one value. If the method returns nothing the <code>void</code> keyword should be used.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>public class NewClass {
+    public String myString=&quot;this is my string&quot;;
+    // this method prints the string
+    public void printString() {
+        System.out.println(&quot;My string is: &quot; + myString);
+    } // end of printString method
+} // end of class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>com.twosigma.beaker.javash.bkr27a68f43.NewClass</code></pre></div>
+<h2>Comments</h2>
+<p>There are three types of comments in Java:
+- single line comments which use <code>//</code>
+- traditional comments which start <code>/*</code> and end <code>*/</code>
+- documentation comments which use <code>/**</code> and end <code>*/</code> (note the double asterisk on the opening)</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>// this is a single line comment
+
+/* this is a traditional 
+comment which can
+run across many lines */
+
+/**
+Docmentation string which can be used by the Javadoc tool to create documentation
+*/</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Keywords</h2>
+<p>Keywords are special, reserved words in Java that give instructions to the compiler. Keywords must not be used as identifiers for classes, methods, variables etc.</p>
+<p>The words <code>true</code>, <code>false</code>, and <code>null</code> are not keywords but literals and also cannot be used as identifiers.</p>
+<p>Reserved keywords|
+:--|
+<code>abstract</code>, <code>assert</code>, <code>boolean</code>, <code>break</code>, <code>byte</code>, <code>case</code>, <code>catch</code>, <code>char</code>, <code>class</code>, <code>continue</code>, <code>default</code>
+<code>do</code>, <code>double</code>, <code>else</code>, <code>enum</code>, <code>extends</code>, <code>false</code>, <code>final</code>, <code>finally</code>, <code>float</code>, <code>for</code>, <code>if</code>, <code>implements</code>
+<code>imports</code>, <code>instanceof</code>, <code>int</code>, <code>interface</code>, <code>long</code>, <code>native</code>, <code>new</code>, <code>package</code>, <code>private</code>, <code>protected</code>
+<code>public</code>, <code>return</code>, <code>short</code>, <code>static</code>, <code>strictfp</code>, <code>super</code>, <code>switch</code>, <code>synchronized</code>, <code>this</code>, <code>throw</code>
+<code>throws</code>, <code>transient</code>, <code>true</code>, <code>try</code>, <code>void</code>, <code>volatile</code>, <code>while</code></p>
+<h2>Useful escape sequences</h2>
+<p>An escape sequence is a combination of a backslash (<code>\</code>) and a character. The backslash tells Java not to treat the following character as it normally would and instead use a different meaning for it. Here's a table of some of those:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Sequence</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>\b</code></td>
+<td style="text-align: left;">backspace</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\t</code></td>
+<td style="text-align: left;">tab</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\n</code></td>
+<td style="text-align: left;">line feed (new line)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\f</code></td>
+<td style="text-align: left;">form feed</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\r</code></td>
+<td style="text-align: left;">carriage return</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\"</code></td>
+<td style="text-align: left;">double quote</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\'</code></td>
+<td style="text-align: left;">single quote</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\\</code></td>
+<td style="text-align: left;">backslash</td>
+</tr>
+</tbody>
+</table>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(&quot;This\nwill\ncreate\nnew\nlines&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>This
+will
+create
+new
+lines
+null</code></pre></div>
+<h2>Packages</h2>
+<p>In Java, Classes are grouped in packages based on their functionality. For example, the "core" Java classes (e.g. <code>String</code>, <code>int</code> etc) are in the <code>java.lang</code> package. Classes in this package are immediately available and can be referred to just using their name (<code>String</code>, <code>Math</code> etc), meaning you don't need to import them first or <strong>fully qualify</strong> them (refer to them by their full address e.g. <code>java.lang.&lt;class&gt;</code>).</p>
+<p>Any classes in another packages need to be "fully qualified" on each use or imported at the top of your program. An commonly used <strong>fully qualified</strong> class is <code>System.out.println()</code> used to print to the screen.</p>
+<h3>Importing</h3>
+<p>Importing can be done for a specific class:
+<br><code>import java.util.ArrayList;</code></p>
+<p>Or for all classes within a package:
+<br><code>import java.util.*;</code></p></div></section>
+<section class="chapter" id="ch-3" data-ch="3" hidden><div class="ch-head"><span class="ch-num">CHAPTER 03</span><span class="ch-name">Compilation &amp; Execution</span></div><div class="md"><h1>Compiling and executing Java files</h1>
+<h2>Testing created classes</h2>
+<p>Most classes you create cannot be tested (or executed) by themselves. In order to do so you need to execute another class to create an object instance of the class you want to test. You can use a <em>test</em> or <em>main</em> class to test each of your classes.</p>
+<p>Each test class should be clearly named so that you (or any other developer) can easily tell what class the test is for. The test class name should be the name of the class its testing followed by the word "Test". For example if you have a class named <code>Car</code>, its test class should be named <code>CarTest</code>.</p>
+<p>Test classes in Java have two tasks to perform:
+1. to provide a starting point (called the <strong>main method</strong>) for your program
+2. creating an object instance of your class</p>
+<h2>The <code>main</code> method</h2>
+<p>The <strong>main method</strong> is a special method that the JVM recognizes as the start point for every Java program which runs from the command line or a prompt. Thus any class that you need to run from CLI or prompt must have a main method.</p>
+<p>The syntax for the main method is very similar to the previously discussed method syntax. However, there are two <em>required</em> modifiers: <code>public</code> and <code>static</code>. Since the main method returns no values it has a return type of <code>void</code>. The name/identifer of the main method is <code>main</code>. The main method accepts zero or more objects of type <code>String</code>: <code>(String args[])</code>. This syntax allows you to type in values on the command line which will be used by your program while its running.</p>
+<p>Combining the above gives us a syntax like this:
+<br><br><code>public static void main (String args[])</code></p>
+<h2>Compiling</h2>
+<p>The process of compilation converts the class files you write into bytecode that can be executed by the JVM. As noted previously, if your Java source files contains a public class, the source file must be named <code>[ClassName].java</code>. So, if we have a public <code>Car</code> class in its own file, and a test class for <code>Car</code> in its own file we should have two files:
+- <code>Car.java</code>
+- <code>CarTest.java</code></p>
+<p>To compile these files you would first navigate to the directory that contains them, then execute:
+<br><code>javac [filename]</code></p>
+<p>So, continuing the <code>Car</code> example we would expect to run two commands:
+<br><br>&gt;<code>javac Car.java</code>
+<br>&gt;<code>javac CarTest.java</code></p>
+<p>If compilation executes successfully and without errors, you can expect to see a <code>[ClassName].class</code> file for each compilation. For <code>Car</code> we'd have:
+<br><code>Car.class</code> and <code>CarTest.class</code></p>
+<p>If you compile a class which references other objects, any classes for those objects which haven't yet been compiled will also be executed. So, if we'd compiled <code>CarTest.java</code> which references <code>Car.java</code> we should have both <code>.class</code> files.</p>
+<h2>Executing compiled files</h2>
+<p>To execute the files you've compiled in the JVM you would run the command:
+<br><code>java [classname]</code></p>
+<h2>Hello World! aka putting it all together</h2>
+<p>Lets put the preceding info to practice by creating a simple "Hello World".</p>
+<p>First, we need to create a class in your editor of choice:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>/* inside HelloWorld.java file */
+
+public class HelloWorld {
+    public String message=&quot;Hello World!&quot;;
+    // method to print message
+    public void printMessage() {
+        System.out.println(message);
+    } // end of printMessage method
+}</code></pre></div>
+<p>Then we need to create a test class for our HelloWorld class:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>/* inside HelloWorldTest.java file */
+
+public class HelloWorldTest {
+    public static void main (String args[]) { // declare the main method
+        HelloWorld testHelloWorld = new HelloWorld(); // instantiate an object
+        testHelloWorld.printMessage(); // call the object&#x27;s printMessage method
+    } // end of main method
+}</code></pre></div>
+<p>Now that we have our two files, we just need to navigate to the directory where they're saved and open a terminal, then execute the following:
+<br><br>&gt;<code>javac HelloWorld.java</code>
+<br>&gt;<code>javac HelloWorldTest.java</code></p>
+<p>At this point you should have two new <code>.class</code> files named <code>HelloWorld.class</code> and <code>HelloWorldTest.class</code>. To execute our code run the following in terminal:
+<br><br>&gt;<code>java HelloWorldTest</code></p>
+<p>You should see "Hello World!" printed in the terminal.</p>
+<h2>Lets do that here in the notebook</h2>
+<p>Lets use some of BeakerX's cool functionality to run that here in the notebook:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// define the class
+public class HelloWorld {
+    public String message=&quot;Hello World!&quot;;
+    // method to print message
+    public void printMessage() {
+        System.out.println(message);
+    } // end of printMessage method
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.HelloWorld</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// instantiate an object and call the printMessage method
+HelloWorld tsthw = new HelloWorld();
+tsthw.printMessage();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello World!
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-4" data-ch="4" hidden><div class="ch-head"><span class="ch-num">CHAPTER 04</span><span class="ch-name">Declaring Variables</span></div><div class="md"><h1>Declaring Primitive Variables</h1>
+<h2>What are "Primitive" variables?</h2>
+<p>Primitive variables are non-object variables that are held in a specific amount of memory dedicated to your program.;</p>
+<h2>Types of variables in Java</h2>
+<p>The main types of variables in Java are:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>String</code></td>
+<td style="text-align: left;">A sequence of characters encased in double quotes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>char</code></td>
+<td style="text-align: left;">A single character encased in single quotes</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;">A decimal (32 bits, <code>1.4e^-45</code> to <code>3.4e^38</code>) must include <code>f</code> or <code>F</code> at the end of the number</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>double</code></td>
+<td style="text-align: left;">A large decimal (64 bits, <code>5e^324</code> to <code>1.8e^308</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">An integer (32 bits, <code>-2,147,483,648</code> to <code>2,147,483,647</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>boolean</code></td>
+<td style="text-align: left;">true or false</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>byte</code></td>
+<td style="text-align: left;">Very small integer (8 bits, <code>-128</code> to <code>127</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>short</code></td>
+<td style="text-align: left;">Relatively small integer (16 bits, <code>-32,768</code> to <code>32,767</code>)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>long</code></td>
+<td style="text-align: left;">Very large numbers (64 bits, <code>-2^63</code> to <code>2^63-1</code>) must includ an <code>L</code> or <code>l</code> at the end of the number</td>
+</tr>
+</tbody>
+</table>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String myName = &quot;Dracula&quot;;
+int myKills = 2146333123;
+float myHeight = 5.11f; // must end with F or f
+boolean amAlive = true;
+char myInitial = &#x27;V&#x27;;
+byte myFangs = 2;
+short myAge = 32600;
+long bloodDrunk = 2147483648L; // must end with L or l
+double cloakLength = 42.45;
+
+
+System.out.println(&quot;My name is &quot;+myName);
+System.out.println(&quot;I am &quot;+myAge+&quot; years old.&quot;);
+System.out.println(&quot;I am &quot;+myHeight+&quot; ft&quot;);
+System.out.println(&quot;I have drunk &quot;+bloodDrunk+&quot; litres of blood&quot;);
+System.out.println(&quot;My cloak is &quot;+cloakLength+&quot; inches long&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>My name is Dracula
+I am 32600 years old.
+I am 5.11 ft
+I have drunk 2147483648 litres of blood
+My cloak is 42.45 inches long
+null</code></pre></div>
+<h2>Declaring a constant</h2>
+<p>If you have a variable which should keep the same value throughout the life of a program you can make it a constant using the keyword <code>final</code>.</p>
+<p><strong>NOTE</strong>: convention is to declare constants in BLOCKCAPS.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>final String FORBIDDEN_KNOWLEDGE = &quot;lament configuration&quot;;</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Increment and Decrement</h2>
+<p>As in many languages Java has a shorthand for incrementing and decrementing by <code>1</code>:
+- <code>++</code> increments (increases) the value by 1
+- <code>--</code> decrements (decreases) the value by 1</p>
+<p>The placement of the increment/decrement is important as Java includes the concept of <em>pre</em>-decrement/increment and <em>post</em>-decrement/increment. If you're performing multiple operations at the same time and you place the <code>++</code>/<code>--</code> <em>before</em> the variable to be incremented/decremented then Java will perform the increment/decrement before any other operations. </p>
+<p>Example:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int myInt = 7; // initialise myInt with value of 7
+System.out.println(myInt++); // print and THEN increment by 1
+System.out.println(myInt); // just print (so we can see that it was in fact incremented)</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>7
+8
+null</code></pre></div>
+<h2>Strings are object references NOT primitives</h2>
+<p>In Java strings are object references and as such comparing them has some intricacies. For example if I have two strings declared like this:
+<br><code>public String name1 = "Sideshow Bob";</code>
+<br><code>public String name2 = "Sideshow Bob";</code></p>
+<p>Both of those variables are pointing to a single object in memory.</p>
+<p>If you want to force Java to create two separate string objects with the same value you can do so as follows:
+<br><code>public String name1 = new String("Sideshow Bob");</code>
+<br><code>public String name2 = new String("Sideshow Bob");</code></p>
+<p>However, this means that if you compare the strings using <code>==</code>, Java will tell you they're not the same even though they have identical content. Since when comparing strings we rarely intend to compare the space in memory and actually want to compare the content of the string you can use some string methods provided by Java.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String sideshow1 = new String(&quot;Bob&quot;);
+String sideshow2 = new String(&quot;Bob&quot;);
+
+System.out.println(sideshow1 == sideshow2);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>false
+null</code></pre></div>
+<h3>String.equals()</h3>
+<p>The first method we can use to compare strings is the equals method. The syntax is:
+<br><code>string1.equals(string2);</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String sideshow1 = new String(&quot;Bob&quot;);
+String sideshow2 = new String(&quot;Bob&quot;);
+
+System.out.println(sideshow1.equals(sideshow2));
+System.out.println(&quot;Luke Perry&quot;.equals(&quot;Bob&quot;));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>true
+false
+null</code></pre></div>
+<h3>String.equalsIgnoreCase()</h3>
+<p>The second method is <code>.equalsIgnoreCase()</code> and the syntax is:
+<br><code>string1.equalsIgnoreCase(string2);</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String sideshow1 = new String(&quot;Bob&quot;);
+String sideshow2 = new String(&quot;bob&quot;);
+
+System.out.println(sideshow1.equals(sideshow2));
+System.out.println(sideshow1.equalsIgnoreCase(sideshow2));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>false
+true
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-5" data-ch="5" hidden><div class="ch-head"><span class="ch-num">CHAPTER 05</span><span class="ch-name">Operators &amp; Typecasting</span></div><div class="md"><h1>Operators, Promotion, and Type casting</h1>
+<h2>Order of operations</h2>
+<p>As with most programming languages a clear order of operations needs to be set for occasions when multiple operations are requested at the same time. Java's order of operations is as follows:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Code</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Importance</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>()</code></td>
+<td style="text-align: left;">Parentheses</td>
+<td style="text-align: left;">1</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>++</code>&amp;<code>--</code></td>
+<td style="text-align: left;">Increment/Decrement</td>
+<td style="text-align: left;">2</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>*</code>&amp;<code>/</code></td>
+<td style="text-align: left;">Multiplication/Division</td>
+<td style="text-align: left;">3</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>*</code>&amp;<code>-</code></td>
+<td style="text-align: left;">Addition/Subtraction</td>
+<td style="text-align: left;">4</td>
+</tr>
+</tbody>
+</table>
+<p>If multiple operations of the same importance are requested at the same time they are evaluated from left to right.</p>
+<h2>Binary operators</h2>
+<p>Binary operators are operators which take two "operands" e.g. <em>add this to that</em>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Usage</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;">Plus</td>
+<td style="text-align: left;">Add numerical values/concatenate strings w/ other strings, variables etc</td>
+<td style="text-align: left;"><code>System.out.println("I am "+myAge+" years old")</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;">Minus</td>
+<td style="text-align: left;">Subtract numerical values</td>
+<td style="text-align: left;"><code>netSalary = grossSalary - taxDue</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>*</code></td>
+<td style="text-align: left;">Times</td>
+<td style="text-align: left;">Multiplication/Duplication</td>
+<td style="text-align: left;"><code>bunnyMultiplier = bunny * 2</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>/</code></td>
+<td style="text-align: left;">Divide</td>
+<td style="text-align: left;">Division</td>
+<td style="text-align: left;"><code>System.out.println(42/12)</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%</code></td>
+<td style="text-align: left;">Modulus/Remainder</td>
+<td style="text-align: left;">Returns remainder of division</td>
+<td style="text-align: left;"><code>System.out.print(12%11) // prints 1</code></td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: <em>division by zero will result in an error message</em></p>
+<h2>Unary operators</h2>
+<p>Unary operators only take one operand e.g. <em>increase this by 1</em>.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Usage</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>+</code></td>
+<td style="text-align: left;">Unary Plus</td>
+<td style="text-align: left;">Indicates positive value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-</code></td>
+<td style="text-align: left;">Unary Minus</td>
+<td style="text-align: left;">Indicates negative value</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>++</code></td>
+<td style="text-align: left;">Increment</td>
+<td style="text-align: left;">Increase by 1</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>--</code></td>
+<td style="text-align: left;">Decrement</td>
+<td style="text-align: left;">Decrease by 1</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>!</code></td>
+<td style="text-align: left;">Logical complement</td>
+<td style="text-align: left;">Inverts the value of a boolean</td>
+</tr>
+</tbody>
+</table>
+<h2>Assignment operators</h2>
+<p>As you'd expect, assignment operators assign a value.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Name</th>
+<th style="text-align: left;">Description</th>
+<th style="text-align: left;">Example</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>=</code></td>
+<td style="text-align: left;">equals</td>
+<td style="text-align: left;">Assigns the value on the right to the item on the left</td>
+<td style="text-align: left;"><code>myInt = 10</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>+=</code></td>
+<td style="text-align: left;">plus-equals</td>
+<td style="text-align: left;">Increases and assigns the item on the left by the item on the right</td>
+<td style="text-align: left;"><code>myInt += 1</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>-=</code></td>
+<td style="text-align: left;">minus-equals</td>
+<td style="text-align: left;">Decreases and assigns the item on the left by the item on the right</td>
+<td style="text-align: left;"><code>myInt -= 4</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>*=</code></td>
+<td style="text-align: left;">times-equals</td>
+<td style="text-align: left;">Multiplies and assigns the item on the left by the item on the right</td>
+<td style="text-align: left;"><code>myInt *= 3</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>/=</code></td>
+<td style="text-align: left;">divide-equals</td>
+<td style="text-align: left;">Divides and assigns the item on the left by the on the right</td>
+<td style="text-align: left;"><code>myInt /= 2</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>%=</code></td>
+<td style="text-align: left;">remainder-equals</td>
+<td style="text-align: left;">Gets the remainder of the item on the left divided by the item on the right and assigns</td>
+<td style="text-align: left;"><code>myInt %= 1</code></td>
+</tr>
+</tbody>
+</table>
+<h2>Logical operators</h2>
+<p>Logical operators are generally used for comparing two things e.g. <em>Is this bigger than that</em>.</p>
+<h3>Equality &amp; relational Operators</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>==</code></td>
+<td style="text-align: left;">Equal to</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>!=</code></td>
+<td style="text-align: left;">Not equal to</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&gt;</code></td>
+<td style="text-align: left;">Greater than</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&gt;=</code></td>
+<td style="text-align: left;">Greater than or equal to</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;</code></td>
+<td style="text-align: left;">Less than</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;=</code></td>
+<td style="text-align: left;">Less than or equal to</td>
+</tr>
+</tbody>
+</table>
+<h3>Conditional operators</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>&amp;&amp;</code></td>
+<td style="text-align: left;">Conditional AND</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\|\|</code></td>
+<td style="text-align: left;">Conditional OR</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>!</code></td>
+<td style="text-align: left;">NOT</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>?:</code></td>
+<td style="text-align: left;">Ternary (shorthand for <code>if then else</code> statement)</td>
+</tr>
+</tbody>
+</table>
+<p><strong>NOTE</strong>: <em>In the case of <code>&amp;&amp;</code> the second part of the operation will only be reached if the first part is true. In the case of <code>||</code> the second part will only be reached if the first part is false. For example "is x AND y true" you only need to worry about whether "y" is true if you've already established that "x" is true.</em></p>
+<h3>Type comparison operator</h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>instanceof</code></td>
+<td style="text-align: left;">Compares an object to a specified type</td>
+</tr>
+</tbody>
+</table>
+<h2>Increment and Decrement</h2>
+<p>As in many languages Java has a shorthand for incrementing and decrementing by <code>1</code>:
+- <code>++</code> increments (increases) the value by 1
+- <code>--</code> decrements (decreases) the value by 1</p>
+<p>The placement of the increment/decrement is important as Java includes the concept of <em>pre</em>-decrement/increment and <em>post</em>-decrement/increment. If you're performing multiple operations at the same time and you place the <code>++</code>/<code>--</code> <em>before</em> the variable to be incremented/decremented then Java will perform the increment/decrement before any other operations. </p>
+<p>Example:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int myInt = 7; // initialise myInt with value of 7
+System.out.println(myInt++); // print and THEN increment by 1
+System.out.println(myInt); // just print (so we can see that it was in fact incremented)</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>7
+8
+null</code></pre></div>
+<h2>Type casting and Promotion</h2>
+<p>If you try to assign a variable or expression to another variable of a different type, there's a good change you will receive an error unless you're assigning to a larger (as in memory) type. For example:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int num1 = 42; // int is 32 bits
+int num2 = 5; // int is 32 bits
+byte num3 = num1 + num2; // byte is 8 bits</code></pre></div>
+<p>To fix this you can either <strong>promote</strong> the bottom variable to a larger type or <strong>type cast</strong> the first to variables to a smaller type.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>// EXAMPLE 1: promotion
+int num4 = 42;
+int num5 = 5;
+int num6 = num4 + num5;
+
+// EXAMPLE 2: type casting
+int num7 = 42;
+int num8 = 5;
+byte num9 = (byte)(num7 + num8);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h3>Promotion</h3>
+<p>Promotion is the act of changing a variable from a smaller to a larger type (as in example one above).</p>
+<h3>Type casting</h3>
+<p>Type casting is the act of changing a variable from a larger type down to a smaller type. The format is:
+<br><code>variable_name = (type)(value)</code> <em>(you only need the second set of parentheses if the value is an expression)</em></p>
+<p><strong>USE WITH CAUTION</strong> as type casting can often result in a loss of data</p>
+<h3>Compiler auto-changing type</h3>
+<p>In some cases the Java compiler will automatically change a variable to a larger type. This is called <strong>promotion</strong>. Promotions may be automatically done by the compiler if data would not be lost by doing so. Such promotions occur under the following conditions:
+- If you assign a smaller type (on the right of the <code>=</code>) to a larger type (on the left of the <code>=</code>). Example: 
+    <br><code>int job1 = 100;</code>
+    <br><code>int job2 = 56;</code>
+    <br><code>long job3 = job1 * job2;</code>
+- If you assign an int type to a float type, because there are no decimal places to lose</p>
+<p>The compiler makes some assumptions when evaluating an expression. Most operations result in an <code>int</code> or <code>long</code>.
+- <code>byte</code>, <code>char</code>, and <code>short</code> values are promoted to <code>int</code> before an operation is performed.
+- If either of type <code>long</code> the other is also promoted to <code>long</code> and the result will be <code>long</code>.
+- If an expression contains a <code>float</code> the entire expression is promoted to <code>float</code>
+- <em>literal</em> floating-point values are seen as <code>double</code>. This is why we need to put <code>F</code> or <code>f</code> at the end of a float value (doing so tells Java that it's a float). Example:
+    <br><code>float myFloat = 31.5f;</code>
+    - You can also type cast to float instead of using the <code>F</code>/<code>f</code> assignment. Example:
+    <br><code>float myFloat = (float) 31.5;</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>byte b1 = 1, b2 = 2;
+byte b3 = b1 + b2; // will result in an error even though all are bytes because the b1 and b2 are promoted to int before the addition is performed</code></pre></div>
+<h3>Temporary memory location</h3>
+<p>When an equation is being assigned to a variable, before the assignment happens the equation is placed in a temporary memory location. This locations size is always equal to either an <code>int</code> or the largest type used in the expression. So, if you have a <code>long</code> to which you're assigning the result of an expression which is <code>int * int</code>, before the expression is assigned to the larger <code>long</code> size variable it is placed in a temporary memory of space <code>int</code>. This means that if the result of the expression is greater than what an <code>int</code> can hold your result will likely be incorrect due to loss of data (as the result will be truncated to fit an <code>int</code>).
+<br><code>int first = 2_120_342;</code>
+<br><code>int second = 2_325_860;</code>
+<br><code>long = first + second;</code></p>
+<p>To avoid such an occurence you can make sure that one of the variables in your expression is a <code>long</code>.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int first = 55555; // int
+int second = 66666; // int
+long third = first * second; // temporarily stored in an int before being assigned to a long
+
+System.out.println(&quot;Lossy calculation: &quot; + third);
+
+int smaller = 55555; // int
+long larger = 66666; // long
+long largest = smaller * larger; // temprarily stored in the largest var of the equation (long) before being assigned to a long
+
+System.out.println(&quot;Non-lossy calculation: &quot; + largest);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Lossy calculation: -591337666
+Non-lossy calculation: 3703629630
+null</code></pre></div>
+<h3>Assigning the result of an expresssion to <code>long</code></h3>
+<p>If you declare a <code>long</code> and try to initialise it with an expression whose result may exceed the boundaries of an <code>int</code> you need to make sure to cast one of the values with an <code>L</code>/<code>l</code> (otherwise the calculation will lose data in the temporary <code>int</code> sized storage).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>long myLong = 55555 * 66666; // incorrect value due to loss of data
+System.out.println(myLong);
+
+long myActualLong = 55555L * 66666;
+System.out.println(myActualLong);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>-591337666
+3703629630
+null</code></pre></div>
+<h2>Loss of magnitude vs loss of precision</h2>
+<p>One intricacy of type conversion that's a little unintuitive is that <strong>loss of magnitude</strong> (i.e. <em>this will not fit into that</em>) requires explicit casting (meaning you have to force the data and essentially confirm that you're ok with any loss of data) whereas <strong>loss of precision</strong> (i.e. <em>this will fit into that but might not match exactly</em>) doesn't require casting.</p>
+<p>Java works on a "widening path" where <code>byte</code>&lt;<code>short</code>&lt;<code>int</code>&lt;<code>long</code>&lt;<code>float</code>&lt;<code>double</code>. So conversion going from left-to-right (e.g. <code>long</code> to <code>float</code>) will not require casting whereas a conversion going from right-to-left (e.g. <code>double</code> to <code>long</code>) will.</p>
+<h2>Bitwise operators</h2>
+<p>Bitwise operators are operators specifically for use with <strong>long</strong>, <strong>int</strong>, <strong>short</strong>, <strong>char</strong>, and <strong>byte</strong> values. They cannot be used on <strong>boolean</strong>, <strong>float</strong>, <strong>double</strong>, or class types. They're used to test, set, and shift individual bits (hence the name bitwise) that make up a value. Bitwise operations are generally used in systems-level programming.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Operator</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>&amp;</code></td>
+<td style="text-align: left;">Bitwise AND</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>\|</code></td>
+<td style="text-align: left;">Bitwise OR</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>^</code></td>
+<td style="text-align: left;">Bitwise exclusive OR</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&gt;&gt;</code></td>
+<td style="text-align: left;">Shift right</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&gt;&gt;&gt;</code></td>
+<td style="text-align: left;">Unsigned shift right</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>&lt;&lt;</code></td>
+<td style="text-align: left;">Shift left</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>~</code></td>
+<td style="text-align: left;">One's complement (unary NOT)</td>
+</tr>
+</tbody>
+</table></div></section>
+<section class="chapter" id="ch-6" data-ch="6" hidden><div class="ch-head"><span class="ch-num">CHAPTER 06</span><span class="ch-name">Decision Constructs</span></div><div class="md"><h1>Decision constructs</h1>
+<h2>If statement</h2>
+<p>An <code>if</code> statement executes some code <em>if</em> a certain condition is met e.g. <em>if var1 == 3, print it</em> or <em>if var2 is not equal to "cheese" don't print it</em>. The syntax for an if statement in Java is:
+<br>
+<br>
+<code>if (bool expression) {
+    code block
+    }</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String foo = &quot;bar&quot;;
+if (foo == &quot;bar&quot;) {
+    System.out.println(foo);
+}
+
+if (foo == &quot;cheese&quot;) {
+    System.out.println(&quot;Where&#x27;s my cheese?&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>bar
+null</code></pre></div>
+<h2>If/Else</h2>
+<p>An if statement can be extended to include an <code>else</code> block which will only be executed if the <code>if</code> block isn't. The syntax is:
+<br>
+<br>
+<code>if (bool expression) {
+    code block
+} // end if
+else {
+    code block
+} // end else</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String detective1 = &quot;Sherlock&quot;;
+String detective2 = &quot;Watson&quot;;
+
+if (detective1 == &quot;Sherlock&quot; &amp;&amp; detective2 == &quot;Watson&quot;) {
+    System.out.println(&quot;The crime has been solved!&quot;);
+} // end if
+else {
+    System.out.println(&quot;Ugh, not Lestrade.&quot;);
+} // end else</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>The crime has been solved!
+null</code></pre></div>
+<h2>If/Else If</h2>
+<p>You can further extend the functionality of an <code>if</code> statement by using an <code>if</code>/<code>else if</code> which allows you to perform multiple checks for different code blocks e.g. <em>if var1 is 1 or 2 print "Freddy's coming for you", else if var2 is 3 or 4 print "better lock your door", else if var 3 is 5 or 6 print "get a crucifix"</em> and so on. The syntax is:
+<br>
+<br>
+<code>if (bool expr) {
+    code block
+} // end if
+else if (bool expr) {
+    code block
+} // end else if
+else {
+    clode block
+} // end else</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int scarySong = 8;
+
+if (scarySong == 1 || scarySong == 2) {
+    System.out.println(&quot;Freddy&#x27;s comin&#x27; for you&quot;);
+} // end if
+else if (scarySong == 3 || scarySong == 4) {
+    System.out.println(&quot;Better lock your door&quot;);
+} // end else-if 1
+else if (scarySong == 5 || scarySong == 6) {
+    System.out.println(&quot;Get a crucifix&quot;);
+} // end else-if 2
+else if (scarySong == 7 || scarySong == 8) {
+    System.out.println(&quot;Gonna stay up late&quot;);
+} // end else-if 3
+else {
+    System.out.println(&quot;Never sleep again!&quot;);
+} // end else</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Gonna stay up late
+null</code></pre></div>
+<h2>Switch statement</h2>
+<p>Chaining multiple <code>if</code>/<code>else if</code> can eventually become unwieldy. To simplify this somewhat you can use a <code>switch</code> construct instead. The syntax is:
+<br>
+<br>
+<code>switch (variable_to_test) {
+    case literal_value:
+        code block
+        break;
+    case literal_value:
+        code block
+        break;
+    default:
+        code block
+} // end switch</code></p>
+<p>The variable being tested in a switch construct can only be of types <code>String</code>, <code>char</code>, <code>byte</code>, <code>short</code>, or <code>int</code>. The combination of a <code>case</code> keyword and a <code>literal_value</code> is referred to as a <strong>case label</strong>. The <code>[break;]</code> statement is an optional way to escape execution at a defined point. If you do not include any breaks then all code after a matching <code>case</code> will be executed until the end of the construct (this is called <strong>fall-through</strong>).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int nonScarySong = 9;
+// Switch example 1
+switch (nonScarySong) {
+    case 1:
+    case 2:
+        System.out.println(&quot;Buckle my shoe&quot;);
+        break;
+    case 3:
+    case 4:
+        System.out.println(&quot;Knock at the door&quot;);
+        break;
+    case 5:
+    case 6:
+        System.out.println(&quot;Pick up sticks&quot;);
+        break;
+    case 7:
+    case 8:
+        System.out.println(&quot;Lay them straight&quot;);
+        break;
+    default:
+        System.out.println(&quot;A big fat hen&quot;);
+} // end switch</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>A big fat hen
+null</code></pre></div>
+<h2>Using the ternery conditional operator as an <code>if</code>/<code>else</code></h2>
+<p>The <strong>ternery operator</strong> (<code>?:</code>) is used as a succinct if/else construct. The syntax is:
+<br>
+<br><code>condition ? if_true_do_this : if_false_do_this</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String detective1 = &quot;Holmes&quot;;
+String detective2 = &quot;LeStrade&quot;;
+String status = (detective1==&quot;Holmes&quot;)? &quot;Solved!&quot;: &quot;Pending...&quot;;
+
+System.out.println(status);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Solved!
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-7" data-ch="7" hidden><div class="ch-head"><span class="ch-num">CHAPTER 07</span><span class="ch-name">Looping</span></div><div class="md"><h1>Looping in Java</h1>
+<p>Looping is a way to have code execute repeatedly as long as a specified condition is met. There are several looping constructs available in Java including:
+- A <code>while</code> loop: repeats <em>while</em> an expression is true
+    <br>e.g. "<em>while x is 10 do this</em>"
+- A <code>for</code> loop: repeats for a set number of times.
+    <br>e.g. "<em>for x number do this</em>"
+    - An <strong>enhanced</strong> <code>for</code> loop will loop through the elements of an array
+- A <code>do/while</code> loop: executes <em>once</em> then continues <em>while</em> a condition is true.
+    <br>e.g. "<em>do this, then repeat as long as x is true</em>"</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Construct</th>
+<th style="text-align: left;">When to use</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>while</code></td>
+<td style="text-align: left;">To loop indefinitely</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>for</code></td>
+<td style="text-align: left;">To loop a fixed number of times</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>for</code>+</td>
+<td style="text-align: left;">To loop through an array</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>do/while</code></td>
+<td style="text-align: left;">To execute code at least once and loop indefinitely</td>
+</tr>
+</tbody>
+</table>
+<h2>While</h2>
+<p>A while loop will only execute its code if and as long as a condition is true. The syntax is:
+<br><code>while (boolean expression) {repeat this code}</code></p>
+<p>Example:
+<br>
+<br><code>boolean sunIsUp = false;</code>
+<br><code>while (!sunIsUp) {</code> //<em>remember the ! here means <strong>NOT</strong>, so while NOT sunIsUp basically means while sunIsUp is false</em>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<code>boolean vampireHunting = true;</code>
+    <br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("I love drinking blood!");</code>
+    <br><code>}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int batteryPercentage = 100;
+while (batteryPercentage&gt;15) {
+    System.out.println(&quot;Can you hear me now? Hello?&quot;);
+    batteryPercentage -= 25;
+}
+System.out.println(&quot;Dang battery&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Can you hear me now? Hello?
+Can you hear me now? Hello?
+Can you hear me now? Hello?
+Can you hear me now? Hello?
+Dang battery
+null</code></pre></div>
+<h2>For</h2>
+<p>The standard <code>for</code> loop executes its code a set number of times. The syntax is:
+<br><code>for (counter_variable; boolean_expression; counter_increment) {repeat this code}</code></p>
+<p>Example:
+<br>
+<br><code>for (int i = 5; i &gt; 0; i--){</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("Countdown: " + i);</code>
+<br><code>}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>for (int i = 0; i &lt; 3; i++) {
+    System.out.println(&quot;Where&#x27;s the money Leboffski?&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Where&#x27;s the money Leboffski?
+Where&#x27;s the money Leboffski?
+Where&#x27;s the money Leboffski?
+null</code></pre></div>
+<h2>Enhanced For</h2>
+<p>An <strong>enhanced</strong> <code>for</code> loop is used for looping through arrays. The syntax is:
+<br><code>for (&lt;type&gt; variable_name: array_to_loop) {repeat this code}</code></p>
+<p>Example:
+<br>
+<br><code>for (String name: favFilms) {</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println(name);</code>
+<br><code>}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String beatles[] = {&quot;John&quot;, &quot;Paul&quot;, &quot;George&quot;, &quot;Ringo&quot;};
+
+for (String name: beatles) {
+    System.out.println(name + &quot; is a Beatle&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>John is a Beatle
+Paul is a Beatle
+George is a Beatle
+Ringo is a Beatle
+null</code></pre></div>
+<p>However, you can accomplish the same thing with a standard <code>for</code> loop in combination with the arrays <code>.length</code> property:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String beatles[] = {&quot;John&quot;, &quot;Paul&quot;, &quot;George&quot;, &quot;Ringo&quot;};
+
+for (int i = 0; i &lt; beatles.length; i++) {
+    System.out.println(beatles[i] + &quot; is a Beatle&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>John is a Beatle
+Paul is a Beatle
+George is a Beatle
+Ringo is a Beatle
+null</code></pre></div>
+<h2>Do/While</h2>
+<p>A <code>do/while</code> loop will execute its code once regardless of any condition, then for each repeat it will only execute if the condition is met. The syntax is:
+<br><code>do {repeat this code} while (expression)</code></p>
+<p>Example:
+<br><code>do {</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("I am the walrus.");</code>
+<br><code>} while (isJohnLennon);</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>boolean isJohnLennon = false;
+do {
+    System.out.println(&quot;I am the walrus&quot;); // will execute AT LEAST once
+} while (isJohnLennon); // semi-colon is MANDATORY</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>I am the walrus
+null</code></pre></div>
+<h2>Breaking a loop</h2>
+<p>There are two keywords you can use to interrupt a loop:
+- <code>break</code>: which will cause the code to exit the loop
+- <code>continue</code>: will cause the loop to skip the current iteration and continue</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String beatleList [] = {&quot;John&quot;, &quot;Paul&quot;, &quot;Pete&quot;, &quot;George&quot;, &quot;Mick Jagger&quot;, &quot;Ringo&quot;};
+
+for (String name: beatleList) {
+    if (name == &quot;Pete&quot;) { // skip Pete
+        continue;
+    }
+    if (name == &quot;Mick Jagger&quot;) { // stop if Mick appears
+        break;
+    }
+    System.out.println(name);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>John
+Paul
+George
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-8" data-ch="8" hidden><div class="ch-head"><span class="ch-num">CHAPTER 08</span><span class="ch-name">Arrays</span></div><div class="md"><h1>Creating and using arrays</h1>
+<p>Arrays are containers of sequential related data. For example you can have an array of <code>int</code>s, an array of <code>string</code>s, an array of object references. The length of an array is established at creation and fixed from that point on (i.e. you can't change it once created).</p>
+<p>Each item in an array is <em>indexed</em> meaning you can access using a reference to its index. <strong>NOTE</strong>: arrays are zero indexed, so the first item is at index <code>0</code>, the second at index <code>1</code>, and so on.</p>
+<p>Arrays are handled by an <em>implicit</em> <code>Array</code> object which isn't available in the Java API. As with any object you need to declare a referecem instantiate, and then initialise an Array object before you can use it.</p>
+<h2>Declaring</h2>
+<p>The syntax to create a one-dimensional array is:
+<br><code>type [] array_identifier;</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray;</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Instantiating</h2>
+<p>Before you can initialise an array, you need to instantiate an <code>Array</code> object large enough to hold the values. To do so you define the number of elements in the array:
+<br><code>array_identifier = new type [lenght];</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray;
+myStringArray = new String [4];</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Populating</h2>
+<p>After instantiation each element of the array is initialised with whatever the zero or null value for that primitive type is. For example, an array of <code>int</code> would have each element set to <code>0</code>, an array of object references would have each set to <code>null</code>. You can populate an array with data after creation using the following syntax:
+<br><code>myIntArray[0] = 52;</code>
+<br><code>myIntArray[1] = 7;</code>
+<br><code>myIntArray[2] = 824;</code>
+<br><code>myIntArray[3] = 19;</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray;
+myStringArray = new String [3];
+myStringArray[0] = &quot;Hello&quot;;
+myStringArray[1] = &quot;World&quot;;
+myStringArray[2] = &quot;!&quot;;</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Declaring, instantiating, and populating all at once</h2>
+<p>If you know what you want in your array when you're creating it, you can declare, instantiate, and fill it all together using this syntax:
+<br><code>type [] array_identifer = {values};</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray = {&quot;Hello&quot;, &quot;World&quot;, &quot;!&quot;};</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Accessing array items</h2>
+<p>You can access array items in the same way you set them; using indices:
+<br><code>String myFirstEl = myStringArray[0];</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray;
+myStringArray = new String [3];
+myStringArray[0] = &quot;Hello&quot;;
+myStringArray[1] = &quot;World&quot;;
+myStringArray[2] = &quot;!&quot;;
+System.out.println(myStringArray[0]);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello
+null</code></pre></div>
+<h2>Array primitives are stored differently to a primitive</h2>
+<p>Arrays are objects referred to by an object reference variable. This means that the way a primitive array is stored in memory differs from the way a primitive data type is stored. Consider the following code:
+<br><code>char size = 'L';</code>
+<br><code>char [] sizes = {'S', 'M', 'L'};</code></p>
+<p>The value of the <code>size</code> is a <code>char</code>: <code>L</code>. Whereas the value of <code>sizes</code> is <code>0x334009</code> (which is an address in memory) that points to an object of type <code>array of char</code> with three values. The value of <code>sizes[0]</code> is the <code>char</code>:<code>S</code>, the value of <code>sizes[1]</code> is the <code>char</code>:<code>M</code> and so on.</p>
+<h2>The <code>args</code> array</h2>
+<p>When you pass strings to a progam on the command line, the strings are put in the <code>args</code> array. To use these strings, you must extract them from the args array and, optionally, convert them to their proper type (because the args array is of type <code>String</code>).
+<br>
+<br><code>&gt;java ArgsTest Hello World!</code>
+<br><code>args[0] is Hello</code>
+<br><code>args[1] is World!</code></p>
+<h2>Array length</h2>
+<p>You can determine the number of items in an array using the <code>[array_name].length</code> property.
+<br><code>myStringArray.length</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String [] myStringArray;
+myStringArray = new String [3];
+myStringArray[0] = &quot;Hello&quot;;
+myStringArray[1] = &quot;World&quot;;
+myStringArray[2] = &quot;!&quot;;
+System.out.println(myStringArray[0]);
+System.out.println(myStringArray.length);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello
+3
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-9" data-ch="9" hidden><div class="ch-head"><span class="ch-num">CHAPTER 09</span><span class="ch-name">ArrayList</span></div><div class="md"><h1>Java's ArrayList</h1>
+<p>Java offers another way to store lists of related data called an <code>ArrayList</code>. It can store only objects (not primitives) and has a set of useful methods for manage its contents such as <code>add()</code>, <code>get()</code>, <code>indexOf()</code>, and more. Additionally you don't need to specify a size when you instantiate an ArrayList; as you add elements it will grow as needed.</p>
+<h2>Using the <code>ArrayList</code> class</h2>
+<p><code>ArrayList</code> exists in the <code>java.util</code> package. To use an <code>ArrayList</code> in your program you can either fully qualify it on each use:
+<br><strong><code>java.util.ArrayList</code></strong> <code>myNewList;</code></p>
+<p>Or use an import statement at the top of your program so you can refer to it more succinctly throughout:
+<br><strong><code>import java.util.ArrayList;</code></strong>
+<br><code>public class ArrayListOne {</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>public static void main(String [] args){</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong><code>ArrayList myNewArray;</code></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>}</code>
+<br><code>}</code></p>
+<h2>Declaring &amp; Instantiating</h2>
+<p>Declaring and instantiating ArrayLists is the same as any other object.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>// fully qualified
+java.util.ArrayList myAList; // declaring variable myAList as an ArrayList
+myAList = new java.util.ArrayList(); // populating the declared variable with a new instance of the ArrayList class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>// imported version
+import java.util.ArrayList;
+
+ArrayList newArrList; // declaring variable newArrList as an ArrayList type
+newArrList = new ArrayList(); // populating the variable with a newly instantiated ArrayList object</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Populating an ArrayList</h2>
+<p>There are several methods you can use to add, remove, and adjust ArrayList data.</p>
+<h3>The <code>add()</code> method</h3>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.ArrayList;
+
+ArrayList coolBandNames;
+coolBandNames = new ArrayList();
+
+coolBandNames.add(&quot;Wyld Stallyns&quot;);
+coolBandNames.add(&quot;Gwar&quot;);
+
+System.out.println(coolBandNames);
+
+coolBandNames.add(0, &quot;Slowburn&quot;); // pass an index as first arg to insert at that position
+
+System.out.println(coolBandNames);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>[Wyld Stallyns, Gwar]
+[Slowburn, Wyld Stallyns, Gwar]
+null</code></pre></div>
+<h3>The <code>remove()</code> method</h3>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>java.util.ArrayList malInTheMiddle;
+malInTheMiddle = new java.util.ArrayList();
+
+malInTheMiddle.add(&quot;Hal&quot;);
+malInTheMiddle.add(&quot;Lois&quot;);
+malInTheMiddle.add(&quot;Francis&quot;);
+malInTheMiddle.add(&quot;Reece&quot;);
+malInTheMiddle.add(&quot;Malcolm&quot;);
+malInTheMiddle.add(&quot;Dewey&quot;);
+
+System.out.println(malInTheMiddle);
+
+malInTheMiddle.remove(&quot;Francis&quot;); // removes the named element
+malInTheMiddle.remove(0); // removes the element at index 0
+
+System.out.println(malInTheMiddle);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>[Hal, Lois, Francis, Reece, Malcolm, Dewey]
+[Lois, Reece, Malcolm, Dewey]
+null</code></pre></div>
+<h3>The <code>size()</code> method</h3>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.ArrayList;
+
+ArrayList littlePiggies;
+littlePiggies = new ArrayList();
+
+littlePiggies.add(&quot;Market&quot;);
+littlePiggies.add(&quot;Home&quot;);
+
+System.out.println(littlePiggies.size());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>2
+null</code></pre></div>
+<h3>The <code>get()</code> method</h3>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>java.util.ArrayList&lt;String&gt; pets = new java.util.ArrayList&lt;String&gt;();
+
+pets.add(&quot;Dexter&quot;);
+pets.add(&quot;Kolo&quot;);
+pets.add(&quot;Shipsy&quot;);
+pets.add(&quot;Harvey&quot;);
+pets.add(&quot;Jessie&quot;);
+pets.add(&quot;Tiny&quot;);
+
+for (int i = 0; i &lt; pets.size(); i++) {
+    System.out.println(pets.get(i));
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Dexter
+Kolo
+Shipsy
+Harvey
+Jessie
+Tiny
+null</code></pre></div>
+<h3>The <code>contains()</code> method</h3>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.ArrayList;
+
+ArrayList&lt;String&gt; enemies = new ArrayList&lt;String&gt;();
+
+enemies.add(&quot;Superman&quot;);
+enemies.add(&quot;Don in accounts payable&quot;);
+enemies.add(&quot;Frank the barber&quot;);
+
+if (enemies.contains(&quot;Superman&quot;)) {
+    System.out.println(&quot;Lex Luthor!&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Lex Luthor!
+null</code></pre></div>
+<h2>Primitives in an ArrayList</h2>
+<p>As mentioned, you can't store primitives in an ArrayList:
+<br><code>ArrayList grades;</code>
+<br><code>grades = new ArrayList();</code>
+<br><code>grades.add(75);</code> <strong>this won't work</strong></p>
+<p>However, you could do this:
+<br><code>grades.add(new Integer(75));</code></p>
+<h2>Declaring object types</h2>
+<p>You can specify the type of objects an ArrayList contains by using angled brackets. This is referred to as <em>generics</em>.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.ArrayList;
+
+ArrayList &lt;String&gt; counties = new ArrayList();
+counties.add(&quot;Dublin&quot;);
+counties.add(&quot;Cork&quot;);
+counties.add(&quot;Monaghan&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>null</code></pre></div>
+<h2>Calling methods on elements</h2>
+<p>As well as calling methods on an ArrayList itself, you can call methods on the elements within.</p>
+<p><strong>NOTE</strong>: in order to prevent an "unsafe or unchecked operations" warning when calling methods on elements you should declare the type (generic) during declaration/instantiation.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>java.util.ArrayList&lt;String&gt; cereals = new java.util.ArrayList&lt;String&gt;();
+
+cereals.add(&quot;Corn Flakes&quot;);
+cereals.add(&quot;Eggos&quot;);
+cereals.add(&quot;Golden Grahams&quot;);
+
+System.out.println(cereals.get(2).length()); // prints the length of the element at index 2 (Golden Grahams)</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>14
+null</code></pre></div>
+<h2>Using an iterator</h2>
+<p>To loop through an ArrayList's contents you can use a for loop but there's another option offered by Java. An <strong>iterator</strong>. Iterators act like a cursor in that when created the cursor is placed at the start of the ArrayList and as you loop through the cursor will be moved along.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.ArrayList;
+import java.util.Iterator;
+
+ArrayList&lt;String&gt; comicChar = new java.util.ArrayList&lt;&gt;();
+
+comicChar.add(&quot;Spider-Man&quot;);
+comicChar.add(&quot;Captain America&quot;);
+comicChar.add(&quot;Punisher&quot;);
+comicChar.add(&quot;Ghost Rider&quot;);
+
+Iterator it = comicChar.iterator(); // create an iterator
+while (it.hasNext()) { // use the hasNext method to determine if there&#x27;s still items inside
+    System.out.println(it.next()); // use the next method to get the next item
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Spider-Man
+Captain America
+Punisher
+Ghost Rider
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-10" data-ch="10" hidden><div class="ch-head"><span class="ch-num">CHAPTER 10</span><span class="ch-name">OOP Basics</span></div><div class="md"><h1>Object Oriented Programming (OOP)</h1>
+<h2>What is OOP</h2>
+<p>Object Oriented Programming is focused on the creation and interaction of <em>objects</em>. Some of the benefits of OOP are:
+- Modularity
+- The ability to hide information from the use (known as <strong>information hiding</strong>)
+- Code re-use
+- Improved debugging &amp; testing</p>
+<p>The basis of OOP are <em>classes</em> and <em>objects</em>. <strong>Classes</strong> are essentially the blueprints for <em>objects</em>. <strong>Objects</strong> in turn are collections of <strong>attributes</strong> and <strong>operations</strong> which are defined by the object's parent <em>Class</em>. <em>Attributes</em> usually contain a value representing the state of the attribute. <em>Operations</em> are actions carried out by the object and often make use of an attribute. For example, lets say we want to create a <code>clock</code> object. To do this we should consider the attributes and operations that make up a clock.</p>
+<ul>
+<li>Clock<ul>
+<li>Attributes<ul>
+<li><strong>second</strong>=0-59</li>
+<li><strong>minute</strong>=0-59</li>
+<li><strong>hour</strong>=0-23</li>
+<li><strong>second_hand</strong>=second</li>
+<li><strong>minute_hand</strong>=minute</li>
+<li><strong>hour_hand</strong>=hour</li>
+</ul>
+</li>
+<li>Operations<ul>
+<li><strong>update_seconds</strong>: every 1 seconds add <code>1</code> to <code>second</code> attribute</li>
+<li><strong>update_minutes</strong>: every 60 seconds add <code>1</code> to <code>minute</code> attribute</li>
+<li><strong>update_hours</strong>: every 60 minutes add <code>1</code> to <code>hour</code> attribute</li>
+<li><strong>move_second_hand</strong>: move second_hand clockwise 1 notch every time <code>update_seconds</code> changes</li>
+<li><strong>move_minute_hand</strong>: move minute_hand clockwise 1 notch every time <code>update_minutes</code> changes</li>
+<li><strong>move_hour_hand</strong>: move hour_hand clockwise 1 notch every 60 minutes.</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<h3>Key Concepts</h3>
+<ul>
+<li>Abstraction: creating classes that are very general/abstract which can in turn be the basis for more specific/concrete classes &amp; objects.</li>
+<li>Polymorphism: the idea that child classes can modify behaviours inherited from their parent/super class(es).</li>
+<li>Inheritance: the passing of attributes and operations from parent/super-class to child/sub-class.</li>
+<li>Encapsulation: the ability to hide certain data from users.</li>
+</ul>
+<h3>Creating an object variable</h3>
+<p>When it comes to objects, variables hold a pointer to the object's location in memory unlike with primitive types where the variable holds the primitive itself.</p>
+<p>Consider the following examples, imagine we have a Shoe class:
+<br>
+<br><code>int a = 5;</code> <em>this is a primitive variable</em>
+<br>
+<br><code>Shoe runner;</code> <em>we declare the variable to of "Shoe" type</em>
+<br><code>runner = new Shoe();</code> <em>we instantiate a new Shoe object and assign it to the runner variable</em>
+<br>
+<br><code>Shoe dress = new Shoe();</code> <em>here we declare and instantiate on the same line</em></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Shoe {
+    public String shoeType;
+    public String shoeColour;
+    public int shoeSize;
+    public String name;
+    
+    public void wear(String shoeType, String name) {
+        if (shoeType == &quot;laced&quot;) {
+            System.out.println(&quot;Tie &quot; + name + &quot; laces.&quot;);
+        } else if  (shoeType == &quot;slip-on&quot;) {
+            System.out.println(&quot;Pull on &quot; + name + &quot;s.&quot;);
+        } // END if
+    } // END wear
+} // END class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Shoe</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Shoe runner = new Shoe();
+
+runner.shoeType = &quot;laced&quot;;
+runner.name = &quot;high top&quot;;
+runner.shoeColour = &quot;white&quot;;
+runner.shoeSize = 9;
+runner.wear(runner.shoeType, runner.name);
+
+Shoe slipper = new Shoe();
+
+slipper.shoeType = &quot;slip-on&quot;;
+slipper.name = &quot;cloud-stepper&quot;;
+slipper.shoeColour = &quot;blue&quot;;
+slipper.shoeSize = 11;
+slipper.wear(slipper.shoeType, slipper.name);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Tie high top laces.
+Pull on cloud-steppers.
+null</code></pre></div>
+<h2>Object methods</h2>
+<p>Methods are the operations/actions that an object can perform (often these actions are performed on the objects own attributes). A method can also be referred to as a function or procedure. A method may:
+- Accept input (optional)
+- Do some processing
+- Return a value (optional)</p>
+<p>Ideally methods should perform one specific task. Methods are constructed using the following syntax:
+<br><code>access_modifier return_type method_name (parameters) { code_block and option_return}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Dog {
+    public String barkSound;
+    public String furColour;
+    public String earType;
+    public String name;
+    
+    // this is a METHOD
+    public void bark(String barkSound){
+        System.out.println(barkSound + &quot;! &quot; + barkSound + &quot;!&quot;);
+    } // END bark
+    
+    public int legs(){
+        return 4;
+    } // END legs
+    
+} // END dog</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Dog</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Dog jessie = new Dog();
+jessie.barkSound = &quot;Woof&quot;;
+jessie.furColour = &quot;White with black patches&quot;;
+jessie.earType = &quot;pointy&quot;;
+jessie.bark(jessie.barkSound);
+jessie.name = &quot;Jessie&quot;;
+System.out.println(jessie.name + &quot; has &quot; + jessie.legs() + &quot; legs&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Woof! Woof!
+Jessie has 4 legs
+null</code></pre></div>
+<h3>Modifiers  (with help from <a href="https://stackabuse.com/non-access-modifiers-in-java">stackabuse</a> and <a href="https://www.javatpoint.com/access-modifiers">javatpoint</a>)</h3>
+<p>Modifiers are keywords that Java provides to allow you to finely tune your variabe/class. </p>
+<h4>Access modifiers</h4>
+<p>Access modifiers tell Java what the scope of a method/class/constructor is.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Modifier</th>
+<th style="text-align: left;">Meaning</th>
+<th style="text-align: left;">Available within Class</th>
+<th style="text-align: left;">Available within package</th>
+<th style="text-align: left;">Available outside package (via subclass)</th>
+<th style="text-align: left;">Available outside package</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>private</code></td>
+<td style="text-align: left;">Available within class</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">N</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>default</code></td>
+<td style="text-align: left;">Available within package</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">N</td>
+<td style="text-align: left;">N</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>protected</code></td>
+<td style="text-align: left;">Available within package and outside package <em><strong>IF</strong> a child class is created</em>.</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">N</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>public</code></td>
+<td style="text-align: left;">Available everywhere</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+<td style="text-align: left;">Y</td>
+</tr>
+</tbody>
+</table>
+<h4>Non-access modifiers</h4>
+<p>Non-access modifiers control various things such including scope, inheritance, polymorphism and more.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Modifier</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>static</code></td>
+<td style="text-align: left;">Belongs to the class and not to objects of the class (e.g. you don't need to instantiate an object to access)</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>final</code></td>
+<td style="text-align: left;">Defines a constant, i.e. the values cannot be changed</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>abstract</code></td>
+<td style="text-align: left;">Applied to a method means the method should be implemented in a subclass, applied to a class means the class contains abstract methods</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>synchronized</code></td>
+<td style="text-align: left;">Controls thread access to a block/method</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>volatile</code></td>
+<td style="text-align: left;">The variable's value is always read from the main memory, not from a specific thread's memory</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>transient</code></td>
+<td style="text-align: left;">Skipped when serializing an object</td>
+</tr>
+</tbody>
+</table>
+<h3>Return types</h3>
+<p>The return type of a function/method needs to be declared when creating it. This tells Java what to expect the function/method to return (if anything) when it's run.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Return Type</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>void</code></td>
+<td style="text-align: left;">No value will be returned</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>byte</code></td>
+<td style="text-align: left;">A byte primitive value will be returned</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>char</code></td>
+<td style="text-align: left;">A char primitive value will be returned</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>short</code></td>
+<td style="text-align: left;">A short primitive value will be returned</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;">An int primitive value will be returned</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Cat</code></td>
+<td style="text-align: left;">Return an object reference of type <code>Cat</code></td>
+</tr>
+</tbody>
+</table>
+<h3>Passing arguments to methods</h3>
+<p>When passing arguments to a method the type of variable being passed effects how it is passed. </p>
+<h4>Passing primitives</h4>
+<p>Primitives are <strong>passed by value</strong>, meaning that a copy of the value within the variable is passed. Thus any changes to that value do not effect the original.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class CountClass {
+    
+    public void firstMethod() {
+        int x = 25;
+        secondMethod(x); // call secondMethod on the value of x
+        System.out.println(&quot;The value of X is &quot; + x);
+    } // END firstMethod
+    
+    public void secondMethod(int x) {
+        x = 50; // this sets the value of a new local version of x NOT the original x defined within firstMethod
+    } // END secondMethod
+} // END CountClass</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.CountClass</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+CountClass newObject = new CountClass();
+
+newObject.firstMethod();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>The value of X is 25
+null</code></pre></div>
+<h4>Passing object references</h4>
+<p>Since object variables store a reference to the object's location in memory and not the object itself, when the value is copied it's still pointing to the same memory location. This means that any changes made using that reference will change the object itself. So, using the same format as the above primitive version:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Mug {
+    public boolean handle;
+    public String colour;
+    public String material;
+    public String contents;
+    
+    public boolean isFull(Mug cup){ // isFull method is passed the pointer/reference to the location in memory where the Mug object instance is stored
+        if (cup.contents != null) {
+            return true;
+        } else {
+            return false;
+        } // END if
+    } // END isFull
+    
+    public void drink(Mug cup) { // drink method acts upon the same pointer/reference thus changing the object itself
+        if (cup.isFull(cup)) {
+            System.out.println(&quot;Gulp gulp gulp&quot;);
+            cup.contents = null;
+        }
+    } // END drink
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Mug</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Mug coffeeCup = new Mug();
+
+coffeeCup.handle = true;
+coffeeCup.colour = &quot;black&quot;;
+coffeeCup.material = &quot;porcelain&quot;;
+coffeeCup.contents = &quot;coffee&quot;;
+
+System.out.println(&quot;Got coffee? &quot; + coffeeCup.isFull(coffeeCup)); // cup is full
+coffeeCup.drink(coffeeCup); // call drink method
+System.out.println(&quot;Got coffee? &quot; + coffeeCup.isFull(coffeeCup)); // cup is now empty</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Got coffee? true
+Gulp gulp gulp
+Got coffee? false
+null</code></pre></div>
+<h3>Method overloading</h3>
+<p><strong>Overloading</strong> is when we have multiple methods with the same name but accepting different parameters (and optionally different <code>return</code> types). One example of overloading can be seen in the <code>java.lang.Math</code> class. Consider the following methods:</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Type</th>
+<th style="text-align: left;">Method name &amp; description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>double</code></td>
+<td style="text-align: left;"><code>max(double a, double b)</code> returns the greater of two <code>double</code> values</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>float</code></td>
+<td style="text-align: left;"><code>max(float a, float b)</code> returns the greater of two <code>float</code> values</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>int</code></td>
+<td style="text-align: left;"><code>max(int a, int b)</code> returns the greater of two <code>int</code> values</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>long</code></td>
+<td style="text-align: left;"><code>max(long a, long b)</code> returns the greater of two <code>long</code> values</td>
+</tr>
+</tbody>
+</table>
+<h2>Static methods &amp; variables vs Instance methods &amp; variables</h2>
+<p>A <strong>static</strong> member of a class is shared by all instances created from the class and doesn't belong to any one object instance. They can be accessed by all objects instantiated from the class but belong to the Class itself (hence sometimes referred to as <em>Class variables/methods</em>). <em>static</em> methods/variables <u>cannot</u> access <em>instance</em> variables/methods.</p>
+<p>An <strong>instance</strong> member of a class only exists within any objects instantiated from the class and it's value may be different in every instance. <em>instance</em> methods/variables <u>can</u> access <em>static</em> methods/variables.</p>
+<h2>Object Oriented Analysis (OOA)</h2>
+<p>Is the process of analysing a problem from an OOP perspective.</p>
+<h2>Problem Domain</h2>
+<p>Since <em>Java</em> is an object-oriented programming language one of the main duties/goals of a Java programmer is to develops solutions to solve a particular problem/need. The <em>scope</em> of the problem you want to address is called the <strong>problem domain</strong>. Most projects start by defining a <em>problem domain</em>. This involves gather requirements and writing a <em>statement of scope</em> which briefly outlines what you, the developer, want to achieve.</p>
+<p>For example, a scope statement for a project to create an ecommerce system might be: "<em>create a system allowing the online ordering of products with integrated payment processing</em>"</p>
+<h2>Objects within a problem domain</h2>
+<p>To validate objects in a problem domain you need to first identify the properties of all the objects:
+- objects can be <strong>physical</strong> or <strong>conceptual</strong>
+    - A customer account is an example of a <strong>conceptual</strong> object as it doesn't have a physical presence
+    - A car is an example of a <strong>physical</strong> object
+- objects have <strong>attributes</strong>
+    - Attributes are charactistics such as the size, name, shape, value that represent the state of an object
+    - The value of all of an objects attributes is often referred to as the object's <strong>current state</strong>
+- objects have <strong>operations</strong>
+    - Operations are things an object can do such as changing an attributes value or displaying a particular message.
+    - Operations <em>usually</em> affenct an objects attributes.
+    - The operations an object performs are often referred to as its <em>behaviour</em></p>
+<p>Object names are often nouns such as <em>account</em> or <em>shirt</em>. Object attributes are often nouns also such as <em>size</em> or <em>colour</em> but in the context of its value, the attribute is an adjective of the noun describing the object.</p>
+<p>Object operations are usually verbs or noun-verb combinations, such as <em>print receipt</em> or <em>increase value</em>.</p>
+<p>When judging whether or not to recognise an object we need to assess its relevence to the <em>problem domain</em>. To determine this you should asses:
+- Whether the object exists withing the boundaries of the problem domain
+- Whether the object is required for the solution to be complete
+- Whether the object is required for the interaction between the user and the solution.</p>
+<h2>Booleans</h2>
+<p>A boolean is an attribute with only two states: true or false, on or off etc.</p>
+<h2>Attributes as references to other objects</h2>
+<p>It's not uncommmon for an object attribute to contain a reference to another object. Consider a <em>customer</em> object which has an <em>order number</em> attribute referring to the customer's most recent <em>order</em> which is itself an object. That <em>order</em> object might contain a <em>product id</em> which referse to a separate <em>product</em> object and so on.</p>
+<h2>Classes</h2>
+<p>A <strong>class</strong> in OOP is essentially a blueprint or template (or recipt) for an object. All objects of that class may be referred to as <em>instances</em>. A class is the way you define an object. For example, we might have a <strong>car</strong> class which is used to instantiate various different car objects.</p>
+<h2>Variables and Methods</h2>
+<p>In Java (and many other languages) an objects <em>attributes</em> are represented by <code>variables</code> and its <em>operations</em> are represented by <code>methods</code>.
+- Variables: the Java language mechanism for holding data
+- Methods: the Java programming language mechanism for perorming operations</p>
+<h2>Modeling classes</h2>
+<p>The first phase of the design stage consists of <strong>modeling</strong>; visually organizing a program and its classes. Each class in a design should be modeled as a closed box with the class name at the top followed by a list of its variables (including a range of possible values) and a list of methods.
+<br><code>+-------------+
+|ClassName    |
++-------------+
+|size:0-10    |
+|color: Blue  |
++-------------+
+|changeColor()|
++-------------+</code></p>
+<p>Convention in Java is for attribute and method names to be written in <em>camelCase</em>.</p>
+<p><em>Unified Modeling Language</em> (UML) is a tool to aid in the modeling process.</p>
+<p>Modeling classes are similar to modeling database structures. Your object data can be stored in a Java Database Connectivity (JDBC) API. The JDBC API allows you to read and write records by using Structured Query Language (SQL).</p></div></section>
+<section class="chapter" id="ch-11" data-ch="11" hidden><div class="ch-head"><span class="ch-num">CHAPTER 11</span><span class="ch-name">Encapsulation</span></div><div class="md"><h1>Encapsulation</h1>
+<h2>What is encapsulation</h2>
+<p>Encapsulation is an object-oriented concept which states that classes shouldn't expose their internal workings to external users to minimize the chances of bad (or malicious) data being introduced. Rather classes should hide their workings behind a public interface which allows users to interact with the class in approved ways. To do this we can use the <code>private</code> keyword:
+<br>
+<br><code>private String secretWord = "marshmallow";</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package beaker.test;
+
+public class Student {
+    private int studentID = 325761;
+    private double annualFee = 2167.44;
+    private boolean isPaid = false;
+} // END student</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>beaker.test.Student</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package beaker.test;
+
+Student neal = new Student();
+
+neal.isPaid = true; // will raise an error because isPaid is a private variable</code></pre></div>
+<h2>Getters and Setters</h2>
+<p>In many cases you may want users to be able to see or use <code>private</code> variables/methods but not change them. To do this we can use <em>getter</em> and <em>setter</em> methods with the <code>this</code> keyword.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package beaker.test;
+
+public class Student {
+    private int studentID = 123456;
+    private double annualFee = 2167.44;
+    private boolean isPaid = false;
+    private String studentDOB = &quot;June 4th 1988&quot;;
+    
+    // getter methods
+    public double getFee() { // public because we want users to be able to use this method
+        return this.annualFee; // use the THIS keyword to tell Java to access the property on the object instance which calls it
+    } // END getFee
+    
+    public String getDOB() {
+        return this.studentDOB;
+    } // END getDOB
+    
+    // setter methods
+    public void setDOB(String date) {
+        this.studentDOB = date;
+    } // END setDOB
+} // END student</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>beaker.test.Student</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package beaker.test;
+
+Student neal = new Student();
+
+System.out.println(&quot;Fee due: €&quot; + neal.getFee());
+System.out.println(&quot;Student Date of Birth: &quot; + neal.getDOB());
+neal.setDOB(&quot;March 6th 1985&quot;);
+System.out.println(&quot;Student Date of Birth: &quot; + neal.getDOB());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Fee due: €2167.44
+Student Date of Birth: June 4th 1988
+Student Date of Birth: March 6th 1985
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-12" data-ch="12" hidden><div class="ch-head"><span class="ch-num">CHAPTER 12</span><span class="ch-name">Inheritance</span></div><div class="md"><h1>Inheritance in Object Oriented Programming</h1>
+<h2>What is inheritance?</h2>
+<p>Inheritance is the passing of attributes &amp; actions from a parent <strong>superclass</strong> to a child <strong>subclass</strong>. To do this you would create a subclass <em>from</em> a superclass. So, there would be a way for you to base the creation of a new class on an existing class.</p>
+<h2>Deciding whether or not to create a subclass</h2>
+<p>It's not always appropriate to create a child class. To help you decide consider whether the relationship can be described with "<em>is a</em>" or "<em>has a</em>":
+- A <code>truck</code> <strong>is a</strong> <code>vehicle</code> <em>a super/sub-class relationship makes sense</em>
+- A <code>vehicle</code> <strong>has a</strong> <code>truck</code> <em>a method or property relationship does not make sense</em>
+- A <code>stethoscope</code> <strong>is a</strong> <code>doctor</code> <em>a super/sub-class relationship does not make sense</em>
+- A <code>doctor</code> <strong>has a</strong> <code>stethoscope</code> <em>a method of property relationship makes sense</em></p>
+<h2>What are the benefits of inheritance?</h2>
+<p>The benefits include:
+- Subclasses can inherit the methods and data from their superclass
+- Subclasses can still create <em>new</em> methods
+- Or they can <strong>override</strong> existing methods
+    <br>&nbsp;NOTE 1: overriding requires that the method still accept the same number and type of parameters passed to it (i.e. you can change what it does &amp; how but not the input it accepts)
+    <br>&nbsp;NOTE 2: you cannot override a method marked as <code>final</code></p>
+<h2>Overriding vs Overloading</h2>
+<p>Two different but similar sounding words to note are:
+- <strong>overriding</strong>: changing the functionality of an existing, inherited method
+- <strong>overloading</strong>: creating multiple methods with the same name that accept different arguments</p>
+<h3>Overriding</h3>
+<p>Overriding a method is useful when you want to change the functionality of an existing method. Lets imagine you have a <code>Truck</code> subclass and a <code>Car</code> subclass both <code>extending</code> the <code>Vehicle</code> class. The <code>Vehicle</code> class provides a <code>horn()</code> method which we want to use but we'd like to change the sound. In our <code>Truck</code> subclass we <strong>override</strong> the <code>horn()</code> method so it says <em>BEEP! BEEP!</em>. In our <code>Car</code> class we <strong>override</strong> the <code>horn()</code> method so it says <em>meepmeep!</em>.</p>
+<h3>Overloading</h3>
+<p>Overloading is useful if you want the same method to accept different arguments and output different results rather than defining multiple different methods. Lets imagine our <code>Truck</code> class has a <code>loadCargo()</code> method but we know our truck will be carrrying different types of cargo depending on the situation. We could define different methods like <code>loadColdCargo()</code>, <code>loadLiveCargo()</code>, <code>loadVolatileCargo()</code> and so on but it'd be a better user experience if we could have a single method. One way you could do so would be something like this:</p>
+<p><br><code>public void loadCargo() {</code>
+<br>&nbsp;&nbsp;<code>this.cargoType = "standard";</code>
+<br>&nbsp;&nbsp;<code>this.cargoLoaded = true;</code>
+<br><code>}</code>
+<br>
+<br><code>public void loadCargo(String live) {</code>
+<br>&nbsp;&nbsp;<code>this.cargoType = "livestock";</code>
+<br>&nbsp;&nbsp;<code>this.trailer = "aired";</code>
+<br>&nbsp;&nbsp;<code>this.cargoLoaded = true;</code>
+<br><code>}</code>
+<br>
+<br><code>public void loadCargo(boolean isVolatile) {</code>
+<br>&nbsp;&nbsp;<code>this.isVolatile = true;</code>
+<br>&nbsp;&nbsp;<code>this.trailer = "re-enforced";</code>
+<br>&nbsp;&nbsp;<code>this.cargoLoaded = true;</code>
+<br><code>}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Truck {
+    private String cargoType;
+    private boolean cargoLoaded = false;
+    private String trailer;
+    private int numOfPens;
+    private boolean isVolatile = false;
+    
+    public void loadCargo() {
+        this.cargoType = &quot;perishables&quot;;
+        this.trailer = &quot;refrigerated&quot;;
+        this.cargoLoaded = true;
+        System.out.println(this.cargoType + &quot; loaded into &quot; + this.trailer + &quot; trailer.&quot;);
+    } // END std loadCargo
+    
+    public void loadCargo(String animal, int numAnimals) {
+        this.cargoType = &quot;livestock&quot;;
+        this.numOfPens = numAnimals;
+        this.trailer = &quot;aired&quot;;
+        this.cargoLoaded = true;
+        System.out.println(this.numOfPens + &quot; &quot; + this.cargoType + &quot; loaded into &quot; + this.trailer + &quot; trailer.&quot;);
+    } // END live loadCargo
+    
+    public void loadCargo(boolean isVolatile) {
+        this.isVolatile = isVolatile;
+        this.cargoType = &quot;fuel&quot;;
+        this.trailer = &quot;re-enforced&quot;;
+        this.cargoLoaded = true;
+        System.out.println(this.cargoType + &quot; loaded into &quot; + this.trailer + &quot; trailer.&quot;);
+    } // END volatile loadCargo
+    
+} // END truck</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Truck</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Truck cowHaul = new Truck();
+cowHaul.loadCargo(&quot;Cows&quot;,25);
+
+Truck fuelHaul = new Truck();
+fuelHaul.loadCargo(true);
+
+Truck foodHaul = new Truck();
+foodHaul.loadCargo();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>25 livestock loaded into aired trailer.
+fuel loaded into re-enforced trailer.
+perishables loaded into refrigerated trailer.
+null</code></pre></div>
+<h2>Types of inheritance</h2>
+<h3>Simple inheritance</h3>
+<p>The most basic type of inheritance is a straight line from partent to child to grandchild and so on.
+<br><code>Vehicle</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>v</strong>
+<br><code>Truck</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>v</strong>
+<br><code>Pick-up</code></p>
+<h3>Hierarchical inheritance</h3>
+<p>Think of a family tree, a shared root which then branches off to different sub parent/child relationships.
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>Table</code>
+<br>&nbsp;&nbsp;&nbsp;<strong>/</strong>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<strong>\</strong>
+<br><code>Home</code>&nbsp;&nbsp;&nbsp;<code>Office</code></p>
+<h2>Implementing inheritance</h2>
+<p>Two important keywords to note when implementing super/sub classes are:
+- <code>extends</code>: this tells Java that what you're creating is a subclass
+- <code>super</code>: this allows you to trigger the superclass' constructor from within your subclass</p>
+<p>Create our superclass:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// create our parent/superclass
+public class Vehicle {
+    public String name = &quot;Vehicle&quot;;
+    
+    public String move() {
+        return &quot; is moving...&quot;;
+    } // END move
+} // END vehicle</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Vehicle</code></pre></div>
+<p>Create our subclass by <code>extending</code> the superclass, overriding its <code>move</code> method:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Truck extends Vehicle { // note the EXTENDS word
+    public String name = &quot;Truck&quot;;
+    
+    public String move() { // OVERRIDE the move method
+        return &quot; is driving...&quot;;
+    } // END move
+    
+    public String originalMove() {
+        return super.move(); // use SUPER keyword to access superclass&#x27; version of the move method
+    }
+} // END truck</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Truck</code></pre></div>
+<p>Instantiate some objects and call methods:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Vehicle ship = new Vehicle();
+Truck pickup = new Truck();
+
+System.out.println(ship.name + ship.move());
+System.out.println(pickup.name + pickup.move());
+System.out.println(pickup.name + pickup.originalMove());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Vehicle is moving...
+Truck is driving...
+Truck is moving...
+null</code></pre></div>
+<h2>Order of operations for inherited methods</h2>
+<p>If you have multipls super &amp; sub classes with shared methods how do you know which version of the method will be called? One simple way to determine this is by imagining the JVM (Java Virtual Machine) as a search light which gradually increases in size until it finds a matching method. Lets imagine we've tried to call a <code>reverse()</code> method from our <code>pickup</code> object:
+- Java will start with a small searchlight that only looks locally, near the place it was called (the <code>pickup</code> object)
+- If it doesn't see the method it will expand its searchlight to include the class which instantiated the <code>pickup</code> (<code>Truck</code>)
+- If it doesn't find a match in <code>Truck</code> it will expand the light again to include any parent/superclass of the <code>Truck</code> class</p></div></section>
+<section class="chapter" id="ch-13" data-ch="13" hidden><div class="ch-head"><span class="ch-num">CHAPTER 13</span><span class="ch-name">Constructors</span></div><div class="md"><h1>Constructors</h1>
+<h2>What is a constructor?</h2>
+<p>A constructor is a method for instantiating objects. We've seen this before when using the <code>new</code> keyword to instantiate an object:
+<br><code>Car ford = new Car("blue");</code></p>
+<p>In the above example we tell Java that we're calling a constructor method by using the <code>new</code> keyword and telling it what constructor by calling the class name with parentheses. The word "blue" within the parentheses is an argument being passed to the constructor. In order to do this the constructor would need to be capable of accepting arguments. In this scenario we can imagine that the <code>Car()</code> constructor has been written to accept a <em>colour</em> parameter with which to set the instance colour of the object it creates.</p>
+<h2>Specifying a constructor</h2>
+<p>Java includes a default constructor in any class but we can explicitly define a constructor ourselves by calling the class name (with parentheses) within the class definition. You can combine this with use of the <code>this</code> keyword to set properties on any instances that will be created.</p>
+<p>Lets create a book class:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Book {
+    // create instance variables
+    private String title;
+    private String author;
+    private int numPages;
+    private String language;
+    private float price;
+    private boolean inPrint;
+    private String releaseDate;
+    private String genre;
+    
+    // create constructor method
+    public Book(String title, String author, int numPages, String language, float price, boolean inPrint, String releaseDate, String genre) {
+        this.title = title;
+        this.author = author;
+        this.numPages = numPages;
+        this.language = language;
+        this.price = price;
+        this.inPrint = inPrint;
+        this.releaseDate = releaseDate;
+        this.genre = genre;
+    } // END constructor
+    
+    // getter methods
+    public String getTitle() {
+        return this.title;
+    } // END getTitle
+    
+    public String getAuthor() {
+        return this.author;
+    } // END getAuthor
+    
+    public int getNumPages() {
+        return this.numPages;
+    } // END getNumPages
+    
+    public String getLanguage() {
+        return this.language;
+    } // END getLanguage
+    
+    public float getPrice() {
+        return this.price;
+    } // END getPrice
+    
+    public boolean getInPrint() {
+        return this.inPrint;
+    } // END getInPrint
+    
+    public String getReleaseDate() {
+        return this.releaseDate;
+    } // END getReleaseDate
+    
+    public String getGenre() {
+        return this.genre;
+    } // END getGenre
+    
+    // setter methods
+    public void setTitle(String title) {
+        this.title = title;
+    } // END setTitle
+    
+    public void setAuthor(String fullname) {
+        this.author = fullname;
+    } // END setAuthor
+    
+    public void setNumPages(int num) {
+        this.numPages = num;
+    } // END setNumPages
+    
+    public void setLanguage(String lang) {
+        this.language = lang;
+    } // END setLanguage
+    
+    public void setPrice(float price) {
+        this.price = price;
+    } // END setPrice
+    
+    public void setInPrint(boolean inPrint) {
+        this.inPrint = inPrint;
+    } // END setInPrint
+    
+    public void setReleaseDate(String date) {
+        this.releaseDate = date;
+    } // END setReleaseDate
+    
+    public void setGenre(String genre) {
+        this.genre = genre;
+    } // END setGenre
+    
+    public String toString() {
+        return &quot;Title: &quot; + this.title
+            + &quot;\nAuthor: &quot; + this.author
+            + &quot;\nNo. of Pages: &quot; + this.numPages
+            + &quot;\nLanguage: &quot; + this.language
+            + &quot;\nPrice: &quot; + this.price
+            + &quot;\nIs in Print: &quot; + this.inPrint
+            + &quot;\nRelease Date: &quot; + this.releaseDate
+            + &quot;\nGenre: &quot; + this.genre;
+    } // END toString
+    
+} // END book</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Book</code></pre></div>
+<p>Now lets instantiate some books:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Book boysLife = new Book(&quot;Boys Life&quot;,&quot;Rober R McCammon&quot;,581,&quot;English&quot;,10.99f,true,&quot;Mar 23rd 1991&quot;,&quot;Mystery&quot;);
+System.out.println(boysLife.toString());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Title: Boys Life
+Author: Rober R McCammon
+No. of Pages: 581
+Language: English
+Price: 10.99
+Is in Print: true
+Release Date: Mar 23rd 1991
+Genre: Mystery
+null</code></pre></div>
+<p>If you've explictly created a constructor which expects arguments, then trying to use it without passing any will cause an error:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Book twilight = new Book();</code></pre></div>
+<h2>Implicit constructor calls</h2>
+<p>When an object is created from a class, that class' constructor is invoked along with the constructor of every superclass above it in the chain/hierarchy. If you don't specify a constructor in your class Java will invoke the default constructor without any arguments.</p>
+<h3>Important concepts</h3>
+<ol>
+<li>The first line of a constructor must be either a call to a <code>super</code> constructor or a call to an <strong>overloaded</strong> constructor in the current class using the <code>this</code> keyword</li>
+<li>You cannot include <em>both</em> a call to the <code>super</code> constructor AND a call to an overloaded <code>this</code> constructor.</li>
+<li>If a class has no defined parent, then its parent is the Java <code>Object</code> class and the <code>Object</code> constructor is called</li>
+</ol>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Comic extends Book {
+    private String publisher;
+    private String hero;
+    
+    // constructor
+    public Comic(String title, String author, int numPages, String lang, float price, boolean inPrint, String releaseDate, String genre, String publisher, String hero) {
+        super(title, author, numPages, lang, price, inPrint, releaseDate, genre);
+        this.publisher = publisher;
+        this.hero = hero;
+    } 
+    
+    public String toString() {
+        return super.toString() 
+            + &quot;\nPublisher: &quot; + this.publisher 
+            + &quot;\nHero: &quot; + this.hero;
+    }
+    
+} // END comic</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Comic</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Comic batmanHush = new Comic(&quot;Hush&quot;, &quot;Jeff Loeb, Jim Lee&quot;, 200, &quot;English&quot;, 21.99f, true, &quot;Spring 2002&quot;, &quot;Superhero&quot;, &quot;DC&quot;, &quot;Batman&quot;);
+
+System.out.println(batmanHush.toString());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Title: Hush
+Author: Jeff Loeb, Jim Lee
+No. of Pages: 200
+Language: English
+Price: 21.99
+Is in Print: true
+Release Date: Spring 2002
+Genre: Superhero
+Publisher: DC
+Hero: Batman
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-14" data-ch="14" hidden><div class="ch-head"><span class="ch-num">CHAPTER 14</span><span class="ch-name">Interfaces</span></div><div class="md"><h1>Interfaces</h1>
+<h2>What is an interface?</h2>
+<p>An interface is essentially an outline of a class with only abstract/default behaviours/methods. Think of it like a blueprint for a blueprint. </p>
+<p>Lets imagine I want various buildings created on my land and I intend to leave the details of what constitutes each building to whichever team is assigned to build it. I could create a rough structure of what a basic building is:
+- Each building must have a roof
+- Each building must have at least one entrance
+- Each building must have at least four windows</p>
+<p>Now that I have my outline, I create three different teams:
+1. a <em>home</em> team to create a building to live in
+2. a <em>shop</em> team to create a building for the sale of goods
+3. a <em>storage</em> team to create a building for storage</p>
+<p>I give each of these teams my very basic blueprint from which they will create their own detailed blueprints which meet the requirements of my original but add more features.</p>
+<h2>Creating an interface</h2>
+<p>Lets create a simple interface as outlined above. Note how the methods declared have no curly braces.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// create my interface
+public interface Building {
+    public boolean hasWindows = true;
+    
+    public void enter();
+    
+    public void exit();
+} // END interface</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Building</code></pre></div>
+<h2>Implementing classes from an interface</h2>
+<p>Now lets use that interface to <strong>implement</strong> some classes using the <code>implement</code> keyword.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Home implements Building {
+    public int numWindows = 8;
+    
+    public void enter() {
+        System.out.println(&quot;Enter through the hall door.&quot;);
+    } // END enter
+    
+    public void exit() {
+        System.out.println(&quot;Exit through back door.&quot;);
+    } // END exit
+} // END home</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Home</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class Shop implements Building {
+    public int numWindows = 6;
+    
+    public void enter() {
+        System.out.println(&quot;Enter through front door.&quot;);
+    } // END enter
+    
+    public void exit() {
+        System.out.println(&quot;Exit through rear cargo door. Exit through side fire door in emergencies.&quot;);
+    } // END exit
+} // END shop</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Shop</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class StorageShed implements Building {
+    public int numWindows = 4;
+    
+    public void enter() {
+        System.out.println(&quot;Enter through front double doors&quot;);
+    } // END enter
+    
+    public void exit() {
+        System.out.println(&quot;Exit through front double doors, rear fire escape, or side entry.&quot;);
+    } // END exit
+} // END storageshed</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.StorageShed</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+Home myHouse = new Home();
+Shop myShop = new Shop();
+StorageShed myShed = new StorageShed();
+
+myHouse.enter();
+myHouse.exit();
+
+myShop.enter();
+myShop.exit();
+
+myShed.enter();
+myShed.exit();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Enter through the hall door.
+Exit through back door.
+Enter through front door.
+Exit through rear cargo door. Exit through side fire door in emergencies.
+Enter through front double doors
+Exit through front double doors, rear fire escape, or side entry.
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-15" data-ch="15" hidden><div class="ch-head"><span class="ch-num">CHAPTER 15</span><span class="ch-name">Importing Packages</span></div><div class="md"><h1>Importing Java Packages</h1>
+<h2>What are Packages?</h2>
+<p>A package is a collection of <code>classes</code> and <code>interfaces</code>. In Java all classes must be stored within a package. Any classes which you've used so far and <em>didn't</em> need to import are those stored in the <strong>default package</strong>.</p>
+<h2>The <code>java.lang</code> Package</h2>
+<p>The fundamental classes &amp; interfaces of the Java language are stored in the <code>java.lang</code> package which is automatically/implicitly imported.</p>
+<p>One notable occupant is the <code>Object</code> class, the ultilmate parent class in Java from which all other classes are derived. The <code>String</code> and <code>Math</code> classes are two other such occupants.</p>
+<h2>Importing Packages</h2>
+<p>There are two main ways to import packages in Java:</p>
+<h3>Using the wildcard operator</h3>
+<p>If you want to import many classes from the same package, you use the <strong>wildcard</strong> operator (<code>*</code>):
+<br><code>import java.util.*;</code></p>
+<p>This will make all clases from within that package available.</p>
+<h3>Using the fully qualified name</h3>
+<p>If you only want to import one specific class you can use it's fully qualified name to import it:
+<br><code>import java.util.ArrayList;</code></p>
+<h2>Subpackages</h2>
+<p>A package stored within another package is known as a <strong>subpackage</strong>. </p>
+<p>To import a specific class from a subpackage using its fully qualified name, you would use this format: <code>import &lt;package_name&gt;.&lt;subpackage_name&gt;.&lt;class_name&gt;;</code>.</p>
+<p>Importing all classes from a subpackage can be done like so: <code>import &lt;package_name&gt;.&lt;subpackage_name&gt;.*;</code></p></div></section>
+<section class="chapter" id="ch-16" data-ch="16" hidden><div class="ch-head"><span class="ch-num">CHAPTER 16</span><span class="ch-name">String Class</span></div><div class="md"><h1>Java's String class</h1>
+<p>One of the many classes provided by the Java class library and one you'll use frequently is the String class. This class provides the ability to store sequences of characters. In Java, as in many languages, Strings:
+- are immutable (i.e. cannot be changed, you can't insert at index or delete characters from the string etc)
+- can be concatenated using the plus (<code>+</code>) symbol</p>
+<h2>Creating a String literal vs a String object</h2>
+<p>Unlike most classes in Java you will more often create a string without ever using the <code>new</code> keyword.</p>
+<p>String literals exist in Java memory in a pool (the String Constant Pool) and if you try to create another variable which contains the same string, Java will look in the pool and see that it already has that string so it will make the new variable point to that same literal.</p>
+<p>On the other hand, when explicitly creating objects using the <code>new</code> keyword, Java doesn't care if there's already an object which looks like the one you're trying to create, it will still create a new one in memory.
+- <code>String myString = "Hello World!";</code> is a string <u>literal</u> ("<em>Hello World!</em>") which is created in the pool and it's reference/name is assigned to the string-type variable "<em>myString</em>"
+<br><br>
+- <code>String myStringObj = new String();"</code> is a String <u>object</u> instantiated using the String class' constructor. Since the pool is only for Strings a new piece of memory needs to be used to hold this new object.</p>
+<p>Assigning strings as literals is more memory efficient than instantiating String objects.</p>
+<h2>Concatenating strings</h2>
+<p>Since strings are immutable, when you concatenate two strings you're actually creating a new string in memory. So, if you assign the concatenated string to the same variable name that was used previously, the variable now points to this new string and the previous string is unassigned and inaccessible. That unassigned literal will be "garbage collected" (i.e. Java will delete it from memory at some point).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String myStr1 = &quot;Hello &quot;;
+String myStr2 = &quot;World!&quot;;
+myStr1 = myStr1+myStr2; // creates a new literal &quot;Hello World!&quot; and assigns it to myStr1
+System.out.println(myStr1); // &quot;Hello&quot; is now floating in Java&#x27;s memory unassigned and will be automatically deleted</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello World!
+null</code></pre></div>
+<h2>String methods</h2>
+<p>As with most classes, String comes with many methods. Most of these methods will return a single value which can be a primitive or a reference to an object. In order to use the returned value from the method you will often need to assign it to a variable. However, you can also use a method as part of an expression.</p>
+<p><strong>NOTE</strong>: the methods of the String class are <code>final</code> and thus cannot be overridden.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String foo = &quot;bar&quot;;
+int fooLength = foo.length();
+System.out.println(foo + &quot;: &quot; + fooLength);
+
+String ho = &quot; HeLLO&quot;; // space before hello
+String wd = &quot;WORLd &quot;; // space after world
+String en = &quot; ! &quot;; // space before and after !
+String trimmedConcat = (ho.trim() + &quot; &quot; + wd.trim() + en.trim()).toLowerCase(); // a single expression which concatenantes the 3 strings and lowers the case
+System.out.println(trimmedConcat);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>bar: 3
+hello world!
+null</code></pre></div>
+<h3>Methods with arguments</h3>
+<p>Some string methods require you to pass an argument when calling them.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String fullString = &quot;Hello World!&quot;;
+String partString = fullString.substring(4); // subString takes an index at which to start the substring
+System.out.println(partString);
+System.out.println(fullString.endsWith(&quot;ld!&quot;)); // ends with takes a string or string-reference to check for
+System.out.println(fullString.equals(partString));  // equals takes a string or string-reference</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>o World!
+true
+false
+null</code></pre></div>
+<h2>Useful methods</h2>
+<p>Below are some useful/common String methods.</p>
+<h3><code>charAt()</code></h3>
+<p>Returns the character located at the index passed to it.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>char wall = &quot;All in all it&#x27;s just another brick in the wall&quot;.charAt(0);
+System.out.println(wall);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>A
+null</code></pre></div>
+<h3><code>concat()</code></h3>
+<p>Appends the string passed to it, to the string it's called on.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String s1 = &quot;Hello &quot;;
+String s2 = &quot;World!&quot;;
+System.out.println(s1.concat(s2));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello World!
+null</code></pre></div>
+<h3><code>equals()</code> and <code>equalsIgnoreCase()</code></h3>
+<p>Both return a boolean value depending on whether the string passed to it is the same as the string it's called on. <code>equalsIgnoreCase</code> will ignore whether the letters are different cases.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String foo1 = &quot;FOO&quot;;
+String foo2 = &quot;foo&quot;;
+System.out.println(foo1.equals(foo2));
+System.out.println(foo1.equalsIgnoreCase(foo2));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>false
+true
+null</code></pre></div>
+<h3><code>length()</code></h3>
+<p>Returns an int representing the length of the string it's called on.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String bar = &quot;foo&quot;;
+System.out.println(&quot;The string is &quot; + bar.length() + &quot; characters long.&quot;);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>The string is 3 characters long.
+null</code></pre></div>
+<h3><code>replace()</code></h3>
+<p>Takes two arguments, all occurrences of the first argument will be replaced with the second argument in a new version of the string that this method is called on.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String mustRemember = &quot;A kiss is just a kiss&quot;;
+System.out.println(mustRemember);
+mustRemember = mustRemember.replace(&quot;kiss&quot;,&quot;sneeze&quot;); // must be assigned explicitly since strings are immutable (the orig can&#x27;t be changed)
+System.out.println(mustRemember);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>A kiss is just a kiss
+A sneeze is just a sneeze
+null</code></pre></div>
+<h3><code>toLowerCase()</code></h3>
+<p>Returns a new String with lowercase letters.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String mcb = &quot;IS THIS A DAGGER I SEE BEFORE ME?&quot;;
+mcb = mcb.toLowerCase();
+System.out.println(mcb);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>is this a dagger i see before me?
+null</code></pre></div>
+<h3><code>toUpperCase()</code></h3>
+<p>Returns a new String with uppercase letters.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String nobler = &quot;suffer the slings and arrows&quot;;
+nobler = nobler.toUpperCase();
+System.out.println(nobler);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>SUFFER THE SLINGS AND ARROWS
+null</code></pre></div>
+<h3><code>trim()</code></h3>
+<p>Removes leading and trailing whitespace characters.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String wspace = &quot;                    poor Yorrick                           &quot;;
+wspace = wspace.trim();
+System.out.println(wspace);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>poor Yorrick
+null</code></pre></div>
+<h3><code>substring()</code></h3>
+<p>Returns a new string which is a substring of the string it was called on. You can pass either a single argument (start index, the index to start the substring) or two arguments (start index and end index).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String richie = &quot;My kingdom for a horse&quot;;
+String rsub = richie.substring(15);
+String mrEd = rsub + &quot; is &quot; + rsub + &quot; of course of course.&quot;;
+System.out.println(mrEd);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>a horse is a horse of course of course.
+null</code></pre></div>
+<h3><code>toString()</code></h3>
+<p>Returns a string representation of an object. This method is actually inherited from Java's Object class and is commonly overridden when creating objects. Its default value isn't the most useful so you will generally want to override with a more useful version</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class EHorizon {
+    public String dest = &quot;Where we&#x27;re going you won&#x27;t need eyes&quot;;
+    public boolean crewDead = true;
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.EHorizon</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+EHorizon evnt = new EHorizon();
+
+System.out.println(evnt.toString()); // rather uninformative default output</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.EHorizon@11f82ddf
+null</code></pre></div>
+<h3><code>compareTo()</code> and <code>compareToIgnoreCase()</code></h3>
+<p><code>compareTo</code> and <code>compareToIgnoreCase</code> will compare the string passed to and the string they're called on "lexicographically" using their unicode values.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String a1 = &quot;a&quot;;
+String a2 = &quot;A&quot;;
+System.out.println(a1.compareTo(a2)); // returns 32 because &quot;a&quot; has a unicode value 97 of whereas &quot;A&quot;&#x27;s is 65. so &quot;a&quot; is 32 more than &quot;A&quot;.
+System.out.println(a2.compareTo(a1)); // reversing the order will return -32
+System.out.println(97-65);
+System.out.println(a1.compareToIgnoreCase(a2)); // ignoreCase version</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>32
+-32
+32
+0
+null</code></pre></div>
+<p>If comparing multiple characters, the value will be tested character-by-character from left to right. This means that even if one string is significantly longer (and thus should technically have a higher value) Java will stop as soon as one string has a greater value.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String longString = &quot;aBcdEFGhijkLMNOpqrsTUVWxyz&quot;;
+String shortString = &quot;ab&quot;;
+System.out.println(longString.compareTo(shortString)); // reports that longString is 32 less than shortString because &quot;B&quot; is 32 less than &quot;b&quot;</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>-32
+null</code></pre></div>
+<h3><code>getChars()</code></h3>
+<p>Copies chars from a string to an array.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>char [] charArray = new char[4]; // create and instantiate a char array with a length of 4
+String myString = &quot;Hello&quot;; // create a string to copy the chars from
+myString.getChars(0,4,charArray, 0); // call getChars method passing start-index, end-index, destination-array, index of destination-array to place the chars
+System.out.println(charArray);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hell
+null</code></pre></div>
+<h3><code>indexOf()</code></h3>
+<p>Returns the index of the first occurence of the passed substring or <code>-1</code> if no match is found.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String whoIsIt = &quot;it&#x27;s-a mee Mario!&quot;;
+int whereIsHe = whoIsIt.indexOf(&quot;Mario&quot;);
+int whereIsLuigi = whoIsIt.indexOf(&quot;Luigi&quot;);
+System.out.println(whereIsHe);
+System.out.println(whereIsLuigi);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>11
+-1
+null</code></pre></div>
+<h3><code>lastIndexOf()</code></h3>
+<p>Returns the index of the last occurence (i.e. searches in reverse).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String oldPoem = &quot;up the airy mountains down the rushy glen&quot;;
+int findThe = oldPoem.lastIndexOf(&quot;the&quot;);
+System.out.println(findThe);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>27
+null</code></pre></div>
+<h3><code>printf()</code></h3>
+<p>While not strictly a String method, it's worth discussing <code>printf()</code> given how it functions and how frequently you'll use it with strings. This method allows you to use a formatted string where you specify the places in a string in which you want to insert variables and then pass the variables in the order they should be inserted.
+<br>
+<br><code>System.out.printf("String in which to insert variables", variable1, variable2);</code></p>
+<h4>Format specifiers</h4>
+<p>Format specifiers are placeholders that tell Java <strong>A.)</strong> where you want to insert a variable and <strong>B.)</strong> what sort of variable to expect.
+- <code>%s</code>: string placeholder
+- <code>%c</code>: char placeholder
+- <code>%f</code>: float/double placeholder (place <code>.&lt;number&gt;</code> between <code>%</code> and <code>f</code> to specify how many decimal places)
+- <code>%d</code>: digit/int placeholder
+- <code>%b</code>: boolean placeholder
+- <code>%n</code>: new-line character (same function as <code>\n</code>)</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String svar1 = &quot;variable&quot;;
+String svar2 = &quot;sentence&quot;;
+String svar3 = &quot;This&quot;;
+int svar4 = 4;
+System.out.printf(&quot;%s %s contains %d %ss.&quot;, svar3, svar2, svar4, svar1); // NOTE: the variables must be passed in the order they are to be inserted</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>This sentence contains 4 variables.null</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String s1 = &quot;dinghyrubber&quot;;
+String s2 = &quot;dinghy&quot;;
+System.out.println(s2);
+s2.concat(s1);
+System.out.println(s2);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>dinghy
+dinghy
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-17" data-ch="17" hidden><div class="ch-head"><span class="ch-num">CHAPTER 17</span><span class="ch-name">Math Class</span></div><div class="md"><h1>Java's <code>Math</code> Class</h1>
+<h2>What is the <code>Math</code> class</h2>
+<p>The <code>Math</code> class provides commonly used mathematical functions and is defined in the <code>java.lang</code> package.</p>
+<h2>Importing the <code>Math</code> class</h2>
+<p>Since <code>Math</code> is in the <code>java.lang</code> package it's already implicity imported in every new class file.</p>
+<h2>Using <code>Math</code></h2>
+<p>Many of the methods in the <code>Math</code> class are declared as <code>static</code> which means we can use them with a class reference (<code>&lt;class_name&gt;.&lt;method_name&gt;</code>) and don't need to instantiate an object first. Since the <code>Math</code> class is implicitly imported we can make use of its methods by simply calling them with <code>Math.&lt;method&gt;</code>.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.abs(-7)); // return absolute value
+System.out.println(Math.PI); // Pi
+System.out.println(Math.ceil(61.41));
+System.out.println(Math.floor(61.41));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>7
+3.141592653589793
+62.0
+61.0
+null</code></pre></div>
+<h2>Useful methods</h2>
+<p>Below are some commonly used <code>Math</code> methods.</p>
+<h3><code>ceil(double x)</code></h3>
+<p>Takes a <code>double</code> and returns the smallest double value that is greater than or equal to the argument</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.ceil(4.3));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>5.0
+null</code></pre></div>
+<h3><code>floor(double x)</code></h3>
+<p>Takes a <code>double</code> and returns the largest double value that is less than or equal to the argument</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.floor(4.8));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>4.0
+null</code></pre></div>
+<h3><code>max(x, y)</code></h3>
+<p>Takes two <code>int</code>/<code>long</code>/<code>float</code>/<code>double</code> and returns the greater.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.max(224, 365)); // int
+System.out.println(Math.max(81565435l, 215956423l)); // long
+System.out.println(Math.max(21.4f, 22.9f)); // float
+System.out.println(Math.max(2755.7d, 3215.7d)); // double</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>365
+215956423
+22.9
+3215.7
+null</code></pre></div>
+<h3><code>min(x, y)</code></h3>
+<p>Takes two <code>int</code>/<code>long</code>/<code>float</code>/<code>double</code> and returns the lesser.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.min(224, 365)); // int
+System.out.println(Math.min(81565435l, 215956423l)); // long
+System.out.println(Math.min(21.4f, 22.9f)); // float
+System.out.println(Math.min(2755.7d, 3215.7d)); // double</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>224
+81565435
+21.4
+2755.7
+null</code></pre></div>
+<h2><code>pow(x, y)</code></h2>
+<p>Returns the value of the first argument raised to the power of the second argument.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.pow(24, 17));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>2.9079779498268256E23
+null</code></pre></div>
+<h3><code>random()</code></h3>
+<p>Returns a double value between <code>0.0</code> and <code>1.0</code>.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.random());</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>0.6190658639655292
+null</code></pre></div>
+<h3><code>sqrt()</code></h3>
+<p>Returns the rounded positive square root of a double value</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>System.out.println(Math.sqrt(64));</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>8.0
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-18" data-ch="18" hidden><div class="ch-head"><span class="ch-num">CHAPTER 18</span><span class="ch-name">Scanner Class</span></div><div class="md"><h1>The <code>Scanner</code> class</h1>
+<h2>What is a scanner?</h2>
+<p><code>Scanner</code> is a class located in the <code>java.util</code> package which allows us to read data in (for example from the keyboard or from a file).</p>
+<h2>Getting user input</h2>
+<p>As with most Java classes you need to instantiate an object in order to use scanners and pass the constructor some info. For example if we want to get user input from the keyboard we need to pass <code>System.in</code> which tells Java to read from the standard input device (the keyboard).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.Scanner;
+
+Scanner keyboardInput = new Scanner(System.in);
+
+System.out.print(&quot;Enter your favourite word: &quot;);
+String userFavWord = keyboardInput.nextLine();
+System.out.printf(&quot;%nYour favourite word is \&quot;%s\&quot;.%n&quot;, userFavWord);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Enter your favourite word: Blob
+
+Your favourite word is &quot;Blob&quot;.
+null</code></pre></div>
+<h2>What methods are available in the <code>Scanner</code> class?</h2>
+<p>The following methods is a short list of <em>some</em> methods included in the Scanner class.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Method</th>
+<th style="text-align: left;">Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>nextByte()</code></td>
+<td style="text-align: left;">Reads an integer of type <code>byte</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextShort()</code></td>
+<td style="text-align: left;">Reads an integer of type <code>short</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextInt()</code></td>
+<td style="text-align: left;">Reads an integer of type <code>int</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextLong()</code></td>
+<td style="text-align: left;">Reads an integer of type <code>long</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextFloat()</code></td>
+<td style="text-align: left;">Reads a number of type <code>float</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextDouble()</code></td>
+<td style="text-align: left;">Reads a number of type <code>double</code></td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>next()</code></td>
+<td style="text-align: left;">Reads a string which ends before a whitespace character</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>nextLine()</code></td>
+<td style="text-align: left;">Reads a string which ends when <code>&lt;Enter&gt;</code>/<code>&lt;Return&gt;</code> is typed</td>
+</tr>
+</tbody>
+</table>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.Scanner;
+
+Scanner keyboardInput = new Scanner(System.in);
+
+System.out.print(&quot;Pick a number between -128 and 127: &quot;);
+byte byteInput = keyboardInput.nextByte();
+System.out.printf(&quot;Your byte input was: %d&quot;,byteInput);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Pick a number between -128 and 127: 120
+Your byte input was: 120null</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.Scanner;
+
+Scanner keyboardInput = new Scanner(System.in);
+
+System.out.print(&quot;Enter a decimal: &quot;);
+float floatIn = keyboardInput.nextFloat();
+System.out.printf(&quot;Your decimal was: %.2f%n&quot;,floatIn);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Enter a decimal: 3.456
+Your decimal was: 3.456000
+null</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.Scanner;
+
+Scanner keyboardInput = new Scanner(System.in);
+
+System.out.print(&quot;Type something: &quot;);
+String smthIn = keyboardInput.next();
+System.out.printf(&quot;You typed: %s&quot;, smthIn);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Type something: Bah Weep Grana
+You typed: Bahnull</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>import java.util.Scanner;
+
+Scanner numInput = new Scanner(System.in);
+
+int theNum;
+
+do {
+    System.out.print(&quot;Please enter a number between 1 and 5: &quot;);
+    theNum = numInput.nextInt();
+} while (theNum != 1
+         &amp;&amp; theNum != 2
+         &amp;&amp; theNum != 3
+         &amp;&amp; theNum != 4
+         &amp;&amp; theNum != 5);
+numInput.close();
+System.out.println(&quot;You chose &quot; + theNum);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Please enter a number between 1 and 5: 7
+Please enter a number between 1 and 5: 4
+You chose 4
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-19" data-ch="19" hidden><div class="ch-head"><span class="ch-num">CHAPTER 19</span><span class="ch-name">Exceptions</span></div><div class="md"><h1>Exceptions and Error Handling in Java</h1>
+<p>Exceptions are pre-defined error messages that most languages include. When executing complex code which is likely to encounter errors it's beneficial to have a way of handling such errors. In particular you want to:
+1. Obtain info about why the error occurred
+2. Supply the user with a useful message</p>
+<p>When an exception occurs we say it has been "<em>thrown</em>" and in Java the throwing of an exception creates an object which can be passed to a <strong>catch</strong> block (that's a piece of code designed to be run if a specified error is thrown, it allows you more control over execution). In Java there are three main types of objects which can be <em>thrown</em> and all are derived from a superclass <code>Throwable</code>:
+- <code>Error</code>: these are typically external, unchecked errors and are automatically thrown to the calling method
+- <code>RuntimeException</code>: normally caused by programming mistakes (typos, missing syntax etc), these are also unchecked and automatically thrown to the calling method
+- <code>Exception</code>: these errors must be checked which means the exception must be explicitly thrown to the calling method or caught by a <code>try</code>/<code>catch</code> block</p>
+<p>A throwable is the only object type which can be used as an argument in a <code>catch</code> clause and the only object type that can be "throw" to the calling method.</p>
+<h2>The call stack</h2>
+<p>The "call stack" is a sequence of methods each triggered by the previous method. For example, lets say you have a <code>main</code> method which calls a <code>sayHello</code> method. The <code>sayHello</code> method calls an <code>preferredGreeting</code> method in turn calls an <code>obtainName</code> method and so on. This sequence from origin point to endpoint is the <strong>call stack</strong>. Each method call returns its result to the method that called it. So <code>obtainName</code> passes its return back to <code>preferredGreeting</code> which returns to <code>sayHello</code> etc.</p>
+<p>If an exception is not <strong>caught</strong> it will be passed up the call stack in much the same way that a successful execution's result would be albeit with an exception object. If an exception <em>is</em> caught it will be thrown to the applicable catch block rather than running back up the call stack.</p>
+<h2>Where should exceptions be handled?</h2>
+<p>It's good practice to handle exceptions in the method in which they occur since the calling method may not be eqipped to do so. Since exceptions can't be ignored they need to be either handled within the method that threw it or elsewhere in the call stack (otherwise the program will stop).</p>
+<h2>How to handle an exception</h2>
+<p>The handling of exceptions is done using a <code>try</code>/<code>catch</code>. The structure looks similar to an <code>if</code>/<code>else</code>. The idea is that you encase the code which you think is most likely to encounter errors within a <code>try</code> block and then in the <code>catch</code> block you tell Java what to do if an error occurs.
+<br>
+<br><code>public void myMethod() {</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<strong><code>try {</code></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>..do something...</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>}</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<strong><code>catch (Exception e) {</code></strong>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<code>..do something w/ e...</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>}</code></p>
+<p>The following are considered best practices:
+- catch the specific exception thrown rather than a general superclass like <code>Exception</code> or <code>Throwable</code>
+- examine the exception to determine the cause
+- it's  not necessary to catch <em>every</em> exception</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class ExChecker {
+    public void sayHello() {
+        try {
+            getGreeting();
+        }
+        catch (Exception e) { // exception is the most general error and should generally not be used like this
+            System.out.println(&quot;We got an error: &quot; + e);
+        } // catch
+    } // sayHello
+    
+    public void getGreeting() throws Exception { // adding &quot;throws Exception&quot; here ensures that it will be thrown to the place that calls it
+        throw new Exception(); // you can explicitly tell Java to throw an exception, useful for testing &amp; debugging
+    }
+} // class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.ExChecker</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+ExChecker tester = new ExChecker();
+tester.sayHello();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>We got an error: java.lang.Exception
+null</code></pre></div>
+<p>It's advisable to look up any class you intend to use in the <a href="https://docs.oracle.com/javase/7/docs/api/">Java API Documentation</a> to determine what exceptions given class may throw. For example, the <code>File</code> class contains a <code>createNewFile()</code> method which can throw two different exceptions:
+- <code>IOException</code>: A checked exception which is thrown if an I/O (input/output) error occurs.
+- <code>SecurityException</code>: A runtime exception relating to write access.</p>
+<h2>Chaining <code>catch</code> blocks</h2>
+<p>In the event that a method can throw multiple exceptions and you want include a catch for each, you can chain catch blocks. If an exception is thrown and an applicable <code>catch</code> is present only the applicable catch block will execute.</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+import java.io.*;
+
+public class MultiEx {
+    public void callEx() {
+        try {
+            definedEx();
+        }
+        catch (FileNotFoundException e) {
+            System.out.println(e);
+        }
+        catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println(e);
+        }
+        catch (Exception e) {
+            System.out.println(e);
+        } // try-catch
+    } // callEx
+    
+    public void definedEx() throws FileNotFoundException, ArrayIndexOutOfBoundsException { /* since we&#x27;re handling the exception in the calling method and not this method
+                                                                                            we need to tell Java that we expect this method to throw one an exception*/
+        throw new FileNotFoundException();
+    }
+    
+} // class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.MultiEx</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+MultiEx test = new MultiEx();
+test.callEx();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>java.io.FileNotFoundException
+null</code></pre></div>
+<h2>What happens after an exception is handled?</h2>
+<p>If you successfully catch &amp; handle an exception, execution of the code resumes after the <code>catch</code> block (assuming that the caught exception wasn't critical to program execution). There may be times that you explicitly <em>don't</em> want execution to resume after an exception has been caught, in which case you can terminate the program within the <code>catch</code> block using:
+<br>
+<br><code>System.exit(1);</code></p>
+<h2>Defining your own exceptions</h2>
+<p>Since exceptions are classes and we've seen you can <em>extend</em> classes to create your own which inherit from their parent, you can create custom exceptions in the same way. Lets say we have a <code>Phone</code> class for which we want to need define some exceptions for specific functions:</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// define our custom exception
+public class NoSignalException extends Exception {
+    public NoSignalException() {
+    }
+    public NoSignalException(String msg) {
+        super(msg);
+    }
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.NoSignalException</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// define a phone class to make use of the custom exception
+public class Phone {
+    public int signalBars;
+    
+    public Phone() {
+        this.signalBars = 15;
+    } // constructor
+    
+    public void makeCall() throws NoSignalException { // since we&#x27;re not catching the exception we need to declare it in the method signature
+        if (this.signalBars &gt; 25) {
+            System.out.println(&quot;Making call...&quot;);
+        } else {
+            throw new NoSignalException(&quot;Signal of &quot; + this.signalBars + &quot;% is too weak to make call.&quot;); // if signalBars is low throw exception
+        } // if-else
+    } // makeCall
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.Phone</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+// trigger our exception by instantiating an object and calling the method we defined
+Phone mobile = new Phone();
+mobile.makeCall();</code></pre></div>
+<h2>Exception class hierarchy</h2>
+<p>As mentioned above, all exceptions come from a parent class <code>Throwable</code>. There are two main groups of exceptions within this tree:
+- Unchecked exceptions
+- Checked exceptions</p>
+<p>Unchecked exceptions are don't necessarily require a try/catch block. You can choose to handle them but the compiler won't force you to do so. Ideally if we are careful in writing code we won't incur any of these. Exceptions that inherit from the <code>Error</code> class are also classified as <em>unchecked</em> and represent a critical error which the program normally can't ignore/recover from.</p>
+<p>Checked exceptions are checked at compile time by the compiler and are often often the result of external resources such as databases or files not being available. If a method can throw a checked exception it must either handle the exception with a try/catch or declare the exception as part of the <strong>method signature</strong> otherwise the program will not compile. Example of declaring exception in a method signature: <code>public void myMethod() throws Exception {}</code></p>
+<table>
+<thead>
+<tr>
+<th style="text-align: left;">Exception</th>
+<th style="text-align: left;">Subclass of</th>
+<th style="text-align: left;">Category</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: left;"><code>Throwable</code></td>
+<td style="text-align: left;"><code>Object</code></td>
+<td style="text-align: left;">-</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Error</code></td>
+<td style="text-align: left;"><code>Throwable</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>Exception</code></td>
+<td style="text-align: left;"><code>Throwable</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>LinkageError</code></td>
+<td style="text-align: left;"><code>Error</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>VirtualMachineError</code></td>
+<td style="text-align: left;"><code>Error</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>AWTerror</code></td>
+<td style="text-align: left;"><code>Error</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>AWTException</code></td>
+<td style="text-align: left;"><code>Exception</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>IOException</code></td>
+<td style="text-align: left;"><code>Exception</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>RuntimeException</code></td>
+<td style="text-align: left;"><code>Exception</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ArithmeticException</code></td>
+<td style="text-align: left;"><code>RuntimeException</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>NullPointerException</code></td>
+<td style="text-align: left;"><code>RuntimeException</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>ArrayIndexOutOfBoundException</code></td>
+<td style="text-align: left;"><code>RuntimeException</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>IllegalArgumentException</code></td>
+<td style="text-align: left;"><code>RuntimeException</code></td>
+<td style="text-align: left;">Unchecked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>InterruptedIOException</code></td>
+<td style="text-align: left;"><code>IOException</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>EOFException</code></td>
+<td style="text-align: left;"><code>IOException</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+<tr>
+<td style="text-align: left;"><code>FileNotFoundException</code></td>
+<td style="text-align: left;"><code>IOException</code></td>
+<td style="text-align: left;">Checked</td>
+</tr>
+</tbody>
+</table>
+<h2>The <code>finally</code> block</h2>
+<p>In the event that you want some code to run regardless of whether an exception was thrown or caught, you can use a <code>finally</code> block which is placed after the last <code>catch</code> block.
+<br><code>try {</code>
+<br>&nbsp;&nbsp;&nbsp;<code>...try code...</code>
+<br><code>} catch {</code>
+<br>&nbsp;&nbsp;&nbsp;<code>...catch code...</code>
+<br><strong><code>} finally {</code></strong>
+<br>&nbsp;&nbsp;&nbsp;<code>...finally code...</code>
+<br><code>}</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+public class EThrower {
+    public void throwEx() throws Exception {
+        throw new Exception();
+    } // throwEx
+} // class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.EThrower</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+EThrower et = new EThrower();
+try {
+    et.throwEx();
+    System.out.println(&quot;I&#x27;ll print if there ISN&#x27;T exception&quot;);
+}
+catch(Exception e) {
+    System.out.println(&quot;I&#x27;ll print if there IS an exception&quot;);
+}
+finally {
+    System.out.println(&quot;I&#x27;ll print either way&quot;);
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>I&#x27;ll print if there IS an exception
+I&#x27;ll print either way
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-20" data-ch="20" hidden><div class="ch-head"><span class="ch-num">CHAPTER 20</span><span class="ch-name">File I/O</span></div><div class="md"><h1>Writing to and reading from files in Java</h1>
+<p><strong>NOTE</strong>: There are no questions on the <em>Foundations</em> exam related to writing/reading to/from files.</p>
+<h2>Writing to a file</h2>
+<p>To write to a file we're going to use several classes from the <code>java.io</code> package:
+- <code>File</code>: to instantiate a file type object which is a representation of a file for Java to work with.
+- <code>FileWriter</code>: a "<em>convenience class</em>" for writing characters to file.
+- <code>BufferedWriter</code>: a wrapper class that writes text to a "character-output stream", buffering characters to provide efficient writing.
+- <code>PrintWriter</code>: prints formatted representations of objects to a text-output stream.
+- <code>IOException</code>: to handle exceptions that may occur</p>
+<p>Why are so many classes needed to write to a file? <a href="https://docs.oracle.com/javase/7/docs/api/">According to the API</a>:
+<br>
+<br><em>In general, a Writer sends its output immediately to the underlying character or byte stream. Unless prompt output is required, it is advisable to wrap a BufferedWriter around any Writer whose write() operations may be costly, such as FileWriters and OutputStreamWriters. Without buffering, each invocation of a print() method would cause characters to be converted into bytes that would then be written immediately to the file, which can be very inefficient.</em></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+import java.io.*; // lazily import everything from IO
+
+public class FileOut {
+    public void writeOut() {
+        File file = new File(&quot;hello_world.txt&quot;); // instantiate a File object
+        
+        try {
+            FileWriter fWrite = new FileWriter(file, true); // instantiate a FileWriter object, this is the point where an exception is most likely
+            
+            BufferedWriter bWrite = new BufferedWriter(fWrite); // instantiate a BufferedWriter to make the above writer more efficient
+            
+            PrintWriter pWrite = new PrintWriter(bWrite); // instantiate a PrintWriter to actually take our input and pass it through to the above writers
+            
+            pWrite.println(&quot;Hello World!&quot;); // text to write to the file
+            
+            System.out.println(&quot;File write successful!&quot;); // if execution gets this far there likely hasn&#x27;t been an exception
+            
+            pWrite.close(); // close the stream
+        }
+        catch(IOException e) {
+            System.out.println(&quot;File write failed: &quot; + e); // message if exception occurs
+        }
+    } // writeOut
+} // class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.FileOut</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+FileOut myFile = new FileOut();
+myFile.writeOut(); // if successful you should see the file &quot;hello_world.txt&quot; in the same directory as this notebook</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>File write successful!
+null</code></pre></div>
+<h2>Reading from a file</h2>
+<p>To read from the file we just created we're going to use a very similar process with several more classes from <code>java.io</code>:
+- <code>File</code>: to instantiate the file object so we can work with it
+- <code>FileReader</code>: to instantiate a reader object for reading from the file
+- <code>BufferedReader</code>: the reading corollary of <strong>BufferedWriter</strong>, a wrapper class to make reading characters more efficient. <a href="https://docs.oracle.com/javase/7/docs/api/">Per the API</a>: <em>Without buffering, each invocation of read() or readLine() could cause bytes to be read from the file, converted into characters, and then returned, which can be very inefficient.</em>
+- <code>IOException</code>: to handle exceptions</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+import java.io.*; // lazily import all IO classes
+
+public class FileIn {
+    public void readIn() {
+        File file = new File(&quot;hello_world.txt&quot;); // instantiate file object
+        
+        try {
+            FileReader fRead = new FileReader(file); // create reader
+            
+            BufferedReader bRead = new BufferedReader(fRead); // create buffered read
+            
+            String line = bRead.readLine(); // create variable to represent the lines being read
+            
+            while (line != null) { // check if there&#x27;s anything else to be read
+                System.out.println(line);
+                line = bRead.readLine();
+            } // while
+            System.out.println(&quot;File read successful!&quot;); // if we got this far probably no exceptions
+        }
+        catch(IOException e) {
+            System.out.println(&quot;File read failed: &quot; + e); // handle IOException if thrown
+        } // try-catch
+    } // readIn
+} // class</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>test.beaker.FileIn</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>package test.beaker;
+
+FileIn myFileRead = new FileIn();
+myFileRead.readIn();</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Hello World!
+File read successful!
+null</code></pre></div></div></section>
+<section class="chapter" id="ch-21" data-ch="21" hidden><div class="ch-head"><span class="ch-num">CHAPTER MOCK</span><span class="ch-name">Mock Revision</span></div><div class="md"><h1>Mid-term Mock Exam Revision</h1>
+<h2>Initialising arrays with BOTH <code>new &lt;type&gt;[]</code> and <code>{entries}</code></h2>
+<p>Arrays can be initialised &amp; populated in a number of ways:
+- Initialising only
+    <br>Example: <code>String [] myArray = new String [5];</code> declares an array (<code>myArray</code>) of <code>String</code> type and initialises it with a length of <code>5</code>.
+- Initialise and populate:
+    <br>Example 1: <code>String [] myArray = new String[] {"garden", "train", "desk"};</code> declares an array <code>myArray</code> of type <code>String</code> and populates with <code>3</code> entries.
+    <br>Example 2: <code>String [] myArray = {"garden", "train", "desk"};</code> does the same as example 1 but omits the <code>new String[]</code> declaration.</p>
+<p>However, if you cannot initialise with a length AND populate at the same time:
+- This syntax is not permitted and will result in error
+    <br><code>String [] myArray = new String [</code><strong><code>3</code></strong><code>] {"garden","train","desk"};</code></p>
+<h2>Concatenating Strings with ints</h2>
+<p>Using a <code>+</code> when assigning a value to a String type variable means concatenation. If you want a calculation to be done before concatenation you need to encase the sum in parentheses:
+<br>
+<br><code>String newString = "You're in a JohnnyCab. Hell of a day isn't it?"+ 23 + 13;</code> will assign the value of newString to be "<em>You're in a JohnnyCab. Hell of a day isn't it?2313</em>"
+<br><code>String newString = "The door opened, you got in." + (23+13);</code> will assign the value of newString to be "<em>The door opened, you got in.36</em>"</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String newString1 = &quot;All work and no play makes Jack a dull boy. -Room No.&quot; + 200 + 37;
+System.out.println(newString1);
+
+String newString2 = &quot;All work and no play makes jack a dull boy. -Room No.&quot; + (200 + 37);
+System.out.println(newString2);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>All work and no play makes Jack a dull boy. -Room No.20037
+All work and no play makes jack a dull boy. -Room No.237
+null</code></pre></div>
+<h2>Curly braces after an if statement aren't mandatory <em>provided the code block consists of only <strong>ONE</strong> statement</em></h2>
+<p>While its generally advisable to encase your <code>if</code> statement's code block in curly braces (<code>{}</code>), foregoing them will <strong>not</strong> raise an error provided the code block only has one statement to execute.</p>
+<p>So this is allowed (but not recommended):
+<br><code>if (true)</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("True!");</code></p>
+<p>However, this will not work:
+<br><code>if (true)</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("It's true!");</code>
+<br>&nbsp;&nbsp;&nbsp;&nbsp;<code>System.out.println("It's definitely true!")</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int y = 5;
+for (int x=0; x&lt;5; x++) {
+    y--;
+    if (x == y)
+    break;
+    System.out.print(x+&quot;&quot;);
+} // for</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>01null</code></pre></div>
+<p>For example, in the below the result should stay as "Pass" unless the score is below 60 (which it isn't) but because we've omitted curly braces only the first indented line is treated as part of the <code>if</code>. So even if the score is &gt;60 the result gets changed to <code>Fail</code></p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int score = 75;
+String result = &quot;Pass&quot;;
+if (score&lt;60)
+    System.out.println(&quot;You need to study more&quot;);
+    result = &quot;Fail&quot;;
+System.out.println(result);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Fail
+null</code></pre></div>
+<h2>The <code>default</code> branch of a <code>switch</code> statement acts as an entry point to the code</h2>
+<p>As with the other branches of a <code>switch</code> statement, if you place the <code>default</code> above other branches you need to include a <code>break;</code> after it. Otherwise the default acts as an entry point and point and the execution will continue until the next <code>break;</code> (or the end of the code).</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>String apple = &quot;green&quot;;
+switch (apple) {
+    case &quot;blue&quot;:
+        System.out.println(&quot;Blue apple!&quot;);
+        break;
+    default:
+        System.out.println(&quot;Green apple!&quot;);
+    case &quot;white&quot;:
+        System.out.println(&quot;White apple!&quot;);
+        break;
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>Green apple!
+White apple!
+null</code></pre></div>
+<p>Questions I need an explanation for:
+- Why does <code>int x, y, z = 10;</code> not assign the value 10 to three different int variables? [QUESTION 12]
+- Why is <code>for (;x&lt;5;)</code> permitted? [QUESTION 18]</p>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int x=1, y=1, z=1;
+System.out.println(x+y+z);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>3
+null</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>public class Exam_Ready_Quiz1_Q28{
+  public static void main(String[] args){
+   int x = 0;
+   for(;x&lt;5;){
+    System.out.print(x + &quot; &quot;);
+     x++;
+   }
+  }
+}</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>com.twosigma.beaker.javash.bkr4e04ef2f.Exam_Ready_Quiz1_Q28</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int x = 0;
+
+for (int i=0;i&lt;5;i++) {
+    System.out.println(&quot;i is &quot;+i);
+}
+
+int j = 8;
+
+for(int x=5;x&gt;=5;x--){
+    System.out.println(x);
+}</code></pre></div>
+<div class="codecell"><div class="code-tag">JAVA</div><pre><code>int x = 5;
+x = --x-x--;
+System.out.println(x);</code></pre></div>
+<div class="outcell"><div class="code-tag out-tag">OUTPUT</div><pre><code>0
+null</code></pre></div></div></section>
+
+      <nav class="pager bottom" aria-label="Chapter pagination">
+        <button id="prevBot">← PREV</button>
+        <span class="pos" style="flex:1;text-align:center"><b id="posBot">1</b> / 21</span>
+        <button id="nextBot">NEXT →</button>
+      </nav>
+    </article>
+  </div>
+
+  <footer>JAVA FOUNDATIONS · 1Z0-811 NOTES — SOURCE: NEAL BROPHY · RESTYLED FOR ORACLE UNIVERSITY</footer>
+</div>
+
+<script>
+(function(){
+  var TOTAL=21, KEY='jf1z0811-notes-ch', cur=1;
+  var chapters=document.querySelectorAll('.chapter'),
+      tocItems=document.querySelectorAll('.toc-item'),
+      sel=document.getElementById('chSelect');
+  function clamp(n){ n=parseInt(n,10); return isNaN(n)?1:Math.min(TOTAL,Math.max(1,n)); }
+  function show(n,scroll){
+    cur=clamp(n);
+    chapters.forEach(function(c){ c.hidden=(+c.dataset.ch!==cur); });
+    tocItems.forEach(function(t){ t.classList.toggle('active',+t.dataset.ch===cur); });
+    sel.value=cur;
+    document.getElementById('posNow').textContent=cur;
+    document.getElementById('posBot').textContent=cur;
+    ['prevTop','prevBot'].forEach(function(id){ document.getElementById(id).disabled=(cur===1); });
+    ['nextTop','nextBot'].forEach(function(id){ document.getElementById(id).disabled=(cur===TOTAL); });
+    if(history.replaceState) history.replaceState(null,'','#ch-'+cur);
+    try{ localStorage.setItem(KEY,cur); }catch(e){}
+    if(scroll!==false) window.scrollTo({top:0,behavior:'auto'});
+  }
+  ['prevTop','prevBot'].forEach(function(id){ document.getElementById(id).addEventListener('click',function(){ show(cur-1); }); });
+  ['nextTop','nextBot'].forEach(function(id){ document.getElementById(id).addEventListener('click',function(){ show(cur+1); }); });
+  sel.addEventListener('change',function(){ show(sel.value); });
+  tocItems.forEach(function(t){ t.addEventListener('click',function(){ show(t.dataset.ch); }); });
+  document.addEventListener('keydown',function(e){
+    if(e.target.tagName==='SELECT'||e.target.tagName==='INPUT') return;
+    if(e.key==='ArrowLeft') show(cur-1);
+    if(e.key==='ArrowRight') show(cur+1);
+  });
+  window.addEventListener('hashchange',function(){
+    var m=location.hash.match(/^#ch-(\d+)$/); if(m) show(m[1]);
+  });
+  var start=1, m=location.hash.match(/^#ch-(\d+)$/);
+  if(m){ start=m[1]; }
+  else{ try{ start=localStorage.getItem(KEY)||1; }catch(e){} }
+  show(start,false);
+})();
+</script>
+</body>
+</html>
