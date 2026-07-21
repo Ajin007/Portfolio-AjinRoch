@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 1 — Fundamentals Master Reference | Oracle Certification Training</title>
+<style>
+:root{
+  --bg:#0a0e1a; --panel:#101828; --panel2:#141d33; --border:#1e2a45;
+  --red:#ff4d4d; --red-deep:#f80000; --gold:#ffc46b; --green:#4ade80;
+  --blue:#60a5fa; --purple:#c084fc; --txt:#e6ebf5; --dim:#8b98b8;
+  --code-bg:#0b1120; --mono:'Consolas','JetBrains Mono',monospace;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+/* ---------- layout ---------- */
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}
+.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+/* ---------- header ---------- */
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}
+.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+/* ---------- sections/cards ---------- */
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin-bottom:8px;color:var(--gold)}
+.card p{font-size:14px;color:var(--txt);margin-bottom:8px}
+.dim{color:var(--dim)}
+/* ---------- tables ---------- */
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+/* ---------- code ---------- */
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+/* ---------- callouts ---------- */
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"🎯 Exam Point — ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"⚠️ Trap — ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}
+.confuser .r{color:var(--green);font-weight:700}
+/* ---------- diagrams ---------- */
+.stackbox{display:flex;flex-direction:column;gap:0;align-items:center;margin:14px 0}
+.ring{border-radius:12px;padding:14px 18px;width:100%;text-align:center}
+.ring h4{font-size:14px;margin-bottom:4px}
+.ring small{color:var(--dim);font-size:12px}
+.ring.jdk{border:2px solid var(--red);background:rgba(255,77,77,.05)}
+.ring.jre{border:2px solid var(--gold);background:rgba(255,196,107,.05);margin:12px;width:calc(100% - 24px)}
+.ring.jvm{border:2px solid var(--blue);background:rgba(96,165,250,.06);margin:12px;width:calc(100% - 24px)}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:130px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}
+.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.timeline{border-left:2px solid var(--border);margin:10px 0 4px 8px;padding-left:18px}
+.tl-item{position:relative;padding-bottom:12px;font-size:13.5px}
+.tl-item::before{content:"";position:absolute;left:-24px;top:5px;width:10px;height:10px;border-radius:50%;background:var(--red)}
+.tl-item b{color:var(--gold)}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+.hl{outline:1px solid var(--red)}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav class="sidebar">
+  <div class="brand"><b>Java</b> Day 1 Reference</div>
+  <div class="brand-sub">Oracle Certification Training · iamneo L&amp;D</div>
+  <input id="search" type="text" placeholder="Search topics… (e.g. JVM, PATH)" oninput="doSearch(this.value)">
+  <a class="nav-item active" href="#intro">1 · Java Intro &amp; History</a>
+  <a class="nav-item" href="#wora">2 · WORA</a>
+  <a class="nav-item" href="#editions">3 · Java Editions</a>
+  <a class="nav-item" href="#jdk">4 · JDK vs JRE vs JVM</a>
+  <a class="nav-item" href="#install">5 · Install · PATH · JAVA_HOME</a>
+  <a class="nav-item" href="#ide">6 · IDE Setup</a>
+  <a class="nav-item" href="#features">7 · Java Features</a>
+  <a class="nav-item" href="#apps">8 · Applications of Java</a>
+  <a class="nav-item" href="#hello">9 · HelloWorld Anatomy</a>
+  <a class="nav-item" href="#compile">10 · Compile &amp; Run</a>
+</nav>
+
+<main class="main">
+
+<div class="hero">
+  <div class="eyebrow">Day 1 · Java Fundamentals</div>
+  <h1>Java Fundamentals — Master Reference</h1>
+  <p>Environment, architecture, and your first program — everything covered in today's session, exam-mapped.</p>
+  <div class="chips">
+    <span class="chip">History &amp; WORA</span><span class="chip">JDK / JRE / JVM</span>
+    <span class="chip">PATH &amp; JAVA_HOME</span><span class="chip">IDE Setup</span>
+    <span class="chip">HelloWorld</span><span class="chip">javac / java</span>
+  </div>
+</div>
+
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+
+<!-- 1 INTRO -->
+<section id="intro" class="sec">
+  <div class="sec-eyebrow">Section 1</div>
+  <h2>☕ Java Introduction &amp; History</h2>
+  <div class="card" data-tags="history oak gosling sun oracle green project release cadence lts">
+    <h3>Definition</h3>
+    <p>Java is a <b>class-based, object-oriented, platform-independent</b> programming language designed to have as few implementation dependencies as possible. Code is compiled once into <b>bytecode</b> and executed anywhere a JVM exists.</p>
+    <h3>Timeline</h3>
+    <div class="timeline">
+      <div class="tl-item"><b>1991</b> — James Gosling &amp; team at Sun Microsystems start the "Green Project"; language originally named <b>Oak</b> (later "Green", then Java).</div>
+      <div class="tl-item"><b>1995</b> — Officially released as <b>Java 1.0</b> with the promise "Write Once, Run Anywhere".</div>
+      <div class="tl-item"><b>2010</b> — <b>Oracle acquires Sun Microsystems</b>; Java becomes an Oracle product.</div>
+      <div class="tl-item"><b>2017 (Java 9+)</b> — New <b>6-month release cadence</b>; LTS (Long-Term Support) versions: 8, 11, 17, 21.</div>
+    </div>
+    <div class="tip">Certification questions love: creator = <b>James Gosling</b>, company = <b>Sun Microsystems</b>, original name = <b>Oak</b>, current owner = <b>Oracle</b>, LTS versions = 8 / 11 / 17 / 21.</div>
+    <div class="confuser"><span class="w">WRONG:</span> "Java is named after JavaScript." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Java and JavaScript are <b>completely unrelated</b> languages. Java was named after Java coffee.</div>
+  </div>
+</section>
+
+<!-- 2 WORA -->
+<section id="wora" class="sec">
+  <div class="sec-eyebrow">Section 2</div>
+  <h2>🌍 WORA — Write Once, Run Anywhere</h2>
+  <div class="card" data-tags="wora bytecode platform independent class file portable">
+    <p>Java source is compiled to <b>bytecode</b> (.class), not native machine code. Any OS with a JVM interprets/JIT-compiles that same bytecode — so one compiled artifact runs on Windows, Linux, and macOS unmodified.</p>
+    <div class="flow">
+      <div class="fstep"><div class="t">Hello.java</div><div class="d">Source code (human-readable)</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">javac</div><div class="d">Compiler</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">Hello.class</div><div class="d">Bytecode (platform-independent)</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">JVM (Win / Linux / Mac)</div><div class="d">Executes on any OS</div></div>
+    </div>
+    <div class="tip"><b>Bytecode is platform-independent; the JVM is platform-dependent.</b> A separate JVM build exists for every OS — that's exactly what makes the bytecode portable.</div>
+    <div class="confuser"><span class="w">WRONG:</span> "Java compiles directly to machine code." &nbsp;→&nbsp; <span class="r">RIGHT:</span> javac produces <b>bytecode</b>; the JVM (interpreter + JIT) converts it to machine code at runtime.</div>
+  </div>
+</section>
+
+<!-- 3 EDITIONS -->
+<section id="editions" class="sec">
+  <div class="sec-eyebrow">Section 3</div>
+  <h2>📦 Java Editions</h2>
+  <div class="card" data-tags="editions se ee jakarta me micro javafx enterprise standard">
+    <table>
+      <tr><th>Edition</th><th>Full Form</th><th>Purpose</th><th>Examples</th></tr>
+      <tr><td><b>Java SE</b></td><td>Standard Edition</td><td>Core language + core APIs. Foundation for everything else. Certification exams (1Z0-829 etc.) test SE.</td><td>Collections, I/O, Threads, JDBC</td></tr>
+      <tr><td><b>Java EE</b> (now <b>Jakarta EE</b>)</td><td>Enterprise Edition</td><td>Built on SE for large-scale, distributed, web &amp; enterprise apps. Transferred from Oracle to the Eclipse Foundation → renamed Jakarta EE.</td><td>Servlets, JSP, EJB, JPA</td></tr>
+      <tr><td><b>Java ME</b></td><td>Micro Edition</td><td>Resource-constrained/embedded devices.</td><td>Feature phones, set-top boxes, IoT</td></tr>
+      <tr><td><b>JavaFX</b></td><td>—</td><td>Rich desktop GUI applications (successor to Swing/AWT for modern UIs).</td><td>Desktop dashboards</td></tr>
+    </table>
+    <div class="tip">SE is the <b>base</b> of all editions. EE is a <b>superset built on SE</b>, not a replacement. Since 2018, EE is maintained by the Eclipse Foundation as <b>Jakarta EE</b>.</div>
+  </div>
+</section>
+
+<!-- 4 JDK JRE JVM -->
+<section id="jdk" class="sec">
+  <div class="sec-eyebrow">Section 4</div>
+  <h2>🧩 JDK vs JRE vs JVM</h2>
+  <div class="card" data-tags="jdk jre jvm compiler javac tools libraries runtime virtual machine jit classloader">
+    <div class="stackbox">
+      <div class="ring jdk">
+        <h4 style="color:var(--red)">JDK — Java Development Kit</h4>
+        <small>JRE + development tools: <b>javac</b>, jar, javadoc, jdb, jshell</small>
+        <div class="ring jre">
+          <h4 style="color:var(--gold)">JRE — Java Runtime Environment</h4>
+          <small>JVM + core class libraries (java.lang, java.util, …)</small>
+          <div class="ring jvm">
+            <h4 style="color:var(--blue)">JVM — Java Virtual Machine</h4>
+            <small>ClassLoader → Bytecode Verifier → Interpreter + JIT Compiler → Execution</small>
+          </div>
+        </div>
+      </div>
+    </div>
+    <table>
+      <tr><th></th><th>JDK</th><th>JRE</th><th>JVM</th></tr>
+      <tr><td><b>Contains</b></td><td>JRE + dev tools (javac, jar, javadoc)</td><td>JVM + libraries</td><td>Execution engine only</td></tr>
+      <tr><td><b>Who needs it</b></td><td>Developers (write + compile)</td><td>End users (run only)</td><td>Abstract spec; ships inside JRE</td></tr>
+      <tr><td><b>Can compile?</b></td><td>✅ Yes</td><td>❌ No</td><td>❌ No</td></tr>
+      <tr><td><b>Platform</b></td><td>Platform-specific installer</td><td>Platform-specific</td><td><b>Platform-dependent implementation</b> of a platform-independent spec</td></tr>
+    </table>
+    <div class="tip">One-liner to remember: <b>JDK = JRE + development tools; JRE = JVM + libraries.</b> To only <i>run</i> a Java app you need the JRE; to <i>develop</i> you need the JDK.</div>
+    <div class="trap">Since <b>Java 11</b>, Oracle no longer ships a separate standalone JRE download — the JDK includes everything. Exam wording may still test the classical JDK/JRE/JVM containment model.</div>
+    <div class="confuser"><span class="w">WRONG:</span> "JVM converts source code to bytecode." &nbsp;→&nbsp; <span class="r">RIGHT:</span> <b>javac</b> (in the JDK) makes bytecode; the <b>JVM executes</b> bytecode (interprets + JIT-compiles hot paths).</div>
+  </div>
+</section>
+
+<!-- 5 INSTALL -->
+<section id="install" class="sec">
+  <div class="sec-eyebrow">Section 5</div>
+  <h2>⚙️ Install JDK · PATH · JAVA_HOME</h2>
+  <div class="card" data-tags="install jdk path java_home environment variable bin verify version windows">
+    <h3>Installation steps (Windows)</h3>
+    <div class="flow">
+      <div class="fstep"><div class="t">1 · Download</div><div class="d">JDK 17/21 LTS from oracle.com or adoptium.net</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">2 · Install</div><div class="d">e.g. C:\Program Files\Java\jdk-17</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">3 · Set variables</div><div class="d">JAVA_HOME + add %JAVA_HOME%\bin to PATH</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">4 · Verify</div><div class="d">java -version &amp; javac -version</div></div>
+    </div>
+    <h3>PATH vs JAVA_HOME</h3>
+    <table>
+      <tr><th>Variable</th><th>Points to</th><th>Why it exists</th></tr>
+      <tr><td><b>JAVA_HOME</b></td><td>JDK <b>root folder</b> (e.g. <code>C:\Program Files\Java\jdk-17</code>)</td><td>Used by build tools &amp; servers (Maven, Gradle, Tomcat) to locate the JDK. One place to change when upgrading.</td></tr>
+      <tr><td><b>PATH</b></td><td>JDK <b>bin folder</b> (<code>%JAVA_HOME%\bin</code>)</td><td>Lets the OS shell find <code>java</code> and <code>javac</code> from any directory.</td></tr>
+    </table>
+<pre><span class="cm"># Verify from any terminal</span>
+<span class="pr">java</span> -version     <span class="cm"># runtime version</span>
+<span class="pr">javac</span> -version    <span class="cm"># compiler version — proves JDK (not just JRE) is installed</span>
+<span class="pr">echo</span> %JAVA_HOME%  <span class="cm"># Windows</span>  |  <span class="pr">echo</span> $JAVA_HOME  <span class="cm"># Linux/Mac</span></pre>
+    <div class="trap">If <code>java -version</code> works but <code>javac</code> gives <i>"not recognized as an internal or external command"</i> → PATH points to a JRE or the <b>bin</b> folder of the JDK was never added.</div>
+    <div class="confuser"><span class="w">WRONG:</span> JAVA_HOME = <code>...\jdk-17\bin</code> &nbsp;→&nbsp; <span class="r">RIGHT:</span> JAVA_HOME = JDK <b>root</b>; only PATH gets the <b>\bin</b> suffix.</div>
+  </div>
+</section>
+
+<!-- 6 IDE -->
+<section id="ide" class="sec">
+  <div class="sec-eyebrow">Section 6</div>
+  <h2>🖥️ IDE Setup — VS Code &amp; IntelliJ IDEA</h2>
+  <div class="card" data-tags="ide vscode intellij extension pack community editor setup">
+    <table>
+      <tr><th></th><th>VS Code</th><th>IntelliJ IDEA</th></tr>
+      <tr><td><b>Type</b></td><td>Lightweight editor + extensions</td><td>Full-featured Java IDE</td></tr>
+      <tr><td><b>Setup</b></td><td>Install <b>"Extension Pack for Java"</b> (Microsoft) — bundles Language Support, Debugger, Test Runner, Maven, Project Manager</td><td>Install <b>Community Edition</b> (free) → New Project → select installed JDK</td></tr>
+      <tr><td><b>Needs JDK?</b></td><td>✅ Uses the JDK on your machine</td><td>✅ Can also download a JDK for you</td></tr>
+      <tr><td><b>Best for</b></td><td>Light projects, polyglot work, low RAM</td><td>Serious Java development — refactoring, code analysis, debugging</td></tr>
+    </table>
+    <div class="tip">The IDE is a convenience layer — it internally calls the same <code>javac</code>/<code>java</code>. Exams test the command-line behaviour, so never skip learning the terminal workflow.</div>
+  </div>
+</section>
+
+<!-- 7 FEATURES -->
+<section id="features" class="sec">
+  <div class="sec-eyebrow">Section 7</div>
+  <h2>✨ Java Features (Buzzwords)</h2>
+  <div class="card" data-tags="features simple object oriented secure robust multithreaded portable high performance jit distributed dynamic interpreted architecture neutral">
+    <div class="feat-grid">
+      <div class="feat"><div class="fh">Simple</div><div class="fb">C/C++-like syntax minus pointers, operator overloading &amp; multiple class inheritance.</div></div>
+      <div class="feat"><div class="fh">Object-Oriented</div><div class="fb">Everything lives inside classes; encapsulation, inheritance, polymorphism, abstraction.</div></div>
+      <div class="feat"><div class="fh">Platform-Independent</div><div class="fb">Bytecode + JVM = WORA.</div></div>
+      <div class="feat"><div class="fh">Secure</div><div class="fb">No explicit pointers; bytecode verifier; runs inside the JVM sandbox.</div></div>
+      <div class="feat"><div class="fh">Robust</div><div class="fb">Strong type checking, exception handling, automatic garbage collection.</div></div>
+      <div class="feat"><div class="fh">Multithreaded</div><div class="fb">Built-in Thread API; run tasks concurrently within one program.</div></div>
+      <div class="feat"><div class="fh">Portable</div><div class="fb">Fixed primitive sizes on every platform (int is always 32-bit).</div></div>
+      <div class="feat"><div class="fh">High Performance</div><div class="fb"><b>JIT compiler</b> converts hot bytecode into native machine code at runtime.</div></div>
+      <div class="feat"><div class="fh">Distributed</div><div class="fb">Networking baked in (RMI, sockets, HTTP APIs).</div></div>
+      <div class="feat"><div class="fh">Dynamic</div><div class="fb">Classes are loaded on demand at runtime (ClassLoader).</div></div>
+      <div class="feat"><div class="fh">Interpreted + Compiled</div><div class="fb">Hybrid: bytecode is interpreted, hot spots are JIT-compiled.</div></div>
+      <div class="feat"><div class="fh">Architecture-Neutral</div><div class="fb">Bytecode format is independent of CPU architecture.</div></div>
+    </div>
+    <div class="confuser" style="margin-top:12px"><span class="w">WRONG:</span> "Java is purely interpreted, so it's slow." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Modern JVMs use <b>JIT compilation</b> — hot code runs as native machine code.</div>
+    <div class="trap">"Java has no pointers" means no <b>explicit pointer arithmetic</b> for the programmer — references still exist internally.</div>
+  </div>
+</section>
+
+<!-- 8 APPLICATIONS -->
+<section id="apps" class="sec">
+  <div class="sec-eyebrow">Section 8</div>
+  <h2>🏭 Applications of Java</h2>
+  <div class="card" data-tags="applications desktop web enterprise mobile android big data banking scientific embedded">
+    <table>
+      <tr><th>Domain</th><th>What Java powers</th><th>Real examples</th></tr>
+      <tr><td><b>Desktop / Standalone</b></td><td>GUI &amp; utility apps (AWT, Swing, JavaFX)</td><td>IntelliJ IDEA itself, media players</td></tr>
+      <tr><td><b>Web applications</b></td><td>Server-side apps via Servlets/JSP/Spring</td><td>LinkedIn back-end services</td></tr>
+      <tr><td><b>Enterprise</b></td><td>Large-scale banking &amp; ERP systems (Jakarta EE, Spring Boot)</td><td>Core banking platforms</td></tr>
+      <tr><td><b>Mobile</b></td><td>Android app development (Java/Kotlin on ART)</td><td>Most Android apps</td></tr>
+      <tr><td><b>Big Data</b></td><td>JVM-based data frameworks</td><td>Hadoop, Elasticsearch, Kafka</td></tr>
+      <tr><td><b>Scientific / Embedded</b></td><td>Simulation tools, smart cards, IoT devices</td><td>MATLAB components, SIM cards</td></tr>
+    </table>
+    <div class="tip">Talking point for class: an estimated <b>billions of devices</b> run Java — from ATMs and SIM cards to enterprise servers.</div>
+  </div>
+</section>
+
+<!-- 9 HELLOWORLD -->
+<section id="hello" class="sec">
+  <div class="sec-eyebrow">Section 9</div>
+  <h2>👋 HelloWorld — Anatomy of Your First Program</h2>
+  <div class="card" data-tags="helloworld main method public static void string args system out println class">
+<pre><span class="kw">public class</span> <span class="cls">HelloWorld</span> {                        <span class="cm">// class name MUST match file name HelloWorld.java</span>
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {      <span class="cm">// JVM entry point — exact signature required</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Hello, World!"</span>);       <span class="cm">// print with newline</span>
+    }
+}</pre>
+    <table>
+      <tr><th>Keyword</th><th>Why it's required in main()</th></tr>
+      <tr><td><b>public</b></td><td>JVM must call it from <i>outside</i> the class — needs maximum visibility.</td></tr>
+      <tr><td><b>static</b></td><td>JVM calls it <i>without creating an object</i> of the class.</td></tr>
+      <tr><td><b>void</b></td><td>Returns nothing to the JVM.</td></tr>
+      <tr><td><b>main</b></td><td>The exact method name the JVM looks for.</td></tr>
+      <tr><td><b>String[] args</b></td><td>Command-line arguments. <code>String... args</code> (varargs) is also valid; the parameter name can be anything.</td></tr>
+      <tr><td><b>System.out.println</b></td><td><code>System</code> class → <code>out</code> static PrintStream field → <code>println()</code> method.</td></tr>
+    </table>
+    <div class="tip">Valid main variations: <code>static public void main(String[] a)</code> ✅ (modifier order flexible), <code>public static void main(String... args)</code> ✅. Invalid as entry point: missing <b>static</b>, return type <b>int</b>, or misspelled <b>Main</b>.</div>
+    <div class="trap"><b>Case sensitivity:</b> <code>Public</code>, <code>String[] Args</code> vs <code>args</code> usage, and <code>system.out</code> (lowercase s) are classic Day-1 compile errors.</div>
+    <div class="confuser"><span class="w">WRONG:</span> "A file can contain only one class." &nbsp;→&nbsp; <span class="r">RIGHT:</span> A file may contain multiple classes but only <b>one public class</b>, and its name must match the file name.</div>
+  </div>
+</section>
+
+<!-- 10 COMPILE & RUN -->
+<section id="compile" class="sec">
+  <div class="sec-eyebrow">Section 10</div>
+  <h2>🚀 Compile &amp; Run — javac / java</h2>
+  <div class="card" data-tags="compile run javac java class file bytecode single file source launch errors classpath">
+<pre><span class="cm"># Classic two-step workflow</span>
+<span class="pr">javac</span> HelloWorld.java     <span class="cm"># compiles → produces HelloWorld.class (bytecode)</span>
+<span class="pr">java</span> HelloWorld           <span class="cm"># runs the class — NO .class extension here!</span>
+
+<span class="cm"># Single-file source launch (Java 11+) — compile-in-memory, no .class file left behind</span>
+<span class="pr">java</span> HelloWorld.java</pre>
+    <div class="flow">
+      <div class="fstep"><div class="t">Write</div><div class="d">HelloWorld.java</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">Compile</div><div class="d">javac HelloWorld.java</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">Bytecode</div><div class="d">HelloWorld.class</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">Run</div><div class="d">java HelloWorld</div></div>
+      <div class="arrow">→</div>
+      <div class="fstep"><div class="t">Output</div><div class="d">Hello, World!</div></div>
+    </div>
+    <h3>Common Day-1 errors</h3>
+    <table>
+      <tr><th>Command / mistake</th><th>Error you'll see</th><th>Fix</th></tr>
+      <tr><td><code>java HelloWorld.class</code></td><td>ClassNotFoundException</td><td>Run with class name only: <code>java HelloWorld</code></td></tr>
+      <tr><td><code>javac HelloWorld</code> (no extension)</td><td>file not found</td><td>javac needs the <b>.java</b> extension</td></tr>
+      <tr><td>Class name ≠ file name (public class)</td><td>compile error: class X is public, should be declared in X.java</td><td>Match names exactly (case-sensitive)</td></tr>
+      <tr><td>Missing semicolon / mismatched braces</td><td>compile-time syntax error</td><td>Fix source; nothing runs until javac succeeds</td></tr>
+      <tr><td>Wrong main signature</td><td>runtime: "Main method not found"</td><td>Use <code>public static void main(String[] args)</code></td></tr>
+    </table>
+    <div class="tip"><b>javac takes the file name (with .java); java takes the class name (no extension).</b> Compile-time errors come from javac; runtime errors (exceptions) come from the JVM.</div>
+    <div class="confuser"><span class="w">WRONG:</span> "java HelloWorld.java always leaves a .class file." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Single-file source launch compiles <b>in memory</b> — no .class file is written to disk.</div>
+  </div>
+</section>
+
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 1 · Java Fundamentals · Oracle Certification Training Standard · iamneo Learning &amp; Development
+</footer>
+
+</main>
+</div>
+
+<script>
+// sidebar active state on scroll
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{
+  let cur=secs[0].id;
+  for(const s of secs){ if(s.getBoundingClientRect().top<120) cur=s.id; }
+  navs.forEach(n=>n.classList.toggle('active', n.getAttribute('href')==='#'+cur));
+});
+// search filter
+function doSearch(q){
+  q=q.trim().toLowerCase(); let any=false;
+  for(const s of secs){
+    let shown=0;
+    s.querySelectorAll('.card').forEach(c=>{
+      const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();
+      const m=!q||hay.includes(q);
+      c.style.display=m?'':'none'; if(m)shown++;
+    });
+    s.style.display=shown?'':'none'; if(shown)any=true;
+    navs.forEach(n=>{ if(n.getAttribute('href')==='#'+s.id) n.style.display=shown?'':'none';});
+  }
+  document.getElementById('no-results').style.display=any?'none':'block';
+}
+</script>
+</body>
+</html>

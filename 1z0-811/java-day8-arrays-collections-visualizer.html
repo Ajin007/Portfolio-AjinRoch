@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 8 — Arrays & Collections — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 8 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#arr1d">1 &middot; 1D Arrays</a>
+<a class="nav-item" href="#arrops">2 &middot; Array Operations & Arrays Class</a>
+<a class="nav-item" href="#arr2d">3 &middot; 2D Arrays</a>
+<a class="nav-item" href="#allist">4 &middot; ArrayList Basics</a>
+<a class="nav-item" href="#crud">5 &middot; ArrayList CRUD</a>
+<a class="nav-item" href="#iterator">6 &middot; Iterating with Iterator</a>
+<a class="nav-item" href="#versus">7 &middot; Array vs ArrayList</a>
+<a class="nav-item" href="#exercises">8 &middot; Hands-on Exercises</a>
+<a class="nav-item" href="#quiz">9 &middot; Quiz 2: Days 6–8</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 8 &middot; Arrays & Collections</div>
+<h1>Arrays & Collections — Master Reference</h1><p>1D/2D arrays, the Arrays utility class, ArrayList CRUD, Iterator discipline and the array-vs-list decision — plus Quiz 2.</p><div class="chips"><span class="chip">1D Arrays</span><span class="chip">Arrays class</span><span class="chip">2D / Jagged</span><span class="chip">ArrayList</span><span class="chip">CRUD</span><span class="chip">Iterator</span><span class="chip">Array vs ArrayList</span><span class="chip">Quiz 2</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="arr1d" class="sec"><div class="sec-eyebrow">Section 1</div><h2>📏 1D Arrays: Declare · Initialise · Defaults</h2>
+<div class="card" data-tags="array declare initialize default values length new fixed size index zero">
+<pre><span class="cm">// Three creation styles:</span>
+<span class="kw">int</span>[] a = <span class="kw">new int</span>[<span class="num">5</span>];              <span class="cm">// size 5, all elements DEFAULT (0)</span>
+<span class="kw">int</span>[] b = {<span class="num">10</span>, <span class="num">20</span>, <span class="num">30</span>};            <span class="cm">// array literal — size inferred (3)</span>
+<span class="kw">int</span>[] c = <span class="kw">new int</span>[]{<span class="num">1</span>, <span class="num">2</span>};         <span class="cm">// anonymous — needed when passing/reassigning</span>
+
+a[<span class="num">0</span>] = <span class="num">99</span>;                          <span class="cm">// index starts at 0</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(a.length);      <span class="cm">// 5 — FIELD, no parentheses (String uses length())</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(a[<span class="num">4</span>]);          <span class="cm">// last valid index = length-1</span>
+a[<span class="num">5</span>] = <span class="num">1</span>;                           <span class="cm">// 💥 ArrayIndexOutOfBoundsException at RUNTIME</span></pre>
+<table>
+<tr><th>Element type</th><th>Default value</th></tr>
+<tr><td>int / byte / short / long</td><td>0</td></tr>
+<tr><td>double / float</td><td>0.0</td></tr>
+<tr><td>char</td><td>'\u0000' (prints as blank)</td></tr>
+<tr><td>boolean</td><td>false</td></tr>
+<tr><td>Object refs (String, etc.)</td><td><b>null</b> — calling a method on an unfilled cell throws NPE</td></tr>
+</table>
+<div class="tip">Arrays are objects on the <b>heap</b>; the variable holds a reference. Size is <b>fixed forever</b> at creation — "resizing" means creating a new array. <code>int[] a</code> and <code>int a[]</code> are both legal; the first is Java style.</div>
+<div class="confuser"><span class="w">WRONG:</span> <code>arr.length()</code> &nbsp;→&nbsp; <span class="r">RIGHT:</span> array <b>.length</b> is a field; String <b>.length()</b> is a method; ArrayList <b>.size()</b>. Three different spellings — guaranteed exam distractor.</div>
+</div></section>
+<section id="arrops" class="sec"><div class="sec-eyebrow">Section 2</div><h2>🛠️ Array Operations & java.util.Arrays</h2>
+<div class="card" data-tags="arrays sort binarysearch fill copyof tostring equals traversal sum max min">
+<h3>Manual patterns</h3>
+<pre><span class="kw">int</span>[] m = {<span class="num">42</span>, <span class="num">7</span>, <span class="num">99</span>, <span class="num">13</span>};
+<span class="kw">int</span> sum = <span class="num">0</span>, max = m[<span class="num">0</span>];
+<span class="kw">for</span> (<span class="kw">int</span> v : m) {
+    sum += v;
+    <span class="kw">if</span> (v > max) max = v;
+}</pre>
+<h3>java.util.Arrays helpers (import required)</h3>
+<table>
+<tr><th>Method</th><th>Example</th><th>Note</th></tr>
+<tr><td><b>Arrays.toString(a)</b></td><td>[7, 13, 42, 99]</td><td>Printing <code>a</code> directly gives gibberish like [I@1b6d</td></tr>
+<tr><td><b>Arrays.sort(a)</b></td><td>ascending in-place</td><td>void return — modifies original</td></tr>
+<tr><td><b>Arrays.binarySearch(a,x)</b></td><td>index of x</td><td>array MUST be sorted first; not-found → negative value</td></tr>
+<tr><td><b>Arrays.fill(a,v)</b></td><td>all cells = v</td><td>bulk initialise</td></tr>
+<tr><td><b>Arrays.copyOf(a,n)</b></td><td>new resized copy</td><td>the "resize" idiom; truncates or zero-pads</td></tr>
+<tr><td><b>Arrays.equals(a,b)</b></td><td>element-wise compare</td><td>a == b compares references; a.equals(b) also reference!</td></tr>
+</table>
+<div class="trap">Copying: <code>int[] b = a;</code> copies the <b>reference</b> — both names point to ONE array; changing b[0] changes a[0]. Real copy: <code>Arrays.copyOf(a, a.length)</code> or <code>a.clone()</code>.</div>
+</div></section>
+<section id="arr2d" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🧮 2D Arrays</h2>
+<div class="card" data-tags="2d array matrix rows columns jagged nested loop length">
+<pre><span class="kw">int</span>[][] grid = <span class="kw">new int</span>[<span class="num">3</span>][<span class="num">4</span>];        <span class="cm">// 3 rows × 4 cols, all 0</span>
+<span class="kw">int</span>[][] marks = {                     <span class="cm">// literal init</span>
+    {<span class="num">85</span>, <span class="num">90</span>},
+    {<span class="num">75</span>, <span class="num">80</span>, <span class="num">95</span>},                    <span class="cm">// JAGGED — rows may differ in length!</span>
+    {<span class="num">60</span>}
+};
+
+grid[<span class="num">1</span>][<span class="num">2</span>] = <span class="num">7</span>;                      <span class="cm">// [row][col]</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(marks.length);     <span class="cm">// 3   → number of ROWS</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(marks[<span class="num">1</span>].length);  <span class="cm">// 3   → columns in row 1</span>
+
+<span class="cm">// Standard traversal:</span>
+<span class="kw">for</span> (<span class="kw">int</span> r = <span class="num">0</span>; r &lt; marks.length; r++) {
+    <span class="kw">for</span> (<span class="kw">int</span> c = <span class="num">0</span>; c &lt; marks[r].length; c++)   <span class="cm">// use marks[r].length — jagged-safe</span>
+        <span class="cls">System</span>.out.<span class="fn">print</span>(marks[r][c] + <span class="str">" "</span>);
+    <span class="cls">System</span>.out.<span class="fn">println</span>();
+}
+
+<span class="cm">// for-each version:</span>
+<span class="kw">for</span> (<span class="kw">int</span>[] row : marks)
+    <span class="kw">for</span> (<span class="kw">int</span> v : row) <span class="cls">System</span>.out.<span class="fn">print</span>(v + <span class="str">" "</span>);</pre>
+<div class="tip">A Java 2D array is really an <b>array of array references</b> — that's why jagged rows are possible and <code>new int[3][]</code> (rows only, columns later) is legal.</div>
+<div class="trap"><code>Arrays.toString</code> on 2D prints references — use <code>Arrays.deepToString(marks)</code>; likewise <code>Arrays.deepEquals</code> for comparison.</div>
+</div></section>
+<section id="allist" class="sec"><div class="sec-eyebrow">Section 4</div><h2>📚 ArrayList Basics</h2>
+<div class="card" data-tags="arraylist generics dynamic resizable import diamond wrapper autoboxing size">
+<pre><span class="kw">import</span> java.util.<span class="cls">ArrayList</span>;
+
+<span class="cls">ArrayList</span>&lt;<span class="cls">String</span>&gt; names = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();    <span class="cm">// &lt;&gt; diamond — type inferred</span>
+<span class="cls">ArrayList</span>&lt;<span class="cls">Integer</span>&gt; nums = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();    <span class="cm">// WRAPPER — never ArrayList&lt;int&gt;</span>
+nums.<span class="fn">add</span>(<span class="num">5</span>);                                     <span class="cm">// autoboxing: int → Integer</span></pre>
+<table>
+<tr><th>Property</th><th>Detail</th></tr>
+<tr><td><b>Dynamic size</b></td><td>Grows/shrinks automatically — the whole point vs arrays</td></tr>
+<tr><td><b>Generics &lt;T&gt;</b></td><td>Compile-time type safety: <code>names.add(42)</code> won't compile</td></tr>
+<tr><td><b>Objects only</b></td><td>Primitives go in via wrapper + autoboxing</td></tr>
+<tr><td><b>Ordered + indexed</b></td><td>Keeps insertion order; get(i) by position</td></tr>
+<tr><td><b>Duplicates &amp; null</b></td><td>Both allowed</td></tr>
+</table>
+<div class="tip">Raw <code>new ArrayList()</code> (no generics) compiles with warnings and accepts anything — exam code uses it to smuggle mixed types that later explode in a cast.</div>
+</div></section>
+<section id="crud" class="sec"><div class="sec-eyebrow">Section 5</div><h2>✏️ ArrayList CRUD Operations</h2>
+<div class="card" data-tags="add get set remove contains indexof size clear isEmpty crud overload remove int object">
+<pre><span class="cls">ArrayList</span>&lt;<span class="cls">String</span>&gt; list = <span class="kw">new</span> <span class="cls">ArrayList</span>&lt;&gt;();
+list.<span class="fn">add</span>(<span class="str">"OCI"</span>);                 <span class="cm">// C — append           [OCI]</span>
+list.<span class="fn">add</span>(<span class="num">0</span>, <span class="str">"Java"</span>);             <span class="cm">// C — insert at index  [Java, OCI]  (shifts right)</span>
+list.<span class="fn">get</span>(<span class="num">1</span>);                     <span class="cm">// R — "OCI"</span>
+list.<span class="fn">set</span>(<span class="num">1</span>, <span class="str">"PLSQL"</span>);            <span class="cm">// U — replace, returns OLD value</span>
+list.<span class="fn">remove</span>(<span class="num">0</span>);                  <span class="cm">// D — by INDEX          [PLSQL] (shifts left)</span>
+list.<span class="fn">remove</span>(<span class="str">"PLSQL"</span>);            <span class="cm">// D — by OBJECT, returns boolean</span>
+
+list.<span class="fn">size</span>();  list.<span class="fn">contains</span>(<span class="str">"OCI"</span>);  list.<span class="fn">indexOf</span>(<span class="str">"OCI"</span>);
+list.<span class="fn">isEmpty</span>();  list.<span class="fn">clear</span>();</pre>
+<table>
+<tr><th>Method</th><th>Returns</th><th>Gotcha</th></tr>
+<tr><td>add(e) / add(i,e)</td><td>boolean / void</td><td>Insert shifts subsequent elements right</td></tr>
+<tr><td>get(i)</td><td>element</td><td>Bad index → <b>IndexOutOfBoundsException</b></td></tr>
+<tr><td>set(i,e)</td><td><b>old</b> element</td><td>Replaces; does NOT insert</td></tr>
+<tr><td>remove(i) / remove(obj)</td><td>removed elem / boolean</td><td>See trap ↓</td></tr>
+<tr><td>size()</td><td>int</td><td>Method — vs array .length field</td></tr>
+</table>
+<div class="trap"><b>remove overload ambush:</b> on <code>ArrayList&lt;Integer&gt;</code>, <code>list.remove(2)</code> removes <b>INDEX 2</b> (int matches remove(int) first), not the value 2. To remove the value: <code>list.remove(Integer.valueOf(2))</code>.</div>
+</div></section>
+<section id="iterator" class="sec"><div class="sec-eyebrow">Section 6</div><h2>🚶 Iterating with Iterator</h2>
+<div class="card" data-tags="iterator hasnext next remove concurrentmodification safe removal while">
+<pre><span class="kw">import</span> java.util.<span class="cls">Iterator</span>;
+
+<span class="cls">Iterator</span>&lt;<span class="cls">String</span>&gt; it = list.<span class="fn">iterator</span>();
+<span class="kw">while</span> (it.<span class="fn">hasNext</span>()) {           <span class="cm">// 1. anything left?</span>
+    <span class="cls">String</span> s = it.<span class="fn">next</span>();         <span class="cm">// 2. take it &amp; advance</span>
+    <span class="kw">if</span> (s.<span class="fn">startsWith</span>(<span class="str">"X"</span>))
+        it.<span class="fn">remove</span>();              <span class="cm">// 3. SAFE removal during iteration</span>
+}</pre>
+<table>
+<tr><th>Way to iterate</th><th>Can remove while looping?</th></tr>
+<tr><td>for-each</td><td>❌ <code>list.remove(...)</code> inside → <b>ConcurrentModificationException</b></td></tr>
+<tr><td>Iterator + it.remove()</td><td>✅ the sanctioned way</td></tr>
+<tr><td>Classic indexed for</td><td>⚠️ works but indexes shift after each removal (iterate backwards to stay sane)</td></tr>
+</table>
+<div class="trap">Calling <code>it.next()</code> when <code>hasNext()</code> is false → NoSuchElementException. Calling <code>it.remove()</code> before any next() → IllegalStateException. The hasNext→next→(remove) rhythm is mandatory.</div>
+<div class="tip">for-each is actually compiled down to an Iterator behind the scenes — that's exactly why structural modification mid-loop triggers ConcurrentModificationException.</div>
+</div></section>
+<section id="versus" class="sec"><div class="sec-eyebrow">Section 7</div><h2>⚔️ Array vs ArrayList</h2>
+<div class="card" data-tags="array vs arraylist comparison fixed dynamic primitives performance memory">
+<table>
+<tr><th></th><th>Array</th><th>ArrayList</th></tr>
+<tr><td><b>Size</b></td><td>Fixed at creation</td><td>Dynamic — grows automatically</td></tr>
+<tr><td><b>Primitives</b></td><td>✅ int[] direct</td><td>❌ wrappers only (autoboxing cost)</td></tr>
+<tr><td><b>Length/size</b></td><td><code>.length</code> field</td><td><code>.size()</code> method</td></tr>
+<tr><td><b>Access</b></td><td><code>a[i]</code></td><td><code>list.get(i)</code></td></tr>
+<tr><td><b>Insert/delete middle</b></td><td>Manual shifting</td><td>Built-in (shifts internally)</td></tr>
+<tr><td><b>Multi-dimensional</b></td><td>✅ int[][]</td><td>Nested lists (clunkier)</td></tr>
+<tr><td><b>Performance</b></td><td>Fastest, least memory</td><td>Slight overhead (object wrapper, resize)</td></tr>
+<tr><td><b>Utilities</b></td><td>java.util.Arrays</td><td>Rich instance methods + Collections class</td></tr>
+</table>
+<div class="tip">Rule of thumb: <b>known fixed count of primitives → array; anything that grows/shrinks or needs rich operations → ArrayList.</b> Internally ArrayList IS backed by an array it silently replaces when full (~1.5× growth).</div>
+</div></section>
+<section id="exercises" class="sec"><div class="sec-eyebrow">Section 8</div><h2>💪 Hands-on Exercises</h2>
+<div class="card" data-tags="exercises practice second largest frequency matrix transpose shopping cart dedupe">
+<table>
+<tr><th>#</th><th>Exercise</th><th>Concepts hit</th></tr>
+<tr><td>1</td><td>Find max, min AND second-largest in one pass over an int[]</td><td>traversal, guarded updates</td></tr>
+<tr><td>2</td><td>Reverse an array in place (swap i ↔ length-1-i)</td><td>index arithmetic</td></tr>
+<tr><td>3</td><td>Count frequency of each digit 0–9 in an int[] using a count[10] array</td><td>arrays as counters</td></tr>
+<tr><td>4</td><td>Matrix addition + transpose of a 3×3 2D array</td><td>nested loops, [r][c] ↔ [c][r]</td></tr>
+<tr><td>5</td><td>Shopping cart: ArrayList&lt;String&gt; with add / remove / view / search menu (do-while + switch)</td><td>full CRUD + Scanner</td></tr>
+<tr><td>6</td><td>Remove all even numbers from ArrayList&lt;Integer&gt; using Iterator (then try with for-each and watch it throw)</td><td>it.remove vs CME</td></tr>
+<tr><td>7</td><td>De-duplicate an ArrayList: build a second list, add only if !contains</td><td>contains, nested logic</td></tr>
+</table>
+<pre><span class="cm">// #6 core:</span>
+<span class="cls">Iterator</span>&lt;<span class="cls">Integer</span>&gt; it = nums.<span class="fn">iterator</span>();
+<span class="kw">while</span> (it.<span class="fn">hasNext</span>())
+    <span class="kw">if</span> (it.<span class="fn">next</span>() % <span class="num">2</span> == <span class="num">0</span>) it.<span class="fn">remove</span>();</pre>
+</div></section>
+<section id="quiz" class="sec"><div class="sec-eyebrow">Section 9</div><h2>📝 Quiz 2 — Days 6–8 Review</h2>
+<div class="card" data-tags="quiz review revision days 6 7 8 checkpoint mcq">
+<table>
+<tr><th>#</th><th>Question</th></tr>
+<tr><td>1</td><td>How many times does the body run: <code>for(int i=0; i&lt;=10; i+=2)</code>?</td></tr>
+<tr><td>2</td><td>Minimum number of executions of a do-while body?</td></tr>
+<tr><td>3</td><td>What does plain <code>break</code> exit in nested loops? How do you exit both?</td></tr>
+<tr><td>4</td><td><code>while(i&lt;5){ if(i==3) continue; i++; }</code> — what happens?</td></tr>
+<tr><td>5</td><td>Which exceptions are unchecked: IOException, NullPointerException, SQLException, ArithmeticException?</td></tr>
+<tr><td>6</td><td>Does finally run when the catch block has a <code>return</code>?</td></tr>
+<tr><td>7</td><td><code>catch(Exception e)</code> placed before <code>catch(ArithmeticException e)</code> — result?</td></tr>
+<tr><td>8</td><td>Default values of <code>new String[3]</code> cells? What happens on <code>arr[0].length()</code>?</td></tr>
+<tr><td>9</td><td>On ArrayList&lt;Integer&gt; containing [5,2,9]: what does <code>list.remove(2)</code> remove?</td></tr>
+<tr><td>10</td><td>Removing inside a for-each loop throws what? What's the safe alternative?</td></tr>
+</table>
+<h3>Answer key</h3>
+<table>
+<tr><td>1</td><td><b>6 times</b> — i = 0,2,4,6,8,10.</td></tr>
+<tr><td>2</td><td><b>1</b> — condition is checked after the first pass.</td></tr>
+<tr><td>3</td><td>Innermost loop only; use a <b>labeled break</b> (break outer;) for both.</td></tr>
+<tr><td>4</td><td><b>Infinite loop</b> at i==3 — continue skips the i++ in a while.</td></tr>
+<tr><td>5</td><td>Unchecked: <b>NullPointerException, ArithmeticException</b> (RuntimeException family). IOException &amp; SQLException are checked.</td></tr>
+<tr><td>6</td><td><b>Yes</b> — finally runs before the method actually returns; only System.exit skips it.</td></tr>
+<tr><td>7</td><td><b>Compile error</b> — the specific catch is unreachable.</td></tr>
+<tr><td>8</td><td>All <b>null</b>; calling a method on a null cell → <b>NullPointerException</b>.</td></tr>
+<tr><td>9</td><td><b>Index 2</b> → the value 9. remove(int) beats remove(Object) in overload resolution.</td></tr>
+<tr><td>10</td><td><b>ConcurrentModificationException</b>; use an <b>Iterator with it.remove()</b>.</td></tr>
+</table>
+<div class="tip">8+/10 → cleared for OOP (Day 9). Misses on Q4/Q6/Q9 mean replaying the continue-in-while, finally, and remove-overload cards.</div>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 8 &middot; Arrays & Collections &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

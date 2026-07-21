@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 5 — Control Flow I: Decisions — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 5 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#ifelse">1 &middot; if / if-else / else-if</a>
+<a class="nav-item" href="#nested">2 &middot; Nested if</a>
+<a class="nav-item" href="#switch">3 &middot; switch & Fall-through</a>
+<a class="nav-item" href="#primcompare">4 &middot; Comparing Primitives</a>
+<a class="nav-item" href="#objcompare">5 &middot; Comparing Objects</a>
+<a class="nav-item" href="#exercises">6 &middot; Decision Exercises</a>
+<a class="nav-item" href="#quiz">7 &middot; Quiz 1: Days 1–4</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 5 &middot; Control Flow Statements</div>
+<h1>Control Flow I: Decisions — Master Reference</h1><p>if ladders, nested decisions, switch fall-through, and the == vs equals() divide — plus Quiz 1 covering Days 1–4.</p><div class="chips"><span class="chip">if / else-if</span><span class="chip">Nested if</span><span class="chip">switch + fall-through</span><span class="chip">== primitives</span><span class="chip">equals / instanceof</span><span class="chip">Exercises</span><span class="chip">Quiz 1</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="ifelse" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🔱 if · if-else · else-if Ladder</h2>
+<div class="card" data-tags="if else ladder condition boolean braces dangling else">
+<pre><span class="kw">if</span> (marks >= <span class="num">90</span>) {                 <span class="cm">// condition MUST be boolean — if(1) is a compile error</span>
+    grade = <span class="str">"A"</span>;
+} <span class="kw">else if</span> (marks >= <span class="num">75</span>) {          <span class="cm">// checked only if the first was false</span>
+    grade = <span class="str">"B"</span>;
+} <span class="kw">else if</span> (marks >= <span class="num">60</span>) {
+    grade = <span class="str">"C"</span>;
+} <span class="kw">else</span> {                           <span class="cm">// optional catch-all</span>
+    grade = <span class="str">"F"</span>;
+}</pre>
+<table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td><b>Condition type</b></td><td>Strictly boolean. <code>if (x = 5)</code> fails… but <code>if (flag = true)</code> COMPILES (assignment yields boolean) — evil exam favourite.</td></tr>
+<tr><td><b>Ladder order</b></td><td>Conditions checked top-down; first true wins, rest skipped. Order ranges high→low or you'll never reach the tighter bands.</td></tr>
+<tr><td><b>Braces optional</b></td><td>Without {} only the FIRST statement belongs to the if — indentation is a lie the compiler ignores.</td></tr>
+</table>
+<div class="trap"><b>Dangling else:</b> an <code>else</code> binds to the <b>nearest unmatched if</b>, not the one your indentation suggests. Braces eliminate the ambiguity — always use them.</div>
+<div class="confuser"><span class="w">WRONG:</span> <code>if (x == 5);</code> { … } "conditionally runs the block" &nbsp;→&nbsp; <span class="r">RIGHT:</span> the <b>semicolon is an empty body</b>; the block always runs. Spot stray semicolons after if/for/while.</div>
+</div></section>
+<section id="nested" class="sec"><div class="sec-eyebrow">Section 2</div><h2>🪆 Nested if</h2>
+<div class="card" data-tags="nested if inner outer condition combine readability guard clause">
+<pre><span class="kw">if</span> (age >= <span class="num">18</span>) {
+    <span class="kw">if</span> (hasVoterId) {                          <span class="cm">// inner check runs only when outer is true</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Eligible to vote"</span>);
+    } <span class="kw">else</span> {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Apply for voter ID"</span>);
+    }
+} <span class="kw">else</span> {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Minor — not eligible"</span>);
+}
+
+<span class="cm">// Often flattenable with &&:</span>
+<span class="kw">if</span> (age >= <span class="num">18</span> &amp;&amp; hasVoterId) { <span class="cm">/* eligible */</span> }</pre>
+<div class="tip">Nested if vs &amp;&amp;: use nesting when each branch needs a <b>different else message</b>; use &amp;&amp; when only the combined-true path matters. Exams trace which println fires for given inputs — draw the decision tree.</div>
+</div></section>
+<section id="switch" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🔀 switch Statement & Fall-through</h2>
+<div class="card" data-tags="switch case break default fall through string enum arrow expression duplicate">
+<pre><span class="kw">int</span> day = <span class="num">3</span>;
+<span class="kw">switch</span> (day) {
+    <span class="kw">case</span> <span class="num">1</span>:  <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Mon"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">2</span>:  <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Tue"</span>); <span class="kw">break</span>;
+    <span class="kw">case</span> <span class="num">3</span>:                                     <span class="cm">// no break →</span>
+    <span class="kw">case</span> <span class="num">4</span>:  <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Midweek"</span>); <span class="kw">break</span>;  <span class="cm">// 3 FALLS THROUGH to 4</span>
+    <span class="kw">default</span>: <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Other"</span>);       <span class="cm">// default can sit ANYWHERE</span>
+}</pre>
+<table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td><b>Allowed types</b></td><td>byte, short, char, int, their wrappers, <b>String</b> (Java 7+), <b>enum</b>. NOT long, float, double, boolean.</td></tr>
+<tr><td><b>Case values</b></td><td>Compile-time constants, unique, assignable to switch type. Duplicate case = compile error.</td></tr>
+<tr><td><b>Fall-through</b></td><td>Without break, execution continues into the NEXT case body — including default.</td></tr>
+<tr><td><b>default</b></td><td>Optional; runs when nothing matches; position doesn't matter (fall-through still applies).</td></tr>
+</table>
+<pre><span class="cm">// Modern switch EXPRESSION (Java 14+) — arrow syntax, no fall-through, returns a value:</span>
+<span class="cls">String</span> type = <span class="kw">switch</span> (day) {
+    <span class="kw">case</span> <span class="num">1</span>, <span class="num">7</span> -> <span class="str">"Weekend"</span>;
+    <span class="kw">case</span> <span class="num">2</span>, <span class="num">3</span>, <span class="num">4</span>, <span class="num">5</span>, <span class="num">6</span> -> <span class="str">"Weekday"</span>;
+    <span class="kw">default</span> -> <span class="str">"Invalid"</span>;
+};</pre>
+<div class="trap">Exam pattern: give a matching case with missing breaks and ask for output — the answer includes <b>every case body from the match downward</b> until a break or the closing brace.</div>
+<div class="confuser"><span class="w">WRONG:</span> "default must be last." &nbsp;→&nbsp; <span class="r">RIGHT:</span> default can appear <b>anywhere</b>; if it matches (no other case did) and lacks break, it falls through to whatever follows it.</div>
+</div></section>
+<section id="primcompare" class="sec"><div class="sec-eyebrow">Section 4</div><h2>🔢 Comparing Primitives (==)</h2>
+<div class="card" data-tags="primitive comparison equals equality double float promotion char compare">
+<pre><span class="kw">int</span> a = <span class="num">5</span>; <span class="kw">long</span> b = <span class="num">5L</span>;
+a == b                     <span class="cm">// true — a is PROMOTED to long before comparing</span>
+
+<span class="kw">char</span> c = <span class="str">'A'</span>;
+c == <span class="num">65</span>                    <span class="cm">// true — char promoted to int</span>
+
+<span class="kw">double</span> x = <span class="num">0.1</span> + <span class="num">0.2</span>;
+x == <span class="num">0.3</span>                   <span class="cm">// FALSE! binary floating-point → 0.30000000000000004</span>
+<span class="cls">Math</span>.<span class="fn">abs</span>(x - <span class="num">0.3</span>) &lt; <span class="num">1e-9</span>   <span class="cm">// ✅ epsilon comparison for doubles</span></pre>
+<table>
+<tr><th>Comparing</th><th>Correct tool</th></tr>
+<tr><td>int, char, boolean, long…</td><td><b>==</b> compares values directly ✅</td></tr>
+<tr><td>double / float</td><td>Epsilon difference, or BigDecimal for money</td></tr>
+<tr><td>Different numeric types</td><td>Smaller side auto-promotes, then values compared</td></tr>
+</table>
+<div class="tip">For primitives == is <b>value</b> comparison and always safe (except floating-point precision). The == danger zone begins with objects — next card.</div>
+</div></section>
+<section id="objcompare" class="sec"><div class="sec-eyebrow">Section 5</div><h2>🧿 Comparing Objects: equals() & instanceof</h2>
+<div class="card" data-tags="object comparison equals instanceof reference null pattern matching getclass">
+<pre><span class="cls">String</span> s1 = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"Java"</span>);
+<span class="cls">String</span> s2 = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"Java"</span>);
+s1 == s2            <span class="cm">// false — two heap objects</span>
+s1.<span class="fn">equals</span>(s2)       <span class="cm">// true  — content match</span>
+
+<span class="cm">// instanceof — safe type check (null is NEVER an instance of anything):</span>
+<span class="cls">Object</span> o = <span class="str">"text"</span>;
+<span class="kw">if</span> (o <span class="kw">instanceof</span> <span class="cls">String</span>) {
+    <span class="cls">String</span> s = (<span class="cls">String</span>) o;              <span class="cm">// classic: check then cast</span>
+}
+<span class="kw">if</span> (o <span class="kw">instanceof</span> <span class="cls">String</span> str) {          <span class="cm">// Java 16+ PATTERN MATCHING: check + cast + bind</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(str.<span class="fn">length</span>());
+}</pre>
+<table>
+<tr><th>Fact</th><th>Detail</th></tr>
+<tr><td><b>Default equals()</b></td><td>Object.equals() is <b>identity</b> (same as ==). String/Integer/ArrayList override it for content. Your own classes compare references until YOU override equals().</td></tr>
+<tr><td><b>null instanceof X</b></td><td>Always <b>false</b> — never throws. Safe pre-cast guard.</td></tr>
+<tr><td><b>x.equals(null)</b></td><td>Contract says return false; calling equals ON null throws NPE.</td></tr>
+</table>
+<div class="trap">A custom class without an equals() override: two objects with identical field values are <b>not equal</b> — <code>new Employee("A").equals(new Employee("A"))</code> → false. Sets/Maps then treat them as distinct entries.</div>
+</div></section>
+<section id="exercises" class="sec"><div class="sec-eyebrow">Section 6</div><h2>💪 Hands-on: Decision Exercises</h2>
+<div class="card" data-tags="exercises practice grade calculator leap year vowel menu electricity slab">
+<table>
+<tr><th>#</th><th>Exercise</th><th>Concepts hit</th></tr>
+<tr><td>1</td><td>Grade calculator (marks → A/B/C/F) via else-if ladder, then rewrite as switch expression</td><td>ladder ordering, switch arrow</td></tr>
+<tr><td>2</td><td>Leap year: divisible by 4, except centuries unless divisible by 400</td><td>nested conditions, && / ||, operator grouping</td></tr>
+<tr><td>3</td><td>Vowel or consonant using switch fall-through (case 'a': case 'e': …)</td><td>deliberate fall-through</td></tr>
+<tr><td>4</td><td>Electricity slab bill: 0-100 free, 101-200 @ ₹2.5, 201+ @ ₹4</td><td>ladder + arithmetic</td></tr>
+<tr><td>5</td><td>Menu-driven calculator (+ - * /) with Scanner + switch; guard divide-by-zero</td><td>Scanner, switch, if guard</td></tr>
+<tr><td>6</td><td>Largest of three numbers — once with nested if, once with ternary chain</td><td>nesting vs ternary</td></tr>
+</table>
+<pre><span class="cm">// #2 solution core:</span>
+<span class="kw">boolean</span> leap = (year % <span class="num">4</span> == <span class="num">0</span> &amp;&amp; year % <span class="num">100</span> != <span class="num">0</span>) || (year % <span class="num">400</span> == <span class="num">0</span>);</pre>
+</div></section>
+<section id="quiz" class="sec"><div class="sec-eyebrow">Section 7</div><h2>📝 Quiz 1 — Days 1–4 Review</h2>
+<div class="card" data-tags="quiz review revision days 1 4 mcq checkpoint">
+<p>Classroom checkpoint — 10 rapid questions. Answers at the bottom (don't peek).</p>
+<table>
+<tr><th>#</th><th>Question</th></tr>
+<tr><td>1</td><td>Which component actually executes bytecode — JDK, JRE, or JVM?</td></tr>
+<tr><td>2</td><td><code>javac Hello</code> fails. Why?</td></tr>
+<tr><td>3</td><td>Where must the <code>package</code> statement appear?</td></tr>
+<tr><td>4</td><td>Is <code>int 2count;</code> legal? Is <code>int _count;</code>?</td></tr>
+<tr><td>5</td><td>What is printed: <code>System.out.println(1 + 2 + "3" + 4);</code></td></tr>
+<tr><td>6</td><td><code>byte b = 10; b = b + 1;</code> — compiles? What about <code>b += 1;</code>?</td></tr>
+<tr><td>7</td><td><code>Integer a=127,b=127; a==b?</code> And with 128?</td></tr>
+<tr><td>8</td><td>Output of <code>"Java".substring(1,3)</code>?</td></tr>
+<tr><td>9</td><td><code>String s="hi"; s.toUpperCase(); System.out.println(s);</code> prints?</td></tr>
+<tr><td>10</td><td>Range of <code>Math.random()</code> — is 1.0 possible?</td></tr>
+</table>
+<h3>Answer key</h3>
+<table>
+<tr><td>1</td><td><b>JVM</b> — JDK compiles, JRE packages libraries+JVM, JVM executes.</td></tr>
+<tr><td>2</td><td>javac needs the <b>.java extension</b>; java (the launcher) takes the bare class name.</td></tr>
+<tr><td>3</td><td><b>First non-comment statement</b> of the file; at most one.</td></tr>
+<tr><td>4</td><td><code>2count</code> ❌ (digit start); <code>_count</code> ✅ (single "_" alone is illegal).</td></tr>
+<tr><td>5</td><td><b>"334"</b> — 1+2 arithmetic → 3, then string concat glues "3" and 4.</td></tr>
+<tr><td>6</td><td><code>b=b+1</code> ❌ (b+1 is int, needs cast); <code>b+=1</code> ✅ hidden cast.</td></tr>
+<tr><td>7</td><td>127 → <b>true</b> (Integer cache -128..127); 128 → <b>false</b>; equals() → true both times.</td></tr>
+<tr><td>8</td><td><b>"av"</b> — begin inclusive, end exclusive.</td></tr>
+<tr><td>9</td><td><b>"hi"</b> — result of toUpperCase() was discarded; Strings are immutable.</td></tr>
+<tr><td>10</td><td>0.0 ≤ x &lt; 1.0 — <b>1.0 is never returned</b>.</td></tr>
+</table>
+<div class="tip">Score 8+/10 → ready for loops (Day 6). Below 6 → replay the Day 3 promotion rules and Day 4 immutability cards before moving on.</div>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 5 &middot; Control Flow Statements &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

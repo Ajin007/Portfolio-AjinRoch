@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 3 — Data Types & Operators — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 3 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#primitives">1 &middot; Primitive Types & Defaults</a>
+<a class="nav-item" href="#variables">2 &middot; Variable Kinds</a>
+<a class="nav-item" href="#widening">3 &middot; Widening Conversion</a>
+<a class="nav-item" href="#narrowing">4 &middot; Narrowing / Casting</a>
+<a class="nav-item" href="#arith">5 &middot; Arithmetic / Relational / Assignment</a>
+<a class="nav-item" href="#incdec">6 &middot; Increment / Decrement</a>
+<a class="nav-item" href="#logical">7 &middot; Logical & Ternary</a>
+<a class="nav-item" href="#precedence">8 &middot; Operator Precedence</a>
+<a class="nav-item" href="#wrappers">9 &middot; Wrappers & Autoboxing</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 3 &middot; Data Types & Operators</div>
+<h1>Data Types & Operators — Master Reference</h1><p>All 8 primitives, the four variable kinds, conversions and every operator family — plus the promotion and caching traps Oracle loves.</p><div class="chips"><span class="chip">8 Primitives</span><span class="chip">local/instance/static/final</span><span class="chip">Widening & Casting</span><span class="chip">Arithmetic · Relational</span><span class="chip">++ / --</span><span class="chip">Logical · Ternary</span><span class="chip">Precedence</span><span class="chip">Wrappers · Autoboxing</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="primitives" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🔢 Primitive Types & Default Values</h2>
+<div class="card" data-tags="primitives byte short int long float double char boolean size range default literal">
+<table>
+<tr><th>Type</th><th>Size</th><th>Range</th><th>Default (field)</th><th>Literal example</th></tr>
+<tr><td><b>byte</b></td><td>8-bit</td><td>-128 to 127</td><td>0</td><td><code>byte b = 100;</code></td></tr>
+<tr><td><b>short</b></td><td>16-bit</td><td>-32,768 to 32,767</td><td>0</td><td><code>short s = 30000;</code></td></tr>
+<tr><td><b>int</b></td><td>32-bit</td><td>±2.147 billion (~2<sup>31</sup>)</td><td>0</td><td><code>int i = 1_000_000;</code></td></tr>
+<tr><td><b>long</b></td><td>64-bit</td><td>±9.2 quintillion</td><td>0L</td><td><code>long l = 10000000000L;</code> ← L required beyond int range</td></tr>
+<tr><td><b>float</b></td><td>32-bit</td><td>~7 decimal digits</td><td>0.0f</td><td><code>float f = 3.14f;</code> ← f REQUIRED</td></tr>
+<tr><td><b>double</b></td><td>64-bit</td><td>~15 decimal digits</td><td>0.0</td><td><code>double d = 3.14;</code> (decimal default)</td></tr>
+<tr><td><b>char</b></td><td>16-bit</td><td>0 to 65,535 (unsigned Unicode)</td><td>'\u0000'</td><td><code>char c = 'A';</code> or <code>char c = 65;</code></td></tr>
+<tr><td><b>boolean</b></td><td>JVM-dependent</td><td>true / false only</td><td>false</td><td><code>boolean ok = true;</code> — never 0/1</td></tr>
+</table>
+<div class="tip">Integer literals default to <b>int</b>; decimal literals default to <b>double</b>. That's why <code>float f = 3.14;</code> fails ("possible lossy conversion") but <code>float f = 3.14f;</code> compiles.</div>
+<div class="trap"><b>Defaults apply only to fields</b> (instance/static variables). <b>Local variables have NO default</b> — reading an uninitialised local is a compile error: "variable x might not have been initialized".</div>
+<div class="confuser"><span class="w">WRONG:</span> "char is 8-bit like C." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Java char is <b>16-bit unsigned Unicode</b> — it can hold 'அ' or '中'.</div>
+</div></section>
+<section id="variables" class="sec"><div class="sec-eyebrow">Section 2</div><h2>📍 Variables: local · instance · static · final</h2>
+<div class="card" data-tags="variables local instance static final scope lifetime default stack heap constant">
+<pre><span class="kw">public class</span> <span class="cls">Counter</span> {
+    <span class="kw">static int</span> total = <span class="num">0</span>;          <span class="cm">// STATIC — one copy per CLASS, shared by all objects</span>
+    <span class="kw">int</span> count;                     <span class="cm">// INSTANCE — one copy per OBJECT, default 0</span>
+    <span class="kw">final int</span> LIMIT = <span class="num">100</span>;         <span class="cm">// FINAL — assign once, never reassign</span>
+
+    <span class="kw">void</span> <span class="fn">increment</span>() {
+        <span class="kw">int</span> step = <span class="num">1</span>;              <span class="cm">// LOCAL — lives only during this method call, NO default</span>
+        count += step; total += step;
+    }
+}</pre>
+<table>
+<tr><th></th><th>Local</th><th>Instance</th><th>Static</th></tr>
+<tr><td><b>Declared in</b></td><td>Method / block / constructor</td><td>Class, no static</td><td>Class, with static</td></tr>
+<tr><td><b>Copies</b></td><td>Per method call</td><td>Per object</td><td>One per class</td></tr>
+<tr><td><b>Default value</b></td><td>❌ none — must initialise</td><td>✅ type default</td><td>✅ type default</td></tr>
+<tr><td><b>Memory</b></td><td>Stack</td><td>Heap (inside object)</td><td>Method area</td></tr>
+<tr><td><b>Access</b></td><td>Within block only</td><td><code>obj.count</code></td><td><code>Counter.total</code> (class name preferred)</td></tr>
+</table>
+<div class="tip"><b>final</b> on a variable = value can't be <b>reassigned</b>. For references, the reference is frozen but the object's contents may still change: <code>final ArrayList</code> can still <code>.add()</code>.</div>
+</div></section>
+<section id="widening" class="sec"><div class="sec-eyebrow">Section 3</div><h2>↗️ Widening (Implicit) Conversion</h2>
+<div class="card" data-tags="widening implicit conversion promotion automatic byte short int long float double char">
+<p>Small → large happens <b>automatically</b> — no data loss risk, no cast needed.</p>
+<div class="flow">
+<div class="fstep"><div class="t">byte</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">short</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">int</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">long</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">float</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">double</div></div>
+</div>
+<p class="dim" style="font-size:13px">char → int → long → float → double (char joins at int; char ↔ short never auto-convert — both 16-bit but short is signed).</p>
+<pre><span class="kw">int</span> i = <span class="num">100</span>;
+<span class="kw">long</span> l = i;      <span class="cm">// ✅ int → long automatic</span>
+<span class="kw">double</span> d = l;    <span class="cm">// ✅ long → double automatic (may lose PRECISION, not magnitude)</span>
+<span class="kw">char</span> c = <span class="str">'A'</span>;
+<span class="kw">int</span> code = c;    <span class="cm">// ✅ char → int gives 65</span></pre>
+<div class="trap"><b>long → float is widening</b> (64-bit → 32-bit!) because float's range is larger even though precision is smaller. Classic exam curveball.</div>
+</div></section>
+<section id="narrowing" class="sec"><div class="sec-eyebrow">Section 4</div><h2>↘️ Narrowing (Explicit Cast)</h2>
+<div class="card" data-tags="narrowing casting explicit cast overflow truncation lossy compile error compound assignment">
+<p>Large → small requires an <b>explicit cast</b> — you accept responsibility for data loss.</p>
+<pre><span class="kw">double</span> d = <span class="num">9.99</span>;
+<span class="kw">int</span> i = (<span class="kw">int</span>) d;          <span class="cm">// i = 9  → decimal TRUNCATED, not rounded</span>
+
+<span class="kw">int</span> big = <span class="num">130</span>;
+<span class="kw">byte</span> b = (<span class="kw">byte</span>) big;      <span class="cm">// b = -126 → OVERFLOW wraps around (130-256)</span>
+
+<span class="kw">byte</span> x = <span class="num">10</span>, y = <span class="num">20</span>;
+<span class="kw">byte</span> sum = (<span class="kw">byte</span>)(x + y);  <span class="cm">// cast REQUIRED: x+y is promoted to int</span>
+
+<span class="kw">byte</span> z = <span class="num">10</span>;
+z += <span class="num">5</span>;                    <span class="cm">// ✅ compound assignment has a HIDDEN implicit cast</span>
+</pre>
+<table>
+<tr><th>Case</th><th>Result</th></tr>
+<tr><td><code>byte b = 100;</code></td><td>✅ int literal fits in byte → implicit narrowing allowed for compile-time constants</td></tr>
+<tr><td><code>byte b = 128;</code></td><td>❌ compile error — constant out of range</td></tr>
+<tr><td><code>int n=100; byte b = n;</code></td><td>❌ compile error — variable (not constant) needs cast even if value fits</td></tr>
+<tr><td><code>double → int</code></td><td>Truncates toward zero: (int)-9.9 = -9</td></tr>
+</table>
+<div class="tip">Two guaranteed exam patterns: (1) <code>byte + byte = int</code> — any arithmetic on byte/short/char promotes to int first. (2) <code>b += 5</code> compiles where <code>b = b + 5</code> doesn't, because compound operators auto-cast.</div>
+</div></section>
+<section id="arith" class="sec"><div class="sec-eyebrow">Section 5</div><h2>➗ Arithmetic, Relational & Assignment Operators</h2>
+<div class="card" data-tags="arithmetic modulo division integer relational comparison assignment compound remainder divide zero">
+<h3>Arithmetic: + - * / %</h3>
+<pre><span class="kw">int</span> a = <span class="num">7</span> / <span class="num">2</span>;        <span class="cm">// 3   — int/int = int (truncated)</span>
+<span class="kw">double</span> d = <span class="num">7</span> / <span class="num">2</span>;     <span class="cm">// 3.0 — division ALREADY happened in int!</span>
+<span class="kw">double</span> e = <span class="num">7.0</span> / <span class="num">2</span>;   <span class="cm">// 3.5 — one operand double promotes the operation</span>
+<span class="kw">int</span> r = <span class="num">7</span> % <span class="num">2</span>;        <span class="cm">// 1   — remainder; -7 % 2 = -1 (sign follows DIVIDEND)</span>
+<span class="kw">int</span> boom = <span class="num">7</span> / <span class="num">0</span>;     <span class="cm">// 💥 ArithmeticException at RUNTIME</span>
+<span class="kw">double</span> inf = <span class="num">7.0</span> / <span class="num">0</span>; <span class="cm">// Infinity — floating division by zero does NOT throw</span></pre>
+<h3>Relational: &lt; &gt; &lt;= &gt;= == != → always boolean</h3>
+<h3>Assignment: = += -= *= /= %=</h3>
+<div class="trap">Integer division sneaks into averages: <code>(a+b)/2</code> with ints drops the .5. Fix by making one operand double: <code>(a+b)/2.0</code>.</div>
+<div class="confuser"><span class="w">WRONG:</span> "% works only on ints." &nbsp;→&nbsp; <span class="r">RIGHT:</span> <code>7.5 % 2</code> = 1.5 — modulo works on floating-point too.</div>
+</div></section>
+<section id="incdec" class="sec"><div class="sec-eyebrow">Section 6</div><h2>⏫ Increment & Decrement (++ / --)</h2>
+<div class="card" data-tags="increment decrement prefix postfix pre post plus plus minus minus evaluation">
+<table>
+<tr><th>Form</th><th>Meaning</th><th>Expression value</th></tr>
+<tr><td><b>++x</b> (prefix)</td><td>Increment FIRST, then use</td><td>New value</td></tr>
+<tr><td><b>x++</b> (postfix)</td><td>Use FIRST, then increment</td><td>Old value</td></tr>
+</table>
+<pre><span class="kw">int</span> x = <span class="num">5</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(x++);   <span class="cm">// prints 5, x is now 6</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(++x);   <span class="cm">// prints 7</span>
+
+<span class="kw">int</span> a = <span class="num">3</span>;
+<span class="kw">int</span> b = a++ + ++a;          <span class="cm">// 3 + 5 = 8   (a: 3→4 after a++, 4→5 before ++a)</span>
+
+<span class="kw">int</span> i = <span class="num">1</span>;
+i = i++;                    <span class="cm">// i stays 1! old value (1) assigned back over the increment</span></pre>
+<div class="tip">Trace left-to-right and update the variable immediately at each ++/--. The <code>i = i++</code> pattern (result: unchanged) is a certification classic.</div>
+</div></section>
+<section id="logical" class="sec"><div class="sec-eyebrow">Section 7</div><h2>🔀 Logical, Short-Circuit & Ternary Operators</h2>
+<div class="card" data-tags="logical and or not short circuit ternary conditional bitwise single ampersand">
+<table>
+<tr><th>Operator</th><th>Name</th><th>Short-circuits?</th><th>Behaviour</th></tr>
+<tr><td><b>&amp;&amp;</b></td><td>Logical AND</td><td>✅ RHS skipped if LHS false</td><td>true only if both true</td></tr>
+<tr><td><b>||</b></td><td>Logical OR</td><td>✅ RHS skipped if LHS true</td><td>true if either true</td></tr>
+<tr><td><b>!</b></td><td>NOT</td><td>—</td><td>Inverts boolean</td></tr>
+<tr><td><b>&amp; |</b> (single)</td><td>Non-short-circuit AND/OR</td><td>❌ BOTH sides always evaluated</td><td>Same truth table; also bitwise on ints</td></tr>
+<tr><td><b>^</b></td><td>XOR</td><td>❌</td><td>true if operands differ</td></tr>
+</table>
+<pre><span class="kw">String</span> s = <span class="kw">null</span>;
+<span class="kw">if</span> (s != <span class="kw">null</span> &amp;&amp; s.<span class="fn">length</span>() > <span class="num">0</span>) { }   <span class="cm">// ✅ safe — && skips length() when s is null</span>
+<span class="kw">if</span> (s != <span class="kw">null</span> &amp;  s.<span class="fn">length</span>() > <span class="num">0</span>) { }   <span class="cm">// 💥 NullPointerException — & evaluates both</span>
+
+<span class="cm">// Ternary: condition ? valueIfTrue : valueIfFalse</span>
+<span class="kw">int</span> max = (a > b) ? a : b;
+<span class="kw">String</span> grade = marks >= <span class="num">90</span> ? <span class="str">"A"</span> : marks >= <span class="num">75</span> ? <span class="str">"B"</span> : <span class="str">"C"</span>; <span class="cm">// nested — right-assoc</span></pre>
+<div class="trap">Side-effects inside skipped operands never run: in <code>if(false &amp;&amp; x++ > 0)</code>, x is <b>not</b> incremented. Exams love counting increments around short-circuits.</div>
+</div></section>
+<section id="precedence" class="sec"><div class="sec-eyebrow">Section 8</div><h2>🏆 Operator Precedence</h2>
+<div class="card" data-tags="precedence order evaluation associativity parentheses unary multiplicative additive">
+<table>
+<tr><th>Level (high→low)</th><th>Operators</th><th>Associativity</th></tr>
+<tr><td>1 Postfix</td><td><code>x++ x--</code></td><td>L→R</td></tr>
+<tr><td>2 Unary</td><td><code>++x --x ! ~ + -</code> (sign), <code>(cast)</code></td><td>R→L</td></tr>
+<tr><td>3 Multiplicative</td><td><code>* / %</code></td><td>L→R</td></tr>
+<tr><td>4 Additive</td><td><code>+ -</code></td><td>L→R</td></tr>
+<tr><td>5 Relational</td><td><code>&lt; &gt; &lt;= &gt;= instanceof</code></td><td>L→R</td></tr>
+<tr><td>6 Equality</td><td><code>== !=</code></td><td>L→R</td></tr>
+<tr><td>7 Logical AND</td><td><code>&amp;&amp;</code></td><td>L→R</td></tr>
+<tr><td>8 Logical OR</td><td><code>||</code></td><td>L→R</td></tr>
+<tr><td>9 Ternary</td><td><code>? :</code></td><td>R→L</td></tr>
+<tr><td>10 Assignment</td><td><code>= += -= …</code></td><td>R→L</td></tr>
+</table>
+<pre><span class="kw">int</span> r = <span class="num">2</span> + <span class="num">3</span> * <span class="num">4</span>;          <span class="cm">// 14, not 20 — * before +</span>
+<span class="kw">boolean</span> t = <span class="num">5</span> > <span class="num">3</span> == <span class="num">2</span> < <span class="num">4</span>; <span class="cm">// (5>3)==(2<4) → true==true → true</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Sum: "</span> + <span class="num">1</span> + <span class="num">2</span>);   <span class="cm">// "Sum: 12" — L→R string concat!</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Sum: "</span> + (<span class="num">1</span> + <span class="num">2</span>)); <span class="cm">// "Sum: 3"</span></pre>
+<div class="tip">Mnemonic ladder: <b>Unary → Arithmetic (*,/,% then +,-) → Relational → Equality → &amp;&amp; → || → ?: → =</b>. When in doubt in real code, add parentheses — they cost nothing.</div>
+</div></section>
+<section id="wrappers" class="sec"><div class="sec-eyebrow">Section 9</div><h2>📦 Wrapper Classes & Autoboxing</h2>
+<div class="card" data-tags="wrapper integer double boolean autoboxing unboxing valueOf parseInt cache 127 nullpointer collections">
+<table>
+<tr><th>Primitive</th><th>Wrapper</th><th>Parse from String</th><th>Key constant</th></tr>
+<tr><td>int</td><td><b>Integer</b></td><td><code>Integer.parseInt("42")</code></td><td>MAX_VALUE / MIN_VALUE</td></tr>
+<tr><td>double</td><td><b>Double</b></td><td><code>Double.parseDouble("3.14")</code></td><td>—</td></tr>
+<tr><td>char</td><td><b>Character</b></td><td>—</td><td>isDigit(), isLetter()</td></tr>
+<tr><td>boolean</td><td><b>Boolean</b></td><td><code>Boolean.parseBoolean("true")</code></td><td>—</td></tr>
+</table>
+<pre><span class="cls">Integer</span> boxed = <span class="num">10</span>;        <span class="cm">// AUTOBOXING: int → Integer (compiler inserts valueOf)</span>
+<span class="kw">int</span> back = boxed;          <span class="cm">// UNBOXING: Integer → int (compiler inserts intValue)</span>
+
+<span class="cls">Integer</span> a = <span class="num">127</span>, b = <span class="num">127</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(a == b);        <span class="cm">// true  — Integer CACHE covers -128..127</span>
+<span class="cls">Integer</span> c = <span class="num">128</span>, d = <span class="num">128</span>;
+<span class="cls">System</span>.out.<span class="fn">println</span>(c == d);        <span class="cm">// false — outside cache → different objects</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(c.<span class="fn">equals</span>(d));   <span class="cm">// true  — ALWAYS compare wrappers with equals()</span>
+
+<span class="cls">Integer</span> n = <span class="kw">null</span>;
+<span class="kw">int</span> x = n;                          <span class="cm">// 💥 NullPointerException during unboxing</span></pre>
+<div class="tip">Why wrappers exist: collections hold only objects — <code>ArrayList&lt;Integer&gt;</code>, never <code>ArrayList&lt;int&gt;</code>. Autoboxing bridges the gap invisibly.</div>
+<div class="trap">The <b>-128 to 127 cache</b> + null-unboxing NPE are the two most-tested wrapper facts in Oracle exams.</div>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 3 &middot; Data Types & Operators &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

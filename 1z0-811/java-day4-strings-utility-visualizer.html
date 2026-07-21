@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 4 — String Handling & Utility Classes — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 4 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#pool">1 &middot; String Pool & Immutability</a>
+<a class="nav-item" href="#concat">2 &middot; Concatenation</a>
+<a class="nav-item" href="#methods">3 &middot; Common String Methods</a>
+<a class="nav-item" href="#compare">4 &middot; equals vs ==</a>
+<a class="nav-item" href="#escape">5 &middot; Escape Sequences & Formatting</a>
+<a class="nav-item" href="#math">6 &middot; Math Class</a>
+<a class="nav-item" href="#random">7 &middot; Random Class</a>
+<a class="nav-item" href="#handson">8 &middot; Hands-on Exercises</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 4 &middot; String Handling & Utility Classes</div>
+<h1>String Handling & Utility Classes — Master Reference</h1><p>The string pool, immutability, every must-know method, equals vs ==, formatting, Math and Random — Day 4 in one page.</p><div class="chips"><span class="chip">String Pool</span><span class="chip">Immutability</span><span class="chip">StringBuilder</span><span class="chip">equals vs ==</span><span class="chip">printf</span><span class="chip">Math</span><span class="chip">Random</span><span class="chip">Exercises</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="pool" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🏊 String Pool & Immutability</h2>
+<div class="card" data-tags="string pool immutability intern heap literal new keyword scp constant pool">
+<h3>Two ways to create — very different results</h3>
+<pre><span class="cls">String</span> a = <span class="str">"hello"</span>;              <span class="cm">// literal → goes to STRING POOL (reused)</span>
+<span class="cls">String</span> b = <span class="str">"hello"</span>;              <span class="cm">// SAME pooled object as a</span>
+<span class="cls">String</span> c = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"hello"</span>); <span class="cm">// new → forced NEW object on the heap</span>
+
+a == b        <span class="cm">// true  — same pool reference</span>
+a == c        <span class="cm">// false — different objects</span>
+a.<span class="fn">equals</span>(c)   <span class="cm">// true  — same characters</span>
+c.<span class="fn">intern</span>()    <span class="cm">// returns the pooled "hello"</span></pre>
+<h3>Immutability</h3>
+<pre><span class="cls">String</span> s = <span class="str">"Java"</span>;
+s.<span class="fn">concat</span>(<span class="str">" SE 17"</span>);              <span class="cm">// returns NEW string — s is UNCHANGED</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(s);           <span class="cm">// "Java"</span>
+s = s.<span class="fn">concat</span>(<span class="str">" SE 17"</span>);          <span class="cm">// must REASSIGN to keep the result</span></pre>
+<p><b>Why immutable?</b> Pool sharing is only safe if nobody can mutate a shared string · thread-safety for free · stable hashCode → reliable HashMap keys · security (file paths, class names can't be tampered after checks).</p>
+<div class="tip">Every String method that "modifies" (concat, replace, toUpperCase, trim, substring) actually <b>returns a new String</b>. If the result isn't assigned, it's silently discarded — a top-3 exam trick.</div>
+<div class="confuser"><span class="w">WRONG:</span> "new String("hi") creates one object." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Potentially <b>two</b> — the pooled literal "hi" (if not already pooled) plus the new heap object.</div>
+</div></section>
+<section id="concat" class="sec"><div class="sec-eyebrow">Section 2</div><h2>➕ Concatenation & StringBuilder</h2>
+<div class="card" data-tags="concatenation plus operator stringbuilder append performance loop concat mixed types">
+<pre><span class="cls">String</span> full = <span class="str">"Java"</span> + <span class="str">" "</span> + <span class="num">17</span>;    <span class="cm">// "Java 17" — + auto-converts any type</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="num">1</span> + <span class="num">2</span> + <span class="str">"3"</span>);    <span class="cm">// "33"  — left-to-right: 1+2=3, then "3"+"3"</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"1"</span> + <span class="num">2</span> + <span class="num">3</span>);    <span class="cm">// "123" — once a String appears, all + = concat</span>
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">'A'</span> + <span class="num">1</span>);        <span class="cm">// 66 — char + int is ARITHMETIC, not concat!</span></pre>
+<h3>Loops: use StringBuilder</h3>
+<pre><span class="cm">// ❌ builds a new String object every pass — O(n²)</span>
+<span class="cls">String</span> s = <span class="str">""</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i=<span class="num">0</span>; i&lt;<span class="num">1000</span>; i++) s += i;
+
+<span class="cm">// ✅ mutable buffer — one object</span>
+<span class="cls">StringBuilder</span> sb = <span class="kw">new</span> <span class="cls">StringBuilder</span>();
+<span class="kw">for</span> (<span class="kw">int</span> i=<span class="num">0</span>; i&lt;<span class="num">1000</span>; i++) sb.<span class="fn">append</span>(i);
+<span class="cls">String</span> out = sb.<span class="fn">toString</span>();</pre>
+<table>
+<tr><th></th><th>String</th><th>StringBuilder</th><th>StringBuffer</th></tr>
+<tr><td><b>Mutable</b></td><td>❌</td><td>✅</td><td>✅</td></tr>
+<tr><td><b>Thread-safe</b></td><td>✅ (immutable)</td><td>❌</td><td>✅ (synchronized, slower)</td></tr>
+<tr><td><b>Use when</b></td><td>Fixed text</td><td>Heavy edits, single thread</td><td>Heavy edits, multi-thread</td></tr>
+</table>
+<div class="trap">StringBuilder methods <b>mutate in place AND return this</b> — enabling chains like <code>sb.append("a").append("b").reverse()</code>. Unlike String, no reassignment needed.</div>
+</div></section>
+<section id="methods" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🛠️ Common String Methods</h2>
+<div class="card" data-tags="length charAt substring indexOf contains replace trim strip split toUpperCase toLowerCase isEmpty isBlank">
+<table>
+<tr><th>Method</th><th>Example → Result</th><th>Watch out</th></tr>
+<tr><td><b>length()</b></td><td><code>"Java".length()</code> → 4</td><td>Method with () — arrays use .length field</td></tr>
+<tr><td><b>charAt(i)</b></td><td><code>"Java".charAt(0)</code> → 'J'</td><td>Index out of range → StringIndexOutOfBoundsException</td></tr>
+<tr><td><b>substring(b)</b></td><td><code>"Certify".substring(3)</code> → "tify"</td><td>From index b to end</td></tr>
+<tr><td><b>substring(b,e)</b></td><td><code>"Certify".substring(0,4)</code> → "Cert"</td><td><b>End index EXCLUSIVE</b>; length = e-b</td></tr>
+<tr><td><b>indexOf(s)</b></td><td><code>"banana".indexOf("na")</code> → 2</td><td>Not found → <b>-1</b> (not exception)</td></tr>
+<tr><td><b>contains(s)</b></td><td><code>"Java SE".contains("SE")</code> → true</td><td>Case-sensitive</td></tr>
+<tr><td><b>replace(a,b)</b></td><td><code>"aaa".replace('a','b')</code> → "bbb"</td><td>Replaces ALL occurrences; returns new String</td></tr>
+<tr><td><b>trim() / strip()</b></td><td><code>"  hi  ".trim()</code> → "hi"</td><td>strip() (Java 11) is Unicode-aware</td></tr>
+<tr><td><b>toUpperCase()/toLowerCase()</b></td><td>"java" → "JAVA"</td><td>Returns new String</td></tr>
+<tr><td><b>split(regex)</b></td><td><code>"a,b,c".split(",")</code> → [a, b, c]</td><td>Argument is a REGEX — split(".") needs "\\."</td></tr>
+<tr><td><b>isEmpty() / isBlank()</b></td><td>"" → true / "  " → isBlank true</td><td>isBlank (Java 11) also true for whitespace-only</td></tr>
+<tr><td><b>startsWith / endsWith</b></td><td><code>"HelloWorld.java".endsWith(".java")</code> → true</td><td>—</td></tr>
+</table>
+<div class="tip">Chaining works because each call returns a String: <code>" Java ".trim().toUpperCase().charAt(0)</code> → 'J'. Evaluate strictly left to right.</div>
+</div></section>
+<section id="compare" class="sec"><div class="sec-eyebrow">Section 4</div><h2>⚖️ String Comparison: equals() vs ==</h2>
+<div class="card" data-tags="equals equalsIgnoreCase compareTo double equals reference content comparison pool">
+<table>
+<tr><th>Comparison</th><th>Compares</th><th>Use for</th></tr>
+<tr><td><b>==</b></td><td><b>References</b> (same object?)</td><td>Primitives only; never String content</td></tr>
+<tr><td><b>equals()</b></td><td><b>Characters</b> (same content?)</td><td>The correct String comparison</td></tr>
+<tr><td><b>equalsIgnoreCase()</b></td><td>Content, case-insensitive</td><td>"Java".equalsIgnoreCase("JAVA") → true</td></tr>
+<tr><td><b>compareTo()</b></td><td>Lexicographic order</td><td>&lt;0, 0, &gt;0 — sorting; "apple".compareTo("banana") &lt; 0</td></tr>
+</table>
+<pre><span class="cls">String</span> a = <span class="str">"cert"</span>;
+<span class="cls">String</span> b = <span class="kw">new</span> <span class="cls">String</span>(<span class="str">"cert"</span>);
+a == b               <span class="cm">// false — different objects</span>
+a.<span class="fn">equals</span>(b)          <span class="cm">// true  — same content</span>
+
+<span class="cm">// null-safe pattern — constant first:</span>
+<span class="str">"admin"</span>.<span class="fn">equals</span>(userInput)     <span class="cm">// never throws even if userInput is null</span>
+userInput.<span class="fn">equals</span>(<span class="str">"admin"</span>)     <span class="cm">// 💥 NPE when userInput is null</span></pre>
+<div class="trap">Two <b>literals</b> compared with == return true (pool!) — which makes buggy code "work" in demos and fail with runtime-built strings. Exams exploit exactly this: <code>"ja"+"va" == "java"</code> is <b>true</b> (compile-time constant folding), but <code>s1+s2 == "java"</code> with variables is <b>false</b>.</div>
+</div></section>
+<section id="escape" class="sec"><div class="sec-eyebrow">Section 5</div><h2>🎨 Escape Sequences & Formatted Output</h2>
+<div class="card" data-tags="escape sequences newline tab backslash quote printf format specifier text block">
+<table>
+<tr><th>Escape</th><th>Meaning</th><th></th><th>Escape</th><th>Meaning</th></tr>
+<tr><td><code>\n</code></td><td>Newline</td><td></td><td><code>\"</code></td><td>Double quote</td></tr>
+<tr><td><code>\t</code></td><td>Tab</td><td></td><td><code>\'</code></td><td>Single quote</td></tr>
+<tr><td><code>\\</code></td><td>Backslash itself</td><td></td><td><code>\u0041</code></td><td>Unicode 'A'</td></tr>
+</table>
+<h3>printf / String.format specifiers</h3>
+<table>
+<tr><th>Specifier</th><th>Type</th><th>Example</th><th>Output</th></tr>
+<tr><td><b>%d</b></td><td>Integer</td><td><code>printf("%d", 42)</code></td><td>42</td></tr>
+<tr><td><b>%f</b></td><td>Float/double</td><td><code>printf("%.2f", 3.14159)</code></td><td>3.14</td></tr>
+<tr><td><b>%s</b></td><td>String</td><td><code>printf("%s", "Java")</code></td><td>Java</td></tr>
+<tr><td><b>%c</b></td><td>Char</td><td><code>printf("%c", 'A')</code></td><td>A</td></tr>
+<tr><td><b>%b</b></td><td>Boolean</td><td><code>printf("%b", true)</code></td><td>true</td></tr>
+<tr><td><b>%n</b></td><td>Platform newline</td><td>—</td><td>preferred over \n in printf</td></tr>
+<tr><td><b>%10s / %-10s</b></td><td>Width / left-align</td><td>table alignment</td><td>padded columns</td></tr>
+</table>
+<pre><span class="cls">System</span>.out.<span class="fn">printf</span>(<span class="str">"%-10s | %5.2f%n"</span>, <span class="str">"Total"</span>, <span class="num">99.5</span>);  <span class="cm">// Total      | 99.50</span>
+<span class="cls">String</span> row = <span class="cls">String</span>.<span class="fn">format</span>(<span class="str">"%s scored %d"</span>, name, marks); <span class="cm">// same specifiers, returns String</span></pre>
+<div class="trap">Passing an int to <b>%f</b> or a String to <b>%d</b> throws <b>IllegalFormatConversionException at runtime</b> — printf is not compile-time checked.</div>
+</div></section>
+<section id="math" class="sec"><div class="sec-eyebrow">Section 6</div><h2>🧮 Math Class Methods</h2>
+<div class="card" data-tags="math abs pow sqrt max min round ceil floor random static pi">
+<p>All members are <b>static</b> — call as <code>Math.method()</code>, never instantiate (private constructor).</p>
+<table>
+<tr><th>Method</th><th>Example</th><th>Result</th><th>Return type note</th></tr>
+<tr><td><b>abs(x)</b></td><td><code>Math.abs(-7)</code></td><td>7</td><td>matches argument type</td></tr>
+<tr><td><b>pow(a,b)</b></td><td><code>Math.pow(2,10)</code></td><td>1024.0</td><td><b>always double</b></td></tr>
+<tr><td><b>sqrt(x)</b></td><td><code>Math.sqrt(16)</code></td><td>4.0</td><td>double; sqrt(-1) → NaN</td></tr>
+<tr><td><b>max / min</b></td><td><code>Math.max(3,9)</code></td><td>9</td><td>overloaded for int/long/float/double</td></tr>
+<tr><td><b>round(x)</b></td><td><code>Math.round(2.5)</code> / <code>round(-2.5)</code></td><td>3 / <b>-2</b></td><td>rounds HALF-UP; long from double</td></tr>
+<tr><td><b>ceil(x)</b></td><td><code>Math.ceil(2.1)</code></td><td>3.0</td><td>always up; double</td></tr>
+<tr><td><b>floor(x)</b></td><td><code>Math.floor(2.9)</code></td><td>2.0</td><td>always down; double</td></tr>
+<tr><td><b>random()</b></td><td><code>Math.random()</code></td><td>0.0 ≤ x &lt; 1.0</td><td>double; 1.0 EXCLUSIVE</td></tr>
+</table>
+<pre><span class="cm">// random int in range [min, max]:</span>
+<span class="kw">int</span> dice = (<span class="kw">int</span>)(<span class="cls">Math</span>.<span class="fn">random</span>() * <span class="num">6</span>) + <span class="num">1</span>;   <span class="cm">// 1..6</span></pre>
+<div class="tip">round vs ceil vs floor on <b>negatives</b>: round(-2.5) = -2, ceil(-2.5) = -2.0, floor(-2.5) = -3.0. Also: pow and sqrt always return double, so <code>int x = Math.pow(2,3);</code> is a compile error without a cast.</div>
+</div></section>
+<section id="random" class="sec"><div class="sec-eyebrow">Section 7</div><h2>🎲 java.util.Random</h2>
+<div class="card" data-tags="random nextint bound seed nextdouble nextboolean util">
+<pre><span class="kw">import</span> java.util.<span class="cls">Random</span>;
+
+<span class="cls">Random</span> rnd = <span class="kw">new</span> <span class="cls">Random</span>();
+<span class="kw">int</span> n  = rnd.<span class="fn">nextInt</span>(<span class="num">10</span>);        <span class="cm">// 0..9 — bound EXCLUSIVE</span>
+<span class="kw">int</span> die = rnd.<span class="fn">nextInt</span>(<span class="num">6</span>) + <span class="num">1</span>;    <span class="cm">// 1..6</span>
+<span class="kw">double</span> d = rnd.<span class="fn">nextDouble</span>();     <span class="cm">// 0.0 ≤ x < 1.0</span>
+<span class="kw">boolean</span> flip = rnd.<span class="fn">nextBoolean</span>();
+
+<span class="cls">Random</span> fixed = <span class="kw">new</span> <span class="cls">Random</span>(<span class="num">42</span>);   <span class="cm">// SEED → same sequence every run (reproducible tests)</span></pre>
+<table>
+<tr><th></th><th>Math.random()</th><th>Random</th></tr>
+<tr><td><b>Returns</b></td><td>double only</td><td>int, long, double, boolean…</td></tr>
+<tr><td><b>Range control</b></td><td>Manual math</td><td><code>nextInt(bound)</code> built in</td></tr>
+<tr><td><b>Seedable</b></td><td>❌</td><td>✅ reproducible sequences</td></tr>
+</table>
+<div class="trap"><code>nextInt(6)</code> never returns 6 — the bound is exclusive. And <code>nextInt(-5)</code> throws IllegalArgumentException (bound must be positive).</div>
+</div></section>
+<section id="handson" class="sec"><div class="sec-eyebrow">Section 8</div><h2>💪 Hands-on: String / Math Exercises</h2>
+<div class="card" data-tags="exercises practice reverse palindrome vowels initials bmi">
+<table>
+<tr><th>#</th><th>Exercise</th><th>Concepts hit</th></tr>
+<tr><td>1</td><td>Reverse a string without StringBuilder.reverse() (loop + charAt)</td><td>charAt, loop, concat</td></tr>
+<tr><td>2</td><td>Palindrome check ("madam") — ignore case</td><td>toLowerCase, charAt / reverse compare, equals</td></tr>
+<tr><td>3</td><td>Count vowels &amp; digits in a sentence</td><td>charAt, contains / indexOf, Character.isDigit</td></tr>
+<tr><td>4</td><td>Extract initials: "vignesh waran j" → "VWJ"</td><td>split, substring, toUpperCase</td></tr>
+<tr><td>5</td><td>Format a marks table with printf (name %-12s, marks %5d, pct %6.2f)</td><td>printf width/precision</td></tr>
+<tr><td>6</td><td>Dice game: roll two dice (Random), print sum, detect doubles</td><td>nextInt(bound)+1, ternary</td></tr>
+<tr><td>7</td><td>BMI calculator: weight/height² with Math.pow, round to 1 decimal</td><td>pow, round, %.1f</td></tr>
+</table>
+<div class="tip">Sample solution skeleton for #2:</div>
+<pre><span class="cls">String</span> s = <span class="str">"Madam"</span>.<span class="fn">toLowerCase</span>();
+<span class="kw">boolean</span> pal = <span class="kw">true</span>;
+<span class="kw">for</span> (<span class="kw">int</span> i = <span class="num">0</span>; i &lt; s.<span class="fn">length</span>() / <span class="num">2</span>; i++)
+    <span class="kw">if</span> (s.<span class="fn">charAt</span>(i) != s.<span class="fn">charAt</span>(s.<span class="fn">length</span>() - <span class="num">1</span> - i)) { pal = <span class="kw">false</span>; <span class="kw">break</span>; }
+<span class="cls">System</span>.out.<span class="fn">println</span>(pal ? <span class="str">"Palindrome"</span> : <span class="str">"Not a palindrome"</span>);</pre>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 4 &middot; String Handling & Utility Classes &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

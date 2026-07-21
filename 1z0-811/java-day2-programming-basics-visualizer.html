@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 2 — Programming Basics — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 2 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#structure">1 &middot; Program Structure</a>
+<a class="nav-item" href="#oop">2 &middot; OOP Pillars Overview</a>
+<a class="nav-item" href="#naming">3 &middot; Naming Conventions</a>
+<a class="nav-item" href="#keywords">4 &middot; Reserved Keywords</a>
+<a class="nav-item" href="#comments">5 &middot; Comments</a>
+<a class="nav-item" href="#packages">6 &middot; Packages & Imports</a>
+<a class="nav-item" href="#javalang">7 &middot; java.lang Classes</a>
+<a class="nav-item" href="#standards">8 &middot; Coding Standards</a>
+<a class="nav-item" href="#scanner">9 &middot; Scanner for Input</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 2 &middot; Java Programming Basics</div>
+<h1>Programming Basics — Master Reference</h1><p>Source-file anatomy, conventions, packages, and console input — the grammar of every Java program you'll write.</p><div class="chips"><span class="chip">package · import · class</span><span class="chip">OOP Pillars</span><span class="chip">Naming Rules</span><span class="chip">~50 Keywords</span><span class="chip">Packages & Imports</span><span class="chip">java.lang</span><span class="chip">Scanner</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="structure" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🏗️ Program Structure: package → import → class → main</h2>
+<div class="card" data-tags="package import class main structure order source file anatomy">
+<h3>The fixed order of a Java source file</h3>
+<pre><span class="kw">package</span> com.iamneo.training;                 <span class="cm">// 1. package — OPTIONAL, max ONE, must be FIRST statement</span>
+
+<span class="kw">import</span> java.util.<span class="cls">Scanner</span>;                    <span class="cm">// 2. imports — OPTIONAL, any number, after package</span>
+<span class="kw">import</span> java.util.<span class="cls">ArrayList</span>;
+
+<span class="kw">public class</span> <span class="cls">Demo</span> {                          <span class="cm">// 3. class declaration — file name must be Demo.java</span>
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) { <span class="cm">// 4. main — JVM entry point</span>
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Structure!"</span>);
+    }
+}</pre>
+<table>
+<tr><th>Element</th><th>Rule</th><th>Compile error if violated?</th></tr>
+<tr><td><b>package</b></td><td>At most one; must be the very first non-comment statement</td><td>✅ "class, interface, or enum expected"</td></tr>
+<tr><td><b>import</b></td><td>Zero or more; between package and class</td><td>✅ if placed after class</td></tr>
+<tr><td><b>class</b></td><td>Multiple allowed per file, but only ONE public; public class name = file name</td><td>✅ name mismatch error</td></tr>
+<tr><td><b>main</b></td><td>Needed only for the class you launch with <code>java</code></td><td>❌ compiles fine; runtime error if missing when run</td></tr>
+</table>
+<div class="tip">Mnemonic: <b>P-I-C</b> → Package, Import, Class — in that exact order. Comments may appear anywhere, even above package.</div>
+<div class="confuser"><span class="w">WRONG:</span> "Every Java class needs a main method." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Only the class you <b>launch</b> needs main; libraries have thousands of classes without it.</div>
+</div></section>
+<section id="oop" class="sec"><div class="sec-eyebrow">Section 2</div><h2>🏛️ OOP Pillars — 30,000-ft Overview</h2>
+<div class="card" data-tags="oop pillars encapsulation inheritance polymorphism abstraction apie">
+<p>Today is only the fly-over — Day 9 lands the plane. Remember <b>A-P-I-E</b>:</p>
+<div class="feat-grid">
+<div class="feat"><div class="fh">Abstraction</div><div class="fb">Expose <i>what</i> an object does, hide <i>how</i>. Tools: abstract classes, interfaces. Real-world: you press the brake pedal — you don't operate brake fluid pressure.</div></div>
+<div class="feat"><div class="fh">Polymorphism</div><div class="fb">One interface, many forms. Compile-time = method <b>overloading</b>; runtime = method <b>overriding</b>.</div></div>
+<div class="feat"><div class="fh">Inheritance</div><div class="fb">A class acquires fields/methods of a parent via <code>extends</code>. Java allows only <b>single class inheritance</b>.</div></div>
+<div class="feat"><div class="fh">Encapsulation</div><div class="fb">Bundle data + methods; guard state with <code>private</code> fields + public getters/setters.</div></div>
+</div>
+<div class="tip">Exam phrasing map: "hiding internal implementation" → Abstraction · "data hiding / private + getters" → Encapsulation · "IS-A relationship" → Inheritance · "same method name, different behaviour" → Polymorphism.</div>
+</div></section>
+<section id="naming" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🏷️ Naming Conventions</h2>
+<div class="card" data-tags="naming conventions camelcase pascalcase constants identifiers rules dollar underscore">
+<table>
+<tr><th>Identifier</th><th>Convention</th><th>Example</th></tr>
+<tr><td><b>Class / Interface / Enum / Record</b></td><td>PascalCase (UpperCamelCase) — noun</td><td><code>EmployeeRecord</code>, <code>Runnable</code></td></tr>
+<tr><td><b>Method</b></td><td>camelCase — verb</td><td><code>calculateSalary()</code></td></tr>
+<tr><td><b>Variable</b></td><td>camelCase — meaningful noun</td><td><code>totalAmount</code></td></tr>
+<tr><td><b>Constant</b> (static final)</td><td>UPPER_SNAKE_CASE</td><td><code>MAX_RETRIES</code></td></tr>
+<tr><td><b>Package</b></td><td>all lowercase, reverse domain</td><td><code>com.iamneo.oci</code></td></tr>
+</table>
+<h3>Legal identifier rules (compiler-enforced)</h3>
+<p>Start with a <b>letter, $ or _</b> (never a digit) · subsequent chars may include digits · no reserved keywords · case-sensitive · no length limit.</p>
+<table>
+<tr><th>Identifier</th><th>Legal?</th><th>Why</th></tr>
+<tr><td><code>_value</code>, <code>$price</code>, <code>añо</code></td><td>✅</td><td>_ , $ and Unicode letters allowed</td></tr>
+<tr><td><code>2ndPlace</code></td><td>❌</td><td>Cannot start with a digit</td></tr>
+<tr><td><code>class</code></td><td>❌</td><td>Reserved keyword</td></tr>
+<tr><td><code>_</code> (single underscore)</td><td>❌</td><td>Reserved since Java 9</td></tr>
+<tr><td><code>String</code></td><td>✅ (legal, terrible)</td><td>Class names aren't keywords — legal but never do it</td></tr>
+</table>
+<div class="trap">Conventions are <b>not compiler rules</b> — <code>class employee</code> compiles. Exams ask "which is legal" (compiler rules) vs "which follows convention" — read the question stem carefully.</div>
+</div></section>
+<section id="keywords" class="sec"><div class="sec-eyebrow">Section 4</div><h2>🔒 Reserved Keywords</h2>
+<div class="card" data-tags="keywords reserved goto const true false null literals contextual var">
+<p>Java reserves <b>~50 keywords</b> you cannot use as identifiers. Grouped view:</p>
+<table>
+<tr><th>Group</th><th>Keywords</th></tr>
+<tr><td><b>Data types</b></td><td>byte short int long float double char boolean</td></tr>
+<tr><td><b>Flow control</b></td><td>if else switch case default for while do break continue return yield</td></tr>
+<tr><td><b>Modifiers</b></td><td>public private protected static final abstract synchronized volatile transient native strictfp</td></tr>
+<tr><td><b>Class-related</b></td><td>class interface enum record extends implements package import new this super instanceof</td></tr>
+<tr><td><b>Exceptions</b></td><td>try catch finally throw throws assert</td></tr>
+<tr><td><b>Unused (reserved)</b></td><td><b>goto, const</b> — reserved but do nothing; using them = compile error</td></tr>
+</table>
+<div class="tip"><code>true</code>, <code>false</code>, <code>null</code> are <b>literals, not keywords</b> — but still illegal as identifiers. <code>var</code> is a <b>contextual keyword</b> (Java 10+): <code>var x = 5;</code> works and <code>int var = 3;</code> still compiles.</div>
+<div class="confuser"><span class="w">WRONG:</span> "goto exists in Java like C." &nbsp;→&nbsp; <span class="r">RIGHT:</span> goto is <b>reserved but unusable</b>; labeled break/continue cover its use-cases.</div>
+</div></section>
+<section id="comments" class="sec"><div class="sec-eyebrow">Section 5</div><h2>💬 Comments — 3 Flavours</h2>
+<div class="card" data-tags="comments single line multi line javadoc documentation nesting">
+<pre><span class="cm">// 1. Single-line — to end of line</span>
+
+<span class="cm">/* 2. Multi-line
+      spans several lines */</span>
+
+<span class="cm">/** 3. Javadoc — feeds the javadoc tool
+ *  @param name  the employee name
+ *  @return formatted greeting
+ */</span></pre>
+<table>
+<tr><th>Type</th><th>Syntax</th><th>Used for</th></tr>
+<tr><td><b>Single-line</b></td><td><code>//</code></td><td>Quick inline notes</td></tr>
+<tr><td><b>Multi-line</b></td><td><code>/* … */</code></td><td>Block explanations, disabling code</td></tr>
+<tr><td><b>Javadoc</b></td><td><code>/** … */</code></td><td>API documentation → HTML via <code>javadoc</code> tool</td></tr>
+</table>
+<div class="trap">Multi-line comments <b>do NOT nest</b>: <code>/* outer /* inner */ still-code */</code> — the comment ends at the FIRST <code>*/</code>, so "still-code */" becomes a compile error.</div>
+</div></section>
+<section id="packages" class="sec"><div class="sec-eyebrow">Section 6</div><h2>📦 Packages & Imports</h2>
+<div class="card" data-tags="package import wildcard static import fully qualified name java.lang automatic subpackage">
+<h3>Why packages</h3>
+<p>Namespace management (two <code>Employee</code> classes can coexist), access control boundaries, and logical organisation mapped to folder structure.</p>
+<h3>Import forms</h3>
+<pre><span class="kw">import</span> java.util.<span class="cls">Scanner</span>;         <span class="cm">// single-type import (preferred)</span>
+<span class="kw">import</span> java.util.*;               <span class="cm">// wildcard — all classes in java.util (NOT subpackages)</span>
+<span class="kw">import static</span> java.lang.<span class="cls">Math</span>.<span class="fn">max</span>; <span class="cm">// static import — use max(a,b) without Math.</span>
+
+java.util.<span class="cls">Date</span> d = <span class="kw">new</span> java.util.<span class="cls">Date</span>(); <span class="cm">// fully-qualified name — no import needed</span></pre>
+<table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td><b>java.lang is auto-imported</b></td><td>String, System, Math, Integer… never need imports</td></tr>
+<tr><td><b>Wildcard ≠ recursive</b></td><td><code>java.util.*</code> does NOT include <code>java.util.function.*</code></td></tr>
+<tr><td><b>Wildcard has zero runtime cost</b></td><td>Imports are compile-time only; no performance impact</td></tr>
+<tr><td><b>Name clash</b></td><td><code>java.util.Date</code> vs <code>java.sql.Date</code> both wildcard-imported → must fully qualify at use site</td></tr>
+<tr><td><b>Same package</b></td><td>Classes in the same package never import each other</td></tr>
+</table>
+<div class="confuser"><span class="w">WRONG:</span> "import loads the class into memory." &nbsp;→&nbsp; <span class="r">RIGHT:</span> import is purely a <b>compile-time naming shortcut</b>; ClassLoader loads classes at runtime regardless.</div>
+</div></section>
+<section id="javalang" class="sec"><div class="sec-eyebrow">Section 7</div><h2>🧰 Key java.lang Classes</h2>
+<div class="card" data-tags="java.lang string system math object integer wrapper stringbuilder thread exception">
+<div class="feat-grid">
+<div class="feat"><div class="fh">Object</div><div class="fb">Root of every class; gives equals(), hashCode(), toString(), getClass().</div></div>
+<div class="feat"><div class="fh">String / StringBuilder</div><div class="fb">Immutable text vs mutable buffer — Day 4 deep dive.</div></div>
+<div class="feat"><div class="fh">System</div><div class="fb">out/err/in streams, currentTimeMillis(), getenv(), exit().</div></div>
+<div class="feat"><div class="fh">Math</div><div class="fb">sqrt, pow, abs, max/min, random() — all static.</div></div>
+<div class="feat"><div class="fh">Wrappers</div><div class="fb">Integer, Double, Boolean… — object forms of primitives (Day 3).</div></div>
+<div class="feat"><div class="fh">Thread / Runnable</div><div class="fb">Concurrency primitives.</div></div>
+<div class="feat"><div class="fh">Exception / Error</div><div class="fb">Throwable hierarchy roots — Day 7.</div></div>
+</div>
+<div class="tip">All of these need <b>no import</b> — java.lang is implicitly imported into every source file.</div>
+</div></section>
+<section id="standards" class="sec"><div class="sec-eyebrow">Section 8</div><h2>📏 Coding Standards</h2>
+<div class="card" data-tags="coding standards indentation braces magic numbers one class one responsibility readability">
+<table>
+<tr><th>Standard</th><th>Do</th><th>Avoid</th></tr>
+<tr><td><b>Indentation</b></td><td>4 spaces per level, consistent</td><td>Mixing tabs and spaces</td></tr>
+<tr><td><b>Braces</b></td><td>Always use {} even for single-statement if/loops</td><td>Brace-less bodies (dangling-else bugs)</td></tr>
+<tr><td><b>Naming</b></td><td>Intention-revealing: <code>studentCount</code></td><td><code>x1</code>, <code>temp2</code>, <code>data</code></td></tr>
+<tr><td><b>Magic numbers</b></td><td>Named constants: <code>MAX_ATTEMPTS = 3</code></td><td>Bare <code>3</code> scattered in logic</td></tr>
+<tr><td><b>One job per unit</b></td><td>Small methods, one class per concern</td><td>500-line main()</td></tr>
+<tr><td><b>Statements</b></td><td>One statement per line</td><td><code>int a=1; int b=2;</code> on one line</td></tr>
+</table>
+<div class="tip">Standards questions rarely appear on the exam directly — but exam code deliberately violates them (weird indentation, brace-less ifs) to hide bugs. Reading messy code IS an exam skill.</div>
+</div></section>
+<section id="scanner" class="sec"><div class="sec-eyebrow">Section 9</div><h2>⌨️ Scanner — Console Input</h2>
+<div class="card" data-tags="scanner input nextint nextline next nextdouble buffer newline close system.in">
+<pre><span class="kw">import</span> java.util.<span class="cls">Scanner</span>;
+
+<span class="kw">public class</span> <span class="cls">InputDemo</span> {
+    <span class="kw">public static void</span> <span class="fn">main</span>(<span class="cls">String</span>[] args) {
+        <span class="cls">Scanner</span> sc = <span class="kw">new</span> <span class="cls">Scanner</span>(<span class="cls">System</span>.in);
+        <span class="cls">System</span>.out.<span class="fn">print</span>(<span class="str">"Age: "</span>);
+        <span class="kw">int</span> age = sc.<span class="fn">nextInt</span>();
+        sc.<span class="fn">nextLine</span>();                        <span class="cm">// consume the leftover newline!</span>
+        <span class="cls">System</span>.out.<span class="fn">print</span>(<span class="str">"Name: "</span>);
+        <span class="cls">String</span> name = sc.<span class="fn">nextLine</span>();
+        <span class="cls">System</span>.out.<span class="fn">println</span>(name + <span class="str">" is "</span> + age);
+        sc.<span class="fn">close</span>();
+    }
+}</pre>
+<table>
+<tr><th>Method</th><th>Reads</th><th>Note</th></tr>
+<tr><td><code>nextInt() / nextDouble()</code></td><td>Next token as int/double</td><td>Throws <b>InputMismatchException</b> on bad input</td></tr>
+<tr><td><code>next()</code></td><td>Single word (token)</td><td>Stops at whitespace</td></tr>
+<tr><td><code>nextLine()</code></td><td>Rest of the line incl. spaces</td><td>Consumes the newline</td></tr>
+<tr><td><code>hasNextInt()</code></td><td>Peek check</td><td>Validate before reading</td></tr>
+</table>
+<div class="trap"><b>The classic bug:</b> <code>nextInt()</code> leaves the newline in the buffer, so a following <code>nextLine()</code> returns "" instantly. Fix: call an extra <code>sc.nextLine()</code> after numeric reads.</div>
+<div class="confuser"><span class="w">WRONG:</span> <code>next()</code> reads a full sentence. &nbsp;→&nbsp; <span class="r">RIGHT:</span> <code>next()</code> = one whitespace-delimited token; <code>nextLine()</code> = whole line.</div>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 2 &middot; Java Programming Basics &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

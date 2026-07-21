@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 10 — Certification Prep — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 10 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#rev15">1 &middot; Revision: Days 1–5</a>
+<a class="nav-item" href="#rev69">2 &middot; Revision: Days 6–9</a>
+<a class="nav-item" href="#weightage">3 &middot; High-Weightage Topics</a>
+<a class="nav-item" href="#format">4 &middot; Oracle Exam Format & Facts</a>
+<a class="nav-item" href="#mock">5 &middot; Full Mock Test (75 Qs)</a>
+<a class="nav-item" href="#review">6 &middot; Mock Test Review</a>
+<a class="nav-item" href="#strategy">7 &middot; Exam Strategy Tips</a>
+<a class="nav-item" href="#readiness">8 &middot; Final Readiness Assessment</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 10 &middot; Certification Preparation</div>
+<h1>Certification Prep — Master Reference</h1><p>Full-course revision sweeps, weightage map, exam format facts, the 75-question mock blueprint, review protocol and the go/no-go readiness gate.</p><div class="chips"><span class="chip">Revision D1–5</span><span class="chip">Revision D6–9</span><span class="chip">Weightage Map</span><span class="chip">Exam Format</span><span class="chip">75-Q Mock</span><span class="chip">Review Protocol</span><span class="chip">Strategy</span><span class="chip">Readiness Gate</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="rev15" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🔁 Revision Sweep — Days 1–5</h2>
+<div class="card" data-tags="revision days 1 5 jdk jvm structure primitives strings decisions summary">
+<table>
+<tr><th>Day</th><th>Core facts you must still own</th><th>Signature trap</th></tr>
+<tr><td><b>1 · Fundamentals</b></td><td>JDK (develop) ⊃ JRE (run) ⊃ JVM (execute). WORA via bytecode. javac Hello.java → java Hello. public class name = file name.</td><td>javac needs .java; java takes the bare class name</td></tr>
+<tr><td><b>2 · Basics</b></td><td>Order: package → import → class. java.lang auto-imported. ~50 keywords; goto/const reserved-unused. Scanner: nextInt leaves \n for nextLine.</td><td>Wildcard import excludes subpackages</td></tr>
+<tr><td><b>3 · Types &amp; Operators</b></td><td>8 primitives; locals have NO default. byte+byte=int; b+=1 hides a cast. Integer cache −128..127. Precedence: unary → * / % → + − → relational → == → && → || → ?: → =</td><td>i = i++ leaves i unchanged</td></tr>
+<tr><td><b>4 · Strings</b></td><td>Pool for literals; new forces heap. Immutable — every "modifier" returns a NEW string. equals = content, == = reference. substring end exclusive. StringBuilder for loops.</td><td>s.toUpperCase(); without reassignment does nothing</td></tr>
+<tr><td><b>5 · Decisions</b></td><td>if needs boolean. switch: byte/short/char/int/wrappers/String/enum — no long/boolean. Missing break = fall-through. instanceof: null → false.</td><td>if(flag = true) compiles AND always runs</td></tr>
+</table>
+<div class="tip">Self-check method: cover the middle column, read only the Day label, and reconstruct aloud. Anything you can't verbalise in 20 seconds → reopen that day's visualizer.</div>
+</div></section>
+<section id="rev69" class="sec"><div class="sec-eyebrow">Section 2</div><h2>🔁 Revision Sweep — Days 6–9</h2>
+<div class="card" data-tags="revision days 6 9 loops exceptions arrays arraylist oop summary">
+<table>
+<tr><th>Day</th><th>Core facts you must still own</th><th>Signature trap</th></tr>
+<tr><td><b>6 · Loops</b></td><td>for = counted; while = entry-check; do-while = ≥1 run + trailing ;. for-each = copy of element, no index. Labeled break exits nested loops.</td><td>continue before i++ in a while → infinite loop</td></tr>
+<tr><td><b>7 · Exceptions</b></td><td>Throwable → Error / Exception → RuntimeException (unchecked). Checked = handle-or-declare. Catch child before parent. finally always runs except System.exit. Read traces top "at" line first.</td><td>return in finally overrides everything</td></tr>
+<tr><td><b>8 · Arrays &amp; Collections</b></td><td>Arrays fixed, .length field, defaults per type (object cells = null). Arrays.toString to print. ArrayList: .size(), wrappers only, remove(int)=index vs remove(Object)=value. Iterator.remove is the only safe mid-loop removal.</td><td>list.remove(2) on Integers removes INDEX 2</td></tr>
+<tr><td><b>9 · OOP</b></td><td>Reference copies share one object. private→default→protected→public. Constructor: class name, NO return type; writing any ctor kills the default. Overload = param list differs. Pass-by-value always. static can't touch this. toString auto-called by println.</td><td>void Employee() is a method, not a constructor</td></tr>
+</table>
+<div class="tip">Pair-drill: one student names the trap, partner explains WHY the compiler/JVM behaves that way. Explaining the mechanism is what survives exam pressure.</div>
+</div></section>
+<section id="weightage" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🎯 High-Weightage Exam Topics</h2>
+<div class="card" data-tags="weightage priority topics distribution focus revision strategy">
+<p>Where foundation-level Java exam questions cluster — allocate revision minutes proportionally:</p>
+<table>
+<tr><th>Weight</th><th>Topic cluster</th><th>Question styles to expect</th></tr>
+<tr><td><b>🔥🔥🔥 Heavy</b></td><td>Operators &amp; promotion (Day 3)</td><td>"What is the output" traces with ++/--, integer division, byte arithmetic, precedence</td></tr>
+<tr><td><b>🔥🔥🔥 Heavy</b></td><td>String immutability + pool + equals (Day 4)</td><td>Discarded results, == on literals vs new, substring indices</td></tr>
+<tr><td><b>🔥🔥🔥 Heavy</b></td><td>Loops &amp; flow (Days 5–6)</td><td>Iteration counting, fall-through outputs, break/continue placement, nested totals</td></tr>
+<tr><td><b>🔥🔥 Medium</b></td><td>Exceptions (Day 7)</td><td>finally-with-return puzzles, catch ordering, checked vs unchecked classification</td></tr>
+<tr><td><b>🔥🔥 Medium</b></td><td>Arrays &amp; ArrayList (Day 8)</td><td>Defaults, index bounds, remove overload, Iterator discipline</td></tr>
+<tr><td><b>🔥🔥 Medium</b></td><td>Constructors &amp; overloading (Day 9)</td><td>Missing default ctor, overload resolution, pass-by-value effects</td></tr>
+<tr><td><b>🔥 Light</b></td><td>Environment &amp; structure (Days 1–2)</td><td>Definition-level: JDK/JRE/JVM roles, file rules, keyword legality</td></tr>
+</table>
+<div class="trap">"Light" ≠ skippable — Day 1–2 questions are the cheapest marks on the paper. Losing an easy JDK/JRE question hurts double: lost mark + lost time confidence.</div>
+</div></section>
+<section id="format" class="sec"><div class="sec-eyebrow">Section 4</div><h2>📋 Oracle Exam Format & Facts</h2>
+<div class="card" data-tags="exam format 1z0-808 1z0-829 duration passing score questions pearson vue">
+<table>
+<tr><th>Fact</th><th>Java SE 8 (1Z0-808)</th><th>Java SE 17 (1Z0-829)</th></tr>
+<tr><td><b>Questions</b></td><td>56 MCQs</td><td>50 MCQs</td></tr>
+<tr><td><b>Duration</b></td><td>150 min</td><td>90 min</td></tr>
+<tr><td><b>Passing score</b></td><td>65%</td><td>68%</td></tr>
+<tr><td><b>Format</b></td><td colspan="2">Multiple choice — many are "choose TWO/THREE" (the question states how many)</td></tr>
+<tr><td><b>Delivery</b></td><td colspan="2">Pearson VUE test centre or online proctored</td></tr>
+<tr><td><b>Assumptions</b></td><td colspan="2">Unless stated: code compiles inside a valid class; imports present; "assume no other issues"</td></tr>
+</table>
+<h3>Answer-option anatomy — every code question resolves to one of:</h3>
+<div class="flow">
+<div class="fstep"><div class="t">Compile error</div><div class="d">check FIRST — types, ctor rules, catch order, missing break… the compiler runs before any output exists</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">Runtime exception</div><div class="d">÷0, null access, bad index, bad cast</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">Specific output</div><div class="d">only now trace values line by line</div></div>
+</div>
+<div class="tip">Verify current exam codes, question counts and pricing on Oracle's certification portal before exam day — numbers shift between releases. Training targets the 1Z0-829 syllabus.</div>
+</div></section>
+<section id="mock" class="sec"><div class="sec-eyebrow">Section 5</div><h2>🧪 Full Mock Test — 75 Questions</h2>
+<div class="card" data-tags="mock test 75 questions blueprint timing sections distribution simulation">
+<p>The classroom mock deliberately overshoots the real paper (75 vs ~50) to build stamina. Blueprint:</p>
+<table>
+<tr><th>Section</th><th>Qs</th><th>Coverage</th><th>Time budget</th></tr>
+<tr><td>A · Fundamentals &amp; Structure</td><td>10</td><td>Days 1–2: JVM trio, file rules, keywords, Scanner</td><td>10 min</td></tr>
+<tr><td>B · Types &amp; Operators</td><td>15</td><td>Day 3: promotion, casting, precedence, wrappers</td><td>18 min</td></tr>
+<tr><td>C · Strings</td><td>10</td><td>Day 4: pool, immutability, methods, printf</td><td>12 min</td></tr>
+<tr><td>D · Control Flow</td><td>15</td><td>Days 5–6: ladders, switch, all loops, break/continue</td><td>18 min</td></tr>
+<tr><td>E · Exceptions</td><td>10</td><td>Day 7: hierarchy, try/catch/finally, traces</td><td>12 min</td></tr>
+<tr><td>F · Arrays &amp; Collections</td><td>8</td><td>Day 8: arrays, ArrayList, Iterator</td><td>10 min</td></tr>
+<tr><td>G · OOP</td><td>7</td><td>Day 9: ctors, overloading, static, toString</td><td>10 min</td></tr>
+<tr><td><b>Total</b></td><td><b>75</b></td><td>—</td><td><b>90 min</b> (+ buffer pass)</td></tr>
+</table>
+<h3>Simulation rules</h3>
+<p>Closed book · single sitting · flag-and-move after 90 seconds stuck · no blank answers (no negative marking) · record start/end time per section to find your slow zones.</p>
+<div class="tip">Delivery: run it on the iamneo platform from the Java question banks (three 25-Q sets back-to-back maps cleanly to the A–G blueprint). Target ≥ 68% to mirror the 1Z0-829 pass bar.</div>
+</div></section>
+<section id="review" class="sec"><div class="sec-eyebrow">Section 6</div><h2>🔍 Mock Test Review Protocol</h2>
+<div class="card" data-tags="review error log wrong answers analysis categories pattern remediation">
+<p>The mock's value is 20% in taking it, 80% in the review. Run this protocol on every wrong answer:</p>
+<div class="flow">
+<div class="fstep"><div class="t">1 · Classify</div><div class="d">Knowledge gap / misread / careless trace / time panic</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">2 · Locate</div><div class="d">Which day + which card covers it</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">3 · Re-derive</div><div class="d">Solve again WITHOUT looking at the key</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">4 · Log</div><div class="d">One line in the error log</div></div>
+</div>
+<h3>Error log format (keep it — it's tomorrow's revision list)</h3>
+<table>
+<tr><th>Q#</th><th>Topic</th><th>Why I missed it</th><th>Rule to remember</th></tr>
+<tr><td>23</td><td>byte arithmetic</td><td>Forgot promotion</td><td>byte+byte=int → needs cast; += hides it</td></tr>
+<tr><td>41</td><td>finally</td><td>Assumed try's return wins</td><td>finally's return overrides all</td></tr>
+<tr><td>58</td><td>ArrayList remove</td><td>Misread int vs Integer</td><td>remove(2)=index; remove(valueOf(2))=value</td></tr>
+</table>
+<table>
+<tr><th>Score band</th><th>Action</th></tr>
+<tr><td><b>≥ 80%</b></td><td>Exam-ready. Light daily review of the error log only.</td></tr>
+<tr><td><b>68–79%</b></td><td>Passing zone but fragile. Re-drill the 2 weakest sections, retake those sections in 2 days.</td></tr>
+<tr><td><b>&lt; 68%</b></td><td>Map wrong answers per day; replay the 2–3 heaviest-loss visualizers fully; full mock retake in 4–5 days.</td></tr>
+</table>
+</div></section>
+<section id="strategy" class="sec"><div class="sec-eyebrow">Section 7</div><h2>🧠 Exam Strategy Tips</h2>
+<div class="card" data-tags="strategy tips time management elimination compile first choose two flag">
+<table>
+<tr><th>#</th><th>Strategy</th><th>Why it works</th></tr>
+<tr><td>1</td><td><b>Compile-check first.</b> Before tracing output, scan for compile killers: type mismatches, missing default ctor, catch order, non-boolean if, duplicate case.</td><td>~⅓ of code questions die at compilation; tracing them wastes minutes</td></tr>
+<tr><td>2</td><td><b>Honor "choose TWO".</b> The count is stated — selecting one of two = zero marks.</td><td>Free accuracy from reading the stem</td></tr>
+<tr><td>3</td><td><b>90-second rule.</b> Stuck → flag → move. Return in the buffer pass.</td><td>Late easy questions pay the same as early hard ones</td></tr>
+<tr><td>4</td><td><b>Eliminate before selecting.</b> Kill options with impossible outputs (values a loop can't reach, exceptions that can't occur).</td><td>50/50 beats 25/25</td></tr>
+<tr><td>5</td><td><b>Trace on paper/whiteboard.</b> Variable table per iteration for loops with ++/--.</td><td>Mental tracing is where careless errors breed</td></tr>
+<tr><td>6</td><td><b>Never blank.</b> No negative marking — guess every flagged leftover.</td><td>Expected value is strictly positive</td></tr>
+<tr><td>7</td><td><b>Trust drilled reflexes over "it looks fine".</b> If code violates a rule you memorised (i=i++, finally-return, remove(int)), the trap IS the question.</td><td>Exam authors weaponise intuition</td></tr>
+<tr><td>8</td><td>Night before: error log + this Day 10 page only. No new topics.</td><td>Consolidation beats cramming</td></tr>
+</table>
+</div></section>
+<section id="readiness" class="sec"><div class="sec-eyebrow">Section 8</div><h2>✅ Final Readiness Assessment</h2>
+<div class="card" data-tags="readiness checklist self assessment gate exam booking confidence">
+<p>Gate check — book the exam only when every row is honestly ✅:</p>
+<table>
+<tr><th>#</th><th>Readiness criterion</th><th>Evidence</th></tr>
+<tr><td>1</td><td>Mock score ≥ 68% (target 75%+ for comfort)</td><td>Section G scorecard</td></tr>
+<tr><td>2</td><td>Can hand-run javac/java, explain JDK vs JRE vs JVM cold</td><td>Day 1 quiz</td></tr>
+<tr><td>3</td><td>Predict output of ++/-- + promotion snippets at ~90% accuracy</td><td>Day 3 drills</td></tr>
+<tr><td>4</td><td>State 10 String-immutability/pool facts without notes</td><td>Day 4 card recall</td></tr>
+<tr><td>5</td><td>Trace any switch fall-through and nested-loop count correctly</td><td>Days 5–6 exercises</td></tr>
+<tr><td>6</td><td>Classify any listed exception checked/unchecked + finally rules</td><td>Day 7 quiz</td></tr>
+<tr><td>7</td><td>Array vs ArrayList API differences fluent (.length/.size, remove overload)</td><td>Day 8 quiz 8+/10</td></tr>
+<tr><td>8</td><td>Employee lab rebuilt from a blank file in &lt; 20 min</td><td>Day 9 lab re-run</td></tr>
+<tr><td>9</td><td>Error log reviewed twice; zero repeat mistakes in last retake</td><td>Review protocol</td></tr>
+<tr><td>10</td><td>Exam logistics locked: ID, Pearson VUE slot, system test done (if online)</td><td>Booking confirmation</td></tr>
+</table>
+<div class="flow">
+<div class="fstep"><div class="t">≥ 9 ✅</div><div class="d">Book it. You're ready.</div></div>
+<div class="fstep"><div class="t">7–8 ✅</div><div class="d">3–4 focused days on the gaps, then re-gate</div></div>
+<div class="fstep"><div class="t">≤ 6 ✅</div><div class="d">Structured re-run of weak days; retake mock first</div></div>
+</div>
+<div class="tip">Final word to the cohort: the exam rewards <b>pattern recognition</b>, and after 10 days you've seen every pattern it can throw. Sleep well, arrive early, compile-check first. 🎓</div>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 10 &middot; Certification Preparation &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

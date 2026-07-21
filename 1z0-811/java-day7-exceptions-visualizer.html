@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Day 7 — Exception Handling — Master Reference | Oracle Certification Training</title>
+<style>
+:root{--bg:#0a0e1a;--panel:#101828;--panel2:#141d33;--border:#1e2a45;--red:#ff4d4d;--red-deep:#f80000;--gold:#ffc46b;--green:#4ade80;--blue:#60a5fa;--purple:#c084fc;--txt:#e6ebf5;--dim:#8b98b8;--code-bg:#0b1120;--mono:'Consolas','JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--txt);font-family:'Segoe UI',system-ui,sans-serif;line-height:1.55}
+a{color:var(--blue)}
+.wrap{display:flex;min-height:100vh}
+.sidebar{width:250px;background:var(--panel);border-right:1px solid var(--border);position:fixed;top:0;bottom:0;overflow-y:auto;padding:18px 12px;z-index:20}
+.main{margin-left:250px;flex:1;padding:26px 34px;max-width:1120px}
+.brand{font-weight:800;font-size:15px;letter-spacing:.4px;margin-bottom:2px}.brand b{color:var(--red)}
+.brand-sub{font-size:11px;color:var(--dim);margin-bottom:14px}
+#search{width:100%;background:var(--panel2);border:1px solid var(--border);border-radius:8px;color:var(--txt);padding:8px 10px;font-size:13px;margin-bottom:14px;outline:none}
+#search:focus{border-color:var(--red)}
+.nav-item{display:block;padding:8px 10px;border-radius:8px;color:var(--dim);text-decoration:none;font-size:13px;margin-bottom:3px;border-left:3px solid transparent}
+.nav-item:hover{background:var(--panel2);color:var(--txt)}
+.nav-item.active{background:var(--panel2);color:var(--red);border-left-color:var(--red);font-weight:600}
+.hero{background:linear-gradient(135deg,#141d33,#0d1426);border:1px solid var(--border);border-radius:14px;padding:24px 26px;margin-bottom:28px}
+.hero .eyebrow{color:var(--red);font-size:12px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+.hero h1{font-size:26px;margin:6px 0 4px}.hero p{color:var(--dim);font-size:14px}
+.chips{margin-top:12px;display:flex;flex-wrap:wrap;gap:8px}
+.chip{background:var(--panel2);border:1px solid var(--border);border-radius:999px;padding:4px 12px;font-size:12px;color:var(--dim)}
+section{margin-bottom:40px;scroll-margin-top:16px}
+.sec-eyebrow{color:var(--red);font-size:11px;font-weight:700;letter-spacing:1.6px;text-transform:uppercase}
+h2{font-size:21px;margin:4px 0 14px;padding-bottom:8px;border-bottom:1px solid var(--border)}
+.card{background:var(--panel);border:1px solid var(--border);border-radius:12px;padding:18px 20px;margin-bottom:16px}
+.card h3{font-size:16px;margin:10px 0 8px;color:var(--gold)}
+.card h3:first-child{margin-top:0}
+.card p{font-size:14px;margin-bottom:8px}
+.dim{color:var(--dim)}
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{background:#182342;color:#fff;text-align:left;padding:9px 12px;border:1px solid var(--border);font-size:12.5px;letter-spacing:.3px}
+td{padding:8px 12px;border:1px solid var(--border);vertical-align:top}
+tr:nth-child(even) td{background:#0d1528}
+td b{color:var(--gold)}
+pre{background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;font-family:var(--mono);font-size:13px;overflow-x:auto;margin:10px 0;line-height:1.6}
+code{font-family:var(--mono);background:var(--code-bg);padding:1px 6px;border-radius:5px;font-size:12.5px;border:1px solid var(--border)}
+.kw{color:#ff7b72}.str{color:#a5d6ff}.fn{color:#d2a8ff}.cm{color:#6b7a99;font-style:italic}.num{color:#79c0ff}.cls{color:#ffa657}.pr{color:#7ee787}
+.tip,.trap,.confuser{border-radius:10px;padding:12px 14px;font-size:13.5px;margin:10px 0}
+.tip{background:rgba(74,222,128,.07);border:1px solid rgba(74,222,128,.35)}
+.tip::before{content:"\1F3AF  Exam Point \2014  ";font-weight:700;color:var(--green)}
+.trap{background:rgba(255,77,77,.07);border:1px solid rgba(255,77,77,.4)}
+.trap::before{content:"\26A0\FE0F  Trap \2014  ";font-weight:700;color:var(--red)}
+.confuser{background:var(--panel2);border:1px solid var(--border)}
+.confuser .w{color:var(--red);font-weight:700}.confuser .r{color:var(--green);font-weight:700}
+.flow{display:flex;flex-wrap:wrap;align-items:stretch;gap:10px;margin:14px 0}
+.fstep{flex:1;min-width:120px;background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px;text-align:center}
+.fstep .t{font-weight:700;font-size:13.5px;color:var(--gold)}.fstep .d{font-size:12px;color:var(--dim);margin-top:4px}
+.arrow{align-self:center;color:var(--red);font-size:20px;font-weight:800}
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:8px}
+.feat{background:var(--panel2);border:1px solid var(--border);border-radius:10px;padding:12px 14px}
+.feat .fh{font-weight:700;font-size:13.5px;color:var(--gold);margin-bottom:4px}
+.feat .fb{font-size:12.5px;color:var(--dim)}
+.tree{font-family:var(--mono);font-size:13px;background:var(--code-bg);border:1px solid var(--border);border-radius:10px;padding:14px 16px;line-height:1.7;overflow-x:auto}
+#no-results{display:none;color:var(--dim);text-align:center;padding:40px 0;font-size:14px}
+@media(max-width:860px){.sidebar{display:none}.main{margin-left:0;padding:18px}}
+</style></head><body><div class="wrap">
+<nav class="sidebar">
+<div class="brand"><b>Java</b> Day 7 Reference</div>
+<div class="brand-sub">Oracle Certification Training &middot; iamneo L&amp;D</div>
+<input id="search" type="text" placeholder="Search topics&hellip;" oninput="doSearch(this.value)">
+<a class="nav-item active" href="#errtypes">1 &middot; Error Types</a>
+<a class="nav-item" href="#hierarchy">2 &middot; Exception Hierarchy</a>
+<a class="nav-item" href="#trycatch">3 &middot; try-catch</a>
+<a class="nav-item" href="#finally">4 &middot; finally Block</a>
+<a class="nav-item" href="#common">5 &middot; Common Exceptions</a>
+<a class="nav-item" href="#debug">6 &middot; Debugging & Stack Traces</a>
+<a class="nav-item" href="#practices">7 &middot; Best Practices</a>
+<a class="nav-item" href="#exercises">8 &middot; Exception Exercises</a>
+</nav>
+<main class="main">
+<div class="hero"><div class="eyebrow">Day 7 &middot; Exception Handling</div>
+<h1>Exception Handling — Master Reference</h1><p>The Throwable tree, try-catch-finally semantics, every common exception, stack-trace reading and defensive best practices.</p><div class="chips"><span class="chip">Syntax vs Runtime vs Logical</span><span class="chip">Throwable Hierarchy</span><span class="chip">Checked vs Unchecked</span><span class="chip">try-catch</span><span class="chip">finally</span><span class="chip">Stack Traces</span><span class="chip">Best Practices</span></div></div>
+<div id="no-results">No matching topics. Clear the search to see everything.</div>
+<section id="errtypes" class="sec"><div class="sec-eyebrow">Section 1</div><h2>🐞 Error Types: Syntax · Logical · Runtime</h2>
+<div class="card" data-tags="error types syntax compile logical runtime exception bug categories">
+<table>
+<tr><th>Type</th><th>Detected</th><th>Example</th><th>Who catches it</th></tr>
+<tr><td><b>Syntax (compile-time)</b></td><td>By <b>javac</b> — nothing runs until fixed</td><td>Missing ; · unmatched braces · <code>b = b + 1</code> on byte · undeclared variable</td><td>Compiler</td></tr>
+<tr><td><b>Runtime (exception)</b></td><td>By the <b>JVM during execution</b></td><td>÷ by zero · null access · bad array index · bad user input</td><td>try-catch or program crashes</td></tr>
+<tr><td><b>Logical</b></td><td><b>Never automatically</b> — program runs, answer is wrong</td><td>Using <code>i&lt;=n</code> instead of <code>i&lt;n</code> · wrong formula · == instead of equals</td><td>Testing &amp; debugging only</td></tr>
+</table>
+<div class="tip">Certification wording: "fails to compile" → syntax; "throws an exception at runtime" → runtime; "compiles and runs but prints the wrong value" → logical. Every code question resolves to one of these three verdicts.</div>
+</div></section>
+<section id="hierarchy" class="sec"><div class="sec-eyebrow">Section 2</div><h2>🌳 The Throwable Hierarchy</h2>
+<div class="card" data-tags="hierarchy throwable error exception runtimeexception checked unchecked ioexception outofmemory">
+<div class="tree">Throwable
+├── <span style="color:var(--red)">Error</span>                     <span style="color:var(--dim)">— JVM-level, DON'T catch (unchecked)</span>
+│   ├── OutOfMemoryError
+│   └── StackOverflowError      <span style="color:var(--dim)">— e.g. runaway recursion</span>
+└── <span style="color:var(--gold)">Exception</span>                 <span style="color:var(--dim)">— application-level problems</span>
+    ├── IOException             <span style="color:var(--dim)">— CHECKED: compiler forces handle-or-declare</span>
+    ├── SQLException            <span style="color:var(--dim)">— CHECKED</span>
+    └── <span style="color:var(--blue)">RuntimeException</span>      <span style="color:var(--dim)">— UNCHECKED: compiler stays silent</span>
+        ├── NullPointerException
+        ├── ArithmeticException
+        ├── ArrayIndexOutOfBoundsException
+        ├── NumberFormatException
+        └── ClassCastException</div>
+<table>
+<tr><th></th><th>Checked</th><th>Unchecked</th></tr>
+<tr><td><b>Extends</b></td><td>Exception (but NOT RuntimeException)</td><td>RuntimeException or Error</td></tr>
+<tr><td><b>Compiler forces handling?</b></td><td>✅ try-catch or <code>throws</code> clause</td><td>❌ optional</td></tr>
+<tr><td><b>Represents</b></td><td>Recoverable external failures (file missing, network down)</td><td>Programming bugs (null, bad index) / JVM disasters</td></tr>
+<tr><td><b>Examples</b></td><td>IOException, SQLException, InterruptedException</td><td>NPE, ArithmeticException, OutOfMemoryError</td></tr>
+</table>
+<div class="confuser"><span class="w">WRONG:</span> "Errors and exceptions are the same." &nbsp;→&nbsp; <span class="r">RIGHT:</span> Both extend Throwable, but <b>Error = JVM catastrophe</b> (don't catch), <b>Exception = application problem</b> (handle it).</div>
+</div></section>
+<section id="trycatch" class="sec"><div class="sec-eyebrow">Section 3</div><h2>🛡️ try-catch Block</h2>
+<div class="card" data-tags="try catch multiple multi catch order unreachable exception object message">
+<pre><span class="kw">try</span> {
+    <span class="kw">int</span>[] a = <span class="kw">new int</span>[<span class="num">3</span>];
+    a[<span class="num">5</span>] = <span class="num">10</span>;                                    <span class="cm">// 💥 throws here…</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"never reached"</span>);          <span class="cm">// …rest of try is SKIPPED</span>
+} <span class="kw">catch</span> (<span class="cls">ArrayIndexOutOfBoundsException</span> e) {      <span class="cm">// most SPECIFIC first</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Bad index: "</span> + e.<span class="fn">getMessage</span>());
+} <span class="kw">catch</span> (<span class="cls">Exception</span> e) {                            <span class="cm">// broader safety net LAST</span>
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Something else"</span>);
+}
+<span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Program continues"</span>);           <span class="cm">// ✅ recovery achieved</span></pre>
+<table>
+<tr><th>Rule</th><th>Detail</th></tr>
+<tr><td><b>Catch order</b></td><td>Child before parent. <code>catch(Exception)</code> before <code>catch(ArithmeticException)</code> = compile error: "exception has already been caught" (unreachable).</td></tr>
+<tr><td><b>Multi-catch (Java 7+)</b></td><td><code>catch (IOException | SQLException e)</code> — one block, unrelated types only (no parent-child pairs), e is implicitly final.</td></tr>
+<tr><td><b>Flow on throw</b></td><td>Remaining try statements skipped → first matching catch runs → execution continues AFTER the try-catch.</td></tr>
+<tr><td><b>No match</b></td><td>Exception propagates up the call stack; if main can't handle it, JVM prints the stack trace and the program dies.</td></tr>
+</table>
+<div class="trap">try cannot stand alone — it needs at least one <b>catch or finally</b>. A bare <code>try { }</code> is a compile error.</div>
+</div></section>
+<section id="finally" class="sec"><div class="sec-eyebrow">Section 4</div><h2>🔚 finally Block</h2>
+<div class="card" data-tags="finally always runs cleanup return system exit try with resources close">
+<pre><span class="kw">try</span> {
+    <span class="kw">int</span> r = <span class="num">10</span> / <span class="num">0</span>;
+} <span class="kw">catch</span> (<span class="cls">ArithmeticException</span> e) {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Caught"</span>);
+} <span class="kw">finally</span> {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Cleanup — ALWAYS runs"</span>);   <span class="cm">// exception or not, return or not</span>
+}</pre>
+<table>
+<tr><th>Scenario</th><th>Does finally run?</th></tr>
+<tr><td>No exception thrown</td><td>✅</td></tr>
+<tr><td>Exception thrown and caught</td><td>✅</td></tr>
+<tr><td>Exception thrown, NOT caught</td><td>✅ (runs before propagation)</td></tr>
+<tr><td><b>return inside try or catch</b></td><td>✅ finally runs BEFORE the method actually returns</td></tr>
+<tr><td><code>System.exit(0)</code> in try</td><td>❌ the only common escape — JVM halts</td></tr>
+</table>
+<pre><span class="cm">// try-with-resources (Java 7+): auto-close, no manual finally needed</span>
+<span class="kw">try</span> (<span class="cls">Scanner</span> sc = <span class="kw">new</span> <span class="cls">Scanner</span>(<span class="cls">System</span>.in)) {
+    <span class="cm">// sc.close() is called automatically — resource must implement AutoCloseable</span>
+}</pre>
+<div class="trap">A <b>return in finally overrides</b> any return/exception from try or catch — it even swallows exceptions. Legal, terrible practice, and a favourite exam puzzle: "which value is returned?" → always the finally one.</div>
+</div></section>
+<section id="common" class="sec"><div class="sec-eyebrow">Section 5</div><h2>💥 Common Exceptions Catalogue</h2>
+<div class="card" data-tags="nullpointer arithmetic arrayindex numberformat classcast inputmismatch illegalargument common">
+<table>
+<tr><th>Exception</th><th>Thrown when</th><th>Trigger snippet</th></tr>
+<tr><td><b>NullPointerException</b></td><td>Member access on a null reference</td><td><code>String s=null; s.length();</code></td></tr>
+<tr><td><b>ArithmeticException</b></td><td>Integer ÷ 0 or % 0 (double ÷ 0 = Infinity, no throw)</td><td><code>10/0</code></td></tr>
+<tr><td><b>ArrayIndexOutOfBoundsException</b></td><td>Index &lt; 0 or ≥ length</td><td><code>arr[arr.length]</code></td></tr>
+<tr><td><b>StringIndexOutOfBoundsException</b></td><td>Bad charAt/substring index</td><td><code>"hi".charAt(5)</code></td></tr>
+<tr><td><b>NumberFormatException</b></td><td>Parsing non-numeric text</td><td><code>Integer.parseInt("12a")</code></td></tr>
+<tr><td><b>InputMismatchException</b></td><td>Scanner token doesn't match requested type</td><td><code>nextInt()</code> on "abc"</td></tr>
+<tr><td><b>ClassCastException</b></td><td>Invalid downcast at runtime</td><td><code>(Integer)(Object)"str"</code></td></tr>
+<tr><td><b>IllegalArgumentException</b></td><td>Method given an invalid argument (often thrown BY you for validation)</td><td><code>new Random().nextInt(-1)</code></td></tr>
+</table>
+<div class="tip">All of the above are <b>unchecked</b> (RuntimeException family). The checked ones you'll meet later: IOException (files), SQLException (JDBC), InterruptedException (threads).</div>
+</div></section>
+<section id="debug" class="sec"><div class="sec-eyebrow">Section 6</div><h2>🔍 Debugging & Reading Stack Traces</h2>
+<div class="card" data-tags="stack trace debugging breakpoints caused by line number read bottom up">
+<pre><span class="cm">Exception in thread "main" java.lang.ArithmeticException: / by zero
+    at Calculator.divide(Calculator.java:12)      ← WHERE it exploded (read TOP line first)
+    at Calculator.process(Calculator.java:7)      ← which method called divide
+    at Calculator.main(Calculator.java:3)         ← the call chain back to main</span></pre>
+<table>
+<tr><th>Part</th><th>Tells you</th></tr>
+<tr><td><b>Line 1</b></td><td>Exception TYPE + message ("/ by zero") — the what</td></tr>
+<tr><td><b>First "at" line</b></td><td>Exact class, method, file and <b>line number</b> of the throw — the where. Go here first.</td></tr>
+<tr><td><b>Following "at" lines</b></td><td>The call chain (newest → oldest) — the how it got there</td></tr>
+<tr><td><b>"Caused by:"</b></td><td>A wrapped original exception — the true root cause hides at the BOTTOM-most Caused by</td></tr>
+</table>
+<h3>Debugging workflow</h3>
+<div class="flow">
+<div class="fstep"><div class="t">Read trace</div><div class="d">type + line number</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">Reproduce</div><div class="d">smallest failing input</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">Inspect</div><div class="d">println / IDE breakpoints + step-over</div></div><div class="arrow">→</div>
+<div class="fstep"><div class="t">Fix &amp; re-test</div><div class="d">confirm + check neighbours</div></div>
+</div>
+<div class="tip">IDE debugger beats println: set a <b>breakpoint</b> on the reported line, run in Debug mode, watch variable values at the moment of failure. In IntelliJ: click gutter → Shift+F9. VS Code: F5 with the Java debugger.</div>
+</div></section>
+<section id="practices" class="sec"><div class="sec-eyebrow">Section 7</div><h2>✅ Exception Best Practices</h2>
+<div class="card" data-tags="best practices specific exceptions empty catch swallow log rethrow validation">
+<table>
+<tr><th>Do</th><th>Don't</th></tr>
+<tr><td>Catch the most <b>specific</b> type you can handle</td><td><code>catch (Exception e) {}</code> as a reflex</td></tr>
+<tr><td>Log or act in every catch (at least e.printStackTrace() in class)</td><td><b>Empty catch blocks</b> — errors vanish silently, debugging becomes archaeology</td></tr>
+<tr><td>Validate first (if != null, hasNextInt) — prevention over cure</td><td>Using exceptions for ordinary flow control (slow + unreadable)</td></tr>
+<tr><td>Release resources in finally / try-with-resources</td><td>Leaking Scanners, files, connections</td></tr>
+<tr><td>Throw IllegalArgumentException for bad params in your own methods</td><td>Returning magic values like -999 to signal errors</td></tr>
+</table>
+<pre><span class="cm">// Validation-first pattern:</span>
+<span class="kw">if</span> (sc.<span class="fn">hasNextInt</span>()) {
+    <span class="kw">int</span> n = sc.<span class="fn">nextInt</span>();
+} <span class="kw">else</span> {
+    <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Please enter a number"</span>);
+    sc.<span class="fn">next</span>();   <span class="cm">// discard the bad token or the loop spins forever</span>
+}</pre>
+<div class="trap">An empty catch <b>compiles perfectly</b> — exams may show one and ask for output: the program continues normally after the swallowed exception, often printing a misleading "success" line.</div>
+</div></section>
+<section id="exercises" class="sec"><div class="sec-eyebrow">Section 8</div><h2>💪 Exception Exercises</h2>
+<div class="card" data-tags="exercises practice safe divide parse retry calculator array guard">
+<table>
+<tr><th>#</th><th>Exercise</th><th>Concepts hit</th></tr>
+<tr><td>1</td><td>Safe division: read two ints, catch ArithmeticException AND InputMismatchException in separate blocks</td><td>multiple catch, order</td></tr>
+<tr><td>2</td><td>Robust age parser: loop until Integer.parseInt succeeds (catch NumberFormatException, re-prompt)</td><td>catch + retry loop</td></tr>
+<tr><td>3</td><td>Array lookup with index from user — guard with if AND with try-catch; compare both styles</td><td>prevention vs handling</td></tr>
+<tr><td>4</td><td>Trace printer: deliberately call 3-level-deep method chain that divides by zero; read the trace bottom-up</td><td>stack trace anatomy</td></tr>
+<tr><td>5</td><td>Predict-the-output drills: return in try vs finally; exception in catch; System.exit in try</td><td>finally semantics</td></tr>
+<tr><td>6</td><td>Mini ATM: withdraw more than balance throws IllegalArgumentException with message; caller catches and reports</td><td>throwing your own</td></tr>
+</table>
+<pre><span class="cm">// #2 solution core:</span>
+<span class="kw">int</span> age = -<span class="num">1</span>;
+<span class="kw">while</span> (age &lt; <span class="num">0</span>) {
+    <span class="kw">try</span> {
+        age = <span class="cls">Integer</span>.<span class="fn">parseInt</span>(sc.<span class="fn">nextLine</span>());
+    } <span class="kw">catch</span> (<span class="cls">NumberFormatException</span> e) {
+        <span class="cls">System</span>.out.<span class="fn">println</span>(<span class="str">"Digits only — try again:"</span>);
+    }
+}</pre>
+</div></section>
+<footer style="color:var(--dim);font-size:12px;border-top:1px solid var(--border);padding-top:14px;margin-top:8px">
+Day 7 &middot; Exception Handling &middot; Oracle Certification Training Standard &middot; iamneo Learning &amp; Development
+</footer>
+</main></div><script>
+const secs=[...document.querySelectorAll('section.sec')];
+const navs=[...document.querySelectorAll('.nav-item')];
+window.addEventListener('scroll',()=>{let cur=secs[0].id;for(const s of secs){if(s.getBoundingClientRect().top<120)cur=s.id;}
+navs.forEach(n=>n.classList.toggle('active',n.getAttribute('href')==='#'+cur));});
+function doSearch(q){q=q.trim().toLowerCase();let any=false;
+for(const s of secs){let shown=0;
+s.querySelectorAll('.card').forEach(c=>{const hay=(c.textContent+' '+(c.dataset.tags||'')).toLowerCase();const m=!q||hay.includes(q);c.style.display=m?'':'none';if(m)shown++;});
+s.style.display=shown?'':'none';if(shown)any=true;
+navs.forEach(n=>{if(n.getAttribute('href')==='#'+s.id)n.style.display=shown?'':'none';});}
+document.getElementById('no-results').style.display=any?'none':'block';}
+</script></body></html>

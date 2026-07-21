@@ -89,6 +89,12 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .plsql-opt .o-go{margin-left:auto;color:var(--green);font-size:16px;flex:none}
 .plsql-close{display:block;margin:6px auto 0;cursor:pointer;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:var(--dim);background:none;border:none;padding:8px 14px;transition:.16s}
 .plsql-close:hover{color:var(--ink)}
+.plsql-modal.gold{border-top-color:var(--gold)}
+.plsql-modal.gold .m-num{color:var(--gold)}
+.plsql-modal.gold .plsql-opt:hover{border-color:var(--gold)}
+.plsql-modal.gold .plsql-opt:focus-visible{outline-color:var(--gold)}
+.plsql-modal.gold .o-ic{background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.3)}
+.plsql-modal.gold .o-num,.plsql-modal.gold .o-go{color:var(--gold)}
 @media(max-width:920px){.grid{grid-template-columns:1fr;max-width:520px}}
 @media(prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}.plsql-overlay.on,.plsql-modal{animation:none}}
 </style>
@@ -128,7 +134,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
       <div class="oracle-meta">
         <div class="num">PROGRAM 03</div>
         <h2>Oracle University</h2>
-        <p>A structured 7-semester Oracle Cloud &amp; Java learning track — from SQL foundations to Enterprise AI on the cloud. Semesters 2, 3 and 4 are live — the PL/SQL and Java SE 17 Scenario Arenas, Code Clash, and the Void Express: a gamified 1Z0-913 certification train ride.</p>
+        <p>A structured 7-semester Oracle Cloud &amp; Java learning track — from SQL foundations to Enterprise AI on the cloud. Semesters 2, 3 and 4 are live — the PL/SQL and Java SE 17 Scenario Arenas, Code Clash, the Void Express 1Z0-913 cert train, and the new Java Foundations 1Z0-811 ten-day track.</p>
       </div>
       <button class="oracle-toggle" id="oracleToggle" aria-expanded="false" aria-controls="semGrid">
         <span class="lbl">EXPLORE SEMESTERS</span>
@@ -140,7 +146,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
         <div class="sem-grid" id="semGrid">
           <div class="sem soon"><div class="s-num">SEM 01</div><div class="s-title">SQL on Cloud</div><div class="s-state">MODULE</div></div>
           <button class="sem live" id="plsqlBtn" aria-haspopup="dialog" aria-controls="plsqlModal"><div class="s-num">SEM 02</div><div class="s-title">PL/SQL</div><div class="s-state"><span class="dot"></span>2 MODES · CHOOSE</div></button>
-          <a class="sem live" href="java-clash-arena.html"><div class="s-num">SEM 03</div><div class="s-title">Foundations of Java</div><div class="s-state"><span class="dot"></span>⚔ PLAY SIEGE</div></a>
+          <button class="sem live" id="javaBtn" aria-haspopup="dialog" aria-controls="javaModal"><div class="s-num">SEM 03</div><div class="s-title">Foundations of Java</div><div class="s-state"><span class="dot"></span>2 MODES · CHOOSE</div></button>
           <a class="sem live" href="java-se17-scenario-arena.html"><div class="s-num">SEM 04</div><div class="s-title">Java Development 17</div><div class="s-state"><span class="dot"></span>OPEN ARENA</div></a>
           <div class="sem soon"><div class="s-num">SEM 05</div><div class="s-title">Oracle App Development on Cloud</div><div class="s-state">MODULE</div></div>
           <div class="sem soon"><div class="s-num">SEM 06</div><div class="s-title">Data on Cloud</div><div class="s-state">MODULE</div></div>
@@ -170,6 +176,25 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
   </div>
 </div>
 
+<div class="plsql-overlay" id="javaModal" role="dialog" aria-modal="true" aria-labelledby="javaTitle">
+  <div class="plsql-modal gold">
+    <div class="m-num">SEM 03 · FOUNDATIONS OF JAVA</div>
+    <h3 id="javaTitle">Choose your mode</h3>
+    <p class="m-sub">Two ways to train — the day-by-day 1Z0-811 certification track, or the Code Clash siege battle.</p>
+    <a class="plsql-opt" href="java-foundations-1z0-811.html">
+      <div class="o-ic">☕</div>
+      <div><div class="o-num">OPTION 1</div><div class="o-title">Java Foundations · 1Z0-811</div><div class="o-sub">10 daily master-reference visualizers — fundamentals to cert prep, with progress tracking.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <a class="plsql-opt" href="java-clash-arena.html">
+      <div class="o-ic">⚔️</div>
+      <div><div class="o-num">OPTION 2</div><div class="o-title">Code Clash · Java Siege</div><div class="o-sub">Clash-style MCQ battle — answer to breach the walls and take the keep.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <button class="plsql-close" id="javaClose">ESC · CLOSE</button>
+  </div>
+</div>
+
 <script>
 (function(){
   var card=document.getElementById('oracleCard'),
@@ -185,24 +210,28 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
     }
   });
 
-  /* PL/SQL mode chooser */
-  var pBtn=document.getElementById('plsqlBtn'),
-      modal=document.getElementById('plsqlModal'),
-      pClose=document.getElementById('plsqlClose');
-  function openModal(){
-    modal.classList.add('on');
-    modal.querySelector('.plsql-opt').focus();
+  /* Mode choosers (PL/SQL + Java Foundations) */
+  function wireChooser(btnId,modalId,closeId){
+    var trigger=document.getElementById(btnId),
+        modal=document.getElementById(modalId),
+        close=document.getElementById(closeId);
+    function openModal(){
+      modal.classList.add('on');
+      modal.querySelector('.plsql-opt').focus();
+    }
+    function closeModal(){
+      modal.classList.remove('on');
+      trigger.focus();
+    }
+    trigger.addEventListener('click',openModal);
+    close.addEventListener('click',closeModal);
+    modal.addEventListener('click',function(e){ if(e.target===modal) closeModal(); });
+    document.addEventListener('keydown',function(e){
+      if(e.key==='Escape'&&modal.classList.contains('on')) closeModal();
+    });
   }
-  function closeModal(){
-    modal.classList.remove('on');
-    pBtn.focus();
-  }
-  pBtn.addEventListener('click',openModal);
-  pClose.addEventListener('click',closeModal);
-  modal.addEventListener('click',function(e){ if(e.target===modal) closeModal(); });
-  document.addEventListener('keydown',function(e){
-    if(e.key==='Escape'&&modal.classList.contains('on')) closeModal();
-  });
+  wireChooser('plsqlBtn','plsqlModal','plsqlClose');
+  wireChooser('javaBtn','javaModal','javaClose');
 })();
 </script>
 
