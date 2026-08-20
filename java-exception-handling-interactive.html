@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Exception Handling — Interactive Learning Hub</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --ink-2:#3C4E59; --ink-3:#6B7B85;
+  --paper:#F1F4F6; --card:#FFFFFF; --line:#D8E0E4;
+  --java-blue:#5382A1; --java-blue-d:#2F5A75; --java-blue-bg:#E8F0F5;
+  --java-org:#E76F00; --java-org-d:#B25600; --java-org-bg:#FDEEDD;
+  --ok:#1D7A4F; --ok-bg:#E2F3EA; --err:#C03A2B; --err-bg:#FBE9E6;
+  --term:#101B21; --term-2:#1B2B34; --term-txt:#D7E3EA; --term-dim:#7A8E99;
+  --kw:#E7A23C; --str:#8CC98F; --typ:#7FB4D8; --cmt:#5F7683;
+  --r:10px; --mono:'JetBrains Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.65;font-size:16px}
+.wrap{max-width:1020px;margin:0 auto;padding:0 20px}
+
+/* header */
+header{background:var(--term);color:var(--term-txt);padding:34px 0 0;border-bottom:4px solid var(--java-org)}
+.brand{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.brand .cup{font-family:var(--mono);color:var(--java-org);font-size:14px;letter-spacing:2px;text-transform:uppercase}
+header h1{font-size:clamp(24px,4vw,36px);font-weight:700;letter-spacing:-0.5px;margin:6px 0 4px;color:#fff}
+header p.sub{color:var(--term-dim);max-width:640px;font-size:15px}
+.trace{font-family:var(--mono);font-size:13px;background:var(--term-2);border:1px solid #26404E;border-radius:var(--r) var(--r) 0 0;margin-top:22px;padding:14px 18px;overflow-x:auto;white-space:pre;color:var(--term-dim)}
+.trace .t-red{color:#F08A7A}.trace .t-org{color:var(--kw)}.trace .t-ok{color:var(--str)}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--java-org);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 6px rgba(22,35,43,.06)}
+nav .wrap{display:flex;gap:4px;overflow-x:auto}
+.tab{font-family:var(--mono);font-size:13px;font-weight:500;padding:14px 16px;border:none;background:none;cursor:pointer;color:var(--ink-3);border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--java-blue-d);border-bottom-color:var(--java-org)}
+.tab .n{color:var(--java-org);margin-right:6px}
+
+/* sections */
+main section{display:none;padding:38px 0 60px}
+main section.on{display:block;animation:fade .35s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-size:26px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+.lede{color:var(--ink-2);max-width:720px;margin-bottom:26px}
+h3{font-size:18px;font-weight:600;margin:30px 0 10px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:1.5px;text-transform:uppercase;color:var(--java-org-d);font-weight:700}
+
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin:14px 0}
+.grid{display:grid;gap:14px}
+.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+.g3{grid-template-columns:repeat(auto-fit,minmax(220px,1fr))}
+.g5{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+
+.kwcard{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:border-color .15s, transform .15s}
+.kwcard:hover{border-color:var(--java-blue);transform:translateY(-2px)}
+.kwcard code{font-family:var(--mono);font-weight:700;color:var(--java-blue-d);font-size:15px}
+.kwcard p{font-size:13px;color:var(--ink-3);margin-top:4px}
+.kwcard.open{border-color:var(--java-org)}
+.kwdetail{display:none;font-size:13px;color:var(--ink-2);margin-top:10px;border-top:1px dashed var(--line);padding-top:10px}
+.kwcard.open .kwdetail{display:block}
+
+/* code blocks */
+pre.code{background:var(--term);color:var(--term-txt);font-family:var(--mono);font-size:13.5px;line-height:1.7;border-radius:var(--r);padding:16px 18px;overflow-x:auto;margin:12px 0;border:1px solid #26404E}
+pre.code .k{color:var(--kw)}pre.code .s{color:var(--str)}pre.code .t{color:var(--typ)}pre.code .c{color:var(--cmt);font-style:italic}
+.codebar{display:flex;align-items:center;gap:8px;background:var(--term-2);border:1px solid #26404E;border-bottom:none;border-radius:var(--r) var(--r) 0 0;padding:8px 14px;font-family:var(--mono);font-size:12px;color:var(--term-dim)}
+.codebar+pre.code{border-radius:0 0 var(--r) var(--r);margin-top:0}
+.dot{width:9px;height:9px;border-radius:50%}
+.dot.r{background:#E0604F}.dot.y{background:#E7A23C}.dot.g{background:#5DBB7A}
+
+/* hierarchy */
+.tree{display:flex;flex-direction:column;align-items:center;gap:0}
+.tnode{font-family:var(--mono);font-size:14px;font-weight:500;border:1.5px solid;border-radius:8px;padding:8px 18px;cursor:pointer;background:var(--card);transition:transform .15s}
+.tnode:hover{transform:scale(1.04)}
+.tnode.throwable{border-color:var(--ink-2);color:var(--ink)}
+.tnode.error{border-color:var(--err);color:var(--err);background:var(--err-bg)}
+.tnode.exc{border-color:var(--java-blue-d);color:var(--java-blue-d);background:var(--java-blue-bg)}
+.tnode.chk{border-color:var(--ok);color:var(--ok);background:var(--ok-bg)}
+.tnode.unc{border-color:var(--java-org-d);color:var(--java-org-d);background:var(--java-org-bg)}
+.tlink{width:2px;height:18px;background:var(--line)}
+.trow{display:flex;gap:60px;position:relative}
+.trow:before{content:'';position:absolute;top:-18px;left:25%;right:25%;height:2px;background:var(--line)}
+.trow>div{display:flex;flex-direction:column;align-items:center}
+#treeInfo{min-height:64px;margin-top:18px;font-size:14px;background:var(--java-blue-bg);border-left:4px solid var(--java-blue);border-radius:0 8px 8px 0;padding:12px 16px;color:var(--ink-2)}
+#hierSvg{width:100%;height:auto;display:block}
+#hierSvg [data-i]{cursor:pointer}
+#hierSvg [data-i] rect{transition:stroke-width .12s}
+#hierSvg [data-i]:hover rect,#hierSvg [data-i].sel rect{stroke-width:2.6}
+#hierSvg text{font-family:var(--mono);pointer-events:none}
+
+.badge{display:inline-block;font-family:var(--mono);font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:20px;margin:2px 4px 2px 0}
+.b-blue{background:var(--java-blue-bg);color:var(--java-blue-d)}
+.b-org{background:var(--java-org-bg);color:var(--java-org-d)}
+.b-ok{background:var(--ok-bg);color:var(--ok)}
+.b-err{background:var(--err-bg);color:var(--err)}
+
+/* buttons */
+.btn{font-family:var(--mono);font-size:13.5px;font-weight:500;border:1.5px solid var(--java-blue-d);color:var(--java-blue-d);background:var(--card);border-radius:8px;padding:9px 18px;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--java-blue-bg)}
+.btn.solid{background:var(--java-blue-d);color:#fff}
+.btn.solid:hover{background:var(--java-blue)}
+.btn.org{border-color:var(--java-org-d);color:var(--java-org-d)}
+.btn.org:hover{background:var(--java-org-bg)}
+.btn.org.solid{background:var(--java-org);border-color:var(--java-org);color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+
+/* flow lab */
+.flowgrid{display:grid;grid-template-columns:1.25fr 1fr;gap:16px}
+@media(max-width:760px){.flowgrid{grid-template-columns:1fr}}
+.flowcode{background:var(--term);border-radius:var(--r);border:1px solid #26404E;font-family:var(--mono);font-size:13px;line-height:1.9;padding:14px 0;overflow-x:auto}
+.fl{padding:0 18px;white-space:pre;color:var(--term-txt);border-left:4px solid transparent}
+.fl .k{color:var(--kw)}.fl .s{color:var(--str)}.fl .t{color:var(--typ)}.fl .c{color:var(--cmt)}
+.fl.hot{background:rgba(231,111,0,.16);border-left-color:var(--java-org)}
+.fl.done{opacity:.55}
+.console{background:var(--term-2);border-radius:var(--r);border:1px solid #26404E;padding:14px 16px;font-family:var(--mono);font-size:13px;min-height:120px;color:var(--term-txt)}
+.console .lbl{color:var(--term-dim);font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:8px}
+.console .out{color:var(--str)}.console .err-o{color:#F08A7A}
+#flowNarr{background:var(--java-org-bg);border-left:4px solid var(--java-org);border-radius:0 8px 8px 0;padding:12px 14px;font-size:14px;color:var(--ink-2);min-height:56px;margin-top:12px}
+.flowctl{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:14px 0}
+select,input[type=text],input[type=number]{font-family:var(--mono);font-size:14px;padding:9px 12px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);outline:none}
+select:focus,input:focus{border-color:var(--java-blue)}
+.stackviz{display:flex;flex-direction:column-reverse;gap:6px;margin-top:12px}
+.frame{font-family:var(--mono);font-size:12.5px;padding:8px 12px;border-radius:6px;border:1.5px solid var(--java-blue-d);background:var(--java-blue-bg);color:var(--java-blue-d);transition:all .3s}
+.frame.pop{border-color:var(--err);background:var(--err-bg);color:var(--err);text-decoration:line-through;opacity:.7}
+
+/* playground */
+.pgtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px}
+.pgtab{font-family:var(--mono);font-size:13px;padding:8px 14px;border-radius:20px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;color:var(--ink-3)}
+.pgtab.on{border-color:var(--java-org);color:var(--java-org-d);background:var(--java-org-bg);font-weight:700}
+.pgpane{display:none}.pgpane.on{display:block}
+.charstrip{display:flex;flex-wrap:wrap;gap:3px;margin:12px 0}
+.chip{min-width:26px;text-align:center;border:1px solid var(--line);border-radius:6px;padding:3px 2px;background:var(--card)}
+.chip .ch{font-family:var(--mono);font-size:13px}.chip .ix{font-size:10px;color:var(--ink-3)}
+.chip.at{background:var(--java-org-bg);border-color:var(--java-org)}
+.chip.dot-c{background:#EEEDFE;border-color:#534AB7}
+.chip.ext{background:var(--ok-bg);border-color:var(--ok)}
+.checkline{display:flex;align-items:center;gap:10px;font-size:14px;padding:8px 12px;border-radius:8px;margin:6px 0;border:1px solid var(--line);background:var(--card)}
+.checkline.pass{border-color:var(--ok);background:var(--ok-bg)}
+.checkline.fail{border-color:var(--err);background:var(--err-bg)}
+.checkline.skip{opacity:.5}
+.checkline code{font-family:var(--mono);font-size:12.5px}
+.verdict{font-family:var(--mono);font-size:15px;font-weight:700;padding:14px 16px;border-radius:var(--r);margin-top:12px}
+.verdict.ok{background:var(--ok-bg);color:var(--ok);border:1.5px solid var(--ok)}
+.verdict.bad{background:var(--err-bg);color:var(--err);border:1.5px solid var(--err)}
+
+/* quiz */
+.qprog{height:8px;background:var(--line);border-radius:6px;overflow:hidden;margin:14px 0 22px}
+.qprog>div{height:100%;background:var(--java-org);width:0%;transition:width .3s}
+.qq{font-size:17px;font-weight:600;margin-bottom:6px}
+.qcodebox{margin:10px 0}
+.opt{display:block;width:100%;text-align:left;font-family:var(--sans);font-size:15px;padding:12px 16px;margin:8px 0;border:1.5px solid var(--line);border-radius:var(--r);background:var(--card);cursor:pointer;transition:all .15s}
+.opt:hover{border-color:var(--java-blue)}
+.opt.sel{border-color:var(--java-blue-d);background:var(--java-blue-bg)}
+.opt.right{border-color:var(--ok);background:var(--ok-bg)}
+.opt.wrong{border-color:var(--err);background:var(--err-bg)}
+.opt code{font-family:var(--mono);font-size:13.5px}
+.expl{display:none;background:var(--java-blue-bg);border-left:4px solid var(--java-blue);border-radius:0 8px 8px 0;padding:12px 16px;font-size:14px;color:var(--ink-2);margin-top:12px}
+.expl.show{display:block}
+.qmeta{font-family:var(--mono);font-size:12.5px;color:var(--ink-3);margin-bottom:8px}
+.scorebox{text-align:center;padding:36px 20px}
+.scorebox .big{font-size:52px;font-weight:700;color:var(--java-org);font-family:var(--mono)}
+
+/* activities */
+.slotwrap{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0;min-height:52px;border:2px dashed var(--line);border-radius:var(--r);padding:10px;background:var(--card)}
+.token{font-family:var(--mono);font-size:13px;padding:8px 14px;border-radius:8px;border:1.5px solid var(--java-blue-d);background:var(--java-blue-bg);color:var(--java-blue-d);cursor:pointer;user-select:none}
+.token:hover{transform:translateY(-2px)}
+.token.placed{border-color:var(--java-org);background:var(--java-org-bg);color:var(--java-org-d)}
+.matchrow{display:grid;grid-template-columns:1fr auto;gap:10px;align-items:center;margin:8px 0}
+.matchrow .sc{font-size:14px;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:10px 14px}
+.result-pill{font-family:var(--mono);font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;display:inline-block;margin-top:10px}
+.result-pill.ok{background:var(--ok-bg);color:var(--ok)}
+.result-pill.bad{background:var(--err-bg);color:var(--err)}
+.reveal{display:none;margin-top:10px}
+.reveal.show{display:block}
+
+/* problems */
+details.prob{background:var(--card);border:1px solid var(--line);border-radius:var(--r);margin:12px 0;overflow:hidden}
+details.prob summary{cursor:pointer;padding:16px 20px;font-weight:600;font-size:15.5px;list-style:none;display:flex;align-items:center;gap:10px}
+details.prob summary::-webkit-details-marker{display:none}
+details.prob summary .pnum{font-family:var(--mono);color:#fff;background:var(--java-blue-d);border-radius:6px;padding:2px 9px;font-size:12.5px}
+details.prob[open] summary{border-bottom:1px solid var(--line);background:var(--java-blue-bg)}
+details.prob .pbody{padding:16px 20px}
+.tag{font-family:var(--mono);font-size:11px;background:var(--java-org-bg);color:var(--java-org-d);border-radius:4px;padding:2px 8px;margin-left:auto}
+.note{font-size:14px;padding:10px 14px;border-radius:8px;margin:8px 0}
+.note.why{background:var(--ok-bg);border-left:4px solid var(--ok)}
+.note.con{background:var(--java-blue-bg);border-left:4px solid var(--java-blue)}
+.note b{font-weight:600}
+
+footer{background:var(--term);color:var(--term-dim);padding:28px 0;font-size:13.5px;margin-top:20px}
+footer a{color:var(--typ)}
+.refs li{margin:6px 0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tab:focus-visible,.btn:focus-visible,.opt:focus-visible,.tnode:focus-visible{outline:3px solid var(--java-org);outline-offset:2px}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <div class="brand"><span class="cup">&#9749; Java · single-file lab</span></div>
+    <h1>Exception Handling — Interactive Learning Hub</h1>
+    <p class="sub">Learn the mechanics, watch the flow, break things safely in the playground, then prove it in the quiz. Built around six real auto-graded problems.</p>
+    <div class="trace" id="heroTrace"><span class="t-red">Exception in thread "main"</span> <span class="t-org">InvalidAgeException</span>: Age is not valid to vote
+    at Main.validate(<span class="t-ok">Main.java:9</span>)
+    at Main.main(<span class="t-ok">Main.java:15</span>)  <span class="t-ok">// ...until you catch it &#8594; start below</span><span class="cursor"></span></div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <button class="tab on" data-t="learn"><span class="n">01</span>Learn</button>
+    <button class="tab" data-t="flow"><span class="n">02</span>Flow lab</button>
+    <button class="tab" data-t="play"><span class="n">03</span>Playground</button>
+    <button class="tab" data-t="quiz"><span class="n">04</span>Quiz</button>
+    <button class="tab" data-t="act"><span class="n">05</span>Activities</button>
+    <button class="tab" data-t="prob"><span class="n">06</span>Problems</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ============ LEARN ============ -->
+<section id="learn" class="on">
+  <span class="eyebrow">Learning mode</span>
+  <h2>What exception handling is, and why it exists</h2>
+  <p class="lede">Exception handling is Java's mechanism for dealing with runtime errors so a program can continue operating or terminate gracefully. It separates error-handling code from regular logic, which keeps both readable and maintainable. Without it, one bad input crashes the whole application.</p>
+
+  <div class="card">
+    <b>The cashier analogy.</b> When a product barcode doesn't scan, the cashier doesn't close the store — they type the code manually or call for help. That's exception handling: the unexpected happens, a defined recovery path runs, and business continues. (Analogy from Shant Khayalian's guide — see references in the footer.)
+  </div>
+
+  <h3>The five keywords — click each to expand</h3>
+  <div class="grid g5">
+    <div class="kwcard" tabindex="0"><code>try</code><p>Wrap risky code</p><div class="kwdetail">The block where an exception might occur. If one is thrown, remaining statements in the block are skipped and control jumps to a matching catch.</div></div>
+    <div class="kwcard" tabindex="0"><code>catch</code><p>Handle the failure</p><div class="kwdetail">Handles a thrown exception by type. Multiple catch blocks are checked top to bottom — put subclasses before superclasses or the later one becomes unreachable (compile error).</div></div>
+    <div class="kwcard" tabindex="0"><code>finally</code><p>Always runs</p><div class="kwdetail">Executes whether or not an exception was thrown — perfect for cleanup like closing files or connections. Skipped only by System.exit() or a JVM crash.</div></div>
+    <div class="kwcard" tabindex="0"><code>throw</code><p>Raise one, now</p><div class="kwdetail">Explicitly throws a single exception object: <code style="font-family:var(--mono)">throw new IOException("File not found");</code>. Used inside method bodies.</div></div>
+    <div class="kwcard" tabindex="0"><code>throws</code><p>Declare on method</p><div class="kwdetail">Goes on the method signature to declare checked exceptions the method may propagate: <code style="font-family:var(--mono)">void readFile() throws IOException</code>. It warns callers; it does not handle anything.</div></div>
+  </div>
+
+  <h3>The exception hierarchy — click any node</h3>
+  <div class="card" style="overflow-x:auto">
+    <svg id="hierSvg" viewBox="0 0 960 440" role="img" aria-label="Java exception hierarchy: Throwable splits into Error and Exception; Exception splits into checked exceptions and RuntimeException with common examples under each">
+      <!-- connectors -->
+      <g stroke="#B9C6CC" stroke-width="2" fill="none">
+        <path d="M480 54 V74"/><path d="M180 74 H660"/><path d="M180 74 V94"/><path d="M660 74 V94"/>
+        <path d="M180 134 V152"/><path d="M110 152 H330"/><path d="M110 152 V166"/><path d="M330 152 V166"/>
+        <path d="M660 134 V152"/><path d="M540 152 H815"/><path d="M540 152 V166"/><path d="M815 152 V166"/>
+        <path d="M540 206 V220"/><path d="M815 206 V220"/>
+      </g>
+      <!-- Throwable -->
+      <g data-i="throwable" tabindex="0"><rect x="400" y="14" width="160" height="40" rx="8" fill="#FFFFFF" stroke="#3C4E59" stroke-width="1.6"/>
+        <text x="480" y="34" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#16232B">Throwable</text></g>
+      <!-- Error -->
+      <g data-i="error" tabindex="0"><rect x="105" y="94" width="150" height="40" rx="8" fill="#FBE9E6" stroke="#C03A2B" stroke-width="1.6"/>
+        <text x="180" y="114" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#C03A2B">Error</text></g>
+      <g data-i="oome" tabindex="0"><rect x="15" y="166" width="190" height="32" rx="7" fill="#FFFFFF" stroke="#C03A2B" stroke-width="1.3"/>
+        <text x="110" y="182" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#C03A2B">OutOfMemoryError</text></g>
+      <g data-i="sofe" tabindex="0"><rect x="230" y="166" width="200" height="32" rx="7" fill="#FFFFFF" stroke="#C03A2B" stroke-width="1.3"/>
+        <text x="330" y="182" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#C03A2B">StackOverflowError</text></g>
+      <text x="222" y="222" text-anchor="middle" font-size="11.5" fill="#6B7B85">JVM failures — do not catch</text>
+      <!-- Exception -->
+      <g data-i="exception" tabindex="0"><rect x="575" y="94" width="170" height="40" rx="8" fill="#E8F0F5" stroke="#2F5A75" stroke-width="1.6"/>
+        <text x="660" y="114" text-anchor="middle" dominant-baseline="central" font-size="15" font-weight="700" fill="#2F5A75">Exception</text></g>
+      <!-- Checked branch -->
+      <g data-i="checked" tabindex="0"><rect x="445" y="166" width="190" height="40" rx="8" fill="#E2F3EA" stroke="#1D7A4F" stroke-width="1.6"/>
+        <text x="540" y="186" text-anchor="middle" dominant-baseline="central" font-size="13.5" font-weight="700" fill="#1D7A4F">Checked (compile-time)</text></g>
+      <g data-i="io" tabindex="0"><rect x="435" y="220" width="210" height="30" rx="6" fill="#FFFFFF" stroke="#1D7A4F" stroke-width="1.3"/>
+        <text x="540" y="235" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#1D7A4F">IOException</text></g>
+      <g data-i="fnf" tabindex="0"><rect x="435" y="254" width="210" height="30" rx="6" fill="#FFFFFF" stroke="#1D7A4F" stroke-width="1.3"/>
+        <text x="540" y="269" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#1D7A4F">&#8627; FileNotFoundException</text></g>
+      <g data-i="sql" tabindex="0"><rect x="435" y="288" width="210" height="30" rx="6" fill="#FFFFFF" stroke="#1D7A4F" stroke-width="1.3"/>
+        <text x="540" y="303" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#1D7A4F">SQLException</text></g>
+      <g data-i="cnf" tabindex="0"><rect x="435" y="322" width="210" height="30" rx="6" fill="#FFFFFF" stroke="#1D7A4F" stroke-width="1.3"/>
+        <text x="540" y="337" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#1D7A4F">ClassNotFoundException</text></g>
+      <g data-i="cust" tabindex="0"><rect x="435" y="356" width="210" height="30" rx="6" fill="#FFFFFF" stroke="#1D7A4F" stroke-width="1.3"/>
+        <text x="540" y="371" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#1D7A4F">InvalidAgeException (custom)</text></g>
+      <!-- Runtime branch -->
+      <g data-i="unchecked" tabindex="0"><rect x="705" y="166" width="220" height="40" rx="8" fill="#FDEEDD" stroke="#B25600" stroke-width="1.6"/>
+        <text x="815" y="186" text-anchor="middle" dominant-baseline="central" font-size="13.5" font-weight="700" fill="#B25600">RuntimeException</text></g>
+      <g data-i="npe" tabindex="0"><rect x="695" y="220" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="235" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">NullPointerException</text></g>
+      <g data-i="aioobe" tabindex="0"><rect x="695" y="254" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="269" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">ArrayIndexOutOfBoundsException</text></g>
+      <g data-i="arith" tabindex="0"><rect x="695" y="288" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="303" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">ArithmeticException</text></g>
+      <g data-i="iae" tabindex="0"><rect x="695" y="322" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="337" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">IllegalArgumentException</text></g>
+      <g data-i="nfe" tabindex="0"><rect x="695" y="356" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="371" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">&#8627; NumberFormatException</text></g>
+      <g data-i="ime" tabindex="0"><rect x="695" y="390" width="240" height="30" rx="6" fill="#FFFFFF" stroke="#B25600" stroke-width="1.3"/>
+        <text x="815" y="405" text-anchor="middle" dominant-baseline="central" font-size="11.5" fill="#B25600">InputMismatchException</text></g>
+    </svg>
+    <div id="treeInfo">Click any node — root, branch, or leaf — to see what it means, when it's thrown, and whether the compiler forces you to handle it.</div>
+  </div>
+
+  <div class="grid g3">
+    <div class="card"><span class="badge b-ok">CHECKED</span>
+      <p style="font-size:14px;margin-top:6px">Verified at <b>compile time</b>. Must be caught or declared with <code style="font-family:var(--mono)">throws</code>.</p>
+      <p style="font-size:13px;color:var(--ink-3);margin-top:6px">IOException · SQLException · ClassNotFoundException · your custom <code style="font-family:var(--mono)">extends Exception</code></p></div>
+    <div class="card"><span class="badge b-org">UNCHECKED</span>
+      <p style="font-size:14px;margin-top:6px">Occur at <b>runtime</b>; the compiler doesn't force handling. Subclasses of RuntimeException.</p>
+      <p style="font-size:13px;color:var(--ink-3);margin-top:6px">NullPointerException · ArrayIndexOutOfBoundsException · IllegalArgumentException · InputMismatchException</p></div>
+    <div class="card"><span class="badge b-err">ERROR</span>
+      <p style="font-size:14px;margin-top:6px">Serious JVM-level failures the application typically <b>cannot recover from</b> — don't catch these.</p>
+      <p style="font-size:13px;color:var(--ink-3);margin-top:6px">OutOfMemoryError · StackOverflowError</p></div>
+  </div>
+
+  <h3>What the JVM actually does when a throw happens</h3>
+  <div class="card">
+    <ol style="padding-left:20px;font-size:15px">
+      <li><b>Object creation</b> — an exception object is instantiated with the error type, message, and program state.</li>
+      <li><b>Stack unwinding</b> — the JVM starts at the throw point and walks <i>up the call stack</i>, method by method, looking for the first matching <code style="font-family:var(--mono)">catch</code>. Each unmatched frame is popped.</li>
+      <li><b>Handling or death</b> — if a match is found, that catch runs, then <code style="font-family:var(--mono)">finally</code>, then normal flow resumes after the try structure. If nothing matches all the way up, the thread terminates and the JVM prints the stack trace.</li>
+      <li><b>Garbage collection</b> — objects abandoned during unwinding are marked for GC, so handled exceptions don't leak memory.</li>
+    </ol>
+    <p style="font-size:13.5px;color:var(--ink-3);margin-top:10px">Watch this happen live in the <b>Flow lab</b> tab — the call stack visualizer pops frames as the exception climbs.</p>
+  </div>
+
+  <h3>Creating a custom exception — the 4-step pattern</h3>
+  <div class="codebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>CustomException.java</div>
+  <pre class="code"><span class="c">// 1. extend Exception (checked) or RuntimeException (unchecked)</span>
+<span class="k">class</span> <span class="t">InvalidAgeException</span> <span class="k">extends</span> <span class="t">Exception</span> {
+    <span class="k">public</span> <span class="t">InvalidAgeException</span>(<span class="t">String</span> message) {
+        <span class="k">super</span>(message);          <span class="c">// 2. store message via superclass</span>
+    }
+}
+
+<span class="k">static void</span> validate(<span class="k">int</span> age) <span class="k">throws</span> <span class="t">InvalidAgeException</span> {
+    <span class="k">if</span> (age &lt; 18)
+        <span class="k">throw new</span> <span class="t">InvalidAgeException</span>(<span class="s">"Age is not valid to vote"</span>);  <span class="c">// 3. throw</span>
+}
+
+<span class="k">try</span> {
+    validate(15);
+} <span class="k">catch</span> (<span class="t">InvalidAgeException</span> e) {
+    System.out.println(e.getMessage());   <span class="c">// 4. catch and read the message</span>
+}</pre>
+
+  <h3>Best practices (the ones graders and code reviewers both check)</h3>
+  <div class="grid g2">
+    <div class="card"><span class="badge b-ok">DO</span>
+      <ul style="padding-left:18px;font-size:14px;margin-top:8px">
+        <li>Catch <b>specific</b> exceptions, not a blanket <code style="font-family:var(--mono)">Exception</code></li>
+        <li>Use <code style="font-family:var(--mono)">finally</code> (or try-with-resources) for cleanup</li>
+        <li>Keep the exact expected message in <code style="font-family:var(--mono)">super(msg)</code>; add prefixes like <code style="font-family:var(--mono)">"Error: "</code> in the catch</li>
+        <li>Document thrown exceptions with JavaDoc</li>
+      </ul></div>
+    <div class="card"><span class="badge b-err">DON'T</span>
+      <ul style="padding-left:18px;font-size:14px;margin-top:8px">
+        <li>Leave empty catch blocks — that's exception <b>swallowing</b></li>
+        <li>Catch <code style="font-family:var(--mono)">Error</code> or use exceptions for normal control flow</li>
+        <li>Put the superclass catch before the subclass (unreachable code = compile error)</li>
+        <li>Print <code style="font-family:var(--mono)">e.getMessage()</code> when the grader expects the class name — that prints <b>null</b> for InputMismatchException</li>
+      </ul></div>
+  </div>
+</section>
+
+<!-- ============ FLOW LAB ============ -->
+<section id="flow">
+  <span class="eyebrow">Flow lab</span>
+  <h2>Watch an exception travel</h2>
+  <p class="lede">Pick a scenario and step through it. The highlighted line is what the JVM is executing; the call stack pops frames during unwinding; the console shows exactly what prints and when.</p>
+
+  <div class="flowctl">
+    <label style="font-size:14px" for="scen">Scenario</label>
+    <select id="scen">
+      <option value="ok">age = 20 → no exception</option>
+      <option value="caught">age = 15 → thrown and caught</option>
+      <option value="uncaught">age = 15, no catch → JVM terminates</option>
+    </select>
+    <button class="btn org solid" id="stepBtn">Step &#9654;</button>
+    <button class="btn" id="resetBtn">Reset</button>
+  </div>
+
+  <div class="flowgrid">
+    <div>
+      <div class="codebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>Main.java</div>
+      <div class="flowcode" id="flowCode"></div>
+    </div>
+    <div>
+      <div class="console"><div class="lbl">Console</div><div id="flowOut"></div></div>
+      <div class="console" style="margin-top:12px"><div class="lbl">Call stack (top = current)</div>
+        <div class="stackviz" id="stackViz"></div>
+      </div>
+    </div>
+  </div>
+  <div id="flowNarr">Press <b>Step</b> to begin.</div>
+</section>
+
+<!-- ============ PLAYGROUND ============ -->
+<section id="play">
+  <span class="eyebrow">Playground</span>
+  <h2>Break things safely</h2>
+  <p class="lede">These simulators run the exact same logic as the Java solutions — type any input and see which check throws, which exception wins, and what prints.</p>
+
+  <div class="pgtabs">
+    <button class="pgtab on" data-p="pgEmail">Email validator</button>
+    <button class="pgtab" data-p="pgBank">Banking system</button>
+    <button class="pgtab" data-p="pgVote">Voting age</button>
+  </div>
+
+  <div class="pgpane on" id="pgEmail">
+    <div class="card">
+      <label style="font-size:14px;font-weight:600" for="emailIn">Email input</label><br>
+      <input type="text" id="emailIn" value="sample@gmail.com" maxlength="50" style="width:100%;max-width:420px;margin-top:8px" aria-label="Email to validate">
+      <div style="font-size:12.5px;color:var(--ink-3);margin-top:6px">Try: <code style="font-family:var(--mono)">sample@gmail.com.</code> · <code style="font-family:var(--mono)">a@b.v</code> · <code style="font-family:var(--mono)">no@at@x.com</code> · <code style="font-family:var(--mono)">sam@gm.ail.com</code></div>
+      <div class="charstrip" id="emailStrip"></div>
+      <div id="emailChecks"></div>
+      <div id="emailVerdict"></div>
+    </div>
+  </div>
+
+  <div class="pgpane" id="pgBank">
+    <div class="card">
+      <div style="display:flex;gap:12px;flex-wrap:wrap">
+        <div><label style="font-size:13px" for="bkB">Balance B</label><br><input type="number" id="bkB" value="1050.1" step="0.1" style="width:140px"></div>
+        <div><label style="font-size:13px" for="bkD">Deposit D</label><br><input type="number" id="bkD" value="270.2" step="0.1" style="width:140px"></div>
+        <div><label style="font-size:13px" for="bkW">Withdraw W</label><br><input type="number" id="bkW" value="150.3" step="0.1" style="width:140px"></div>
+      </div>
+      <button class="btn org solid" id="bkRun" style="margin-top:14px">Run transaction</button>
+      <div class="console" style="margin-top:14px"><div class="lbl">Console</div><div id="bkOut"></div></div>
+      <p style="font-size:13px;color:var(--ink-3);margin-top:10px">Note how a failed deposit (D ≤ 0 → InvalidAmountException) stops the withdrawal from ever running — the try block aborts at the throw.</p>
+    </div>
+  </div>
+
+  <div class="pgpane" id="pgVote">
+    <div class="card">
+      <label style="font-size:14px;font-weight:600" for="voteIn">Age input (try letters too)</label><br>
+      <input type="text" id="voteIn" value="20" style="width:200px;margin-top:8px" aria-label="Age input">
+      <button class="btn org solid" id="voteRun" style="margin-left:8px">Submit vote</button>
+      <div class="console" style="margin-top:14px"><div class="lbl">Console</div><div id="voteOut"></div></div>
+      <p style="font-size:13px;color:var(--ink-3);margin-top:10px">Enter <code style="font-family:var(--mono)">XYZ</code> to trigger InputMismatchException — and notice the output is the <b>class name</b> (toString), not a message, because that exception's message is null.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ QUIZ ============ -->
+<section id="quiz">
+  <span class="eyebrow">Quiz mode</span>
+  <h2>Twelve questions, exam style</h2>
+  <p class="lede">Pick an answer, get an instant explanation, and keep an eye on the score. Wrong answers teach more than right ones here.</p>
+  <div class="qprog"><div id="qbar"></div></div>
+  <div class="card" id="quizCard"></div>
+</section>
+
+<!-- ============ ACTIVITIES ============ -->
+<section id="act">
+  <span class="eyebrow">Activities</span>
+  <h2>Hands-on drills</h2>
+  <p class="lede">Three quick activities: rebuild the JVM's exception sequence, match real crashes to their exception types, and predict outputs before revealing them.</p>
+
+  <div class="card">
+    <h3 style="margin-top:0">1 · Order the exception lifecycle</h3>
+    <p style="font-size:14px;color:var(--ink-2)">Click the steps in the order the JVM performs them.</p>
+    <div class="slotwrap" id="orderSlots" aria-label="Your ordered answer"></div>
+    <div id="orderPool" style="display:flex;flex-wrap:wrap;gap:8px;margin-top:8px"></div>
+    <div style="margin-top:12px">
+      <button class="btn solid" id="orderCheck">Check order</button>
+      <button class="btn" id="orderReset">Reset</button>
+      <span id="orderResult"></span>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">2 · Match the crash to the exception</h3>
+    <div id="matchArea"></div>
+    <button class="btn solid" id="matchCheck" style="margin-top:8px">Check matches</button>
+    <span id="matchResult"></span>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-top:0">3 · Predict the output</h3>
+    <div id="predictArea"></div>
+  </div>
+</section>
+
+<!-- ============ PROBLEMS ============ -->
+<section id="prob">
+  <span class="eyebrow">Solved problems</span>
+  <h2>Six auto-graded problems, dissected</h2>
+  <p class="lede">Each one includes the full solution, why it passes, and how the constraints shaped the code. These are the exact patterns graders test.</p>
+  <div id="probList"></div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <b style="color:#fff">References and further reading</b>
+    <ul class="refs" style="padding-left:18px;margin-top:8px">
+      <li>Shant Khayalian — <a href="https://medium.com/@ShantKhayalian/mastering-java-exception-handling-a-comprehensive-guide-for-developers-c31cef921d75" target="_blank" rel="noopener">Mastering Java Exception Handling: A Comprehensive Guide for Developers</a> (Medium, 2024) — source for the cashier analogy, JVM internals, and best-practices sections.</li>
+      <li>Interactive single-file format inspired by <a href="https://github.com/shaikabdulcader/OCI_PU" target="_blank" rel="noopener">shaikabdulcader/OCI_PU</a> exam-prep pages.</li>
+      <li>Oracle docs — <a href="https://docs.oracle.com/javase/tutorial/essential/exceptions/" target="_blank" rel="noopener">The Java™ Tutorials: Exceptions</a>.</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('main section').forEach(function(s){s.classList.remove('on')});
+    t.classList.add('on');
+    document.getElementById(t.dataset.t).classList.add('on');
+    window.scrollTo({top:0});
+  });
+});
+
+/* ---------- learn: keyword cards ---------- */
+document.querySelectorAll('.kwcard').forEach(function(c){
+  var toggle=function(){c.classList.toggle('open')};
+  c.addEventListener('click',toggle);
+  c.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();toggle();}});
+});
+
+/* ---------- learn: hierarchy ---------- */
+var treeData={
+  throwable:'<b>Throwable</b> (java.lang) — the root of everything that can be thrown or caught. Its only two direct children are Error and Exception. Catching Throwable is technically legal but bad practice — it would swallow Errors too.',
+  error:'<b>Error</b> — serious JVM-level failures the application cannot meaningfully recover from. Errors are unchecked, but unlike RuntimeException the convention is: never catch them, fix the cause instead.',
+  oome:'<b>OutOfMemoryError</b> — the heap is exhausted and GC cannot free enough space. Common causes: unbounded caches, giant collections, memory leaks. Fix memory usage or raise -Xmx; catching it rarely helps because the JVM is already starved.',
+  sofe:'<b>StackOverflowError</b> — the call stack ran out of frames, almost always from infinite or too-deep recursion (a recursive method missing its base case). Fix the recursion; do not catch.',
+  exception:'<b>Exception</b> — the branch your code is meant to handle. Everything under it except the RuntimeException subtree is <b>checked</b>. Custom exceptions in graded problems extend this class directly, which is why every validate() method needs a <code style="font-family:var(--mono)">throws</code> clause.',
+  checked:'<b>Checked exceptions</b> — verified at <b>compile time</b>: the compiler refuses to build unless each one is caught or declared with <code style="font-family:var(--mono)">throws</code>. They represent recoverable, expected failures (missing file, dead DB connection). All six practice problems use custom checked exceptions.',
+  io:'<b>IOException</b> (checked) — the general failure of an I/O operation: reading a file, a socket, a stream. The classic reason try/finally exists — the stream must be closed whether reading succeeded or not.',
+  fnf:'<b>FileNotFoundException</b> (checked) — a subclass of IOException, thrown by <code style="font-family:var(--mono)">new FileReader("missing.txt")</code>. Because it is the subclass, its catch block must come <b>before</b> catch(IOException) or the compiler flags unreachable code.',
+  sql:'<b>SQLException</b> (checked) — database access failed: bad credentials, dead connection, malformed SQL. Carries extra diagnostics via getErrorCode() and getSQLState().',
+  cnf:'<b>ClassNotFoundException</b> (checked) — <code style="font-family:var(--mono)">Class.forName("com.x.Driver")</code> could not find the class on the classpath at runtime. Classic symptom of a missing JAR.',
+  cust:'<b>Custom checked exception</b> — any class you write with <code style="font-family:var(--mono)">extends Exception</code>, like InvalidAgeException, DotException, InsufficientFundsException. Store the grader\'s exact message via <code style="font-family:var(--mono)">super(msg)</code>, then print e.getMessage() in the catch.',
+  unchecked:'<b>RuntimeException</b> — the unchecked branch: thrown at runtime, no compiler enforcement, no throws clause required. These usually signal programming bugs or bad input. Extending RuntimeException instead of Exception is how you make a custom exception unchecked.',
+  npe:'<b>NullPointerException</b> (unchecked) — invoking a method or field on a null reference: <code style="font-family:var(--mono)">String s = null; s.length();</code>. Also why <code style="font-family:var(--mono)">"com".equals(ext)</code> is safer than <code style="font-family:var(--mono)">ext.equals("com")</code>.',
+  aioobe:'<b>ArrayIndexOutOfBoundsException</b> (unchecked) — an index outside 0..length-1: <code style="font-family:var(--mono)">a[5]</code> on a 3-element array. Its String cousin StringIndexOutOfBoundsException is what bad charAt/substring indices throw.',
+  arith:'<b>ArithmeticException</b> (unchecked) — integer division or modulo by zero: <code style="font-family:var(--mono)">5 / 0</code>. Note: <code style="font-family:var(--mono)">5.0 / 0</code> does NOT throw — floating point yields Infinity instead.',
+  iae:'<b>IllegalArgumentException</b> (unchecked) — a method received an invalid argument. This is what the permutations problem throws for negative N: no custom class and no throws clause needed, because it is unchecked.',
+  nfe:'<b>NumberFormatException</b> (unchecked) — a subclass of IllegalArgumentException, thrown by <code style="font-family:var(--mono)">Integer.parseInt("abc")</code>. Different from InputMismatchException: parseInt throws NFE, Scanner.nextInt() throws IME.',
+  ime:'<b>InputMismatchException</b> (unchecked, java.util) — Scanner.nextInt() received a token that is not an int, like "XYZ". It extends NoSuchElementException &#8594; RuntimeException. Its message is <b>null</b>, so print the object itself ("" + e) to get "java.util.InputMismatchException" — the voting problem\'s trap.'
+};
+document.querySelectorAll('#hierSvg [data-i]').forEach(function(n){
+  var show=function(){
+    document.querySelectorAll('#hierSvg [data-i]').forEach(function(x){x.classList.remove('sel')});
+    n.classList.add('sel');
+    document.getElementById('treeInfo').innerHTML=treeData[n.dataset.i];
+  };
+  n.addEventListener('click',show);
+  n.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});
+});
+
+/* ---------- flow lab ---------- */
+var flowLines=[
+  {t:'<span class="k">static void</span> validate(<span class="k">int</span> age) <span class="k">throws</span> <span class="t">InvalidAgeException</span> {',id:0},
+  {t:'    <span class="k">if</span> (age &lt; 18)',id:1},
+  {t:'        <span class="k">throw new</span> <span class="t">InvalidAgeException</span>(<span class="s">"Age is not valid to vote"</span>);',id:2},
+  {t:'}',id:3},
+  {t:'',id:4},
+  {t:'<span class="k">public static void</span> main(<span class="t">String</span>[] args) {',id:5},
+  {t:'    <span class="k">try</span> {',id:6},
+  {t:'        validate(age);',id:7},
+  {t:'        System.out.println(<span class="s">"Eligible to vote"</span>);',id:8},
+  {t:'    } <span class="k">catch</span> (<span class="t">InvalidAgeException</span> e) {',id:9},
+  {t:'        System.out.println(<span class="s">"Caught: "</span> + e.getMessage());',id:10},
+  {t:'    } <span class="k">finally</span> {',id:11},
+  {t:'        System.out.println(<span class="s">"finally: cleanup runs"</span>);',id:12},
+  {t:'    }',id:13},
+  {t:'    System.out.println(<span class="s">"after try structure"</span>);',id:14},
+  {t:'}',id:15}
+];
+var scenarios={
+  ok:[
+    {l:5,n:'JVM enters main(). Frame <b>main</b> is pushed onto the call stack.',stack:['main']},
+    {l:6,n:'Entering the try block — risky code lives here.',stack:['main']},
+    {l:7,n:'Calling validate(20). A new frame is pushed on top.',stack:['main','validate']},
+    {l:1,n:'20 &lt; 18 is false — the throw never happens.',stack:['main','validate']},
+    {l:3,n:'validate() returns normally. Its frame pops off.',stack:['main']},
+    {l:8,n:'Back in try: prints the success line.',out:['Eligible to vote'],stack:['main']},
+    {l:12,n:'No exception, but <b>finally still runs</b>. Always.',out:['Eligible to vote','finally: cleanup runs'],stack:['main']},
+    {l:14,n:'Normal flow continues after the try-catch-finally structure.',out:['Eligible to vote','finally: cleanup runs','after try structure'],stack:['main']}
+  ],
+  caught:[
+    {l:5,n:'JVM enters main().',stack:['main']},
+    {l:6,n:'Entering try.',stack:['main']},
+    {l:7,n:'Calling validate(15). Frame pushed.',stack:['main','validate']},
+    {l:1,n:'15 &lt; 18 is true — heading for the throw.',stack:['main','validate']},
+    {l:2,n:'<b>Object creation</b>: an InvalidAgeException object is instantiated with the message. Normal flow is now disrupted.',stack:['main','validate']},
+    {l:2,n:'<b>Stack unwinding</b>: no catch inside validate(), so its frame pops and the exception climbs to the caller.',stack:['main'],pop:'validate'},
+    {l:9,n:'main() has a matching catch(InvalidAgeException) — the exception is handled here. Line 8 was <b>skipped</b>.',stack:['main']},
+    {l:10,n:'The catch body prints the message stored via super(msg).',out:['Caught: Age is not valid to vote'],stack:['main']},
+    {l:12,n:'finally runs after the catch. Handled objects become eligible for GC.',out:['Caught: Age is not valid to vote','finally: cleanup runs'],stack:['main']},
+    {l:14,n:'Execution resumes normally — the program did not crash.',out:['Caught: Age is not valid to vote','finally: cleanup runs','after try structure'],stack:['main']}
+  ],
+  uncaught:[
+    {l:5,n:'JVM enters main(). (Imagine the catch block is missing in this scenario.)',stack:['main']},
+    {l:7,n:'Calling validate(15).',stack:['main','validate']},
+    {l:2,n:'Throw! Exception object created.',stack:['main','validate']},
+    {l:2,n:'Unwinding: validate() has no handler — frame popped.',stack:['main'],pop:'validate'},
+    {l:2,n:'main() has no matching catch either — its frame pops too. Nothing left on the stack.',stack:[],pop:'main'},
+    {l:2,n:'<b>Thread terminates.</b> The JVM\'s default handler prints the stack trace to stderr — the red text you saw in the page header.',out:['ERR:Exception in thread "main" InvalidAgeException: Age is not valid to vote','ERR:\u00A0\u00A0at Main.validate(Main.java:3)','ERR:\u00A0\u00A0at Main.main(Main.java:8)'],stack:[]}
+  ]
+};
+var flowStep=0;
+function renderFlowCode(){
+  var el=document.getElementById('flowCode');el.innerHTML='';
+  flowLines.forEach(function(ln){
+    var d=document.createElement('div');d.className='fl';d.dataset.l=ln.id;
+    d.innerHTML=ln.t||'\u00A0';el.appendChild(d);
+  });
+}
+function renderStack(frames,popName){
+  var sv=document.getElementById('stackViz');sv.innerHTML='';
+  frames.forEach(function(f){
+    var d=document.createElement('div');d.className='frame';d.textContent=f+'()';sv.appendChild(d);
+  });
+  if(popName){var p=document.createElement('div');p.className='frame pop';p.textContent=popName+'()  \u2715 popped';sv.appendChild(p);}
+  if(!frames.length&&!popName){sv.innerHTML='<div style="color:var(--term-dim);font-size:12px">(empty)</div>';}
+}
+function flowReset(){
+  flowStep=0;renderFlowCode();
+  document.getElementById('flowOut').innerHTML='';
+  document.getElementById('flowNarr').innerHTML='Press <b>Step</b> to begin.';
+  renderStack(['(idle)'],null);
+  document.getElementById('stepBtn').disabled=false;
+}
+document.getElementById('scen').addEventListener('change',flowReset);
+document.getElementById('resetBtn').addEventListener('click',flowReset);
+document.getElementById('stepBtn').addEventListener('click',function(){
+  var sc=scenarios[document.getElementById('scen').value];
+  if(flowStep>=sc.length)return;
+  var st=sc[flowStep];
+  document.querySelectorAll('.fl').forEach(function(d){
+    d.classList.remove('hot');
+    if(+d.dataset.l===st.l)d.classList.add('hot');
+  });
+  document.getElementById('flowNarr').innerHTML='<b>Step '+(flowStep+1)+'/'+sc.length+':</b> '+st.n;
+  if(st.out){
+    document.getElementById('flowOut').innerHTML=st.out.map(function(o){
+      return o.indexOf('ERR:')===0?'<div class="err-o">'+o.slice(4)+'</div>':'<div class="out">'+o+'</div>';
+    }).join('');
+  }
+  renderStack(st.stack,st.pop||null);
+  flowStep++;
+  if(flowStep>=sc.length){document.getElementById('stepBtn').disabled=true;
+    document.getElementById('flowNarr').innerHTML+=' <span style="color:var(--java-org-d);font-weight:600">— end of scenario. Try another one.</span>';}
+});
+flowReset();
+
+/* ---------- playground tabs ---------- */
+document.querySelectorAll('.pgtab').forEach(function(t){
+  t.addEventListener('click',function(){
+    document.querySelectorAll('.pgtab').forEach(function(x){x.classList.remove('on')});
+    document.querySelectorAll('.pgpane').forEach(function(p){p.classList.remove('on')});
+    t.classList.add('on');document.getElementById(t.dataset.p).classList.add('on');
+  });
+});
+
+/* ---------- email validator ---------- */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function emailRun(){
+  var s=document.getElementById('emailIn').value;
+  var strip=document.getElementById('emailStrip');strip.innerHTML='';
+  var lastDot=s.lastIndexOf('.'),firstAt=s.indexOf('@');
+  for(var i=0;i<s.length;i++){
+    var c=s.charAt(i),cls='chip';
+    if(i===firstAt)cls+=' at';else if(i===lastDot)cls+=' dot-c';else if(lastDot>-1&&i>lastDot)cls+=' ext';
+    strip.innerHTML+='<div class="'+cls+'"><div class="ch">'+(c===' '?'&nbsp;':esc(c))+'</div><div class="ix">'+i+'</div></div>';
+  }
+  var atc=0,i2;for(i2=0;i2<s.length;i2++)if(s.charAt(i2)==='@')atc++;
+  var dotsAfter=0;if(firstAt>-1)for(i2=firstAt+1;i2<s.length;i2++)if(s.charAt(i2)==='.')dotsAfter++;
+  var ext=lastDot>-1?s.substring(lastDot+1):'';
+  var checks=[
+    {name:'Exactly one @, not at start/end',code:'atCount == 1 && !startsWith/endsWith @',
+     pass:atc===1&&s.charAt(0)!=='@'&&!(s.length&&s.charAt(s.length-1)==='@'),
+     exc:'AtTheRateException: Invalid @ usage'},
+    {name:'No leading or trailing dot',code:'charAt(0) != \'.\' && !endsWith(".")',
+     pass:s.charAt(0)!=='.'&&!(s.length&&s.charAt(s.length-1)==='.'),
+     exc:'DotException: Invalid Dot usage'},
+    {name:'Exactly one dot after @',code:'dotsAfterAt == 1  (found: '+dotsAfter+')',
+     pass:dotsAfter===1,exc:'DotException: Invalid Dot usage'},
+    {name:'Extension is in/com/net/biz',code:'substring(lastIndexOf(\'.\')+1) = "'+esc(ext)+'"',
+     pass:['in','com','net','biz'].indexOf(ext)>-1,exc:'DomainException: Invalid Domain'}
+  ];
+  var html='',failed=null;
+  checks.forEach(function(ck){
+    var state,icon;
+    if(failed){state='skip';icon='&#9711;';}
+    else if(ck.pass){state='pass';icon='&#10003;';}
+    else{state='fail';icon='&#10007;';failed=ck;}
+    html+='<div class="checkline '+state+'"><span style="font-weight:700">'+icon+'</span><span style="flex:1">'+ck.name+'</span><code>'+ck.code+'</code></div>';
+  });
+  document.getElementById('emailChecks').innerHTML=html;
+  var v=document.getElementById('emailVerdict');
+  if(s.length<5){v.className='verdict bad';v.textContent='Input shorter than constraint (5 \u2264 length \u2264 50)';}
+  else if(failed){v.className='verdict bad';v.innerHTML='throw \u2192 '+failed.exc+'<br>Invalid email address';}
+  else{v.className='verdict ok';v.textContent='Valid email address';}
+}
+document.getElementById('emailIn').addEventListener('input',emailRun);
+emailRun();
+
+/* ---------- banking ---------- */
+document.getElementById('bkRun').addEventListener('click',function(){
+  var B=parseFloat(document.getElementById('bkB').value),
+      D=parseFloat(document.getElementById('bkD').value),
+      W=parseFloat(document.getElementById('bkW').value),
+      o=document.getElementById('bkOut');
+  if(isNaN(B)||isNaN(D)||isNaN(W)){o.innerHTML='<div class="err-o">Enter all three amounts first.</div>';return;}
+  if(D<=0){o.innerHTML='<div class="err-o">Error: '+(Number.isInteger(D)?D.toFixed(1):D)+' is not valid</div><div style="color:var(--term-dim);font-size:12px;margin-top:6px">// InvalidAmountException — withdrawal never ran</div>';return;}
+  var bal=B+D;
+  if(W>bal){o.innerHTML='<div class="err-o">Error: Insufficient funds</div><div style="color:var(--term-dim);font-size:12px;margin-top:6px">// InsufficientFundsException — '+W.toFixed(1)+' &gt; '+bal.toFixed(1)+'</div>';return;}
+  bal-=W;
+  o.innerHTML='<div class="out">Amount Withdrawn: '+W.toFixed(1)+'</div><div class="out">Current Balance: '+bal.toFixed(1)+'</div>';
+});
+
+/* ---------- voting ---------- */
+document.getElementById('voteRun').addEventListener('click',function(){
+  var raw=document.getElementById('voteIn').value.trim(),o=document.getElementById('voteOut');
+  if(raw===''){o.innerHTML='<div class="err-o">Enter an age first.</div>';return;}
+  if(!/^-?\d+$/.test(raw)){
+    o.innerHTML='<div class="err-o">An error occurred: java.util.InputMismatchException</div><div style="color:var(--term-dim);font-size:12px;margin-top:6px">// printed via "" + e (toString) — e.getMessage() would be null</div>';return;}
+  var age=parseInt(raw,10);
+  if(age<18){o.innerHTML='<div class="err-o">Exception occurred: InvalidAgeException: Age is not valid to vote</div>';}
+  else{o.innerHTML='<div class="out">Eligible to vote</div>';}
+});
+
+/* ---------- quiz ---------- */
+var QUIZ=[
+ {q:'Which keyword goes on a method signature to declare it might propagate a checked exception?',
+  o:['throw','throws','catch','extends'],a:1,
+  e:'throws declares; throw raises. validate(int) throws InvalidAgeException warns callers — it handles nothing itself.'},
+ {q:'What does this print?',code:'try { throw new RuntimeException("A"); }\ncatch (Exception e) { System.out.print("B"); }\nfinally { System.out.print("C"); }',
+  o:['A','B','BC','C'],a:2,
+  e:'The throw jumps straight to catch (prints B); finally always runs afterwards (prints C). The message "A" is stored, never printed.'},
+ {q:'Which of these is a checked exception?',
+  o:['NullPointerException','ArrayIndexOutOfBoundsException','IOException','IllegalArgumentException'],a:2,
+  e:'IOException must be caught or declared. The other three extend RuntimeException — unchecked.'},
+ {q:'new InputMismatchException() is caught as e. What does "An error occurred: " + e print?',
+  o:['An error occurred: null','An error occurred: java.util.InputMismatchException','An error occurred: InputMismatchException: null','A compile error'],a:1,
+  e:'Concatenating an object calls toString(), which yields the fully qualified class name. e.getMessage() would return null — the exact trap in the voting problem.'},
+ {q:'A custom checked exception for a grader problem should extend…',
+  o:['Throwable','Error','RuntimeException','Exception'],a:3,
+  e:'extends Exception makes it checked, forcing the throws declaration and try/catch structure the problems expect. Extending RuntimeException would make it unchecked.'},
+ {q:'When does finally NOT run?',
+  o:['When the catch block runs','When no exception is thrown','When System.exit() is called in try','When the exception is rethrown'],a:2,
+  e:'finally survives everything except JVM termination — System.exit(), a crash, or an infinite loop. It runs after normal completion, after catch, even around rethrows.'},
+ {q:'What happens here?',code:'try { risky(); }\ncatch (Exception e) { }\ncatch (IOException e) { }',
+  o:['Both catches can run','Compile error: IOException is unreachable','Runtime error','Only IOException is caught'],a:1,
+  e:'Catches are checked top-down. Exception already matches every IOException, so the second block can never execute — the compiler rejects unreachable catch blocks. Subclass first, superclass last.'},
+ {q:'The permutations problem allows N up to 100. Why did the solution use BigInteger instead of long?',
+  o:['BigInteger is faster','long cannot store negative numbers','long overflows past 20! but 100! has 158 digits','The grader requires BigInteger'],a:2,
+  e:'long maxes at ~9.2×10¹⁸, which 21! already exceeds. Constraints drive type choice: N ≤ 100 silently rules out long.'},
+ {q:'The age problem expects "Error: Invalid age. Please enter an age between 0 and 150." but says the exception message is only "Invalid age...". Where does "Error: " belong?',
+  o:['Inside super(msg) in the exception','Concatenated in the catch block when printing','In the throws clause','Hardcoded in validate()'],a:1,
+  e:'Keep the message exactly as specified in the exception; add presentation prefixes at print time: System.out.println("Error: " + e.getMessage()). Splitting message from prefix is a classic grader trap.'},
+ {q:'An exception thrown in a method with no matching catch there will…',
+  o:['Be ignored','Terminate the JVM immediately','Propagate up the call stack to the caller','Convert to an Error'],a:2,
+  e:'Stack unwinding: the frame pops and the JVM checks the caller, and its caller, until a match is found — or the stack empties and the thread dies with a printed stack trace.'},
+ {q:'Which statement about throw is correct?',
+  o:['throw can raise multiple exceptions at once','throw goes in the method signature','throw new IOException("x") explicitly raises one exception object','throw automatically catches the exception'],a:2,
+  e:'throw raises exactly one Throwable instance from inside a body. Multiple types are declared (not thrown) via throws A, B on the signature.'},
+ {q:'In the banking problem, deposit throws InvalidAmountException before withdraw() is called. What happens to the withdrawal?',
+  o:['It runs with the old balance','It runs with balance 0','It never executes — the try block aborted at the throw','It throws InsufficientFundsException'],a:2,
+  e:'A throw abandons the rest of the try block instantly. That is why input B=1500.4, D=0.0, W=100.3 prints only the deposit error — the withdrawal line is skipped.'}
+];
+var qIdx=0,qScore=0,qAnswered=false;
+function renderQuiz(){
+  var c=document.getElementById('quizCard');
+  document.getElementById('qbar').style.width=(qIdx/QUIZ.length*100)+'%';
+  if(qIdx>=QUIZ.length){
+    var pct=Math.round(qScore/QUIZ.length*100);
+    var msg=pct>=80?'Exception handled. You are grader-ready.':pct>=50?'Solid — replay the ones you missed.':'Stack trace says: revisit Learn mode, then retry.';
+    c.innerHTML='<div class="scorebox"><div class="big">'+qScore+' / '+QUIZ.length+'</div><p style="font-size:17px;margin:10px 0">'+msg+'</p><button class="btn org solid" onclick="qIdx=0;qScore=0;renderQuiz()">Retake quiz</button></div>';
+    document.getElementById('qbar').style.width='100%';return;
+  }
+  var Q=QUIZ[qIdx];qAnswered=false;
+  var h='<div class="qmeta">Question '+(qIdx+1)+' of '+QUIZ.length+' · score '+qScore+'</div><div class="qq">'+Q.q+'</div>';
+  if(Q.code)h+='<div class="qcodebox"><pre class="code">'+esc(Q.code)+'</pre></div>';
+  Q.o.forEach(function(opt,i){h+='<button class="opt" data-i="'+i+'"><code>'+esc(opt)+'</code></button>';});
+  h+='<div class="expl" id="qexpl">'+Q.e+'</div>';
+  h+='<div style="margin-top:14px"><button class="btn solid" id="qnext" disabled>Next question &#8594;</button></div>';
+  c.innerHTML=h;
+  c.querySelectorAll('.opt').forEach(function(b){
+    b.addEventListener('click',function(){
+      if(qAnswered)return;qAnswered=true;
+      var pick=+b.dataset.i;
+      c.querySelectorAll('.opt').forEach(function(x,j){
+        if(j===Q.a)x.classList.add('right');
+        else if(j===pick)x.classList.add('wrong');
+        x.style.cursor='default';
+      });
+      if(pick===Q.a)qScore++;
+      document.getElementById('qexpl').classList.add('show');
+      document.getElementById('qnext').disabled=false;
+    });
+  });
+  document.getElementById('qnext').addEventListener('click',function(){qIdx++;renderQuiz();});
+}
+renderQuiz();
+
+/* ---------- activity 1: order ---------- */
+var ORDER=['Exception object created','Current frame searched for catch','Stack unwinding pops frames','Matching catch executes','finally block runs'];
+var orderPicked=[];
+function orderRender(){
+  var slots=document.getElementById('orderSlots');slots.innerHTML='';
+  orderPicked.forEach(function(t,i){
+    var d=document.createElement('div');d.className='token placed';d.textContent=(i+1)+'. '+t;
+    d.addEventListener('click',function(){orderPicked.splice(i,1);orderRender();});
+    slots.appendChild(d);
+  });
+  if(!orderPicked.length)slots.innerHTML='<span style="color:var(--ink-3);font-size:13px;align-self:center">Click steps below to place them here (click a placed step to remove it)</span>';
+  var pool=document.getElementById('orderPool');pool.innerHTML='';
+  ORDER.slice().sort().forEach(function(t){
+    if(orderPicked.indexOf(t)>-1)return;
+    var d=document.createElement('div');d.className='token';d.textContent=t;
+    d.addEventListener('click',function(){orderPicked.push(t);orderRender();});
+    pool.appendChild(d);
+  });
+  document.getElementById('orderResult').innerHTML='';
+}
+document.getElementById('orderCheck').addEventListener('click',function(){
+  var r=document.getElementById('orderResult');
+  if(orderPicked.length<ORDER.length){r.innerHTML='<span class="result-pill bad">Place all '+ORDER.length+' steps first</span>';return;}
+  var ok=orderPicked.every(function(t,i){return t===ORDER[i]});
+  r.innerHTML=ok?'<span class="result-pill ok">&#10003; Correct — that is exactly the JVM sequence</span>'
+              :'<span class="result-pill bad">&#10007; Not quite — remember: create &#8594; search &#8594; unwind &#8594; catch &#8594; finally</span>';
+});
+document.getElementById('orderReset').addEventListener('click',function(){orderPicked=[];orderRender();});
+orderRender();
+
+/* ---------- activity 2: match ---------- */
+var MATCH=[
+  {sc:'int[] a = new int[3]; a[5] = 1;',ans:'ArrayIndexOutOfBoundsException'},
+  {sc:'String s = null; s.length();',ans:'NullPointerException'},
+  {sc:'Scanner.nextInt() receives "XYZ"',ans:'InputMismatchException'},
+  {sc:'new FileReader("missing.txt")',ans:'FileNotFoundException'},
+  {sc:'"abc".substring(2, 1)',ans:'StringIndexOutOfBoundsException'}
+];
+var MOPTS=['— choose —','ArrayIndexOutOfBoundsException','NullPointerException','InputMismatchException','FileNotFoundException','StringIndexOutOfBoundsException'];
+(function(){
+  var area=document.getElementById('matchArea'),h='';
+  MATCH.forEach(function(m,i){
+    h+='<div class="matchrow"><div class="sc"><code style="font-family:var(--mono);font-size:13px">'+esc(m.sc)+'</code></div><select data-m="'+i+'">';
+    MOPTS.forEach(function(o){h+='<option>'+o+'</option>';});
+    h+='</select></div>';
+  });
+  area.innerHTML=h;
+})();
+document.getElementById('matchCheck').addEventListener('click',function(){
+  var right=0,total=MATCH.length,unset=false;
+  document.querySelectorAll('#matchArea select').forEach(function(s){
+    var i=+s.dataset.m;
+    if(s.selectedIndex===0){unset=true;s.style.borderColor='var(--err)';return;}
+    if(s.value===MATCH[i].ans){right++;s.style.borderColor='var(--ok)';s.style.background='var(--ok-bg)';}
+    else{s.style.borderColor='var(--err)';s.style.background='var(--err-bg)';}
+  });
+  var r=document.getElementById('matchResult');
+  if(unset){r.innerHTML=' <span class="result-pill bad">Choose an exception for every row first</span>';return;}
+  r.innerHTML=' <span class="result-pill '+(right===total?'ok':'bad')+'">'+right+' / '+total+' correct'+(right===total?' — perfect':'')+'</span>';
+});
+
+/* ---------- activity 3: predict ---------- */
+var PRED=[
+ {code:'try {\n    System.out.print("A");\n    int x = 5 / 0;\n    System.out.print("B");\n} catch (ArithmeticException e) {\n    System.out.print("C");\n} finally {\n    System.out.print("D");\n}',
+  ans:'ACD',why:'A prints, then / by zero throws — B is skipped. catch prints C, finally prints D.'},
+ {code:'String ext = "gmail.com".substring("gmail.com".lastIndexOf(\'.\') + 1);\nSystem.out.println(ext.equals("com"));',
+  ans:'true',why:'lastIndexOf(\'.\') = 5, substring(6) = "com", equals compares content → true. With == it could be false: substring creates a new object.'},
+ {code:'try {\n    throw new Exception("boom");\n} catch (Exception e) {\n    System.out.print("caught ");\n    return;\n} finally {\n    System.out.print("finally");\n}',
+  ans:'caught finally',why:'finally runs even when catch contains a return — the return completes only after finally finishes.'}
+];
+(function(){
+  var area=document.getElementById('predictArea'),h='';
+  PRED.forEach(function(p,i){
+    h+='<div style="margin:16px 0"><pre class="code">'+esc(p.code)+'</pre>'
+     +'<button class="btn org" data-r="'+i+'">Reveal output</button>'
+     +'<div class="reveal" id="rev'+i+'"><div class="verdict ok" style="margin-top:8px">Output: '+esc(p.ans)+'</div>'
+     +'<p style="font-size:14px;color:var(--ink-2);margin-top:8px">'+p.why+'</p></div></div>';
+  });
+  area.innerHTML=h;
+  area.querySelectorAll('button[data-r]').forEach(function(b){
+    b.addEventListener('click',function(){
+      document.getElementById('rev'+b.dataset.r).classList.add('show');
+      b.disabled=true;b.textContent='Revealed';
+    });
+  });
+})();
+
+/* ---------- problems ---------- */
+var PROBS=[
+ {t:'Email validator — three custom exceptions',tag:'charAt · endsWith · lastIndexOf',
+  d:'Exactly one @, exactly one dot after @, no leading/trailing @ or dot, extension must be in/com/net/biz. Check order matters: @ rules, then dot rules, then domain.',
+  code:'class DotException extends Exception { public DotException(String m){super(m);} }\nclass AtTheRateException extends Exception { public AtTheRateException(String m){super(m);} }\nclass DomainException extends Exception { public DomainException(String m){super(m);} }\n\nstatic void validate(String email) throws DotException, AtTheRateException, DomainException {\n    int atCount = 0;\n    for (int i = 0; i < email.length(); i++)\n        if (email.charAt(i) == \'@\') atCount++;\n    if (atCount != 1 || email.charAt(0) == \'@\' || email.endsWith("@"))\n        throw new AtTheRateException("AtTheRateException: Invalid @ usage");\n    if (email.charAt(0) == \'.\' || email.endsWith("."))\n        throw new DotException("DotException: Invalid Dot usage");\n    int dots = 0;\n    for (int i = email.indexOf(\'@\') + 1; i < email.length(); i++)\n        if (email.charAt(i) == \'.\') dots++;\n    if (dots != 1) throw new DotException("DotException: Invalid Dot usage");\n    String ext = email.substring(email.lastIndexOf(\'.\') + 1);\n    if (!(ext.equals("in") || ext.equals("com") || ext.equals("net") || ext.equals("biz")))\n        throw new DomainException("DomainException: Invalid Domain");\n}\n\n// main\ntry { validate(email); System.out.println("Valid email address"); }\ncatch (DotException | AtTheRateException | DomainException e) {\n    System.out.println(e.getMessage());\n    System.out.println("Invalid email address");\n}',
+  why:'endsWith(".") catches "sample@gmail.com." before the domain check; substring after lastIndexOf isolates the extension; equals() compares content — == would compare references and fail.',
+  con:'Length 5–50 and a limited charset (alphanumeric + . + @) mean simple charAt counting is safe — no regex needed, no Unicode traps.'},
+ {t:'Username validator — one exception, two messages',tag:'length · contains',
+  d:'Valid when at least 5 chars and no spaces. Length is checked first — the samples dictate the priority.',
+  code:'class InvalidUsernameException extends Exception {\n    public InvalidUsernameException(String m){ super(m); }\n}\n\nstatic void validate(String u) throws InvalidUsernameException {\n    if (u.length() < 5)\n        throw new InvalidUsernameException("Invalid Username: Username must be at least 5 characters long");\n    if (u.contains(" "))\n        throw new InvalidUsernameException("Invalid Username: Username cannot contain spaces");\n}\n\ntry { validate(username); System.out.println("Username is valid: " + username); }\ncatch (InvalidUsernameException e) { System.out.println(e.getMessage()); }',
+  why:'One class carries both messages via super(msg) — the catch just prints e.getMessage(), keeping output byte-exact.',
+  con:'Length up to 100: read with nextLine(), not next() — next() would split "Jane Doe" at the space and hide the very thing being validated.'},
+ {t:'Age range check — prefix lives in the catch',tag:'boundary values',
+  d:'Valid when 0 ≤ age ≤ 150 inclusive. Output prefixes "Error: " but the exception message must stay clean.',
+  code:'class InvalidAgeException extends Exception {\n    public InvalidAgeException(String m){ super(m); }\n}\n\nstatic void validate(int age) throws InvalidAgeException {\n    if (age < 0 || age > 150)\n        throw new InvalidAgeException("Invalid age. Please enter an age between 0 and 150.");\n}\n\ntry { validate(n); System.out.println("Age is valid!"); }\ncatch (InvalidAgeException e) { System.out.println("Error: " + e.getMessage()); }',
+  why:'Strict < 0 and > 150 keep the boundaries 0 and 150 valid. The "Error: " prefix concatenates at print time, so the message matches the spec exactly.',
+  con:'−10 ≤ n ≤ 175 guarantees tests on both sides of each boundary — off-by-one (≤ instead of <) fails inputs 0 and 150.'},
+ {t:'Permutations N! — built-in exception + BigInteger',tag:'IllegalArgumentException · overflow',
+  d:'Compute N!, throw IllegalArgumentException for negative N. The silent killer is overflow.',
+  code:'static BigInteger calculatePermutations(int n) {\n    if (n < 0)\n        throw new IllegalArgumentException("Error: Negative value of N");\n    BigInteger r = BigInteger.ONE;\n    for (int i = 2; i <= n; i++)\n        r = r.multiply(BigInteger.valueOf(i));\n    return r;\n}\n\ntry { System.out.println(calculatePermutations(n)); }\ncatch (IllegalArgumentException e) { System.out.println(e.getMessage()); }',
+  why:'IllegalArgumentException is unchecked — no throws clause needed. The full "Error: ..." text is the message, so the catch prints it directly.',
+  con:'N ≤ 100 is the trap: long overflows past 20!, while 100! has 158 digits. BigInteger is chosen by the constraint, not by preference.'},
+ {t:'Voting eligibility — custom and built-in together',tag:'toString vs getMessage',
+  d:'Under 18 → custom InvalidAgeException. Non-numeric input → InputMismatchException, printed via its class name.',
+  code:'try {\n    int age = sc.nextInt();          // the risky parse lives INSIDE try\n    validate(age);\n    System.out.println("Eligible to vote");\n} catch (InvalidAgeException e) {\n    System.out.println("Exception occurred: InvalidAgeException: " + e.getMessage());\n} catch (InputMismatchException e) {\n    System.out.println("An error occurred: " + e);   // toString, NOT getMessage\n}',
+  why:'"" + e calls toString() → "java.util.InputMismatchException". e.getMessage() returns null for this exception — printing it fails the test case.',
+  con:'nextInt() must sit inside try; for input "XYZ" the parse itself is what throws. Two ordered catch blocks separate business failure from input failure.'},
+ {t:'Banking system — multi-catch and printf',tag:'multi-catch · %.1f',
+  d:'Deposit ≤ 0 → InvalidAmountException (amount embedded in message). Withdrawal > balance → InsufficientFundsException. A failed deposit aborts everything after it.',
+  code:'static void deposit(double amt) throws InvalidAmountException {\n    if (amt <= 0)\n        throw new InvalidAmountException("Error: " + amt + " is not valid");\n    balance += amt;\n}\nstatic void withdraw(double amt) throws InsufficientFundsException {\n    if (amt > balance)\n        throw new InsufficientFundsException("Error: Insufficient funds");\n    balance -= amt;\n    System.out.printf("Amount Withdrawn: %.1f%n", amt);\n    System.out.printf("Current Balance: %.1f%n", balance);\n}\n\ntry { deposit(D); withdraw(W); }\ncatch (InvalidAmountException | InsufficientFundsException e) {\n    System.out.println(e.getMessage());\n}',
+  why:'Multi-catch (A | B) shares one handler. Concatenating the double prints "0.0" / "-456.8" exactly as sampled; %.1f rounds the balance to one decimal.',
+  con:'Values to 10⁹ fit double at 1-decimal precision; %n emits a clean newline — strict graders fail on trailing spaces, so no extra formatting is added.'}
+];
+(function(){
+  var list=document.getElementById('probList'),h='';
+  PROBS.forEach(function(p,i){
+    h+='<details class="prob"'+(i===0?' open':'')+'><summary><span class="pnum">'+(i+1)+'</span>'+p.t+'<span class="tag">'+p.tag+'</span></summary><div class="pbody">'
+     +'<p style="font-size:14px;color:var(--ink-2)">'+p.d+'</p>'
+     +'<pre class="code">'+esc(p.code)+'</pre>'
+     +'<div class="note why"><b>Why it passes:</b> '+p.why+'</div>'
+     +'<div class="note con"><b>Constraint handling:</b> '+p.con+'</div>'
+     +'</div></details>';
+  });
+  list.innerHTML=h;
+})();
+</script>
+</body>
+</html>

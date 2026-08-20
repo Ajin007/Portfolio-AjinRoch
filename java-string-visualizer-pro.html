@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java String Visualizer Pro — See Every Method Run</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#16232B; --ink-2:#3C4E59; --ink-3:#6B7B85;
+  --paper:#F1F4F6; --card:#FFFFFF; --line:#D8E0E4;
+  --blue:#5382A1; --blue-d:#2F5A75; --blue-bg:#E8F0F5;
+  --org:#E76F00; --org-d:#B25600; --org-bg:#FDEEDD;
+  --ok:#1D7A4F; --ok-bg:#E2F3EA; --err:#C03A2B; --err-bg:#FBE9E6;
+  --pur:#534AB7; --pur-bg:#EEEDFE;
+  --term:#101B21; --term-2:#1B2B34; --term-txt:#D7E3EA; --term-dim:#7A8E99;
+  --kw:#E7A23C; --str:#8CC98F; --typ:#7FB4D8; --cmt:#5F7683;
+  --r:10px; --mono:'JetBrains Mono',monospace; --sans:'IBM Plex Sans',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);line-height:1.6;font-size:16px}
+.wrap{max-width:1060px;margin:0 auto;padding:0 20px}
+header{background:var(--term);color:var(--term-txt);padding:32px 0 0;border-bottom:4px solid var(--org)}
+.cup{font-family:var(--mono);color:var(--org);font-size:13px;letter-spacing:2px;text-transform:uppercase}
+header h1{font-size:clamp(24px,4vw,35px);font-weight:700;letter-spacing:-.5px;margin:6px 0 4px;color:#fff}
+header p.sub{color:var(--term-dim);max-width:680px;font-size:15px}
+.trace{font-family:var(--mono);font-size:13px;background:var(--term-2);border:1px solid #26404E;border-radius:var(--r) var(--r) 0 0;margin-top:20px;padding:13px 18px;overflow-x:auto;white-space:pre;color:var(--term-dim)}
+.trace .k{color:var(--kw)}.trace .s{color:var(--str)}.trace .t{color:var(--typ)}.trace .g{color:var(--str)}.trace .e{color:#F08A7A}
+.cursor{display:inline-block;width:8px;height:15px;background:var(--org);vertical-align:-2px;animation:blink 1s steps(1) infinite}
+@keyframes blink{50%{opacity:0}}
+nav{position:sticky;top:0;z-index:50;background:var(--card);border-bottom:1px solid var(--line);box-shadow:0 1px 6px rgba(22,35,43,.06)}
+nav .wrap{display:flex;gap:2px;overflow-x:auto}
+.tab{font-family:var(--mono);font-size:12.5px;font-weight:500;padding:14px 13px;border:none;background:none;cursor:pointer;color:var(--ink-3);border-bottom:3px solid transparent;white-space:nowrap}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--blue-d);border-bottom-color:var(--org)}
+.tab .n{color:var(--org);margin-right:5px}
+main section{display:none;padding:34px 0 60px}
+main section.on{display:block;animation:fade .3s ease}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+h2{font-size:25px;font-weight:700;letter-spacing:-.3px;margin-bottom:6px}
+.lede{color:var(--ink-2);max-width:760px;margin-bottom:22px;font-size:15.5px}
+h3{font-size:17.5px;font-weight:600;margin:26px 0 10px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:1.5px;text-transform:uppercase;color:var(--org-d);font-weight:700}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;margin:14px 0}
+.grid{display:grid;gap:14px}.g2{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+pre.code{background:var(--term);color:var(--term-txt);font-family:var(--mono);font-size:13px;line-height:1.7;border-radius:var(--r);padding:14px 16px;overflow-x:auto;margin:10px 0;border:1px solid #26404E}
+pre.code .k{color:var(--kw)}pre.code .s{color:var(--str)}pre.code .t{color:var(--typ)}pre.code .c{color:var(--cmt);font-style:italic}
+.badge{display:inline-block;font-family:var(--mono);font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;margin:2px 4px 2px 0}
+.b-blue{background:var(--blue-bg);color:var(--blue-d)}.b-org{background:var(--org-bg);color:var(--org-d)}
+.b-ok{background:var(--ok-bg);color:var(--ok)}.b-err{background:var(--err-bg);color:var(--err)}.b-pur{background:var(--pur-bg);color:var(--pur)}
+.btn{font-family:var(--mono);font-size:13px;font-weight:500;border:1.5px solid var(--blue-d);color:var(--blue-d);background:var(--card);border-radius:8px;padding:8px 15px;cursor:pointer;transition:all .15s}
+.btn:hover{background:var(--blue-bg)}
+.btn.solid{background:var(--blue-d);color:#fff}
+.btn.org{border-color:var(--org-d);color:var(--org-d)}
+.btn.org.solid{background:var(--org);border-color:var(--org);color:#fff}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+select,input[type=text],input[type=number]{font-family:var(--mono);font-size:13.5px;padding:8px 11px;border:1.5px solid var(--line);border-radius:8px;background:var(--card);color:var(--ink);outline:none}
+select:focus,input:focus{border-color:var(--blue)}
+input[type=range]{accent-color:var(--org);width:180px}
+.ctl{display:flex;gap:9px;flex-wrap:wrap;align-items:center;margin:12px 0}
+.ctl label{font-size:12.5px;font-family:var(--mono);color:var(--ink-3)}
+.stepmeta{font-family:var(--mono);font-size:12px;color:var(--ink-3)}
+/* code stepping */
+.flowcode{background:var(--term);border-radius:var(--r);border:1px solid #26404E;font-family:var(--mono);font-size:12.5px;line-height:1.85;padding:11px 0;overflow-x:auto}
+.fl{padding:0 16px;white-space:pre;color:var(--term-txt);border-left:4px solid transparent}
+.fl.hot{background:rgba(231,111,0,.16);border-left-color:var(--org)}
+.codebar{display:flex;align-items:center;gap:8px;background:var(--term-2);border:1px solid #26404E;border-bottom:none;border-radius:var(--r) var(--r) 0 0;padding:7px 13px;font-family:var(--mono);font-size:11.5px;color:var(--term-dim)}
+.codebar+.flowcode,.codebar+pre.code{border-radius:0 0 var(--r) var(--r);margin-top:0}
+.dot{width:9px;height:9px;border-radius:50%}.dot.r{background:#E0604F}.dot.y{background:#E7A23C}.dot.g{background:#5DBB7A}
+.console{background:var(--term-2);border-radius:var(--r);border:1px solid #26404E;padding:12px 15px;font-family:var(--mono);font-size:12.5px;min-height:56px;color:var(--term-txt)}
+.console .lbl{color:var(--term-dim);font-size:10.5px;letter-spacing:1px;text-transform:uppercase;margin-bottom:7px}
+.console .out{color:var(--str)}.console .err-o{color:#F08A7A}
+.narr{background:var(--org-bg);border-left:4px solid var(--org);border-radius:0 8px 8px 0;padding:11px 14px;font-size:14px;color:var(--ink-2);min-height:52px;margin-top:12px}
+/* strips */
+.strip{display:flex;flex-wrap:wrap;gap:4px;margin:8px 0;min-height:58px}
+.chip{min-width:30px;text-align:center;border:1.5px solid var(--line);border-radius:7px;padding:4px 3px 2px;background:var(--card)}
+.chip .ch{font-family:var(--mono);font-size:14px;font-weight:500}
+.chip .ix{font-size:9px;color:var(--ink-3);font-family:var(--mono)}
+.chip .pt{font-size:10px;color:var(--org-d);font-family:var(--mono);font-weight:700;height:13px}
+.chip.scan{background:var(--blue-bg);border-color:var(--blue)}
+.chip.hit{background:var(--ok-bg);border-color:var(--ok)}
+.chip.fail{background:var(--err-bg);border-color:var(--err)}
+.chip.range{background:var(--pur-bg);border-color:var(--pur)}
+.chip.win{background:var(--org-bg);border-color:var(--org)}
+.chip.dim{opacity:.32}
+.striplbl{font-family:var(--mono);font-size:11px;color:var(--ink-3);letter-spacing:1px;text-transform:uppercase;margin-top:8px}
+.slgrid{display:grid;grid-template-columns:1.12fr 1fr;gap:16px}
+@media(max-width:780px){.slgrid{grid-template-columns:1fr}}
+/* memory canvas with arrows */
+.memwrap{position:relative;border:1.5px solid var(--line);border-radius:var(--r);background:linear-gradient(180deg,#FDFEFE,#F6F9FA);padding:16px;margin-top:10px}
+.memflex{display:grid;grid-template-columns:170px 1fr 1fr;gap:26px;position:relative;z-index:2}
+@media(max-width:720px){.memflex{grid-template-columns:1fr;gap:14px}}
+.memcol h4{font-family:var(--mono);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;color:var(--ink-3);margin-bottom:9px}
+.memcol.pool .inner{border:1.5px dashed var(--ok);border-radius:10px;padding:10px;min-height:120px;background:rgba(29,122,79,.04)}
+.memcol.heap .inner{border:1.5px dashed var(--org-d);border-radius:10px;padding:10px;min-height:120px;background:rgba(178,86,0,.04)}
+.varrow{display:flex;align-items:center;gap:8px;font-family:var(--mono);font-size:13px;padding:7px 9px;border-radius:7px;background:var(--card);border:1px solid var(--line);margin:6px 0}
+.vdot{width:11px;height:11px;border-radius:50%;flex-shrink:0}
+.objchip{font-family:var(--mono);font-size:12.5px;border:2px solid;border-radius:8px;padding:7px 11px;margin:7px 0;background:#fff;position:relative}
+.objchip .oid{font-size:9.5px;opacity:.7;display:block}
+.objchip.new{animation:popin .35s ease}
+.objchip.ghost{opacity:.45;border-style:dashed}
+@keyframes popin{from{transform:scale(.85);opacity:0}to{transform:scale(1);opacity:1}}
+#memArrows{position:absolute;inset:0;pointer-events:none;z-index:1}
+/* hash lab */
+table.hash{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:13px;margin-top:10px}
+table.hash th,table.hash td{border:1px solid var(--line);padding:7px 10px;text-align:right}
+table.hash th{background:var(--blue-bg);font-size:11.5px;letter-spacing:.5px}
+table.hash td:nth-child(2){text-align:center}
+table.hash tr.hotrow{background:var(--org-bg)}
+table.hash tr.done td{color:var(--ink-3)}
+.hashbig{font-family:var(--mono);font-size:22px;font-weight:700;color:var(--blue-d)}
+/* builder lab */
+.cellrow{display:flex;flex-wrap:wrap;gap:3px;margin:8px 0}
+.cell{width:30px;height:38px;border:1.5px solid var(--line);border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:var(--mono);font-size:13px;background:var(--card);position:relative}
+.cell.used{background:var(--blue-bg);border-color:var(--blue)}
+.cell.just{background:var(--ok-bg);border-color:var(--ok);animation:popin .3s ease}
+.cell .cix{position:absolute;bottom:-15px;font-size:9px;color:var(--ink-3)}
+.cellrow.old .cell{opacity:.4;border-style:dashed}
+.meter{font-family:var(--mono);font-size:12.5px;color:var(--ink-2);margin:6px 0}
+/* index table */
+table.idx{width:100%;border-collapse:collapse;font-size:13.5px;margin-top:8px}
+table.idx th,table.idx td{border:1px solid var(--line);padding:8px 11px;text-align:left}
+table.idx th{background:var(--blue-bg);font-family:var(--mono);font-size:12px}
+table.idx td:first-child{font-family:var(--mono);font-size:12.5px;white-space:nowrap}
+footer{background:var(--term);color:var(--term-dim);padding:26px 0;font-size:13px;margin-top:20px}
+footer a{color:var(--typ)}
+.refs li{margin:5px 0}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+.tab:focus-visible,.btn:focus-visible{outline:3px solid var(--org);outline-offset:2px}
+/* anatomy svg */
+#anaSvg{width:100%;height:auto;display:block}
+#anaSvg text{font-family:var(--mono)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <span class="cup">&#9749; Java · single-file lab · string visualizer pro</span>
+    <h1>String Visualizer Pro</h1>
+    <p class="sub">A Python-Tutor-style lab for one class: reference arrows you can watch move, every method stepped through its real algorithm, the rolling hash animated, and StringBuilder's array growing live.</p>
+    <div class="trace"><span class="t">String</span> s = <span class="s">"sample@gmail.com"</span>;
+<span class="k">&#9654;</span> s.hashCode()          <span class="g">// h = 31*h + c, cached after first call</span>
+<span class="k">&#9654;</span> s.substring(7, 12)    <span class="g">// copies 5 bytes into a brand-new object</span>
+<span class="k">&#9654;</span> s.split(<span class="s">"."</span>)          <span class="e">// regex any-char &#8594; length 0. escape it.</span><span class="cursor"></span></div>
+  </div>
+</header>
+
+<nav>
+  <div class="wrap">
+    <button class="tab on" data-t="ana"><span class="n">01</span>Anatomy</button>
+    <button class="tab" data-t="mem"><span class="n">02</span>Memory canvas</button>
+    <button class="tab" data-t="lab"><span class="n">03</span>Method lab</button>
+    <button class="tab" data-t="hash"><span class="n">04</span>hashCode lab</button>
+    <button class="tab" data-t="sb"><span class="n">05</span>Builder lab</button>
+    <button class="tab" data-t="idx"><span class="n">06</span>Method index</button>
+    <button class="tab" data-t="rw"><span class="n">07</span>Real-world</button>
+  </div>
+</nav>
+
+<main class="wrap">
+
+<!-- ======== ANATOMY ======== -->
+<section id="ana" class="on">
+  <span class="eyebrow">01 · Anatomy</span>
+  <h2>One String, three pieces of memory</h2>
+  <p class="lede">A variable on the stack holds a <b>reference</b>. The String object on the heap holds a <b>header</b>: a pointer to the character array, a one-byte <code style="font-family:var(--mono)">coder</code> flag, and a cached <code style="font-family:var(--mono)">hash</code>. The characters themselves live in a <b>final byte[]</b> that no method ever writes to.</p>
+
+  <div class="card" style="overflow-x:auto">
+    <svg id="anaSvg" viewBox="0 0 980 300" role="img" aria-label="Diagram: a stack variable points to a String object whose value field points to a byte array of characters">
+      <defs>
+        <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+          <path d="M0 0 L10 5 L0 10 z" fill="#2F5A75"/>
+        </marker>
+      </defs>
+      <!-- stack -->
+      <text x="70" y="30" font-size="11" letter-spacing="2" fill="#6B7B85">STACK</text>
+      <rect x="20" y="44" width="180" height="56" rx="9" fill="#FFFFFF" stroke="#3C4E59" stroke-width="1.6"/>
+      <text x="36" y="68" font-size="13" fill="#16232B">String s</text>
+      <text x="36" y="88" font-size="11" fill="#6B7B85">ref &#8594; 0x7A2</text>
+      <!-- string object -->
+      <text x="330" y="30" font-size="11" letter-spacing="2" fill="#6B7B85">HEAP · String object @0x7A2</text>
+      <rect x="300" y="44" width="300" height="150" rx="10" fill="#E8F0F5" stroke="#2F5A75" stroke-width="1.8"/>
+      <text x="318" y="76" font-size="13" font-weight="700" fill="#2F5A75">byte[] value</text>
+      <text x="470" y="76" font-size="12" fill="#3C4E59">&#8594; 0x9C4</text>
+      <line x1="312" y1="92" x2="588" y2="92" stroke="#B9C6CC" stroke-width="1"/>
+      <text x="318" y="120" font-size="13" font-weight="700" fill="#2F5A75">byte coder</text>
+      <text x="470" y="120" font-size="12" fill="#3C4E59">0 = LATIN1</text>
+      <line x1="312" y1="136" x2="588" y2="136" stroke="#B9C6CC" stroke-width="1"/>
+      <text x="318" y="166" font-size="13" font-weight="700" fill="#2F5A75">int hash</text>
+      <text x="470" y="166" font-size="12" fill="#3C4E59">0 &#8594; cached later</text>
+      <!-- byte array -->
+      <text x="700" y="30" font-size="11" letter-spacing="2" fill="#6B7B85">HEAP · final byte[] @0x9C4</text>
+      <g font-size="14">
+        <rect x="680" y="44" width="40" height="44" rx="6" fill="#FFFFFF" stroke="#534AB7" stroke-width="1.4"/><text x="700" y="70" text-anchor="middle" fill="#534AB7">j</text>
+        <rect x="724" y="44" width="40" height="44" rx="6" fill="#FFFFFF" stroke="#534AB7" stroke-width="1.4"/><text x="744" y="70" text-anchor="middle" fill="#534AB7">a</text>
+        <rect x="768" y="44" width="40" height="44" rx="6" fill="#FFFFFF" stroke="#534AB7" stroke-width="1.4"/><text x="788" y="70" text-anchor="middle" fill="#534AB7">v</text>
+        <rect x="812" y="44" width="40" height="44" rx="6" fill="#FFFFFF" stroke="#534AB7" stroke-width="1.4"/><text x="832" y="70" text-anchor="middle" fill="#534AB7">a</text>
+      </g>
+      <text x="700" y="106" text-anchor="middle" font-size="10" fill="#6B7B85">0</text>
+      <text x="744" y="106" text-anchor="middle" font-size="10" fill="#6B7B85">1</text>
+      <text x="788" y="106" text-anchor="middle" font-size="10" fill="#6B7B85">2</text>
+      <text x="832" y="106" text-anchor="middle" font-size="10" fill="#6B7B85">3</text>
+      <!-- arrows -->
+      <path d="M200 72 C 250 72, 250 72, 296 72" fill="none" stroke="#2F5A75" stroke-width="2.2" marker-end="url(#arr)"/>
+      <path d="M600 72 C 640 66, 640 66, 676 66" fill="none" stroke="#2F5A75" stroke-width="2.2" marker-end="url(#arr)"/>
+      <!-- immutability seal -->
+      <rect x="300" y="216" width="552" height="58" rx="9" fill="#FBE9E6" stroke="#C03A2B" stroke-width="1.4"/>
+      <text x="318" y="240" font-size="13" font-weight="700" fill="#C03A2B">&#128274; private final — the array reference never changes,</text>
+      <text x="318" y="260" font-size="13" fill="#C03A2B">and no String method ever writes into the array. Immutability is structural, not a convention.</text>
+    </svg>
+  </div>
+
+  <div class="grid g2">
+    <div class="card"><span class="badge b-pur">COMPACT STRINGS · JAVA 9+</span>
+      <p style="font-size:14px;margin-top:6px">Before Java 9, the backing store was a <code style="font-family:var(--mono)">char[]</code> — two bytes per character even for plain ASCII. Java 9's Compact Strings switched to a <code style="font-family:var(--mono)">byte[]</code> plus a <code style="font-family:var(--mono)">coder</code> flag: LATIN1 (1 byte/char) when possible, UTF16 (2 bytes/char) only when needed. Typical apps cut String heap usage dramatically.</p></div>
+    <div class="card"><span class="badge b-blue">THE hash FIELD</span>
+      <p style="font-size:14px;margin-top:6px">Immutability makes caching safe: the first <code style="font-family:var(--mono)">hashCode()</code> call computes <code style="font-family:var(--mono)">h = 31&#183;h + c</code> across the characters and stores it. Every later call is a field read — which is exactly why Strings are the default HashMap key. Watch the computation animate in the <b>hashCode lab</b>.</p></div>
+  </div>
+
+  <div class="card">
+    <b>Reading order for this page:</b> Memory canvas (where objects live) &#8594; Method lab (how each method walks the array) &#8594; hashCode lab (the 31 trick and a real collision) &#8594; Builder lab (why StringBuilder wins in loops) &#8594; Method index (jump to any method preset).
+  </div>
+</section>
+
+<!-- ======== MEMORY CANVAS ======== -->
+<section id="mem">
+  <span class="eyebrow">02 · Memory canvas</span>
+  <h2>References you can watch move</h2>
+  <p class="lede">Python-Tutor style: variables on the left, the pool and heap on the right, and <b>real arrows</b> drawn from each variable to the object it references. Step forward and back — the arrows move, objects appear, and orphaned ones fade for the garbage collector.</p>
+
+  <div class="ctl">
+    <select id="memScen">
+      <option value="s1">1 · Literals share the pool</option>
+      <option value="s2">2 · new String() and intern()</option>
+      <option value="s3">3 · Immutability: concat and +</option>
+      <option value="s4">4 · Compile-time folding: "ja"+"va"</option>
+    </select>
+    <button class="btn" id="memPrev">&#9664; Prev</button>
+    <button class="btn org solid" id="memNext">Step &#9654;</button>
+    <button class="btn org" id="memAuto">Auto-play</button>
+    <label for="memSpeed">speed</label>
+    <select id="memSpeed"><option value="1600">slow</option><option value="1000" selected>normal</option><option value="550">fast</option></select>
+    <input type="range" id="memSlider" min="0" max="0" value="0" aria-label="Step position">
+    <span class="stepmeta" id="memMeta">step 0/0</span>
+  </div>
+
+  <div class="codebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>Main.java</div>
+  <div class="flowcode" id="memCode"></div>
+
+  <div class="memwrap">
+    <svg id="memArrows"></svg>
+    <div class="memflex">
+      <div class="memcol"><h4>Stack · variables</h4><div id="memVars"></div></div>
+      <div class="memcol pool"><h4>String pool</h4><div class="inner" id="memPool"></div></div>
+      <div class="memcol heap"><h4>Heap</h4><div class="inner" id="memHeap"></div></div>
+    </div>
+  </div>
+  <div class="console" style="margin-top:12px"><div class="lbl">Console</div><div id="memOut"></div></div>
+  <div class="narr" id="memNarr">Press <b>Step</b> or <b>Auto-play</b> to begin.</div>
+</section>
+
+<!-- ======== METHOD LAB ======== -->
+<section id="lab">
+  <span class="eyebrow">03 · Method lab</span>
+  <h2>Sixteen methods, stepped through their real algorithms</h2>
+  <p class="lede">Pick a method, give it your own input (&#8804; 16 chars), and watch it execute: the JDK-style source highlights line by line while pointers scan the character strip. Step back and forth, scrub the slider, or auto-play.</p>
+
+  <div class="ctl">
+    <select id="slMethod" aria-label="Choose a method"></select>
+    <input type="text" id="slStr" value="sample@gmail.com" maxlength="16" style="width:200px" aria-label="Input string">
+    <span id="slArgs" style="display:flex;gap:8px;align-items:center"></span>
+    <button class="btn solid" id="slLoad">Load</button>
+  </div>
+  <div class="ctl">
+    <button class="btn" id="slPrev" disabled>&#9664; Prev</button>
+    <button class="btn org solid" id="slNext" disabled>Step &#9654;</button>
+    <button class="btn org" id="slAuto" disabled>Auto-play</button>
+    <label for="slSpeed">speed</label>
+    <select id="slSpeed"><option value="1400">slow</option><option value="850" selected>normal</option><option value="420">fast</option></select>
+    <input type="range" id="slSlider" min="0" max="0" value="0" aria-label="Step position">
+    <span class="stepmeta" id="slMeta">no steps loaded</span>
+  </div>
+
+  <div class="slgrid">
+    <div>
+      <div class="codebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span><span id="slCodeTitle">String.java</span></div>
+      <div class="flowcode" id="slCode"></div>
+      <div class="striplbl">input · value[]</div>
+      <div class="strip" id="slStrip"></div>
+      <div id="slArgWrap" style="display:none"><div class="striplbl" id="slArgLbl">argument</div><div class="strip" id="slArgStrip"></div></div>
+      <div id="slResWrap" style="display:none"><div class="striplbl" id="slResLbl">result — a NEW String</div><div class="strip" id="slRes"></div></div>
+    </div>
+    <div>
+      <div class="console"><div class="lbl">Console</div><div id="slOut"></div></div>
+      <div class="narr" id="slNarr">Choose a method and press <b>Load</b>. Or jump in from the <b>Method index</b> tab.</div>
+    </div>
+  </div>
+</section>
+
+<!-- ======== HASHCODE LAB ======== -->
+<section id="hash">
+  <span class="eyebrow">04 · hashCode lab</span>
+  <h2>h = 31&#183;h + c, animated</h2>
+  <p class="lede">String's hash is a rolling polynomial: start at 0, and for each character multiply by 31 and add the char code (32-bit wrap-around). 31 is odd and prime — good bit mixing — and <code style="font-family:var(--mono)">31&#183;h</code> compiles to a cheap <code style="font-family:var(--mono)">(h&lt;&lt;5)&#8722;h</code>. The result is cached in the <code style="font-family:var(--mono)">hash</code> field forever.</p>
+
+  <div class="ctl">
+    <input type="text" id="hIn" value="java" maxlength="12" style="width:170px" aria-label="String to hash">
+    <button class="btn solid" id="hLoad">Load</button>
+    <button class="btn" id="hPrev" disabled>&#9664; Prev</button>
+    <button class="btn org solid" id="hNext" disabled>Step &#9654;</button>
+    <button class="btn org" id="hAuto" disabled>Auto-play</button>
+    <span class="stepmeta" id="hMeta"></span>
+  </div>
+  <div class="ctl">
+    <span style="font-size:12.5px;color:var(--ink-3)">presets:</span>
+    <button class="btn" data-h="java">"java"</button>
+    <button class="btn" data-h="Aa">"Aa"</button>
+    <button class="btn" data-h="BB">"BB"</button>
+    <button class="btn" data-h="polygenelubricants">overflow&#8594;MIN_VALUE*</button>
+  </div>
+
+  <div class="slgrid">
+    <div>
+      <div class="codebar"><span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>String.hashCode()</div>
+      <div class="flowcode" id="hCode"></div>
+      <table class="hash" id="hTable"></table>
+    </div>
+    <div>
+      <div class="card" style="margin-top:0">
+        <div class="striplbl">final hash</div>
+        <div class="hashbig" id="hFinal">—</div>
+        <div class="narr" id="hNarr" style="margin-top:14px">Load a string, then step. Try "Aa" and then "BB" — two different strings, <b>identical hash</b> (2112). Collisions are legal: equal hash never implies equal strings, which is why HashMap still calls equals() inside a bucket.</div>
+      </div>
+      <div class="console"><div class="lbl">Cache check</div><div id="hCache"></div></div>
+    </div>
+  </div>
+  <p style="font-size:12px;color:var(--ink-3);margin-top:8px">* "polygenelubricants" famously hashes to exactly Integer.MIN_VALUE (&#8722;2147483648) through 32-bit wrap-around — overflow is part of the algorithm, not a bug. (Input is capped at 12 chars here; the preset loads the first 12 and the narration completes the story.)</p>
+</section>
+
+<!-- ======== BUILDER LAB ======== -->
+<section id="sb">
+  <span class="eyebrow">05 · Builder lab</span>
+  <h2>StringBuilder: the mutable one</h2>
+  <p class="lede">A StringBuilder is a <b>non-final</b> char buffer plus a <code style="font-family:var(--mono)">count</code>. Appends write in place; when the buffer fills, it grows to <code style="font-family:var(--mono)">oldCapacity&#183;2 + 2</code> and copies once. That amortized growth is why a loop of appends is O(n) while a loop of <code style="font-family:var(--mono)">+</code> is O(n&#178;).</p>
+
+  <div class="ctl">
+    <input type="text" id="sbIn" value="@gmail" maxlength="12" style="width:150px" aria-label="Text to append">
+    <button class="btn org solid" id="sbAppend">append()</button>
+    <button class="btn solid" id="sbToStr">toString()</button>
+    <button class="btn" id="sbReverse">reverse()</button>
+    <button class="btn" id="sbReset">reset (new StringBuilder())</button>
+  </div>
+  <div class="meter" id="sbMeter"></div>
+  <div id="sbOldWrap" style="display:none"><div class="striplbl">old buffer — abandoned after growth, GC will collect</div><div class="cellrow old" id="sbOld"></div></div>
+  <div class="striplbl">char[] buffer</div>
+  <div class="cellrow" id="sbCells" style="margin-bottom:22px"></div>
+  <div class="console"><div class="lbl">Console</div><div id="sbOut"></div></div>
+  <div class="narr" id="sbNarr">The buffer starts at capacity 16 (new StringBuilder() with no seed). Append text and watch <b>count</b> advance; overflow the capacity to trigger a growth event: newCap = old&#183;2 + 2, one full copy, then writing continues.</div>
+
+  <div class="card" style="margin-top:18px">
+    <b>toString() makes a snapshot.</b> It copies <code style="font-family:var(--mono)">buffer[0..count)</code> into a new immutable String. Appending afterwards does <b>not</b> change the snapshot — builder and String are decoupled the moment toString returns.
+  </div>
+</section>
+
+<!-- ======== METHOD INDEX ======== -->
+<section id="idx">
+  <span class="eyebrow">06 · Method index</span>
+  <h2>Every method &#8594; one click into the lab</h2>
+  <p class="lede">The catalog, with complexity and the edge case that bites. <b>Open in lab</b> presets the Method lab with a demonstrative input and switches tabs.</p>
+  <table class="idx">
+    <tr><th>method</th><th>cost</th><th>edge case to remember</th><th></th></tr>
+    <tbody id="idxBody"></tbody>
+  </table>
+</section>
+
+<!-- ======== REAL-WORLD ======== -->
+<section id="rw">
+  <span class="eyebrow">07 · Real-world usage</span>
+  <h2>How these methods behave in production code</h2>
+  <p class="lede">The lab tabs show the mechanics; this tab shows the judgment calls: which comparison to reach for, how to survive nulls, how entity sorting really works, and the full <code style="font-family:var(--mono)">split()</code> playbook — with live sandboxes.</p>
+
+  <h3>== vs equals() vs compareTo() — the decision rule</h3>
+  <div class="card">
+    <p style="font-size:14.5px">Use <b>==</b> only to test whether two variables point at the exact same object (or for <code style="font-family:var(--mono)">str == null</code>). Use <b>.equals()</b> for business logic — checking that text content matches. Use <b>.compareTo()</b> only when you need ordering: sorting, ranking, or ordered structures. In a typical project, <code style="font-family:var(--mono)">equals()</code> covers ~95% of comparisons.</p>
+    <table class="idx" style="margin-top:12px">
+      <tr><th>operation</th><th>what it checks</th><th>real project scenarios</th></tr>
+      <tr><td>==</td><td>memory reference</td><td>Never for validating business text. Null checks (<code style="font-family:var(--mono)">str == null</code>); identity early-exit before heavy validation; rare <code style="font-family:var(--mono)">intern()</code>-managed memory setups.</td></tr>
+      <tr><td>.equals()</td><td>text content</td><td>Authentication (entered vs stored credential), API payloads (<code style="font-family:var(--mono)">status.equals("PENDING")</code>), feature flags and config modes, database value checks.</td></tr>
+      <tr><td>.compareTo()</td><td>lexicographic order</td><td>E-commerce A–Z product sorting, TreeSet / TreeMap key ordering, alphabetical batching in reports and pagination.</td></tr>
+    </table>
+    <pre class="code"><span class="t">String</span> enteredOtp = <span class="k">new</span> <span class="t">String</span>(<span class="s">"1234"</span>);   <span class="c">// dynamic value &#8594; heap object</span>
+<span class="t">String</span> correctOtp = <span class="s">"1234"</span>;               <span class="c">// literal &#8594; pool</span>
+
+enteredOtp == correctOtp        <span class="c">// false — different objects! The classic auth bug</span>
+enteredOtp.equals(correctOtp)   <span class="c">// true  — correct business validation</span></pre>
+    <p style="font-size:13.5px;color:var(--ink-2)">== "accidentally works" for two literals because of the pool (Memory canvas, scenario 1), then fails the moment a value arrives from a database, file, network, or <code style="font-family:var(--mono)">new</code> — which is why the bug survives testing and dies in production.</p>
+  </div>
+
+  <h3>Null-safety — try it live</h3>
+  <div class="card">
+    <p style="font-size:14.5px">A value from a database or API can be <b>null</b>. Calling <code style="font-family:var(--mono)">.equals()</code> on it throws NullPointerException. Three patterns, ranked:</p>
+    <pre class="code"><span class="c">// &#10007; DANGEROUS — crashes when inputStatus is null</span>
+<span class="k">if</span> (inputStatus.equals(<span class="s">"ACTIVE"</span>)) { ... }
+
+<span class="c">// &#10003; YODA CONDITION — the constant is never null, so this returns false instead</span>
+<span class="k">if</span> (<span class="s">"ACTIVE"</span>.equals(inputStatus)) { ... }
+
+<span class="c">// &#10003; ENTERPRISE — both sides might be null</span>
+<span class="k">if</span> (Objects.equals(userInput, dbRole)) { ... }</pre>
+    <div class="ctl">
+      <label for="nsVal">inputStatus =</label>
+      <input type="text" id="nsVal" value="ACTIVE" maxlength="12" style="width:120px">
+      <label style="display:flex;align-items:center;gap:5px;font-size:13px;color:var(--ink)"><input type="checkbox" id="nsNull"> simulate null (value from a failed DB read)</label>
+      <button class="btn solid" id="nsRun">Evaluate all three</button>
+    </div>
+    <div class="console"><div class="lbl">Result of each pattern</div><div id="nsOut">Press Evaluate.</div></div>
+  </div>
+
+  <h3>compareTo() in practice — sorting database entities</h3>
+  <div class="card">
+    <p style="font-size:14.5px">Real projects rarely sort plain strings — they sort objects <i>by</i> a string field. <code style="font-family:var(--mono)">Comparator.comparing</code> calls <code style="font-family:var(--mono)">compareTo</code> behind the scenes:</p>
+    <pre class="code"><span class="c">// Sort employees alphabetically by last name (calls lastName1.compareTo(lastName2))</span>
+employees.sort(Comparator.comparing(<span class="t">Employee</span>::getLastName));
+<span class="c">// [John Smith, Alice Brown, Bob Miller] &#8594; [Alice Brown, Bob Miller, John Smith]</span>
+
+<span class="c">// Mixed case trap: plain compareTo puts "Zack" before "alice" (uppercase &lt; lowercase)</span>
+employees.sort(Comparator.comparing(<span class="t">Employee</span>::getLastName, <span class="t">String</span>.CASE_INSENSITIVE_ORDER));
+
+<span class="c">// Multi-level: last name first, then first name on ties</span>
+employees.sort(Comparator.comparing(<span class="t">Employee</span>::getLastName)
+                         .thenComparing(<span class="t">Employee</span>::getFirstName));</pre>
+    <p style="font-size:13.5px;color:var(--ink-2)">The uppercase-first quirk is the char-code math from the Method lab: <code style="font-family:var(--mono)">'Z'(90) &#8722; 'a'(97) = &#8722;7</code>, so "Zack" sorts before "alice" unless you use CASE_INSENSITIVE_ORDER for user-facing lists.</p>
+  </div>
+
+  <h3>split() playbook — it returns a String[]</h3>
+  <div class="card">
+    <p style="font-size:14.5px"><code style="font-family:var(--mono)">split()</code> cuts the string at every regex match, discards the delimiters, and packs the pieces into a fixed-size <b>String[]</b> you index into:</p>
+    <pre class="code"><span class="t">String</span> csvRow = <span class="s">"Laptop,800,Electronics"</span>;
+<span class="t">String</span>[] items = csvRow.split(<span class="s">","</span>);      <span class="c">// length 3</span>
+<span class="t">String</span> productName = items[0];           <span class="c">// "Laptop"</span>
+<span class="t">String</span> price       = items[1];           <span class="c">// "800"</span>
+<span class="t">String</span> category    = items[2];           <span class="c">// "Electronics"</span></pre>
+    <div class="grid g2" style="margin-top:8px">
+      <div>
+        <span class="badge b-err">RISK 1 · META-CHARACTERS</span>
+        <p style="font-size:13.5px;margin-top:6px">The argument is a <b>regex</b>. <code style="font-family:var(--mono)">. | $ * + ? ^</code> have special meanings — <code style="font-family:var(--mono)">"invoice.pdf".split(".")</code> returns an empty array because dot = any character. Escape with <code style="font-family:var(--mono)">\\.</code> (source form) to split on a literal dot.</p>
+      </div>
+      <div>
+        <span class="badge b-err">RISK 2 · TRAILING EMPTIES</span>
+        <p style="font-size:13.5px;margin-top:6px"><code style="font-family:var(--mono)">"John,Doe,,".split(",")</code> has length <b>2</b>, not 4 — trailing empty strings are silently discarded, and your <code style="font-family:var(--mono)">result[3]</code> crashes. Fix: <code style="font-family:var(--mono)">split(",", -1)</code> keeps every slot.</p>
+      </div>
+    </div>
+    <pre class="code"><span class="c">// Data-cleaning patterns</span>
+<span class="s">"Java    Python   C++"</span>.split(<span class="s">"\\s+"</span>)        <span class="c">// any run of whitespace &#8594; ["Java","Python","C++"]</span>
+<span class="s">"Apple,Banana|Orange;Grape"</span>.split(<span class="s">"[,|;]"</span>)  <span class="c">// comma OR pipe OR semicolon</span>
+hugeText.split(<span class="s">","</span>, 2)                       <span class="c">// only need the first piece? stop after 1 cut</span></pre>
+  </div>
+
+  <h3>Split sandbox — Java's limit semantics, live</h3>
+  <div class="card">
+    <p style="font-size:14px;color:var(--ink-2)">Type the regex as the <b>actual pattern</b> (one backslash: <code style="font-family:var(--mono)">\.</code> or <code style="font-family:var(--mono)">\s+</code>); the sandbox shows you the doubled-backslash Java source form. All three limit modes run side by side.</p>
+    <div class="ctl">
+      <label for="spIn">input</label>
+      <input type="text" id="spIn" value="John,Doe,," maxlength="32" style="width:190px">
+      <label for="spPat">regex</label>
+      <input type="text" id="spPat" value="," maxlength="12" style="width:90px">
+      <label for="spLim">your limit</label>
+      <input type="number" id="spLim" value="3" style="width:70px">
+      <button class="btn solid" id="spRun">Run split</button>
+    </div>
+    <div class="ctl">
+      <span style="font-size:12.5px;color:var(--ink-3)">presets:</span>
+      <button class="btn" data-sp='["invoice.pdf","\\."]'>escape the dot</button>
+      <button class="btn" data-sp='["invoice.pdf","."]'>the . trap</button>
+      <button class="btn" data-sp='["John,Doe,,",","]'>trailing empties</button>
+      <button class="btn" data-sp='[",a,b",","]'>leading empty kept</button>
+      <button class="btn" data-sp='["Java    Python   C++","\\s+"]'>\s+ whitespace</button>
+      <button class="btn" data-sp='["Apple,Banana|Orange;Grape","[,|;]"]'>[,|;] multi</button>
+    </div>
+    <div id="spJava" style="font-family:var(--mono);font-size:13px;background:var(--term);color:var(--str);border-radius:8px;padding:10px 14px;margin:8px 0"></div>
+    <table class="idx" id="spTable"></table>
+    <div class="narr" id="spNarr">Run a split to compare limit 0 (default), limit -1 (keep trailing empties), limit 2 (one cut), and your own limit.</div>
+  </div>
+
+  <h3>More split models — the full production toolkit</h3>
+  <div class="card">
+    <span class="badge b-blue">THE LIMIT CONTRACT</span>
+    <table class="idx" style="margin-top:10px">
+      <tr><th>limit</th><th>behavior</th><th>use it for</th></tr>
+      <tr><td>n &gt; 0</td><td>Pattern applied at most n&#8722;1 times; array length &#8804; n; last element holds the untouched remainder</td><td>key=value parsing: <code style="font-family:var(--mono)">header.split(":", 2)</code> so a colon in the value survives</td></tr>
+      <tr><td>0 (default)</td><td>As many cuts as possible, then trailing "" removed</td><td>everyday tokenizing when tail slots don't matter</td></tr>
+      <tr><td>n &lt; 0</td><td>As many cuts as possible, every "" kept</td><td>fixed-column imports (CSV/DB rows) where position = meaning</td></tr>
+    </table>
+    <pre class="code"><span class="c">// Leading vs trailing — the asymmetric rule</span>
+<span class="s">",a,b"</span>.split(<span class="s">","</span>)    <span class="c">// ["", "a", "b"]  — leading empty is KEPT</span>
+<span class="s">"a,b,"</span>.split(<span class="s">","</span>)    <span class="c">// ["a", "b"]      — trailing empty is DROPPED (limit 0)</span></pre>
+  </div>
+
+  <div class="grid g2">
+    <div class="card" style="margin:0"><span class="badge b-ok">HOT LOOPS · Pattern.compile</span>
+      <p style="font-size:13.5px;margin-top:6px">Every <code style="font-family:var(--mono)">s.split(regex)</code> call compiles the regex again. Parsing a million log lines? Compile once, reuse forever — and <code style="font-family:var(--mono)">splitAsStream</code> feeds pipelines directly:</p>
+      <pre class="code" style="font-size:12px"><span class="k">static final</span> <span class="t">Pattern</span> COMMA = <span class="t">Pattern</span>.compile(<span class="s">","</span>);
+
+<span class="k">for</span> (<span class="t">String</span> line : millionLines) {
+    <span class="t">String</span>[] cols = COMMA.split(line);  <span class="c">// no re-compile</span>
+}
+
+COMMA.splitAsStream(csvRow)              <span class="c">// Stream&lt;String&gt;</span>
+     .map(<span class="t">String</span>::trim)
+     .filter(s -&gt; !s.isEmpty())
+     .toList();</pre></div>
+    <div class="card" style="margin:0"><span class="badge b-pur">ARRAY &#8594; LIST / STREAM</span>
+      <p style="font-size:13.5px;margin-top:6px">The String[] is fixed-size. Convert it when you need collection behavior:</p>
+      <pre class="code" style="font-size:12px"><span class="t">String</span>[] parts = csv.split(<span class="s">","</span>);
+
+<span class="t">List</span>&lt;<span class="t">String</span>&gt; view = <span class="t">Arrays</span>.asList(parts);
+<span class="c">// fixed-size VIEW — add() throws UnsupportedOperationException!</span>
+
+<span class="t">List</span>&lt;<span class="t">String</span>&gt; list = <span class="k">new</span> <span class="t">ArrayList</span>&lt;&gt;(<span class="t">Arrays</span>.asList(parts));
+<span class="c">// truly mutable copy</span>
+
+<span class="t">Arrays</span>.stream(parts).map(<span class="t">String</span>::trim).toList();
+<span class="c">// straight into a Stream pipeline</span></pre></div>
+    <div class="card" style="margin:0"><span class="badge b-org">LEGACY · StringTokenizer</span>
+      <p style="font-size:13.5px;margin-top:6px">You'll meet it in old codebases. It splits on <b>characters</b> (not regex) and <b>silently skips empty tokens</b> — so it can never do fixed-column parsing:</p>
+      <pre class="code" style="font-size:12px"><span class="t">StringTokenizer</span> st = <span class="k">new</span> <span class="t">StringTokenizer</span>(<span class="s">"a,,b"</span>, <span class="s">","</span>);
+st.countTokens();   <span class="c">// 2 — the "" vanished</span>
+<span class="c">// split(",", -1) &#8594; ["a","","b"] length 3 — trustworthy</span>
+<span class="c">// JavaDoc itself says: prefer split / java.util.regex</span></pre></div>
+    <div class="card" style="margin:0"><span class="badge b-err">REAL CSV &amp; NEWLINES</span>
+      <p style="font-size:13.5px;margin-top:6px">Two boundaries where naive split breaks:</p>
+      <pre class="code" style="font-size:12px"><span class="c">// Quoted commas defeat split:</span>
+<span class="s">"Laptop,\"1,299\",Electronics"</span>.split(<span class="s">","</span>)
+<span class="c">// 4 pieces, price torn apart &#8594; use a CSV library</span>
+<span class="c">// (OpenCSV / Commons CSV) for real CSV files</span>
+
+<span class="c">// Cross-platform line splitting (\n vs \r\n):</span>
+fileText.split(<span class="s">"\\r?\\n"</span>)
+<span class="c">// or Java 11+: fileText.lines() &#8594; Stream&lt;String&gt;</span></pre></div>
+  </div>
+
+  <h3>Code-review checklist</h3>
+  <div class="card">
+    <ul style="padding-left:20px;font-size:14.5px">
+      <li><b>Length before index:</b> verify <code style="font-family:var(--mono)">parts.length &gt; 2</code> before touching <code style="font-family:var(--mono)">parts[2]</code> — trailing-empty removal makes lengths shorter than they look.</li>
+      <li><b>Null before split:</b> a null base string throws NPE before the regex is even parsed.</li>
+      <li><b>Yoda or Objects.equals</b> for every comparison against data that came from outside the JVM.</li>
+      <li><b>limit for performance:</b> <code style="font-family:var(--mono)">split(",", 2)</code> when you only need the head of a massive string.</li>
+      <li><b>CASE_INSENSITIVE_ORDER</b> for any user-facing alphabetical list.</li>
+    </ul>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <b style="color:#fff">Built from these references</b>
+    <ul class="refs" style="padding-left:18px;margin-top:8px">
+      <li><a href="https://pythontutor.com/java.html" target="_blank" rel="noopener">Python Tutor — Java visualizer</a> — the stack/heap arrow model and step-slider interaction this page imitates.</li>
+      <li><a href="https://github.com/raju123-eng/JRE-Memory-Visualization" target="_blank" rel="noopener">JRE-Memory-Visualization (GitHub)</a> — single-file browser JVM visualizer; the Parse &#8594; Step &#8594; Auto-run control pattern.</li>
+      <li><a href="https://www.baeldung.com/java-string-pool" target="_blank" rel="noopener">Baeldung — Guide to the Java String Pool</a> — pool mechanics and the Java 9 Compact Strings byte[]/coder change.</li>
+      <li><a href="https://medium.com/@dancanian25/java-string-pool-hash-codes-and-performance-a-complete-guide-eba9c7c34ffa" target="_blank" rel="noopener">Medium — Java String Pool, Hash Codes and Performance</a> — pool-as-hashtable and compile-time constant folding.</li>
+      <li>Companion pages: <i>Exception Handling — Interactive Learning Hub</i> and <i>String — Complete Interactive Model</i> (parts 1–2 of this series).</li>
+    </ul>
+  </div>
+</footer>
+
+<script>
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+document.querySelectorAll('.tab').forEach(function(t){
+  t.addEventListener('click',function(){switchTab(t.dataset.t)});
+});
+function switchTab(id){
+  document.querySelectorAll('.tab').forEach(function(x){x.classList.toggle('on',x.dataset.t===id)});
+  document.querySelectorAll('main section').forEach(function(s){s.classList.toggle('on',s.id===id)});
+  window.scrollTo({top:0});
+  if(id==='mem')setTimeout(drawArrows,60);
+}
+
+/* ================= MEMORY CANVAS ================= */
+var PALETTE=['#2F5A75','#1D7A4F','#B25600','#534AB7','#C03A2B','#0E7490'];
+var MEM={
+ s1:{code:['String a = "java";','String b = "java";','System.out.println(a == b);','System.out.println(a.equals(b));'],
+  steps:[
+   {l:0,n:'Literal <b>"java"</b> requested. Pool is empty &#8594; the JVM creates one pooled object p1 and hands its reference to <b>a</b>.',vars:[['a','p1']],pool:[['p1','java']],heap:[]},
+   {l:1,n:'Second literal <b>"java"</b>. The pool is a hash table keyed by content — lookup hits p1, so <b>no object is created</b>. b receives the same reference. Watch: two arrows, one box.',vars:[['a','p1'],['b','p1']],pool:[['p1','java']],heap:[]},
+   {l:2,n:'<b>==</b> compares references. Both arrows end at p1 &#8594; true.',vars:[['a','p1'],['b','p1']],pool:[['p1','java']],heap:[],out:['true']},
+   {l:3,n:'<b>equals()</b> compares characters &#8594; also true. Literals make == "accidentally work" — which is exactly why the bug survives testing.',vars:[['a','p1'],['b','p1']],pool:[['p1','java']],heap:[],out:['true','true']}
+  ]},
+ s2:{code:['String a = "java";','String c = new String("java");','System.out.println(a == c);','String d = c.intern();','System.out.println(a == d);'],
+  steps:[
+   {l:0,n:'Literal &#8594; pooled p1; a &#8594; p1.',vars:[['a','p1']],pool:[['p1','java']],heap:[]},
+   {l:1,n:'<b>new skips the pool check</b> and always allocates. A second object h1 with identical characters appears on the heap. Two boxes now hold "java".',vars:[['a','p1'],['c','h1']],pool:[['p1','java']],heap:[['h1','java']]},
+   {l:2,n:'Arrows end at different boxes &#8594; <b>false</b>. Same text, different identity.',vars:[['a','p1'],['c','h1']],pool:[['p1','java']],heap:[['h1','java']],out:['false']},
+   {l:3,n:'<b>intern()</b>: "give me the canonical pooled version of these characters." Pool lookup hits p1 &#8594; d\'s arrow lands in the pool, not on h1.',vars:[['a','p1'],['c','h1'],['d','p1']],pool:[['p1','java']],heap:[['h1','java']],out:['false']},
+   {l:4,n:'a and d share p1 &#8594; <b>true</b>. Once c goes out of scope, h1 has zero incoming arrows — garbage-collector food.',vars:[['a','p1'],['c','h1'],['d','p1']],pool:[['p1','java']],heap:[['h1','java']],out:['false','true']}
+  ]},
+ s3:{code:['String s = "hi";','s.concat(" there");  // return ignored!','System.out.println(s);','s = s + "!";','System.out.println(s);'],
+  steps:[
+   {l:0,n:'"hi" pooled as p1; s &#8594; p1.',vars:[['s','p1']],pool:[['p1','hi']],heap:[]},
+   {l:1,n:'concat <b>cannot</b> write into p1 — the array is final. It builds h1 = "hi there" and returns it… into the void. Note: h1 has <b>no arrow pointing at it</b>. It is garbage the instant it is born.',vars:[['s','p1']],pool:[['p1','hi']],heap:[['h1','hi there','ghost']]},
+   {l:2,n:'s never moved. Prints <b>hi</b> — the single most common String misconception, now visible: the arrow stayed put.',vars:[['s','p1']],pool:[['p1','hi']],heap:[['h1','hi there','ghost']],out:['hi']},
+   {l:3,n:'+ builds h2 = "hi!" and the <b>assignment moves the arrow</b>. The object "hi" was never edited — only the reference rebound.',vars:[['s','h2']],pool:[['p1','hi']],heap:[['h1','hi there','ghost'],['h2','hi!']],out:['hi']},
+   {l:4,n:'Prints <b>hi!</b>. Every String "change" = new object + moved arrow. In a loop that is a trail of ghosts — the Builder lab shows the fix.',vars:[['s','h2']],pool:[['p1','hi']],heap:[['h1','hi there','ghost'],['h2','hi!']],out:['hi','hi!']}
+  ]},
+ s4:{code:['String a = "ja" + "va";      // constants only','String b = getJa() + "va";  // runtime value','System.out.println(a == "java");','System.out.println(b == "java");'],
+  steps:[
+   {l:0,n:'<b>The compiler does this concat, not the JVM.</b> "ja" + "va" is a constant expression, folded at compile time into the literal "java" — pooled as p1. a &#8594; p1.',vars:[['a','p1']],pool:[['p1','java']],heap:[]},
+   {l:1,n:'getJa() is a runtime value, so this concat happens at <b>runtime</b> and produces a fresh heap object h1 — the pool is not consulted.',vars:[['a','p1'],['b','h1']],pool:[['p1','java']],heap:[['h1','java']]},
+   {l:2,n:'The literal "java" in the comparison is the pooled p1, same as a &#8594; <b>true</b>.',vars:[['a','p1'],['b','h1']],pool:[['p1','java']],heap:[['h1','java']],out:['true']},
+   {l:3,n:'b lives on the heap &#8594; <b>false</b>. Same source-level expression shape, opposite answers — decided entirely by <i>when</i> the concatenation ran.',vars:[['a','p1'],['b','h1']],pool:[['p1','java']],heap:[['h1','java']],out:['true','false']}
+  ]}
+};
+var memIdx=0,memColors={},memTimer=null;
+function memColor(id){if(!(id in memColors))memColors[id]=PALETTE[Object.keys(memColors).length%PALETTE.length];return memColors[id];}
+function memScen(){return MEM[document.getElementById('memScen').value];}
+function memRenderCode(hot){
+  var el=document.getElementById('memCode');el.innerHTML='';
+  memScen().code.forEach(function(ln,i){
+    var d=document.createElement('div');d.className='fl'+(i===hot?' hot':'');d.textContent=ln;el.appendChild(d);
+  });
+}
+function memApply(){
+  var sc=memScen();
+  var st=memIdx>0?sc.steps[memIdx-1]:{vars:[],pool:[],heap:[],out:[]};
+  memRenderCode(memIdx>0?st.l:-1);
+  var v=document.getElementById('memVars');v.innerHTML='';
+  st.vars.forEach(function(p){
+    v.innerHTML+='<div class="varrow" data-ref="'+p[1]+'"><span class="vdot" style="background:'+memColor(p[1])+'"></span><b>'+p[0]+'</b></div>';
+  });
+  if(!st.vars.length)v.innerHTML='<div style="font-size:12px;color:var(--ink-3)">(none yet)</div>';
+  function objs(list,host){
+    host.innerHTML='';
+    list.forEach(function(o){
+      host.innerHTML+='<div class="objchip new'+(o[2]==='ghost'?' ghost':'')+'" data-obj="'+o[0]+'" style="border-color:'+memColor(o[0])+';color:'+memColor(o[0])+'"><span class="oid">'+o[0]+(o[2]==='ghost'?' · unreferenced':'')+'</span>"'+esc(o[1])+'"</div>';
+    });
+    if(!list.length)host.innerHTML='<div style="font-size:12px;color:var(--ink-3)">(empty)</div>';
+  }
+  objs(st.pool,document.getElementById('memPool'));
+  objs(st.heap,document.getElementById('memHeap'));
+  document.getElementById('memOut').innerHTML=(st.out||[]).map(function(o){return '<div class="out">'+esc(o)+'</div>'}).join('');
+  document.getElementById('memNarr').innerHTML=memIdx>0?('<b>Step '+memIdx+'/'+sc.steps.length+':</b> '+st.n):'Press <b>Step</b> or <b>Auto-play</b> to begin.';
+  var sl=document.getElementById('memSlider');sl.max=sc.steps.length;sl.value=memIdx;
+  document.getElementById('memMeta').textContent='step '+memIdx+'/'+sc.steps.length;
+  document.getElementById('memNext').disabled=memIdx>=sc.steps.length;
+  document.getElementById('memPrev').disabled=memIdx<=0;
+  drawArrows();
+}
+function drawArrows(){
+  var svg=document.getElementById('memArrows');
+  var wrapEl=svg.parentElement;
+  var W=wrapEl.clientWidth,H=wrapEl.clientHeight;
+  svg.setAttribute('width',W);svg.setAttribute('height',H);
+  svg.setAttribute('viewBox','0 0 '+W+' '+H);
+  var wr=wrapEl.getBoundingClientRect();
+  var defs='<defs>';
+  var body='';
+  document.querySelectorAll('#memVars .varrow').forEach(function(vr,i){
+    var ref=vr.dataset.ref;
+    var target=wrapEl.querySelector('[data-obj="'+ref+'"]');
+    if(!target)return;
+    var a=vr.getBoundingClientRect(),b=target.getBoundingClientRect();
+    var x1=a.right-wr.left, y1=a.top-wr.top+a.height/2;
+    var x2=b.left-wr.left-4, y2=b.top-wr.top+b.height/2;
+    var col=memColor(ref);
+    var mid=(x1+x2)/2;
+    defs+='<marker id="m'+i+'" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="'+col+'"/></marker>';
+    body+='<path d="M'+x1+' '+y1+' C '+mid+' '+y1+', '+mid+' '+y2+', '+x2+' '+y2+'" fill="none" stroke="'+col+'" stroke-width="2.2" marker-end="url(#m'+i+')" opacity="0.9"/>';
+  });
+  svg.innerHTML=defs+'</defs>'+body;
+}
+window.addEventListener('resize',drawArrows);
+function memStop(){if(memTimer){clearInterval(memTimer);memTimer=null;document.getElementById('memAuto').textContent='Auto-play';}}
+document.getElementById('memScen').addEventListener('change',function(){memStop();memIdx=0;memColors={};memApply();});
+document.getElementById('memNext').addEventListener('click',function(){memStop();if(memIdx<memScen().steps.length){memIdx++;memApply();}});
+document.getElementById('memPrev').addEventListener('click',function(){memStop();if(memIdx>0){memIdx--;memApply();}});
+document.getElementById('memSlider').addEventListener('input',function(e){memStop();memIdx=+e.target.value;memApply();});
+document.getElementById('memAuto').addEventListener('click',function(){
+  if(memTimer){memStop();return;}
+  if(memIdx>=memScen().steps.length)memIdx=0;
+  document.getElementById('memAuto').textContent='&#9646;&#9646; Pause'.replace(/&#9646;/g,'\u25AE');
+  memTimer=setInterval(function(){
+    if(memIdx>=memScen().steps.length){memStop();return;}
+    memIdx++;memApply();
+  },+document.getElementById('memSpeed').value);
+});
+memApply();
+
+/* ================= METHOD LAB ================= */
+function stripHTML(s,marks,ptrs){
+  var mk={},pt={};
+  (marks||[]).forEach(function(m){mk[m.i]=m.c});
+  (ptrs||[]).forEach(function(p){pt[p.i]=(pt[p.i]?pt[p.i]+' ':'')+p.t});
+  var h='';
+  for(var i=0;i<s.length;i++){
+    var c=s.charAt(i);
+    h+='<div class="chip '+(mk[i]||'')+'"><div class="ch">'+(c===' '?'&#183;':esc(c))+'</div><div class="ix">'+i+'</div><div class="pt">'+(pt[i]||'')+'</div></div>';
+  }
+  if(!s.length)h='<div style="font-size:12px;color:var(--ink-3);align-self:center">(empty)</div>';
+  return h;
+}
+function windowSearch(s,t,retIdx){
+  var st=[],n=s.length,m=t.length;
+  if(m===0){st.push({l:1,n:'Empty needle matches at index 0 by definition.',out:(retIdx?'indexOf("")':'contains("")')+' = '+(retIdx?'0':'true')});return st;}
+  if(m>n){st.push({l:1,n:'Needle ('+m+') is longer than the haystack ('+n+') — impossible. Return immediately.',out:retIdx?'-1':'false'});return st;}
+  for(var i=0;i<=n-m;i++){
+    var win=[];for(var w=0;w<m;w++)win.push({i:i+w,c:'win'});
+    var ok=true;
+    for(var j=0;j<m;j++){
+      var match=s.charAt(i+j)===t.charAt(j);
+      var mk=win.slice();mk[j]={i:i+j,c:match?'hit':'fail'};
+      st.push({l:match?3:4,
+        n:'window i='+i+', offset j='+j+': value['+(i+j)+'] \''+esc(s.charAt(i+j))+'\' vs needle['+j+'] \''+esc(t.charAt(j))+'\' — '+(match?'match, extend':'mismatch, slide the window right'),
+        m:mk,p:[{i:i,t:'i'},{i:i+j,t:'j'}],am:[{i:j,c:match?'hit':'fail'}]});
+      if(!match){ok=false;break;}
+    }
+    if(ok){
+      st.push({l:5,n:'All '+m+' characters matched at window i='+i+'. '+(retIdx?'Return '+i+'.':'indexOf returned '+i+' &#8805; 0 &#8594; contains is true.'),
+        m:win.map(function(x){return {i:x.i,c:'hit'}}),out:retIdx?('indexOf("'+esc(t)+'") = '+i):('contains("'+esc(t)+'") = true')});
+      return st;
+    }
+  }
+  st.push({l:6,n:'Every window slid past without a full match.',out:retIdx?('indexOf("'+esc(t)+'") = -1'):('contains("'+esc(t)+'") = false')});
+  return st;
+}
+var SL={
+ charAt:{label:'charAt(i) · O(1)',args:[{k:'i',lab:'index',def:'6'}],
+  code:['public char charAt(int index) {','    if (index < 0 || index >= value.length)','        throw new StringIndexOutOfBoundsException(index);','    return value[index];   // direct array read','}'],
+  gen:function(s,a){var i=parseInt(a.i,10),st=[];
+   st.push({l:1,n:'Bounds check: is '+i+' inside 0..'+(s.length-1)+'? No scanning ever happens in charAt — but the guard always runs.'});
+   if(isNaN(i)||i<0||i>=s.length){st.push({l:2,n:'Out of bounds &#8594; throw. Unchecked exception: no throws clause required anywhere.',err:'java.lang.StringIndexOutOfBoundsException: index '+i+', length '+s.length});}
+   else{st.push({l:3,n:'Direct jump to slot '+i+'. Arrays give constant-time access — this is a single memory read.',m:[{i:i,c:'hit'}],p:[{i:i,t:'&#9650;'}],out:"charAt("+i+") = '"+esc(s.charAt(i))+"'"});}
+   return st;}},
+ indexOfC:{label:'indexOf(ch) · left scan',args:[{k:'c',lab:'char',def:'@'}],
+  code:['public int indexOf(char ch) {','    for (int i = 0; i < value.length; i++) {','        if (value[i] == ch)','            return i;    // first match wins','    }','    return -1;           // miss: NO exception','}'],
+  gen:function(s,a){var t=(a.c||'').charAt(0),st=[];
+   if(!t){st.push({l:0,n:'Give me one character.'});return st;}
+   for(var i=0;i<s.length;i++){
+     if(s.charAt(i)===t){st.push({l:3,n:'value['+i+'] == \''+esc(t)+'\' &#8594; return '+i+'. Everything after is never inspected.',m:[{i:i,c:'hit'}],p:[{i:i,t:'i'}],out:'indexOf(\''+esc(t)+'\') = '+i});return st;}
+     st.push({l:2,n:'i='+i+': \''+esc(s.charAt(i))+'\' &#8800; \''+esc(t)+'\' — advance.',m:[{i:i,c:'scan'}],p:[{i:i,t:'i'}]});
+   }
+   st.push({l:5,n:'Scan exhausted &#8594; -1. It never throws — and -1 fed into substring(-1+1) silently returns the whole string. Check it.',out:'indexOf(\''+esc(t)+'\') = -1'});
+   return st;}},
+ indexOfS:{label:'indexOf(str) · sliding window',args:[{k:'t',lab:'needle',def:'mail'}],
+  code:['public int indexOf(String t) {','    // guard: empty / too-long needle','    for (int i = 0; i <= n - m; i++) {','        // compare window char: match &#8594; extend j','        // mismatch &#8594; slide window (i++)','        // full window matched &#8594; return i','    }','    return -1;','}'],
+  gen:function(s,a){return windowSearch(s,a.t||'',true);},arg:'t'},
+ containsM:{label:'contains(str) · delegates',args:[{k:'t',lab:'needle',def:'gmail'}],
+  code:['public boolean contains(CharSequence t) {','    // guard','    return indexOf(t.toString()) >= 0;','    //     &#8593; same sliding-window search','    //  mismatch &#8594; slide','    //  full match &#8594; index &#8805; 0 &#8594; true','','}'],
+  gen:function(s,a){var st=windowSearch(s,a.t||'',false);
+   st.unshift({l:2,n:'contains has no algorithm of its own — it calls indexOf and tests &#8805; 0. Note the parameter type: CharSequence, so contains(\'x\') with a char does not compile.'});
+   return st;},arg:'t'},
+ lastIndexOf:{label:'lastIndexOf(ch) · right scan',args:[{k:'c',lab:'char',def:'.'}],
+  code:['public int lastIndexOf(char ch) {','    for (int i = value.length - 1; i >= 0; i--) {','        if (value[i] == ch)','            return i;   // first match FROM THE RIGHT','    }','    return -1;','}'],
+  gen:function(s,a){var t=(a.c||'').charAt(0),st=[];
+   if(!t){st.push({l:0,n:'Give me one character.'});return st;}
+   for(var i=s.length-1;i>=0;i--){
+     if(s.charAt(i)===t){st.push({l:3,n:'Match at '+i+'. This right-first scan is why lastIndexOf(\'.\') always finds the <b>extension</b> dot.',m:[{i:i,c:'hit'}],p:[{i:i,t:'i'}],out:'lastIndexOf(\''+esc(t)+'\') = '+i});return st;}
+     st.push({l:2,n:'i='+i+': \''+esc(s.charAt(i))+'\' &#8800; \''+esc(t)+'\' — move left.',m:[{i:i,c:'scan'}],p:[{i:i,t:'i'}]});
+   }
+   st.push({l:5,n:'No match &#8594; -1.',out:'lastIndexOf(\''+esc(t)+'\') = -1'});
+   return st;}},
+ substring:{label:'substring(b, e) · slice copy',args:[{k:'b',lab:'begin',def:'7'},{k:'e',lab:'end',def:'12'}],
+  code:['public String substring(int b, int e) {','    if (b < 0 || e > value.length || b > e)','        throw new StringIndexOutOfBoundsException();','    // mark b .. e-1  (end EXCLUSIVE)','    byte[] copy = Arrays.copyOfRange(value, b, e);','    return new String(copy);  // original untouched','}'],
+  gen:function(s,a){var b=parseInt(a.b,10),e=parseInt(a.e,10),st=[];
+   st.push({l:1,n:'Validate 0 &#8804; b('+b+') &#8804; e('+e+') &#8804; length('+s.length+').'});
+   if(isNaN(b)||isNaN(e)||b<0||e>s.length||b>e){
+     st.push({l:2,n:'Invalid — throw. b &gt; e fails even when both indices exist: "abc".substring(2,1) crashes.',err:'java.lang.StringIndexOutOfBoundsException: begin '+b+', end '+e+', length '+s.length});return st;}
+   var mk=[];for(var i=b;i<e;i++)mk.push({i:i,c:'range'});
+   st.push({l:3,n:'Mark '+b+'..'+(e-1)+'. Result length = e &#8722; b = '+(e-b)+'. substring(length()) is legal and yields "".',m:mk,p:[{i:b,t:'b'}].concat(e-1>=b?[{i:e-1,t:'e-1'}]:[])});
+   var sub=s.substring(b,e);
+   st.push({l:4,n:'copyOfRange clones those bytes into a fresh array — nothing shared with the original (since 7u6; before that, substrings pinned the parent array and leaked).',m:mk,res:sub});
+   st.push({l:5,n:'A new String wraps the copy. The original never changed.',m:mk,res:sub,out:'substring('+b+', '+e+') = "'+esc(sub)+'"'});
+   return st;}},
+ startsWith:{label:'startsWith(prefix)',args:[{k:'t',lab:'prefix',def:'sam'}],
+  code:['public boolean startsWith(String p) {','    if (p.length() > value.length) return false;','    for (int j = 0; j < p.length(); j++)','        if (value[j] != p.charAt(j))','            return false;','    return true;   // "" is a prefix of everything','}'],
+  gen:function(s,a){var t=a.t||'',st=[];
+   if(t.length>s.length){st.push({l:1,n:'Prefix longer than the string — impossible.',out:'false'});return st;}
+   if(t.length===0){st.push({l:5,n:'Empty prefix: the loop body never runs, so this is vacuously true — every string startsWith("").',out:'startsWith("") = true'});return st;}
+   for(var j=0;j<t.length;j++){
+     var ok=s.charAt(j)===t.charAt(j);
+     st.push({l:ok?3:4,n:'j='+j+': \''+esc(s.charAt(j))+'\' vs \''+esc(t.charAt(j))+'\' — '+(ok?'match':'mismatch &#8594; false. Case-sensitive!'),m:[{i:j,c:ok?'hit':'fail'}],p:[{i:j,t:'j'}],am:[{i:j,c:ok?'hit':'fail'}]});
+     if(!ok){st[st.length-1].out='startsWith("'+esc(t)+'") = false';return st;}
+   }
+   st.push({l:5,n:'All prefix characters matched.',out:'startsWith("'+esc(t)+'") = true'});
+   return st;},arg:'t'},
+ endsWith:{label:'endsWith(suffix)',args:[{k:'t',lab:'suffix',def:'.com'}],
+  code:['public boolean endsWith(String x) {','    int off = value.length - x.length();','    if (off < 0) return false;','    for (int j = 0; j < x.length(); j++)','        if (value[off + j] != x.charAt(j)) return false;','    return true;','}'],
+  gen:function(s,a){var t=a.t||'',st=[],off=s.length-t.length;
+   st.push({l:1,n:'Compute the alignment offset: '+s.length+' &#8722; '+t.length+' = '+off+'. The suffix is compared in place — no substring is created.'});
+   if(off<0){st.push({l:2,n:'Suffix longer than the string.',out:'false'});return st;}
+   if(t.length===0){st.push({l:5,n:'Empty suffix — vacuously true.',out:'endsWith("") = true'});return st;}
+   for(var j=0;j<t.length;j++){
+     var ok=s.charAt(off+j)===t.charAt(j);
+     st.push({l:ok?4:4,n:'j='+j+': value['+(off+j)+'] \''+esc(s.charAt(off+j))+'\' vs \''+esc(t.charAt(j))+'\' — '+(ok?'match':'mismatch &#8594; false'),m:[{i:off+j,c:ok?'hit':'fail'}],p:[{i:off+j,t:'j'}],am:[{i:j,c:ok?'hit':'fail'}]});
+     if(!ok){st[st.length-1].out='endsWith("'+esc(t)+'") = false';return st;}
+   }
+   st.push({l:5,n:'Suffix matched — this in-place check is how the email validator rejected the trailing dot without allocating anything.',out:'endsWith("'+esc(t)+'") = true'});
+   return st;},arg:'t'},
+ equalsM:{label:'equals(other) · content',args:[{k:'o',lab:'other',def:'sample@gmail.con'}],
+  code:['public boolean equals(Object o) {','    if (this == o) return true;     // identity shortcut','    if (lengths differ) return false;','    for (int i = 0; i < value.length; i++)','        if (value[i] != o.value[i])','            return false;           // first mismatch','    return true;','}'],
+  gen:function(s,a){var o=a.o||'',st=[];
+   st.push({l:1,n:'Identity shortcut: same object? (Assume not — e.g. one side came from substring.) Continue to content.'});
+   if(s.length!==o.length){st.push({l:2,n:'Lengths '+s.length+' vs '+o.length+' — reject without reading a single character.',out:'equals("'+esc(o)+'") = false'});return st;}
+   st.push({l:2,n:'Same length ('+s.length+') — now the character walk.'});
+   for(var i=0;i<s.length;i++){
+     var ok=s.charAt(i)===o.charAt(i);
+     if(!ok){st.push({l:5,n:'Mismatch at '+i+': \''+esc(s.charAt(i))+'\' vs \''+esc(o.charAt(i))+'\' &#8594; false, stop immediately.',m:[{i:i,c:'fail'}],p:[{i:i,t:'i'}],am:[{i:i,c:'fail'}],out:'equals("'+esc(o)+'") = false'});return st;}
+     st.push({l:4,n:'i='+i+': \''+esc(s.charAt(i))+'\' &#10003;',m:[{i:i,c:'hit'}],p:[{i:i,t:'i'}],am:[{i:i,c:'hit'}]});
+   }
+   st.push({l:6,n:'All characters equal &#8594; true. Content, not identity — the opposite of ==.',out:'equals("'+esc(o)+'") = true'});
+   return st;},arg:'o'},
+ compareTo:{label:'compareTo(other) · ordering',args:[{k:'o',lab:'other',def:'sample@gmail.org'}],
+  code:['public int compareTo(String o) {','    int lim = min(len1, len2);','    for (int i = 0; i < lim; i++)','        if (value[i] != o.value[i])','            return value[i] - o.value[i]; // char diff','    return len1 - len2;   // prefix case','}'],
+  gen:function(s,a){var o=a.o||'',st=[],lim=Math.min(s.length,o.length);
+   st.push({l:1,n:'Walk both strings up to the shorter length ('+lim+').'});
+   for(var i=0;i<lim;i++){
+     var c1=s.charCodeAt(i),c2=o.charCodeAt(i);
+     if(c1!==c2){st.push({l:4,n:'First difference at '+i+': \''+esc(s.charAt(i))+'\'('+c1+') vs \''+esc(o.charAt(i))+'\'('+c2+'). Return '+c1+' &#8722; '+c2+' = <b>'+(c1-c2)+'</b>. Only the SIGN is contractual.',m:[{i:i,c:'fail'}],p:[{i:i,t:'i'}],am:[{i:i,c:'fail'}],out:'compareTo("'+esc(o)+'") = '+(c1-c2)});return st;}
+     st.push({l:3,n:'i='+i+': equal \''+esc(s.charAt(i))+'\' — continue.',m:[{i:i,c:'hit'}],p:[{i:i,t:'i'}],am:[{i:i,c:'hit'}]});
+   }
+   st.push({l:5,n:'One is a prefix of the other — return the length difference '+s.length+' &#8722; '+o.length+' = '+(s.length-o.length)+'. Zero means equal content.',out:'compareTo("'+esc(o)+'") = '+(s.length-o.length)});
+   return st;},arg:'o'},
+ trim:{label:'trim() · two pointers',args:[],
+  code:['public String trim() {','    int st = 0, en = value.length;','    while (st < en && value[st] <= \' \') st++;','    while (st < en && value[en-1] <= \' \') en--;','    return substring(st, en);  // new String','}'],
+  gen:function(s){var st=[],a=0,b=s.length;
+   st.push({l:1,n:'Two pointers: st=0 and en='+s.length+' close in from the edges.'});
+   while(a<b&&s.charAt(a)<=' '){st.push({l:2,n:'value['+a+'] &#8804; U+0020 — st advances.',m:[{i:a,c:'fail'}],p:[{i:a,t:'st'}]});a++;}
+   while(a<b&&s.charAt(b-1)<=' '){st.push({l:3,n:'value['+(b-1)+'] &#8804; U+0020 — en retreats.',m:[{i:b-1,c:'fail'}],p:[{i:b-1,t:'en'}]});b--;}
+   var mk=[];for(var i=a;i<b;i++)mk.push({i:i,c:'range'});
+   var res=s.substring(a,b);
+   st.push({l:4,n:'Pointers stopped &#8594; substring('+a+', '+b+'). Only &#8804; U+0020 counts as whitespace here — Unicode spaces need strip() (Java 11).',m:mk,res:res,out:'trim() = "'+esc(res)+'"  (length '+res.length+')'});
+   return st;}},
+ split:{label:'split(delim) · cut + trap',args:[{k:'d',lab:'delim',def:'.'}],
+  code:['public String[] split(String regex) {','    // the argument is a REGEX','    // each match ends the current token','    // close the final token at end of input','    // trailing "" tokens are REMOVED (limit 0)','    return tokens;','}'],
+  gen:function(s,a){var d=(a.d||'').charAt(0),st=[];
+   if(!d){st.push({l:0,n:'Give me a one-character delimiter.'});return st;}
+   if(d==='.'){
+     st.push({l:1,n:'<b>Trap armed:</b> in regex "." means ANY character — every position is a delimiter match.'});
+     var mk=[];for(var i=0;i<s.length;i++)mk.push({i:i,c:'fail'});
+     st.push({l:2,n:'Every character consumed as a separator; every token between them is "".',m:mk});
+     st.push({l:4,n:'All trailing empties are stripped &#8594; a <b>zero-length array</b>. Real Java: length 0.',out:'split(".") = []  (length 0)'});
+     st.push({l:5,n:'The fix: split("\\\\.") — a literal dot. Simulated result below.',toks:s.split('.'),out:'split("\\\\.") = ['+s.split('.').map(function(t){return '"'+esc(t)+'"'}).join(', ')+']'});
+     return st;
+   }
+   var cur='',toks=[];
+   for(var i=0;i<s.length;i++){
+     if(s.charAt(i)===d){toks.push(cur);st.push({l:2,n:'Delimiter at '+i+' — close token "'+esc(cur)+'" and restart.',m:[{i:i,c:'fail'}],p:[{i:i,t:'i'}],toks:toks.slice()});cur='';}
+     else cur+=s.charAt(i);
+   }
+   toks.push(cur);
+   st.push({l:3,n:'End of input — close "'+esc(cur)+'".',toks:toks.slice()});
+   var out=toks.slice(),removed=0;
+   while(out.length&&out[out.length-1]===''){out.pop();removed++;}
+   if(removed)st.push({l:4,n:removed+' trailing empty token'+(removed>1?'s':'')+' removed (limit 0). Interior "" survive; pass limit -1 to keep the tail.',toks:out.slice()});
+   st.push({l:5,n:'Return String['+out.length+'].',toks:out.slice(),out:'split("'+esc(d)+'") = ['+out.map(function(t){return '"'+esc(t)+'"'}).join(', ')+']'});
+   return st;}},
+ replaceM:{label:'replace(old, new) · rebuild',args:[{k:'a',lab:'old',def:'a'},{k:'b',lab:'new',def:'A'}],
+  code:['public String replace(char o, char n) {','    byte[] buf = new byte[value.length]; // NEW buffer','    for (int i = 0; i < value.length; i++)','        buf[i] = (value[i]==o) ? n : value[i];','    return new String(buf);  // original kept','}'],
+  gen:function(s,a){var o=(a.a||'').charAt(0),n=(a.b||'').charAt(0),st=[],res='';
+   if(!o||!n){st.push({l:0,n:'Give me both characters.'});return st;}
+   st.push({l:1,n:'The value array is final — replace allocates a same-length buffer and rebuilds.'});
+   var hits=[];
+   for(var i=0;i<s.length;i++){if(s.charAt(i)===o){hits.push(i);res+=n;}else res+=s.charAt(i);}
+   st.push({l:3,n:'One pass swaps \''+esc(o)+'\' &#8594; \''+esc(n)+'\' at '+(hits.length?('index'+(hits.length>1?'es ':' ')+hits.join(', ')):'no positions')+'.',m:hits.map(function(i){return {i:i,c:'hit'}}),res:res});
+   st.push({l:4,n:'New String returned; without an assignment, the change silently vanishes.',res:res,out:'replace(\''+esc(o)+'\',\''+esc(n)+'\') = "'+esc(res)+'"'});
+   return st;}},
+ toUpper:{label:'toUpperCase() · map + copy',args:[],
+  code:['public String toUpperCase() {','    // scan: does anything actually change?','    // if not, return THIS (no copy needed)','    byte[] buf = map each char to upper;','    return new String(buf);','}'],
+  gen:function(s){var st=[],res=s.toUpperCase();
+   var hits=[];for(var i=0;i<s.length;i++)if(s.charAt(i)!==res.charAt(i))hits.push(i);
+   st.push({l:1,n:'First a scan: if no character would change, the SAME object is returned — a free optimization immutability makes safe.'});
+   if(!hits.length){st.push({l:2,n:'Nothing to change &#8594; return this. Zero allocation.',out:'toUpperCase() = "'+esc(res)+'"  (same object)'});return st;}
+   st.push({l:3,n:hits.length+' character'+(hits.length>1?'s':'')+' change (ASCII: code &#8722; 32). Locale matters for real text: Turkish "i" upper-cases to "&#304;" — use Locale.ROOT for protocol strings.',m:hits.map(function(i){return {i:i,c:'hit'}}),res:res});
+   st.push({l:4,n:'New String returned.',res:res,out:'toUpperCase() = "'+esc(res)+'"'});
+   return st;}},
+ concat:{label:'concat(str) · full copy',args:[{k:'t',lab:'suffix',def:'!'}],
+  code:['public String concat(String s) {','    byte[] buf = new byte[len + s.length()];','    copy ALL of this.value;   // the O(n) part','    copy s.value after it;','    return new String(buf);  // must be assigned!','}'],
+  gen:function(s,a){var t=a.t||'',st=[];
+   st.push({l:1,n:'Allocate '+s.length+'+'+t.length+'='+(s.length+t.length)+' bytes. The old array cannot grow — final.'});
+   var mk=[];for(var i=0;i<s.length;i++)mk.push({i:i,c:'range'});
+   st.push({l:2,n:'Copy all '+s.length+' original chars. <b>This copy-everything step is the O(n&#178;) loop killer</b> — see the Builder lab for the fix.',m:mk,res:s});
+   st.push({l:3,n:'Append the suffix.',m:mk,res:s+t});
+   st.push({l:4,n:'New object returned; the original variable still points at the old one unless you assign.',res:s+t,out:'concat("'+esc(t)+'") = "'+esc(s+t)+'"'});
+   return st;}},
+ repeat:{label:'repeat(n) · Java 11',args:[{k:'n',lab:'n',def:'3'}],
+  code:['public String repeat(int n) {','    if (n < 0) throw new IllegalArgumentException();','    if (n == 0 || isEmpty()) return "";','    allocate len * n; copy in n rounds;','    return new String(buf);','}'],
+  gen:function(s,a){var n=parseInt(a.n,10),st=[];
+   if(isNaN(n)||n<0){st.push({l:1,n:'Negative count &#8594; IllegalArgumentException (unchecked).',err:'java.lang.IllegalArgumentException: count is negative: '+n});return st;}
+   if(n===0){st.push({l:2,n:'Zero repeats &#8594; the empty string.',res:'',out:'repeat(0) = ""'});return st;}
+   if(s.length*n>48){st.push({l:3,n:'Result would be '+(s.length*n)+' chars — too long to draw; shrink the input or n.'});return st;}
+   var res='';
+   for(var r=1;r<=n;r++){res+=s;st.push({l:3,n:'Round '+r+'/'+n+': one more copy appended.',res:res});}
+   st.push({l:4,n:'Done — length '+res.length+'.',res:res,out:'repeat('+n+') = "'+esc(res)+'"'});
+   return st;}}
+};
+var slSteps=[],slIdx=0,slInput='',slArgStr=null,slTimer=null;
+(function(){
+  var sel=document.getElementById('slMethod');
+  Object.keys(SL).forEach(function(k){var o=document.createElement('option');o.value=k;o.textContent=SL[k].label;sel.appendChild(o);});
+  sel.addEventListener('change',slBuildArgs);
+  slBuildArgs();
+})();
+function slBuildArgs(){
+  var m=SL[document.getElementById('slMethod').value];
+  var w=document.getElementById('slArgs');w.innerHTML='';
+  m.args.forEach(function(a){
+    var l=document.createElement('label');l.textContent=a.lab;
+    var inp=document.createElement('input');inp.type='text';inp.value=a.def;inp.style.width='90px';inp.id='slA_'+a.k;inp.maxLength=16;
+    w.appendChild(l);w.appendChild(inp);
+  });
+  slRenderCode(m,-1);
+  ['slPrev','slNext','slAuto'].forEach(function(id){document.getElementById(id).disabled=true;});
+}
+function slRenderCode(m,hot){
+  var el=document.getElementById('slCode');el.innerHTML='';
+  m.code.forEach(function(ln,i){var d=document.createElement('div');d.className='fl'+(i===hot?' hot':'');d.textContent=ln;el.appendChild(d);});
+}
+function slApply(){
+  var m=SL[document.getElementById('slMethod').value];
+  var st=slIdx>0?slSteps[slIdx-1]:null;
+  slRenderCode(m,st?st.l:-1);
+  document.getElementById('slStrip').innerHTML=stripHTML(slInput,st&&st.m,st&&st.p);
+  var aw=document.getElementById('slArgWrap');
+  if(slArgStr!==null){aw.style.display='block';document.getElementById('slArgLbl').textContent='argument';
+    document.getElementById('slArgStrip').innerHTML=stripHTML(slArgStr,st&&st.am,null);}
+  else aw.style.display='none';
+  var rw=document.getElementById('slResWrap');
+  if(st&&st.res!==undefined){rw.style.display='block';document.getElementById('slResLbl').textContent='result — a NEW String';
+    document.getElementById('slRes').innerHTML=stripHTML(st.res,null,null);}
+  else if(st&&st.toks){rw.style.display='block';document.getElementById('slResLbl').textContent='tokens — String[]';
+    document.getElementById('slRes').innerHTML=st.toks.map(function(t){return '<div class="chip range" style="min-width:auto;padding:6px 10px"><div class="ch">"'+esc(t)+'"</div></div>';}).join('')||'<div style="font-size:12px;color:var(--ink-3)">[] (empty array)</div>';}
+  else rw.style.display='none';
+  document.getElementById('slOut').innerHTML=st&&st.out?('<div class="out">'+st.out+'</div>'):(st&&st.err?('<div class="err-o">Exception in thread "main" '+esc(st.err)+'</div>'):'');
+  document.getElementById('slNarr').innerHTML=st?('<b>Step '+slIdx+'/'+slSteps.length+':</b> '+st.n):'Loaded. Press <b>Step</b>, scrub the slider, or <b>Auto-play</b>.';
+  var sl=document.getElementById('slSlider');sl.max=slSteps.length;sl.value=slIdx;
+  document.getElementById('slMeta').textContent='step '+slIdx+'/'+slSteps.length;
+  document.getElementById('slNext').disabled=slIdx>=slSteps.length;
+  document.getElementById('slPrev').disabled=slIdx<=0;
+  document.getElementById('slAuto').disabled=slSteps.length===0;
+}
+function slStop(){if(slTimer){clearInterval(slTimer);slTimer=null;document.getElementById('slAuto').textContent='Auto-play';}}
+document.getElementById('slLoad').addEventListener('click',function(){slStop();slLoadNow();});
+function slLoadNow(){
+  var key=document.getElementById('slMethod').value,m=SL[key];
+  slInput=document.getElementById('slStr').value;
+  if(!slInput.length){document.getElementById('slNarr').innerHTML='Type an input string first.';return;}
+  var args={};m.args.forEach(function(a){args[a.k]=document.getElementById('slA_'+a.k).value});
+  slArgStr=m.arg?String(args[m.arg]||''):null;
+  slSteps=m.gen(slInput,args);slIdx=0;slApply();
+}
+document.getElementById('slNext').addEventListener('click',function(){slStop();if(slIdx<slSteps.length){slIdx++;slApply();}});
+document.getElementById('slPrev').addEventListener('click',function(){slStop();if(slIdx>0){slIdx--;slApply();}});
+document.getElementById('slSlider').addEventListener('input',function(e){slStop();slIdx=Math.min(+e.target.value,slSteps.length);slApply();});
+document.getElementById('slAuto').addEventListener('click',function(){
+  if(slTimer){slStop();return;}
+  if(slIdx>=slSteps.length)slIdx=0;
+  document.getElementById('slAuto').textContent='\u25AE\u25AE Pause';
+  slTimer=setInterval(function(){
+    if(slIdx>=slSteps.length){slStop();return;}
+    slIdx++;slApply();
+  },+document.getElementById('slSpeed').value);
+});
+
+/* ================= HASHCODE LAB ================= */
+var hSteps=[],hIdx=0,hTimer=null;
+var H_CODE=['public int hashCode() {','    int h = hash;              // cached?','    if (h == 0 && value.length > 0) {','        for (byte c : value)','            h = 31 * h + c;    // (h<<5) - h + c','        hash = h;              // cache forever','    }','    return h;','}'];
+function hRenderCode(hot){
+  var el=document.getElementById('hCode');el.innerHTML='';
+  H_CODE.forEach(function(ln,i){var d=document.createElement('div');d.className='fl'+(i===hot?' hot':'');d.textContent=ln;el.appendChild(d);});
+}
+function hLoad(){
+  var s=document.getElementById('hIn').value;
+  if(!s.length){document.getElementById('hNarr').innerHTML='Type a string first.';return;}
+  hSteps=[];var h=0;
+  hSteps.push({l:1,row:-1,h:0,n:'Read the cached hash field. It is 0 — never computed — so we compute now. (0 is also the sentinel: the all-empty case simply returns 0.)'});
+  for(var i=0;i<s.length;i++){
+    var c=s.charCodeAt(i);
+    var nh=(Math.imul(31,h)+c)|0;
+    hSteps.push({l:4,row:i,h:nh,prev:h,c:c,ch:s.charAt(i),
+      n:'i='+i+": h = 31 &#183; "+h+" + "+c+" ('"+esc(s.charAt(i))+"') = <b>"+nh+"</b>"+(nh<0?' — the 32-bit int wrapped negative. Legal: overflow is part of the algorithm.':'')});
+    h=nh;
+  }
+  hSteps.push({l:5,row:s.length-1,h:h,cache:true,n:'Store '+h+' into the hash field. Every future hashCode() call is a single field read — immutability makes the cache safe forever.'});
+  hIdx=0;hApply();
+  document.getElementById('hNext').disabled=false;
+  document.getElementById('hAuto').disabled=false;
+}
+function hApply(){
+  var s=document.getElementById('hIn').value;
+  var st=hIdx>0?hSteps[hIdx-1]:null;
+  hRenderCode(st?st.l:-1);
+  var tb='<tr><th>i</th><th>char</th><th>code</th><th>31&#183;h + c</th><th>h</th></tr>';
+  for(var i=0;i<s.length;i++){
+    var stepForRow=null;
+    for(var k=0;k<Math.min(hIdx,hSteps.length);k++)if(hSteps[k].row===i&&hSteps[k].c!==undefined)stepForRow=hSteps[k];
+    var hot=st&&st.row===i&&st.c!==undefined;
+    tb+='<tr class="'+(hot?'hotrow':(stepForRow?'done':''))+'"><td>'+i+'</td><td>\''+esc(s.charAt(i))+'\'</td><td>'+s.charCodeAt(i)+'</td><td>'+(stepForRow?('31&#183;'+stepForRow.prev+'+'+stepForRow.c):'')+'</td><td>'+(stepForRow?stepForRow.h:'')+'</td></tr>';
+  }
+  document.getElementById('hTable').innerHTML=tb;
+  var fin=document.getElementById('hFinal');
+  var lastH=null;
+  for(var k2=0;k2<Math.min(hIdx,hSteps.length);k2++)if(hSteps[k2].h!==undefined)lastH=hSteps[k2].h;
+  fin.textContent=lastH===null?'—':lastH;
+  document.getElementById('hNarr').innerHTML=st?('<b>Step '+hIdx+'/'+hSteps.length+':</b> '+st.n):'Loaded. Step through the rolling hash.';
+  document.getElementById('hCache').innerHTML=(st&&st.cache)?'<div class="out">hash field = '+st.h+'  &#10003; cached — next call is O(1)</div>':'<div style="color:var(--term-dim)">hash field = 0 (not yet cached)</div>';
+  document.getElementById('hMeta').textContent='step '+hIdx+'/'+hSteps.length;
+  document.getElementById('hNext').disabled=hIdx>=hSteps.length;
+  document.getElementById('hPrev').disabled=hIdx<=0;
+}
+function hStop(){if(hTimer){clearInterval(hTimer);hTimer=null;document.getElementById('hAuto').textContent='Auto-play';}}
+document.getElementById('hLoad').addEventListener('click',function(){hStop();hLoad();});
+document.getElementById('hNext').addEventListener('click',function(){hStop();if(hIdx<hSteps.length){hIdx++;hApply();}});
+document.getElementById('hPrev').addEventListener('click',function(){hStop();if(hIdx>0){hIdx--;hApply();}});
+document.getElementById('hAuto').addEventListener('click',function(){
+  if(hTimer){hStop();return;}
+  if(hIdx>=hSteps.length)hIdx=0;
+  document.getElementById('hAuto').textContent='\u25AE\u25AE Pause';
+  hTimer=setInterval(function(){if(hIdx>=hSteps.length){hStop();return;}hIdx++;hApply();},800);
+});
+document.querySelectorAll('button[data-h]').forEach(function(b){
+  b.addEventListener('click',function(){hStop();document.getElementById('hIn').value=b.dataset.h.slice(0,12);hLoad();});
+});
+hRenderCode(-1);
+
+/* ================= BUILDER LAB ================= */
+var sbCap=16,sbBuf=[],sbSnapshots=0;
+function sbRender(justFrom){
+  var host=document.getElementById('sbCells');host.innerHTML='';
+  for(var i=0;i<sbCap;i++){
+    var used=i<sbBuf.length;
+    var cls='cell'+(used?(justFrom!==undefined&&i>=justFrom?' just':' used'):'');
+    host.innerHTML+='<div class="'+cls+'">'+(used?esc(sbBuf[i]):'')+'<span class="cix">'+i+'</span></div>';
+  }
+  document.getElementById('sbMeter').innerHTML='capacity = <b>'+sbCap+'</b> &nbsp;·&nbsp; count = <b>'+sbBuf.length+'</b> &nbsp;·&nbsp; free = '+(sbCap-sbBuf.length);
+}
+function sbGrowIfNeeded(extra){
+  if(sbBuf.length+extra<=sbCap)return false;
+  var oldCap=sbCap,oldBuf=sbBuf.slice();
+  while(sbBuf.length+extra>sbCap)sbCap=sbCap*2+2;
+  var ow=document.getElementById('sbOldWrap'),oh=document.getElementById('sbOld');
+  ow.style.display='block';oh.innerHTML='';
+  for(var i=0;i<oldCap;i++)oh.innerHTML+='<div class="cell'+(i<oldBuf.length?' used':'')+'">'+(i<oldBuf.length?esc(oldBuf[i]):'')+'</div>';
+  document.getElementById('sbNarr').innerHTML='<b>Growth event:</b> needed '+(oldBuf.length+extra)+' &gt; capacity '+oldCap+'. New capacity = '+oldCap+'&#183;2 + 2 = <b>'+sbCap+'</b>. All '+oldBuf.length+' existing chars copied ONCE into the new array; the old one (faded above) is abandoned to the GC. Doubling is what makes appends O(1) amortized.';
+  return true;
+}
+document.getElementById('sbAppend').addEventListener('click',function(){
+  var t=document.getElementById('sbIn').value;
+  if(!t.length)return;
+  var grew=sbGrowIfNeeded(t.length);
+  var from=sbBuf.length;
+  for(var i=0;i<t.length;i++)sbBuf.push(t.charAt(i));
+  sbRender(from);
+  if(!grew)document.getElementById('sbNarr').innerHTML='append("'+esc(t)+'"): '+t.length+' chars written in place at index '+from+' — <b>no new object, no copying of old chars</b>. count advanced to '+sbBuf.length+'.';
+  document.getElementById('sbOut').innerHTML='<div class="out">sb.append("'+esc(t)+'")  &#8594; count='+sbBuf.length+', capacity='+sbCap+'</div>';
+});
+document.getElementById('sbToStr').addEventListener('click',function(){
+  sbSnapshots++;
+  document.getElementById('sbOut').innerHTML='<div class="out">String s'+sbSnapshots+' = sb.toString()  &#8594; "'+esc(sbBuf.join(''))+'"</div>';
+  document.getElementById('sbNarr').innerHTML='<b>toString()</b> copied buffer[0..'+sbBuf.length+') into a brand-new immutable String. The builder keeps working; the snapshot never changes. Append more and call toString again — the first snapshot stays frozen.';
+});
+document.getElementById('sbReverse').addEventListener('click',function(){
+  sbBuf.reverse();sbRender(0);
+  document.getElementById('sbNarr').innerHTML='<b>reverse()</b> swapped characters <b>in place</b> — the same array, mutated. This is exactly what String can never do, and why palindrome checks reach for StringBuilder.';
+  document.getElementById('sbOut').innerHTML='<div class="out">sb.reverse()  &#8594; "'+esc(sbBuf.join(''))+'"</div>';
+});
+document.getElementById('sbReset').addEventListener('click',function(){
+  sbCap=16;sbBuf=[];sbSnapshots=0;
+  document.getElementById('sbOldWrap').style.display='none';
+  document.getElementById('sbOut').innerHTML='';
+  document.getElementById('sbNarr').innerHTML='Fresh builder: new StringBuilder() &#8594; empty char[16], count 0.';
+  sbRender();
+});
+sbRender();
+
+/* ================= METHOD INDEX ================= */
+var IDX=[
+ ['charAt(i)','O(1)','Index length() or beyond throws StringIndexOutOfBoundsException — including on ""','charAt',{i:'6'},'sample@gmail.com'],
+ ['length()','O(1)','Counts UTF-16 units — an emoji reports 2',null],
+ ['indexOf(ch)','O(n)','Returns -1, never throws; -1+1 fed into substring silently returns everything','indexOfC',{c:'@'},'sample@gmail.com'],
+ ['indexOf(str)','O(n&#183;m)','Sliding-window search; empty needle matches at 0','indexOfS',{t:'mail'},'sample@gmail.com'],
+ ['lastIndexOf(ch)','O(n)','Scans from the right — the extension-dot finder','lastIndexOf',{c:'.'},'a.b@mail.com'],
+ ['contains(str)','O(n&#183;m)','CharSequence param: contains(\'x\') with a char won\'t compile','containsM',{t:'gmail'},'sample@gmail.com'],
+ ['startsWith(p)','O(m)','"" is a prefix of everything; case-sensitive','startsWith',{t:'sam'},'sample@gmail.com'],
+ ['endsWith(x)','O(m)','Compared in place at offset n-m; no allocation','endsWith',{t:'.com'},'sample@gmail.com'],
+ ['substring(b,e)','O(e-b)','End exclusive; b&gt;e throws; substring(length())==""','substring',{b:'7',e:'12'},'sample@gmail.com'],
+ ['split(regex)','O(n)','Argument is a REGEX: split(".") &#8594; length 0; trailing "" removed','split',{d:'.'},'a.b.c'],
+ ['trim() / strip()','O(n)','trim only strips &#8804; U+0020; strip (11+) is Unicode-aware','trim',{},'  hi there  '],
+ ['replace(o,n)','O(n)','Literal, all occurrences, new String; replaceAll is the regex one','replaceM',{a:'a',b:'A'},'banana'],
+ ['equals(o)','O(n)','Length shortcut first; use "lit".equals(var) for null-safety','equalsM',{o:'sample@gmail.con'},'sample@gmail.com'],
+ ['compareTo(o)','O(n)','Returns char-code diff at first mismatch — trust only the sign','compareTo',{o:'apricot'},'apple'],
+ ['toUpperCase()','O(n)','Returns this if nothing changes; locale-sensitive (Turkish i)','toUpper',{},'Fail@Gmail.Com'],
+ ['concat(s) / +','O(n)','Copies EVERYTHING each call — O(n&#178;) in loops; result must be assigned','concat',{t:'!'},'sample@gmail.com'],
+ ['repeat(n)','O(n&#183;k)','Java 11; repeat(0)==""; negative throws IllegalArgumentException','repeat',{n:'3'},'ab'],
+ ['hashCode()','O(n) once','31-based rolling hash, cached; collisions exist ("Aa"/"BB")',null],
+ ['intern()','~O(1)','Returns the pooled canonical object — see Memory canvas scenario 2',null],
+ ['StringBuilder.append','O(1)*','Amortized via capacity doubling (2n+2) — see Builder lab',null]
+];
+(function(){
+  var tb=document.getElementById('idxBody'),h='';
+  IDX.forEach(function(r,ri){
+    h+='<tr><td>'+r[0]+'</td><td style="font-family:var(--mono);font-size:12px">'+r[1]+'</td><td>'+r[2]+'</td><td>'+(r[3]?'<button class="btn" data-idx="'+ri+'">Open in lab</button>':'<span style="font-size:12px;color:var(--ink-3)">'+(r[0].indexOf('hash')>-1?'&#8594; tab 04':r[0].indexOf('intern')>-1?'&#8594; tab 02':r[0].indexOf('Builder')>-1?'&#8594; tab 05':'')+'</span>')+'</td></tr>';
+  });
+  tb.innerHTML=h;
+  tb.querySelectorAll('button[data-idx]').forEach(function(b){
+    b.addEventListener('click',function(){
+      var r=IDX[+b.dataset.idx];
+      switchTab('lab');
+      document.getElementById('slMethod').value=r[3];
+      slBuildArgs();
+      document.getElementById('slStr').value=r[5];
+      Object.keys(r[4]).forEach(function(k){var el=document.getElementById('slA_'+k);if(el)el.value=r[4][k];});
+      slLoadNow();
+    });
+  });
+})();
+
+/* ================= REAL-WORLD: NULL-SAFETY TESTER ================= */
+document.getElementById('nsRun').addEventListener('click',function(){
+  var isNull=document.getElementById('nsNull').checked;
+  var val=isNull?null:document.getElementById('nsVal').value;
+  var o=document.getElementById('nsOut'),h='';
+  var disp=isNull?'null':'"'+esc(val)+'"';
+  if(isNull){
+    h+='<div class="err-o">inputStatus.equals("ACTIVE")  &#8594; NullPointerException  // app crashes</div>';
+  }else{
+    h+='<div class="out">inputStatus.equals("ACTIVE")  &#8594; '+(val==='ACTIVE')+'</div>';
+  }
+  h+='<div class="out">"ACTIVE".equals(inputStatus)  &#8594; '+(!isNull&&val==='ACTIVE')+'   // safe: constant first</div>';
+  h+='<div class="out">Objects.equals(inputStatus, "ACTIVE")  &#8594; '+(!isNull&&val==='ACTIVE')+'   // safe both ways</div>';
+  h+='<div style="color:var(--term-dim);font-size:12px;margin-top:6px">// inputStatus = '+esc(disp)+'</div>';
+  o.innerHTML=h;
+});
+
+/* ================= REAL-WORLD: SPLIT SANDBOX ================= */
+function javaSplit(str,pattern,limit){
+  var re;
+  try{re=new RegExp(pattern,'g');}catch(e){return {error:e.message};}
+  if(pattern===''){return {error:'empty pattern not supported in this sandbox'};}
+  var tokens=[],last=0,m,count=0,zeroWidth=false;
+  while((m=re.exec(str))!==null){
+    if(limit>0&&count>=limit-1)break;
+    if(m[0].length===0){zeroWidth=true;re.lastIndex++;if(m.index>=str.length)break;
+      tokens.push(str.substring(last,m.index+1));last=m.index+1;count++;continue;}
+    tokens.push(str.substring(last,m.index));
+    last=m.index+m[0].length;count++;
+    if(re.lastIndex>str.length)break;
+  }
+  tokens.push(str.substring(last));
+  if(limit===0){while(tokens.length&&tokens[tokens.length-1]==='')tokens.pop();}
+  return {tokens:tokens,zeroWidth:zeroWidth};
+}
+function tokHTML(r){
+  if(r.error)return '<span style="color:var(--err);font-family:var(--mono);font-size:12.5px">PatternSyntaxException: '+esc(r.error)+'</span>';
+  if(!r.tokens.length)return '<span style="font-family:var(--mono);font-size:12.5px;color:var(--err)">[]  (length 0!)</span>';
+  return r.tokens.map(function(t){return '<span class="chip range" style="display:inline-block;min-width:auto;padding:4px 9px;margin:2px"><span class="ch">"'+esc(t)+'"</span></span>';}).join('')+' <span style="font-family:var(--mono);font-size:12px;color:var(--ink-3)">length '+r.tokens.length+'</span>';
+}
+function spRun(){
+  var s=document.getElementById('spIn').value,p=document.getElementById('spPat').value;
+  var javaSrc=p.replace(/\\/g,'\\\\');
+  document.getElementById('spJava').innerHTML='<span style="color:var(--term-txt)">Java source:</span>  input.split(<span style="color:#8CC98F">"'+esc(javaSrc)+'"</span>, limit)';
+  var L=parseInt(document.getElementById('spLim').value,10);if(isNaN(L))L=3;
+  var r0=javaSplit(s,p,0),rn=javaSplit(s,p,-1),r2=javaSplit(s,p,2),rL=javaSplit(s,p,L);
+  var tb='<tr><th style="width:170px">call</th><th>result</th></tr>';
+  tb+='<tr><td>split(p)  · limit 0</td><td>'+tokHTML(r0)+'</td></tr>';
+  tb+='<tr><td>split(p, -1)</td><td>'+tokHTML(rn)+'</td></tr>';
+  tb+='<tr><td>split(p, 2)</td><td>'+tokHTML(r2)+'</td></tr>';
+  tb+='<tr><td>split(p, '+L+')  · yours</td><td>'+tokHTML(rL)+'</td></tr>';
+  if(!r0.error&&r0.tokens&&r0.tokens.length){
+    tb+='<tr><td>String.join("|", &#8593;)</td><td><span style="font-family:var(--mono);font-size:12.5px">"'+esc(r0.tokens.join('|'))+'"</span> <span style="font-size:12px;color:var(--ink-3)">— the inverse round-trip on the limit-0 result</span></td></tr>';
+  }
+  document.getElementById('spTable').innerHTML=tb;
+  var narr;
+  if(r0.error){narr='The pattern failed to compile — in Java this throws <b>PatternSyntaxException at runtime</b>, not compile time.';}
+  else{
+    var dropped=(rn.tokens?rn.tokens.length:0)-(r0.tokens?r0.tokens.length:0);
+    if(p==='.'){narr='<b>The trap, live:</b> "." matched every character, every token became "", and limit 0 stripped them all &#8594; length 0. Escape it: <code style="font-family:var(--mono)">\\.</code> (type <code style="font-family:var(--mono)">\\.</code> in the regex box — Java source shows "\\\\.").';}
+    else if(dropped>0){narr='<b>limit 0 silently dropped '+dropped+' trailing empty token'+(dropped>1?'s':'')+'</b> — indexing result['+((rn.tokens.length)-1)+'] would crash. limit -1 keeps every slot; limit 2 stopped after one cut, leaving the remainder intact in the last element.';}
+    else{narr='No trailing empties here, so limit 0 and -1 agree. limit 2 performs at most one cut — the memory-saving pattern when you only need the head of a huge string.';}
+    if(!r0.error&&r0.tokens&&r0.tokens.length&&r0.tokens[0]===''){narr+=' <b>And note the leading "" — it is KEPT.</b> Only trailing empties are removed; a delimiter at position 0 leaves an empty first slot, so result[0] may not be the token you expect.';}
+    if(L>0&&rL.tokens&&rL.tokens.length&&rL.tokens[rL.tokens.length-1].indexOf(p.length===1&&'\\.[]{}()*+?^$|'.indexOf(p)===-1?p:'&#0;')>-1){narr+=' Your limit '+L+' left the raw remainder in the last element — the key=value parsing trick.';}
+    if(r0.zeroWidth)narr+=' <i>(Zero-width matches approximated in this sandbox.)</i>';
+  }
+  document.getElementById('spNarr').innerHTML=narr;
+}
+document.getElementById('spRun').addEventListener('click',spRun);
+document.querySelectorAll('button[data-sp]').forEach(function(b){
+  b.addEventListener('click',function(){
+    var d=JSON.parse(b.dataset.sp);
+    document.getElementById('spIn').value=d[0];
+    document.getElementById('spPat').value=d[1];
+    spRun();
+  });
+});
+spRun();
+</script>
+</body>
+</html>

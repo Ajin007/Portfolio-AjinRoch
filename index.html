@@ -74,7 +74,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .plsql-overlay{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:24px;background:rgba(4,7,15,.72);backdrop-filter:blur(6px)}
 .plsql-overlay.on{display:flex;animation:ovIn .25s ease}
 @keyframes ovIn{from{opacity:0}to{opacity:1}}
-.plsql-modal{width:100%;max-width:520px;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-top:2px solid var(--green);border-radius:var(--r);padding:26px;animation:mIn .3s cubic-bezier(.34,1.56,.64,1)}
+.plsql-modal{width:100%;max-width:520px;max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,var(--panel2),var(--panel));border:1px solid var(--line2);border-top:2px solid var(--green);border-radius:var(--r);padding:26px;animation:mIn .3s cubic-bezier(.34,1.56,.64,1)}
 @keyframes mIn{from{opacity:0;transform:scale(.9) translateY(14px)}to{opacity:1;transform:none}}
 .plsql-modal .m-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.18em;color:var(--green)}
 .plsql-modal h3{font-family:'Space Grotesk',sans-serif;font-size:20px;margin:8px 0 4px}
@@ -146,7 +146,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
         <div class="sem-grid" id="semGrid">
           <div class="sem soon"><div class="s-num">SEM 01</div><div class="s-title">SQL on Cloud</div><div class="s-state">MODULE</div></div>
           <button class="sem live" id="plsqlBtn" aria-haspopup="dialog" aria-controls="plsqlModal"><div class="s-num">SEM 02</div><div class="s-title">PL/SQL</div><div class="s-state"><span class="dot"></span>2 MODES · CHOOSE</div></button>
-          <button class="sem live" id="javaBtn" aria-haspopup="dialog" aria-controls="javaModal"><div class="s-num">SEM 03</div><div class="s-title">Foundations of Java</div><div class="s-state"><span class="dot"></span>2 MODES · CHOOSE</div></button>
+          <button class="sem live" id="javaBtn" aria-haspopup="dialog" aria-controls="javaModal"><div class="s-num">SEM 03</div><div class="s-title">Foundations of Java</div><div class="s-state"><span class="dot"></span>4 MODES · CHOOSE</div></button>
           <a class="sem live" href="java-se17-scenario-arena.html"><div class="s-num">SEM 04</div><div class="s-title">Java Development 17</div><div class="s-state"><span class="dot"></span>OPEN ARENA</div></a>
           <div class="sem soon"><div class="s-num">SEM 05</div><div class="s-title">Oracle App Development on Cloud</div><div class="s-state">MODULE</div></div>
           <div class="sem soon"><div class="s-num">SEM 06</div><div class="s-title">Data on Cloud</div><div class="s-state">MODULE</div></div>
@@ -180,7 +180,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
   <div class="plsql-modal gold">
     <div class="m-num">SEM 03 · FOUNDATIONS OF JAVA</div>
     <h3 id="javaTitle">Choose your mode</h3>
-    <p class="m-sub">Two ways to train — the day-by-day 1Z0-811 certification track, or the Code Clash siege battle.</p>
+    <p class="m-sub">Four ways to train — the day-by-day 1Z0-811 certification track, the Code Clash siege battle, or two deep-dive interactive labs.</p>
     <a class="plsql-opt" href="java-foundations-1z0-811.html">
       <div class="o-ic">☕</div>
       <div><div class="o-num">OPTION 1</div><div class="o-title">Java Foundations · 1Z0-811</div><div class="o-sub">10 daily visualizers plus full 21-chapter study notes — fundamentals to cert prep, with progress tracking.</div></div>
@@ -189,6 +189,16 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
     <a class="plsql-opt" href="java-clash-arena.html">
       <div class="o-ic">⚔️</div>
       <div><div class="o-num">OPTION 2</div><div class="o-title">Code Clash · Java Siege</div><div class="o-sub">Clash-style MCQ battle — answer to breach the walls and take the keep.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <a class="plsql-opt" href="java-exception-handling-interactive.html">
+      <div class="o-ic">🧯</div>
+      <div><div class="o-num">OPTION 3</div><div class="o-title">Exception Handling · Interactive Lab</div><div class="o-sub">Watch exceptions travel the call stack, break things safely, and drill 12 exam-style questions.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <a class="plsql-opt" href="java-string-visualizer-pro.html">
+      <div class="o-ic">🧵</div>
+      <div><div class="o-num">OPTION 4</div><div class="o-title">String Visualizer Pro</div><div class="o-sub">See every String method run — memory, references, hashCode math and StringBuilder, animated.</div></div>
       <div class="o-go">→</div>
     </a>
     <button class="plsql-close" id="javaClose">ESC · CLOSE</button>
