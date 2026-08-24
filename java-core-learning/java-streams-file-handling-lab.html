@@ -99,6 +99,8 @@ code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
 .btn.small{padding:6px 12px;font-size:12.5px}
 .btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
 .btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.stepbar{display:none;flex-wrap:wrap;gap:8px;align-items:center;margin:10px 0 0}
+.stepbar .note{margin-left:4px}
 .progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
 .progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
 
@@ -839,6 +841,124 @@ function mkOut(){
   return o;
 }
 function paint(id,o){const el=document.getElementById(id);if(el)el.innerHTML=o.text();}
+
+/* ============================================================
+   STEP-THROUGH EXECUTION PLAYER
+   Replays a program's real output one line at a time and points at the
+   println that produced it. Only program stdout is traced: narrator
+   lines written with o.dim / o.info / o.head come from the lab, not from
+   the code, so those steps highlight nothing rather than blaming an
+   unrelated statement.
+   ============================================================ */
+function recOut(){
+  const ev=[];
+  function push(t,c,h){ev.push({cls:c,text:String(t),html:h});}
+  const o=(s,c)=>push(s,c||'out','<span class="'+(c||'out')+'">'+esc(String(s))+'</span>');
+  o.info=s=>o(s,'info'); o.fail=s=>o(s,'fail'); o.warn=s=>o(s,'warn'); o.dim=s=>o(s,'prompt');
+  o.head=s=>push(s,'hd','<span class="hd">'+esc(String(s))+'</span>');
+  o.raw=s=>push('','raw',String(s));
+  o.text=()=>ev.map(e=>e.html).join('\n');
+  o.events=()=>ev;
+  return o;
+}
+/* The literals a println actually PRINTS. Arguments to nested calls --
+   the "Java" in indexOf("Java") -- are never printed, so matching on them
+   would blame the wrong line; they are stripped before the literals are kept. */
+function stepLits(src){
+  const m=/System\.out\.print(?:ln)?\s*\(/.exec(src);
+  if(!m)return [];
+  let i=m.index+m[0].length,d=1,arg='',q=false;      /* the argument text */
+  for(;i<src.length&&d>0;i++){
+    const c=src[i];
+    if(q){arg+=c;if(c==='\\'){arg+=src[++i]||'';}else if(c==='"')q=false;continue;}
+    if(c==='"'){q=true;arg+=c;continue;}
+    if(c==='('){d++;}else if(c===')'){d--;if(!d)break;}
+    arg+=c;
+  }
+  const lits=[];
+  const masked=arg.replace(/"((?:[^"\\]|\\.)*)"/g,function(s,body){
+    lits.push(body.replace(/\\"/g,'"').replace(/\\\\/g,'\\').replace(/\\n/g,'\n').replace(/\\t/g,'\t'));
+    return '\u0001'+(lits.length-1)+'\u0001';
+  });
+  let red=masked,prev;                                /* drop nested call args */
+  do{prev=red;red=red.replace(/[\w.]+\([^()]*\)/g,'\u0002');}while(red!==prev);
+  const keep=[];
+  (red.match(/\u0001(\d+)\u0001/g)||[]).forEach(function(t){
+    const s=lits[+t.replace(/\u0001/g,'')];
+    if(s&&s.trim().length>1)keep.push(s);
+  });
+  return keep;
+}
+/* event -> 1-based source line, or null when it cannot be known for sure */
+function stepTrace(code,ev){
+  const idx=[],lit={};
+  (code||[]).forEach((l,i)=>{if(/System\.out\.print/.test(l)){idx.push(i+1);lit[i+1]=stepLits(l);}});
+  let p=0,last=null,lastText='';
+  function common(a,b){let i=0;while(i<a.length&&i<b.length&&a[i]===b[i])i++;return i;}
+  return ev.map(e=>{
+    if(e.cls!=='out'||!idx.length)return null;
+    for(let k=0;k<idx.length;k++){                 /* scan forward, wrapping for loops */
+      const n=idx[(p+k)%idx.length];
+      if(lit[n].length&&lit[n].some(s=>e.text.indexOf(s)>=0)){
+        p=((p+k)%idx.length)+1;last=n;lastText=e.text;return n;}
+    }
+    const n=idx[p%idx.length];                     /* no literal to match on (e.g. println(list)) */
+    if(!lit[n].length){p=(p%idx.length)+1;last=n;lastText=e.text;return n;}
+    /* we have run past a literal-less println and this line is shaped like
+       more of its output -- so the loop printing it is still running */
+    if(last!==null&&!lit[last].length&&common(e.text,lastText)>=2){lastText=e.text;return last;}
+    return null;
+  });
+}
+function attachStepper(x,cls,after){
+  const bar=document.getElementById('sb-'+x.id),con=document.getElementById('con-'+x.id);
+  if(!bar||!con)return function(){};
+  let ev=[],map=[],i=0,timer=null;
+  const name=cls||x.cls||'Demo';
+  function stop(){if(timer){clearInterval(timer);timer=null;}}
+  function hl(n){
+    const box=document.getElementById('code-'+x.id); if(!box)return;
+    box.querySelectorAll('.cl.hl').forEach(c=>c.classList.remove('hl'));
+    if(!n)return;
+    const c=box.querySelector('.cl[data-n="'+n+'"]');
+    if(c){c.classList.add('hl'); if(c.scrollIntoView)c.scrollIntoView({block:'nearest',behavior:'smooth'});}
+  }
+  function draw(){
+    con.innerHTML=ev.slice(0,i+1).map(e=>e.html).join('\n');
+    hl(map[i]);
+    bar.innerHTML=
+      '<button class="btn small" data-a="prev"'+(i===0?' disabled':'')+'>← Prev</button>'+
+      '<button class="btn small primary" data-a="next"'+(i>=ev.length-1?' disabled':'')+'>Next →</button>'+
+      '<button class="btn small" data-a="play">'+(timer?'❚❚ Pause':'▶ Auto')+'</button>'+
+      '<button class="btn small" data-a="exit">↺ Show full output</button>'+
+      '<span class="note">STEP '+(i+1)+' / '+ev.length+' · '+
+        (map[i]?('source line '+map[i]):(ev[i].cls==='out'?'program output':'lab note'))+'</span>'+
+      '<div class="progress" style="flex-basis:100%"><i style="width:'+((i+1)/ev.length*100)+'%"></i></div>';
+    bar.querySelectorAll('button').forEach(b=>b.onclick=function(){act(b.getAttribute('data-a'));});
+  }
+  function act(a){
+    if(a==='prev'){stop();if(i>0)i--;draw();}
+    else if(a==='next'){stop();if(i<ev.length-1)i++;draw();}
+    else if(a==='play'){
+      if(timer){stop();draw();return;}
+      timer=setInterval(function(){if(i>=ev.length-1){stop();draw();return;}i++;draw();},900);
+      draw();
+    }else if(a==='exit'){
+      stop();hl(null);bar.style.display='none';
+      const o=mkOut();o.dim('$ java '+name);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o); if(after)after();
+    }
+  }
+  return function start(){
+    const o=recOut();o.dim('$ java '+name);
+    try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+    if(after)after();
+    ev=o.events();map=stepTrace(x.code,ev);i=0;stop();
+    bar.style.display='flex';draw();
+  };
+}
+
 </script>
 <script>
 /* ============================================================
@@ -1664,16 +1784,23 @@ const LAB=[
       '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;Lab10_'+x.n.split('.')[1]+'.java</div>'+
       '<div class="codebody" id="code-'+x.id+'"></div></div>'+
       '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run Ex '+x.n+'</button>'+
+      '<button class="btn small" id="step-'+x.id+'">⏭ Step through</button>'+
       '<span class="note">'+x.tag+'</span></div>'+
+      '<div class="stepbar" id="sb-'+x.id+'"></div>'+
       '<div class="console" id="con-'+x.id+'"><span class="prompt">// press Run</span></div>'+
       '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
     host.appendChild(card);
     renderCode('code-'+x.id,x.code);
     document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      document.getElementById('sb-'+x.id).style.display='none';
+      const box=document.getElementById('code-'+x.id);
+      if(box)box.querySelectorAll('.cl.hl').forEach(cl=>cl.classList.remove('hl'));
       const o=mkOut(); o.dim('$ java Lab10_'+x.n.split('.')[1]);
       try{x.run(o);}catch(e){o.fail('Exception in thread "main" '+(e.cls||'Error')+': '+(e.msg||e.message));}
       paint('con-'+x.id,o); refreshDisk();
     });
+    document.getElementById('step-'+x.id).addEventListener('click',
+      attachStepper(x,'Lab10_'+x.n.split('.')[1],refreshDisk));
   });
   document.getElementById('labRunAll').addEventListener('click',()=>{
     LAB.forEach(x=>document.getElementById('run-'+x.id).click());
@@ -2013,16 +2140,23 @@ const GSEC_PROGS=[
       '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;'+
       x.cls+'.java'+
       '</div><div class="codebody" id="code-'+x.id+'"></div></div>'+
-      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run program '+x.n+'</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run program '+x.n+'</button>'+
+      '<button class="btn small" id="step-'+x.id+'">⏭ Step through</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="stepbar" id="sb-'+x.id+'"></div>'+
       '<div class="console" id="con-'+x.id+'"><span class="prompt">// press Run</span></div>'+
       '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
     host.appendChild(c);
     renderCode('code-'+x.id,x.code);
     document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      document.getElementById('sb-'+x.id).style.display='none';
+      const box=document.getElementById('code-'+x.id);
+      if(box)box.querySelectorAll('.cl.hl').forEach(cl=>cl.classList.remove('hl'));
       const o=mkOut(); o.dim('$ java '+(x.cls||'GsecDemo'));
       try{x.run(o);}catch(e){o.fail('Exception in thread "main" '+(e.cls||'Error')+': '+(e.msg||e.message));}
       paint('con-'+x.id,o); refreshDisk();
     });
+    document.getElementById('step-'+x.id).addEventListener('click',
+      attachStepper(x,x.cls||'GsecDemo',refreshDisk));
   });
   document.getElementById('gsecRunAll').addEventListener('click',()=>{
     GSEC_PROGS.forEach(x=>document.getElementById('run-'+x.id).click());
