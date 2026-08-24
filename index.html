@@ -63,8 +63,8 @@ a.card .tags span{font-family:'JetBrains Mono',monospace;font-size:9px;letter-sp
 .sem.soon{cursor:default}
 .sem.soon:hover{border-color:var(--line2)}
 .dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 8px var(--green)}
-@media(max-width:920px){.sem-grid{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:520px){.sem-grid{grid-template-columns:1fr}}
+@media(max-width:920px){.sem-grid,.sem-grid.lab3{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:520px){.sem-grid,.sem-grid.lab3{grid-template-columns:1fr}}
 footer{margin-top:52px;color:var(--dim);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.16em;text-align:center;display:flex;flex-direction:column;gap:10px;align-items:center}
 footer .social{display:flex;gap:16px}
 footer a{color:var(--mut);text-decoration:none;letter-spacing:.06em}
@@ -95,6 +95,20 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .plsql-modal.gold .plsql-opt:focus-visible{outline-color:var(--gold)}
 .plsql-modal.gold .o-ic{background:rgba(255,209,102,.1);border-color:rgba(255,209,102,.3)}
 .plsql-modal.gold .o-num,.plsql-modal.gold .o-go{color:var(--gold)}
+/* ── Java Core Learning ── */
+.oracle-card.jcore{border-top-color:var(--gold)}
+.jcore .oracle-badge{background:radial-gradient(circle at 30% 25%,rgba(255,209,102,.3),transparent 70%),#151005;border-color:rgba(255,209,102,.35);color:var(--gold);font-size:24px}
+.jcore .oracle-toggle{background:linear-gradient(180deg,#FFE3A1,var(--gold));box-shadow:0 6px 20px -8px rgba(255,209,102,.6)}
+.jcore .oracle-toggle:hover{box-shadow:0 10px 26px -8px rgba(255,209,102,.8)}
+.jcore .oracle-toggle:focus-visible{outline-color:var(--gold)}
+.sem-grid.lab3{grid-template-columns:repeat(3,1fr)}
+.sem .s-sub{color:var(--mut);font-size:11.5px;line-height:1.5;margin-top:5px}
+.jcore .sem.live{border-color:rgba(255,209,102,.45);background:linear-gradient(180deg,rgba(255,209,102,.07),var(--bg))}
+.jcore .sem.live:hover{border-color:var(--gold)}
+.jcore .sem.live .s-num,.jcore .sem.live .s-state{color:var(--gold)}
+.jcore .sem.live::after{color:var(--gold)}
+.jcore .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.jcore .sem.live .s-title{color:#fff9ea}
 @media(max-width:920px){.grid{grid-template-columns:1fr;max-width:520px}}
 @media(prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}.plsql-overlay.on,.plsql-modal{animation:none}}
 </style>
@@ -157,6 +171,65 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
   </div>
 </section>
 
+<section class="oracle">
+  <div class="oracle-card jcore" id="jcoreCard">
+    <div class="oracle-head">
+      <div class="oracle-badge">☕</div>
+      <div class="oracle-meta">
+        <div class="num">PROGRAM 04</div>
+        <h2>Java Core Learning — Interactive Labs</h2>
+        <p>Six hands-on visualizers covering the core Java syllabus, Units 3 to 5 — strings and packages, file streams, OOP and exceptions, collections, and multithreading. Every lab animates what the code actually does in memory, so you see the behaviour instead of memorising it.</p>
+      </div>
+      <button class="oracle-toggle" id="jcoreToggle" aria-expanded="false" aria-controls="jcoreGrid">
+        <span class="lbl">OPEN THE 6 LABS</span>
+        <span class="chev">▾</span>
+      </button>
+    </div>
+    <div class="sem-wrap">
+      <div class="sem-inner">
+        <div class="sem-grid lab3" id="jcoreGrid">
+          <a class="sem live" href="java-core-learning/java-strings-packages-lab.html">
+            <div class="s-num">UNIT 3 · LAB 01</div>
+            <div class="s-title">Strings &amp; Packages</div>
+            <div class="s-sub">How text is stored and compared, and how packages organise your classes.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-streams-file-handling-lab.html">
+            <div class="s-num">UNIT 4 · LAB 02</div>
+            <div class="s-title">File Streams &amp; I/O</div>
+            <div class="s-sub">Reading and writing files step by step, with a live output simulator.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-oop-exceptions-visualizer.html">
+            <div class="s-num">UNIT 4 · LAB 03</div>
+            <div class="s-title">OOP Pillars &amp; Exceptions</div>
+            <div class="s-sub">Encapsulation, inheritance, polymorphism and the Throwable family, visualised.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-collections-list-lab.html">
+            <div class="s-num">UNIT 5 · LAB 04</div>
+            <div class="s-title">Lists — ArrayList vs LinkedList</div>
+            <div class="s-sub">Watch both grow and shift in memory, and learn when each one is faster.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-collections-set-map-lab.html">
+            <div class="s-num">UNIT 5 · LAB 05</div>
+            <div class="s-title">Sets &amp; Maps — HashSet, HashMap</div>
+            <div class="s-sub">How hashing places keys into buckets, and why Map beats a list for lookups.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-multithreading-lab.html">
+            <div class="s-num">UNIT 5 · LAB 06</div>
+            <div class="s-title">Multithreading &amp; Scheduler</div>
+            <div class="s-sub">Thread life cycle and a scheduler simulator showing threads take turns.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="plsql-overlay" id="plsqlModal" role="dialog" aria-modal="true" aria-labelledby="plsqlTitle">
   <div class="plsql-modal">
     <div class="m-num">SEM 02 · PL/SQL</div>
@@ -207,18 +280,22 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 
 <script>
 (function(){
-  var card=document.getElementById('oracleCard'),
-      btn=document.getElementById('oracleToggle'),
-      lbl=btn.querySelector('.lbl');
-  btn.addEventListener('click',function(){
-    var open=card.classList.toggle('open');
-    btn.setAttribute('aria-expanded',open);
-    lbl.textContent=open?'HIDE SEMESTERS':'EXPLORE SEMESTERS';
-    if(open){
-      card.querySelectorAll('.sem').forEach(function(s,i){s.style.animationDelay=(i*55)+'ms';});
-      card.scrollIntoView({behavior:'smooth',block:'nearest'});
-    }
-  });
+  function wireToggle(cardId,btnId,openLbl,closedLbl){
+    var card=document.getElementById(cardId),
+        btn=document.getElementById(btnId),
+        lbl=btn.querySelector('.lbl');
+    btn.addEventListener('click',function(){
+      var open=card.classList.toggle('open');
+      btn.setAttribute('aria-expanded',open);
+      lbl.textContent=open?openLbl:closedLbl;
+      if(open){
+        card.querySelectorAll('.sem').forEach(function(s,i){s.style.animationDelay=(i*55)+'ms';});
+        card.scrollIntoView({behavior:'smooth',block:'nearest'});
+      }
+    });
+  }
+  wireToggle('oracleCard','oracleToggle','HIDE SEMESTERS','EXPLORE SEMESTERS');
+  wireToggle('jcoreCard','jcoreToggle','HIDE THE LABS','OPEN THE 6 LABS');
 
   /* Mode choosers (PL/SQL + Java Foundations) */
   function wireChooser(btnId,modalId,closeId){

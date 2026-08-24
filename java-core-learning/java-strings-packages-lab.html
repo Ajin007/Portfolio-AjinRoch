@@ -1,0 +1,2790 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Strings &amp; Packages — Unit 3 Visualizer (Weeks 7–9)</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(25px,3.3vw,38px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:900px;font-size:15px}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="concept"]{background:var(--teal)}
+.tab-btn.active[data-tab="byte"]{background:var(--amber)}
+.tab-btn.active[data-tab="char"]{background:var(--blue)}
+.tab-btn.active[data-tab="file"]{background:var(--green)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}
+.tok-t{color:#7fd1c7}
+.tok-s{color:#a8d98b}
+.tok-c{color:#5b6390;font-style:italic}
+.tok-n{color:#f0b45f}
+.tok-m{color:#86a8f2}
+.tok-a{color:#e8a2c8}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:130px}
+.stepbody code{background:var(--panel3);padding:1px 6px;border-radius:5px}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.run{background:var(--green);color:#0f1220;border-color:transparent}
+.btn.small{padding:6px 12px;font-size:12.5px}
+.btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-teal{color:var(--teal);border-color:rgba(99,207,192,.4);background:rgba(99,207,192,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout.warn{background:rgba(240,180,95,.08);border-color:rgba(240,180,95,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)} .callout.warn b{color:var(--amber)}
+.callout p{color:var(--mut)}
+
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13.5px}
+.demo select{cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:12.8px;margin-top:12px;min-height:70px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.console .prompt{color:var(--dim)} .console .out{color:var(--green)} .console .warn{color:var(--amber)}
+.console .fail{color:var(--red)} .console .info{color:var(--blue)} .console .hd{color:var(--pink);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.runbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.runbar .note{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+/* byte / char strip */
+.strip{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px}
+.cell{min-width:44px;text-align:center;border:1px solid var(--line2);border-radius:8px;padding:5px 4px;
+  font-family:var(--mono);font-size:10.5px;background:var(--panel2);transition:all .18s}
+.cell .v{display:block;color:var(--amber);font-size:12.5px;font-weight:700}
+.cell .c{display:block;color:var(--mut)}
+.cell.done{opacity:.32}
+.cell.cur{border-color:var(--teal);background:rgba(99,207,192,.14);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.cell.eofcell{border-style:dashed;border-color:var(--red)}
+.cell.eofcell .v{color:var(--red)}
+.cell.multi .v{color:var(--pink)}
+.striplabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* workflow pipeline */
+.pipe{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin:6px 0 10px}
+.stage{flex:1 1 130px;min-width:130px;background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;transition:all .16s;text-align:left}
+.stage:hover{border-color:var(--teal);background:var(--panel3)}
+.stage.sel{border-color:var(--teal);background:rgba(99,207,192,.1);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.stage .n{font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.14em}
+.stage .t{font-size:13.5px;font-weight:700;margin:3px 0 2px}
+.stage .m{font-family:var(--mono);font-size:10.8px;color:var(--dim);white-space:normal;word-break:break-word}
+.arrow{display:flex;align-items:center;color:var(--line2);font-size:18px;padding:0 6px}
+@media(max-width:760px){.arrow{display:none}.pipe{gap:8px}}
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:150px}
+.detail h3{font-family:var(--mono);font-size:16.5px;margin-bottom:8px}
+
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.3)}
+.node.sel rect{stroke-width:2.6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--pink);color:#0f1220;border-color:transparent}
+.subtab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td code{font-size:12.4px}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- strings & packages additions ---------- */
+.tab-btn.active[data-tab="str"]{background:var(--teal)}
+.tab-btn.active[data-tab="methods"]{background:var(--blue)}
+.tab-btn.active[data-tab="sb"]{background:var(--amber)}
+.tab-btn.active[data-tab="manip"]{background:var(--green)}
+.tab-btn.active[data-tab="dates"]{background:var(--pink)}
+.tab-btn.active[data-tab="pkg"]{background:var(--mauve)}
+.tab-btn.active[data-tab="access"]{background:var(--red)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+.tab-btn.active[data-tab="lab"]{background:var(--teal)}
+
+.ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px}
+.ctrl .fld{display:flex;flex-direction:column;gap:4px}
+.ctrl label{font-size:11.5px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ctrl input[type=text],.ctrl input[type=number],.ctrl select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:13px}
+.ctrl input:focus,.ctrl select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.ctrl input[type=range]{width:170px;accent-color:var(--teal)}
+.ctrl .val{font-family:var(--mono);font-size:12.5px;color:var(--teal)}
+
+/* char strip */
+.chars{display:flex;flex-wrap:wrap;gap:4px;margin:10px 0 4px}
+.ch{min-width:34px;text-align:center;border:1px solid var(--line2);border-radius:7px;padding:5px 3px;
+  font-family:var(--mono);font-size:11px;background:var(--panel2);transition:all .18s}
+.ch .i{display:block;color:var(--dim);font-size:9px}
+.ch .c{display:block;color:var(--ink);font-size:14px;font-weight:700}
+.ch.hit{border-color:var(--teal);background:rgba(99,207,192,.16);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.ch.rng{border-color:var(--amber);background:rgba(240,180,95,.14)}
+.ch.cut{border-color:var(--red);background:rgba(232,121,138,.13);opacity:.55}
+.ch.spare{border-style:dashed;background:transparent}
+.ch.spare .c{color:#3d4570}
+.ch.chg{border-color:var(--green);background:rgba(143,214,163,.16)}
+
+.oplog{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--mono);
+  font-size:12.2px;line-height:1.75;max-height:250px;overflow-y:auto;margin-top:10px;white-space:pre-wrap}
+.oplog .c{color:var(--amber)} .oplog .g{color:var(--green)} .oplog .r{color:var(--red)}
+.oplog .b{color:var(--blue)} .oplog .d{color:var(--dim)} .oplog .m{color:var(--mauve)}
+.metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.metric{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.metric b{color:var(--ink);font-size:13px}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.twocol{grid-template-columns:1fr}}
+
+/* method index */
+.mindex{display:flex;flex-wrap:wrap;gap:6px;margin:10px 0}
+.mbtn{background:var(--panel2);border:1px solid var(--line2);color:var(--mut);border-radius:8px;padding:6px 11px;
+  font-family:var(--mono);font-size:11.5px;cursor:pointer;transition:all .15s}
+.mbtn:hover{color:var(--ink);border-color:var(--teal)}
+.mbtn.on{background:var(--blue);color:#0f1220;border-color:transparent;font-weight:700}
+.mbtn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+/* access matrix */
+.matrix{width:100%;border-collapse:separate;border-spacing:4px;font-family:var(--mono);font-size:12px}
+.matrix th{background:transparent;padding:6px 8px;font-size:10.5px}
+.matrix td{border-radius:8px;padding:10px 8px;text-align:center;border:1px solid var(--line2);background:var(--panel2)}
+.matrix td.yes{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.1)}
+.matrix td.no{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.1)}
+.matrix td.lbl{text-align:left;color:var(--ink);background:var(--panel3);font-weight:700;white-space:nowrap}
+.matrix td.sel{box-shadow:0 0 0 2px var(--teal)}
+.matrix td.clik{cursor:pointer}
+
+/* package tree */
+.ptree{font-family:var(--mono);font-size:12.3px;line-height:1.9;color:var(--mut);background:#0c0f1d;
+  border:1px solid var(--line);border-radius:12px;padding:14px 16px;overflow-x:auto;white-space:pre}
+.ptree .d{color:var(--amber)} .ptree .f{color:var(--blue)} .ptree .n{color:var(--dim)}
+.pill.p-pink{color:var(--pink);border-color:rgba(232,162,200,.4);background:rgba(232,162,200,.08)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Unit 3 · Strings and Packages · Weeks 7–9 (14 Jul – 30 Jul 2026) · CO3 · 12 hrs · Lab Ex.7 &amp; Ex.8</div>
+  <h1><span class="k">String</span> is immutable — everything else follows from that</h1>
+  <p class="sub">Every surprising thing about Java strings comes from one design decision: a <code>String</code> object can never change. So <code>s.toUpperCase()</code> does not modify <code>s</code>, <code>+</code> in a loop builds garbage, <code>==</code> sometimes works and sometimes doesn't, and <code>StringBuilder</code> exists at all. This page draws the <strong>string pool and the heap</strong>, runs the real method algorithms character by character, models <code>StringBuilder</code>'s capacity growth, and lays out every access-specifier rule as a grid you can click.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="str">① String Class</button>
+  <button class="tab-btn" data-tab="methods">② Methods</button>
+  <button class="tab-btn" data-tab="sb">③ Builder vs Buffer</button>
+  <button class="tab-btn" data-tab="manip">④ Manipulation</button>
+  <button class="tab-btn" data-tab="dates">⑤ Dates &amp; Strings</button>
+  <button class="tab-btn" data-tab="pkg">⑥ Packages</button>
+  <button class="tab-btn" data-tab="access">⑦ Access Specifiers</button>
+  <button class="tab-btn" data-tab="gsec">⑧ Your Gsec Code</button>
+  <button class="tab-btn" data-tab="lab">⑨ Lab Ex.7 &amp; 8</button>
+</nav>
+
+<main>
+<!-- ============ TAB 1 : STRING CLASS ============ -->
+<section class="tab active" id="tab-str">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">String class</span>
+    <h2>Immutable, final, and pooled</h2>
+    <p><code>java.lang.String</code> wraps a private array of bytes (a <code>char[]</code> before Java 9) and marks it <code>final</code>. There is <strong>no method anywhere in the class that changes it</strong> — every method that looks like it modifies the string actually returns a brand-new one. The class itself is <code>final</code> too, so nobody can subclass it and break that promise.</p>
+    <div class="grid3">
+      <div><span class="pill p-teal">Immutable</span><p style="margin-top:8px">Safe to share between threads, safe as a <code>HashMap</code> key, and its <code>hashCode()</code> can be cached forever.</p></div>
+      <div><span class="pill p-amber">Pooled</span><p style="margin-top:8px">Identical <strong>literals</strong> share one object in the string pool, so a program with a thousand <code>"Dell"</code> literals holds one <code>"Dell"</code>.</p></div>
+      <div><span class="pill p-red">Costly to edit</span><p style="margin-top:8px">Building a string in a loop with <code>+</code> allocates a new object every iteration. That is what <code>StringBuilder</code> is for.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Where do these strings actually live?</h2>
+    <p>Pick a declaration set and see which references point at the same object. The <code>==</code> results below are computed from the model, not written by hand.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="poolCase">declarations</label><select id="poolCase">
+        <option value="lit">two identical literals</option>
+        <option value="new">literal vs new String(...)</option>
+        <option value="intern">new String(...).intern()</option>
+        <option value="concatlit">compile-time constant concat</option>
+        <option value="concatvar">runtime concat with a variable</option>
+        <option value="final">concat of two final variables</option>
+      </select></div>
+      <button class="btn run" id="poolRun">▶ Run</button>
+    </div>
+    <div class="svgwrap"><svg id="poolSvg" viewBox="0 0 1000 330" width="1000" height="330" role="img" aria-label="string pool and heap memory model"></svg></div>
+    <div class="console" id="poolOut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><code>==</code> vs <code>.equals()</code> — the whole story</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;EqualityDemo.java</div><div class="codebody" id="code-eq"></div></div>
+      <div class="callout bug">
+        <b>⛔ Never use <code>==</code> on strings</b>
+        <p>It compares <strong>references</strong>, so it answers "are these the same object", not "do these say the same thing". It happens to return <code>true</code> for pooled literals, which is exactly what makes the bug so dangerous: your code works in testing and fails the moment a string arrives from a file, a Scanner, or a database.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Immutability, demonstrated</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;ImmutableDemo.java</div><div class="codebody" id="code-immut"></div></div>
+      <div class="runbar"><button class="btn run" id="runImmut">▶ Run</button></div>
+      <div class="console" id="outImmut"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The cost of <code>+</code> in a loop</h2>
+    <p>Concatenating in a loop creates a new String — and a new builder — on every single iteration. Both versions produce the same text; only one of them is usable.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="concatN">iterations <span class="val" id="concatNv">1000</span></label><input type="range" id="concatN" min="10" max="5000" step="10" value="1000"></div>
+      <button class="btn run" id="concatRun">▶ Compare</button>
+    </div>
+    <div class="svgwrap" style="padding:14px"><svg id="concatChart" viewBox="0 0 1000 200" width="1000" height="200"></svg></div>
+    <div class="console" id="concatOut"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 2 : METHODS ============ -->
+<section class="tab" id="tab-methods">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">String methods</span>
+    <h2>Run any method, character by character</h2>
+    <p>Click a method, set the arguments, and step through what the JDK actually does. The character strip shows which indices are read, which are copied into the result, and which are left behind.</p>
+    <div class="mindex" id="methodIndex"></div>
+    <div class="ctrl">
+      <div class="fld"><label for="mSrc">the string</label><input type="text" id="mSrc" value="Sreekanth Gsec" style="width:230px"></div>
+      <div class="fld"><label for="mA1" id="mA1L">arg 1</label><input type="text" id="mA1" value="0" style="width:110px"></div>
+      <div class="fld"><label for="mA2" id="mA2L">arg 2</label><input type="text" id="mA2" value="9" style="width:110px"></div>
+      <button class="btn run" id="mRun">▶ Run method</button>
+    </div>
+    <div class="striplabel" style="margin-top:12px">the source string, index by index</div>
+    <div class="chars" id="mChars"></div>
+    <div class="striplabel">result</div>
+    <div class="chars" id="mResult"></div>
+    <div class="oplog" id="mLog"></div>
+  </div>
+
+  <div class="card">
+    <h2>The full method reference</h2>
+    <table id="methodTable"></table>
+  </div>
+</section>
+
+<!-- ============ TAB 3 : BUILDER vs BUFFER ============ -->
+<section class="tab" id="tab-sb">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">StringBuilder &amp; StringBuffer</span>
+    <h2>A mutable string, with spare room built in</h2>
+    <p>Both classes hold a <code>char[]</code> that is deliberately <strong>larger than the text in it</strong>, exactly like an <code>ArrayList</code>. Appending writes into the spare room — no new object, no copying — until the array fills up, at which point it grows to <code>(old × 2) + 2</code>.</p>
+    <ul>
+      <li><code>new StringBuilder()</code> → capacity <strong>16</strong>.</li>
+      <li><code>new StringBuilder("Gsec")</code> → capacity <strong>str.length() + 16</strong> = 20.</li>
+      <li><code>new StringBuilder(100)</code> → capacity exactly 100.</li>
+      <li>Growth: <code>newCapacity = (oldCapacity &lt;&lt; 1) + 2</code> → 16 → 34 → 70 → 142 → 286 …</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Watch the buffer</h2>
+    <div class="ctrl">
+      <div class="fld"><label for="sbVal">text / char</label><input type="text" id="sbVal" value="Sreekanth" style="width:170px"></div>
+      <div class="fld"><label for="sbIdx">index</label><input type="number" id="sbIdx" value="0" min="0" style="width:80px"></div>
+      <button class="btn run small" id="sbAppend">append</button>
+      <button class="btn small" id="sbInsert">insert(i, s)</button>
+      <button class="btn small" id="sbDelete">deleteCharAt(i)</button>
+      <button class="btn small" id="sbReplace">setCharAt(i, c)</button>
+      <button class="btn small" id="sbReverse">reverse()</button>
+      <button class="btn small" id="sbSetLen">setLength(i)</button>
+      <button class="btn small" id="sbTrim">trimToSize()</button>
+      <button class="btn small" id="sbGrow">append until it grows</button>
+      <button class="btn small" id="sbClear">reset</button>
+    </div>
+    <div class="metrics" id="sbMetrics"></div>
+    <div class="striplabel" style="margin-top:12px">the internal char[] — dashed cells are spare capacity</div>
+    <div class="chars" id="sbChars"></div>
+    <div class="oplog" id="sbLog"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;the three classes side by side</div><div class="codebody" id="code-sb3"></div></div>
+    <div>
+      <div class="card" style="margin:0 0 18px">
+        <h2>String vs StringBuilder vs StringBuffer</h2>
+        <table>
+          <tr><th></th><th>String</th><th>StringBuilder</th><th>StringBuffer</th></tr>
+          <tr><td>mutable</td><td>no</td><td><strong>yes</strong></td><td><strong>yes</strong></td></tr>
+          <tr><td>thread-safe</td><td>yes (immutable)</td><td><span class="pill p-red">no</span></td><td><span class="pill p-green">yes — synchronized</span></td></tr>
+          <tr><td>speed</td><td>slow for edits</td><td><strong>fastest</strong></td><td>slower than Builder</td></tr>
+          <tr><td>since</td><td>1.0</td><td>1.5</td><td>1.0</td></tr>
+          <tr><td>pooled</td><td>yes, literals</td><td>no</td><td>no</td></tr>
+          <tr><td>equals()</td><td>compares content</td><td><span class="pill p-red">not overridden</span></td><td><span class="pill p-red">not overridden</span></td></tr>
+          <tr><td>use when</td><td>the text never changes</td><td>building text in one thread</td><td>building text shared across threads</td></tr>
+        </table>
+      </div>
+      <div class="callout bug">
+        <b>⛔ <code>sb1.equals(sb2)</code> is always false</b>
+        <p>Neither builder class overrides <code>equals()</code>, so it falls back to reference comparison. Two builders holding <em>identical</em> text still report <code>false</code>. Compare with <code>sb1.toString().equals(sb2.toString())</code>.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 Which one for the exam answer?</b>
+        <p><strong>StringBuilder</strong>, unless the buffer is genuinely shared between threads — which is rare, because a builder is normally a local variable, and local variables cannot be shared. <code>StringBuffer</code> pays a locking cost on every single call for a guarantee almost nobody needs.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Method-by-method, on both classes</h2>
+    <table>
+      <tr><th>Method</th><th>Does</th><th>Returns</th></tr>
+      <tr><td>append(x)</td><td>adds at the end — overloaded for every type</td><td><code>this</code>, so calls chain</td></tr>
+      <tr><td>insert(i, x)</td><td>inserts at index <code>i</code>, shifting right</td><td><code>this</code></td></tr>
+      <tr><td>delete(a, b)</td><td>removes <code>[a, b)</code> — end is exclusive</td><td><code>this</code></td></tr>
+      <tr><td>deleteCharAt(i)</td><td>removes one character</td><td><code>this</code></td></tr>
+      <tr><td>replace(a, b, s)</td><td>swaps <code>[a, b)</code> for <code>s</code>, any length</td><td><code>this</code></td></tr>
+      <tr><td>reverse()</td><td>reverses <strong>in place</strong> — no copy</td><td><code>this</code></td></tr>
+      <tr><td>setCharAt(i, c)</td><td>overwrites one character</td><td><code>void</code> — the odd one out</td></tr>
+      <tr><td>charAt(i) / indexOf(s)</td><td>read without changing</td><td><code>char</code> / <code>int</code></td></tr>
+      <tr><td>length() / capacity()</td><td>characters used / array size</td><td><code>int</code></td></tr>
+      <tr><td>setLength(n)</td><td>truncates, or pads with <code>\u0000</code></td><td><code>void</code></td></tr>
+      <tr><td>ensureCapacity(n) / trimToSize()</td><td>pre-grow / shrink to fit</td><td><code>void</code></td></tr>
+      <tr><td>toString()</td><td>copies the used part into a new String</td><td><code>String</code></td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ TAB 4 : MANIPULATION ============ -->
+<section class="tab" id="tab-manip">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">Manipulation</span>
+    <h2>split · replace · concat · compare</h2>
+    <p>The four operations named in your syllabus, each with the edge cases that actually appear in exam output questions.</p>
+  </div>
+
+  <div class="card">
+    <h2><code>split()</code> — and the trailing-empty rule nobody expects</h2>
+    <p><code>split(regex)</code> discards <strong>trailing</strong> empty strings but keeps <strong>leading</strong> ones. Pass a negative limit and nothing is discarded. Try the presets.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="spSrc">string</label><input type="text" id="spSrc" value="101,Sreekanth,Dell,17" style="width:260px"></div>
+      <div class="fld"><label for="spRe">regex</label><input type="text" id="spRe" value="," style="width:110px"></div>
+      <div class="fld"><label for="spLim">limit</label><input type="number" id="spLim" value="0" style="width:90px"></div>
+      <button class="btn run" id="spRun">▶ split</button>
+    </div>
+    <div class="runbar">
+      <button class="btn small" id="spP1">trailing empties</button>
+      <button class="btn small" id="spP2">leading empty</button>
+      <button class="btn small" id="spP3">limit = -1</button>
+      <button class="btn small" id="spP4">limit = 2 (key=value)</button>
+      <button class="btn small" id="spP5">split on "." — the regex trap</button>
+      <button class="btn small" id="spP6">split("") per character</button>
+      <button class="btn small" id="spP7">split on whitespace</button>
+    </div>
+    <div class="console" id="spOut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><code>replace</code> vs <code>replaceAll</code> vs <code>replaceFirst</code></h2>
+      <div class="ctrl">
+        <div class="fld"><label for="rpSrc">string</label><input type="text" id="rpSrc" value="a.b.c" style="width:170px"></div>
+        <div class="fld"><label for="rpFind">find</label><input type="text" id="rpFind" value="." style="width:90px"></div>
+        <div class="fld"><label for="rpWith">with</label><input type="text" id="rpWith" value="-" style="width:90px"></div>
+        <button class="btn run small" id="rpRun">▶ Run all three</button>
+      </div>
+      <div class="console" id="rpOut"></div>
+      <div class="callout warn">
+        <b>The one-character difference that changes everything</b>
+        <p><code>replace()</code> takes <strong>literal</strong> text. <code>replaceAll()</code> and <code>replaceFirst()</code> take a <strong>regex</strong>. So <code>"a.b".replace(".","-")</code> gives <code>a-b</code>, while <code>"a.b".replaceAll(".","-")</code> gives <code>---</code> — because <code>.</code> means "any character".</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2><code>concat</code> and the many ways to join</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;joining.java</div><div class="codebody" id="code-concat"></div></div>
+      <div class="runbar"><button class="btn run" id="runConcat">▶ Run</button></div>
+      <div class="console" id="outConcat"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Comparing strings — four methods, four different answers</h2>
+    <div class="ctrl">
+      <div class="fld"><label for="cmpA">string a</label><input type="text" id="cmpA" value="Sreekanth" style="width:180px"></div>
+      <div class="fld"><label for="cmpB">string b</label><input type="text" id="cmpB" value="sreekanth" style="width:180px"></div>
+      <button class="btn run" id="cmpRun">▶ Compare</button>
+      <button class="btn small" id="cmpP1">same text</button>
+      <button class="btn small" id="cmpP2">different case</button>
+      <button class="btn small" id="cmpP3">Apple vs Banana</button>
+      <button class="btn small" id="cmpP4">prefix vs longer</button>
+    </div>
+    <div class="console" id="cmpOut"></div>
+    <div class="callout tip">
+      <b>What <code>compareTo</code> actually returns</b>
+      <p>Not just −1/0/1. It walks both strings and returns <code>this.charAt(i) - other.charAt(i)</code> at the <strong>first difference</strong>. If one is a prefix of the other it returns the <strong>length difference</strong>. Output questions love this — <code>"Apple".compareTo("Banana")</code> is <code>'A'-'B'</code> = <strong>−1</strong>, but <code>"a".compareTo("A")</code> is <strong>32</strong>.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 5 : DATES ============ -->
+<section class="tab" id="tab-dates">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Dates as strings</span>
+    <h2>Every date in a file, a form or a database arrives as text</h2>
+    <p>A date is not a string, and a string is not a date. All real work therefore happens at the two boundaries: <strong>parse</strong> (String → date object) and <strong>format</strong> (date object → String). Get the pattern wrong and you either crash or, worse, silently get the wrong answer.</p>
+    <div class="grid2">
+      <div>
+        <h3>The modern API — <code>java.time</code>, since Java 8</h3>
+        <ul>
+          <li><code>LocalDate</code> — a date with no time and no zone. Use this for a date of birth or an admission date.</li>
+          <li><code>LocalTime</code>, <code>LocalDateTime</code> — time only, and both together.</li>
+          <li><code>DateTimeFormatter</code> — <strong>immutable and thread-safe</strong>.</li>
+          <li><code>Period</code> / <code>ChronoUnit</code> — for "how old is this student".</li>
+        </ul>
+      </div>
+      <div>
+        <h3>The legacy API — still all over exam papers</h3>
+        <ul>
+          <li><code>java.util.Date</code> — a millisecond count pretending to be a date.</li>
+          <li><code>SimpleDateFormat</code> — <strong>not thread-safe</strong>; sharing one across threads corrupts output.</li>
+          <li><code>Calendar</code> — months are <strong>0-based</strong>, so January is 0.</li>
+          <li>Know it, name its problems, then use <code>java.time</code>.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Format playground — date object → String</h2>
+    <p>Type any pattern. The output is produced by interpreting the pattern letters exactly as Java does.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="dtDate">the date</label><input type="text" id="dtDate" value="2026-07-14" style="width:150px"></div>
+      <div class="fld"><label for="dtTime">the time</label><input type="text" id="dtTime" value="09:05:07" style="width:130px"></div>
+      <div class="fld"><label for="dtPat">pattern</label><input type="text" id="dtPat" value="dd/MM/yyyy" style="width:220px"></div>
+      <button class="btn run" id="dtRun">▶ format</button>
+    </div>
+    <div class="runbar">
+      <button class="btn small" id="dtP1">dd/MM/yyyy</button>
+      <button class="btn small" id="dtP2">dd-MMM-yyyy</button>
+      <button class="btn small" id="dtP3">EEEE, d MMMM yyyy</button>
+      <button class="btn small" id="dtP4">yyyy-MM-dd HH:mm:ss</button>
+      <button class="btn small" id="dtP5">hh:mm a</button>
+      <button class="btn small" id="dtP6">the mm / MM trap</button>
+      <button class="btn small" id="dtP7">the YYYY / yyyy trap</button>
+    </div>
+    <div class="console" id="dtOut"></div>
+  </div>
+
+  <div class="card">
+    <h2>Pattern letters you must know</h2>
+    <table>
+      <tr><th>Letter</th><th>Means</th><th>Example</th></tr>
+      <tr><td>yyyy / yy</td><td>year (4 or 2 digits)</td><td>2026 / 26</td></tr>
+      <tr><td><strong>MM</strong> / M</td><td><strong>month</strong> as a number</td><td>07 / 7</td></tr>
+      <tr><td>MMM / MMMM</td><td>month as text</td><td>Jul / July</td></tr>
+      <tr><td>dd / d</td><td>day of month</td><td>14 / 14</td></tr>
+      <tr><td>EEE / EEEE</td><td>day of week</td><td>Tue / Tuesday</td></tr>
+      <tr><td>HH</td><td>hour, <strong>24-hour</strong> (00–23)</td><td>09, 17</td></tr>
+      <tr><td>hh</td><td>hour, <strong>12-hour</strong> (01–12)</td><td>09, 05</td></tr>
+      <tr><td><strong>mm</strong></td><td><strong>minute</strong> — not month</td><td>05</td></tr>
+      <tr><td>ss / SSS</td><td>second / millisecond</td><td>07 / 000</td></tr>
+      <tr><td>a</td><td>AM or PM marker</td><td>AM</td></tr>
+      <tr><td>D</td><td>day of year</td><td>195</td></tr>
+    </table>
+    <div class="callout bug">
+      <b>⛔ The two traps that cost the most marks</b>
+      <p><strong>1 · <code>mm</code> instead of <code>MM</code>.</strong> <code>"dd/mm/yyyy"</code> compiles, runs, and prints the <em>minutes</em> where the month should be. On 14 July at 09:05 it prints <code>14/05/2026</code> — a plausible-looking wrong date, which is the worst kind of bug.<br>
+      <strong>2 · <code>YYYY</code> instead of <code>yyyy</code>.</strong> Capital Y is the <em>week-based</em> year. For most of the year it matches, then in the last days of December it jumps to the next year — a bug that appears once a year and is impossible to reproduce in July.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Parse playground — String → date object</h2>
+    <p>Parsing is where strings from files and forms turn into real dates, and where they throw.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="psSrc">the text</label><input type="text" id="psSrc" value="14/07/2026" style="width:180px"></div>
+      <div class="fld"><label for="psPat">expected pattern</label><input type="text" id="psPat" value="dd/MM/yyyy" style="width:180px"></div>
+      <button class="btn run" id="psRun">▶ parse</button>
+      <button class="btn small" id="psP1">ISO, no formatter needed</button>
+      <button class="btn small" id="psP2">mismatched pattern</button>
+      <button class="btn small" id="psP3">impossible date</button>
+      <button class="btn small" id="psP4">extra text</button>
+    </div>
+    <div class="console" id="psOut"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--pink)"></span>&nbsp;java.time — the version to write</div><div class="codebody" id="code-jt"></div></div>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;SimpleDateFormat — the version to recognise</div><div class="codebody" id="code-sdf"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>Age from a date of birth — your <code>validator()</code>, done properly</h2>
+    <p>Your class stores <code>age</code> as an <code>int</code>, which is wrong the day after every birthday. A date of birth plus <code>Period</code> is correct forever.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="agDob">date of birth</label><input type="text" id="agDob" value="2009-11-20" style="width:150px"></div>
+      <div class="fld"><label for="agToday">today</label><input type="text" id="agToday" value="2026-07-14" style="width:150px"></div>
+      <button class="btn run" id="agRun">▶ compute the age</button>
+    </div>
+    <div class="console" id="agOut"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 6 : PACKAGES ============ -->
+<section class="tab" id="tab-pkg">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Packages</span>
+    <h2>A folder for your classes, and a namespace for their names</h2>
+    <p>A package does three jobs: it <strong>groups related classes</strong>, it <strong>prevents name clashes</strong> (your <code>Date</code> and Java's <code>Date</code> can coexist), and it <strong>defines the access boundary</strong> that <code>default</code> and <code>protected</code> are measured against — which is why tab ⑦ cannot be explained without this one.</p>
+    <div class="grid2">
+      <div>
+        <h3>Two kinds</h3>
+        <ul>
+          <li><strong>Built-in</strong> — shipped with the JDK: <code>java.lang</code>, <code>java.util</code>, <code>java.io</code>, <code>java.time</code>.</li>
+          <li><strong>User-defined</strong> — yours: <code>com.gsec.model</code>, <code>com.gsec.util</code>.</li>
+        </ul>
+        <h3>Three rules that are always tested</h3>
+        <ul>
+          <li>The <code>package</code> statement must be the <strong>very first line</strong> of code — comments above it are fine, nothing else.</li>
+          <li>The <strong>folder structure must match</strong> the package name, segment for segment.</li>
+          <li><code>java.lang</code> is imported <strong>automatically</strong>; that is why <code>String</code> and <code>System</code> need no import.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>The naming convention, and why</h3>
+        <p>All lowercase, reverse domain name first: <code>com.company.project.layer</code>. Reversed because domains are globally unique, so no two organisations can ever collide.</p>
+        <h3>The default package</h3>
+        <p>A file with no <code>package</code> statement lands in the <strong>unnamed package</strong>. It works for exercises but a packaged class can never import from it — which is why your <code>Gsec.java</code> cannot be reused from anywhere else as it stands.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Built-in packages — click one</h2>
+    <div class="mindex" id="pkgIndex"></div>
+    <div class="detail" id="pkgDetail"></div>
+  </div>
+
+  <div class="card">
+    <h2>Creating and accessing your own package</h2>
+    <p>Follow the four steps. The file tree and the commands update as you go.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="pkgName">package name</label><input type="text" id="pkgName" value="com.gsec.model" style="width:220px"></div>
+      <div class="fld"><label for="pkgCls">class name</label><input type="text" id="pkgCls" value="Gsec" style="width:150px"></div>
+      <div class="fld"><label for="pkgImp">how the other class imports it</label><select id="pkgImp">
+        <option value="single">import com.gsec.model.Gsec;</option>
+        <option value="star">import com.gsec.model.*;</option>
+        <option value="fq">no import — fully qualified name</option>
+        <option value="none">no import at all — the error</option>
+        <option value="static">static import of a constant</option>
+      </select></div>
+      <button class="btn run" id="pkgRun">▶ Build it</button>
+    </div>
+    <div class="twocol" style="margin-top:8px">
+      <div>
+        <div class="striplabel">directory structure — must mirror the package name</div>
+        <div class="ptree" id="pkgTree"></div>
+      </div>
+      <div>
+        <div class="striplabel">the two files</div>
+        <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;<span id="pkgF1">Gsec.java</span></div><div class="codebody" id="code-pkg1"></div></div>
+        <div class="codewrap" style="margin-top:10px"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;<span id="pkgF2">Main.java</span></div><div class="codebody" id="code-pkg2"></div></div>
+      </div>
+    </div>
+    <div class="console" id="pkgOut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>import — what it does and does not do</h2>
+      <ul>
+        <li><strong>It is not <code>#include</code>.</strong> Nothing is copied. <code>import</code> only lets you write <code>Gsec</code> instead of <code>com.gsec.model.Gsec</code>.</li>
+        <li><strong>The wildcard costs nothing at runtime.</strong> <code>import java.util.*;</code> is not slower — it is resolved at compile time. It only risks ambiguity, e.g. <code>java.util.Date</code> and <code>java.sql.Date</code> both imported.</li>
+        <li><strong>It does not reach into sub-packages.</strong> <code>import com.gsec.*;</code> does <em>not</em> bring in <code>com.gsec.model</code>.</li>
+        <li><strong>Static import</strong> brings in members, not types: <code>import static java.lang.Math.PI;</code> then just <code>PI</code>.</li>
+        <li><strong>Ambiguity is your problem.</strong> Import both <code>Date</code>s and the compiler makes you use a fully qualified name.</li>
+      </ul>
+    </div>
+    <div class="card">
+      <h2>The commands, with and without packages</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;terminal</div><div class="codebody" id="code-cmds"></div></div>
+      <div class="callout warn">
+        <b>The mistake everyone makes once</b>
+        <p>Running <code>java Gsec</code> from inside the <code>model</code> folder. A packaged class must be launched from the <strong>root</strong> of the package tree, by its <strong>fully qualified name</strong>: <code>java com.gsec.model.Main</code>. Otherwise you get <code>NoClassDefFoundError: Gsec (wrong name: com/gsec/model/Gsec)</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 7 : ACCESS SPECIFIERS ============ -->
+<section class="tab" id="tab-access">
+  <div class="card">
+    <span class="tagline" style="color:var(--red);border-color:rgba(232,121,138,.4)">Access specifiers</span>
+    <h2>Four levels, measured against the package boundary</h2>
+    <p>Access control is not about secrecy — it is about <strong>who you promise not to break</strong>. A <code>public</code> field is a promise to the entire world; a <code>private</code> one is a promise only to yourself. Your <code>Gsec</code> class already makes exactly one of those promises correctly.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="acMod">member is declared</label><select id="acMod">
+        <option value="private">private</option>
+        <option value="default">default (no keyword)</option>
+        <option value="protected">protected</option>
+        <option value="public">public</option>
+      </select></div>
+      <div class="fld"><label for="acFrom">accessed from</label><select id="acFrom">
+        <option value="same">the same class</option>
+        <option value="pkg">another class, same package</option>
+        <option value="sub">a subclass, same package</option>
+        <option value="subout">a subclass in a DIFFERENT package</option>
+        <option value="out">an unrelated class, different package</option>
+      </select></div>
+      <button class="btn run" id="acRun">▶ Can it see it?</button>
+    </div>
+    <div class="console" id="acOut"></div>
+    <div class="striplabel" style="margin-top:16px">the full grid — click any cell</div>
+    <table class="matrix" id="acMatrix"></table>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>The rules in words</h2>
+      <table>
+        <tr><th>Modifier</th><th>Visible to</th><th>Keyword</th></tr>
+        <tr><td>private</td><td>this class only — not even a subclass</td><td><code>private</code></td></tr>
+        <tr><td>default</td><td>every class in the <strong>same package</strong></td><td><em>none — you write nothing</em></td></tr>
+        <tr><td>protected</td><td>same package, <strong>plus subclasses anywhere</strong></td><td><code>protected</code></td></tr>
+        <tr><td>public</td><td>everywhere</td><td><code>public</code></td></tr>
+      </table>
+      <div class="callout warn">
+        <b>Two rules about the class itself</b>
+        <p>A <strong>top-level class</strong> can only be <code>public</code> or <code>default</code> — never <code>private</code> or <code>protected</code>. And a <code>public</code> class must live in a file with a <strong>matching name</strong>. Nested classes, by contrast, may use all four.</p>
+      </div>
+      <div class="callout bug">
+        <b>⛔ protected is subtler than it looks</b>
+        <p>A subclass in a different package can access <code>protected</code> members <strong>through its own inheritance</strong> — <code>this.age</code> or <code>super.age</code> — but <strong>not</strong> on an arbitrary instance of the parent. <code>new Gsec().age</code> from that subclass is a compile error even though <code>this.age</code> is fine.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Your class, audited</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;Gsec.java — access audit</div><div class="codebody" id="code-audit"></div></div>
+      <div class="runbar"><button class="btn run" id="auditRun">▶ Run the audit</button></div>
+      <div class="console" id="auditOut"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>What to actually write</h2>
+    <div class="grid3">
+      <div><span class="pill p-green">Fields</span><p style="margin-top:8px"><strong>private</strong>, almost always. Expose them through getters. Your <code>age</code> is right; <code>name</code>, <code>laptop</code> and <code>registerNumber</code> are not.</p></div>
+      <div><span class="pill p-blue">Methods</span><p style="margin-top:8px"><strong>public</strong> if the method is part of what the class offers; <strong>private</strong> for internal helpers. Your <code>validator()</code> and <code>display()</code> are default — usable only inside the package, which is probably accidental.</p></div>
+      <div><span class="pill p-mauve">Constants</span><p style="margin-top:8px"><code>public static final</code> is fine, because an immutable value cannot be broken by anyone.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 8 : GSEC ============ -->
+<section class="tab" id="tab-gsec">
+  <div class="card">
+    <span class="tagline" style="color:var(--ink);border-color:var(--line2)">Your code</span>
+    <h2><code>Gsec</code> rewritten with strings, packages and proper access</h2>
+    <p>Unit 3 is the unit that turns your class from an exercise into something reusable: a <code>toString()</code> built with <code>StringBuilder</code>, a CSV parser built on <code>split()</code>, a real date of birth instead of a fixed <code>age</code>, a package to live in, and access specifiers that mean something.</p>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — your original</div>
+      <div class="codebody" id="code-gsec"></div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ Three string-related bugs already in this file</b>
+        <ul style="margin:6px 0 0 18px">
+          <li><code>"This guy is not eleigible..."</code> — <strong>eleigible</strong> is misspelt. The compiler never checks inside a string literal, so this ships.</li>
+          <li><code>display()</code> prints the literal <code>"Hi sreekanth"</code> instead of the <code>name</code> field, so every student is greeted as Sreekanth.</li>
+          <li><code>displayString()</code> returns <code>"hello"</code> and is never called — a stub that should have been <code>toString()</code>.</li>
+        </ul>
+      </div>
+      <div class="callout warn">
+        <b>And one design problem</b>
+        <p><code>int age</code> is a snapshot. It is wrong the day after the student's birthday, and nothing in the class can ever correct it. Tab ⑤ shows the fix: store the date of birth and compute the age.</p>
+      </div>
+      <div class="runbar"><button class="btn run" id="gsecRunAll">▶ Run all seven programs</button></div>
+    </div>
+  </div>
+  <div id="gsecHost"></div>
+</section>
+
+<!-- ============ TAB 9 : LAB ============ -->
+<section class="tab" id="tab-lab">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Lab Exercises 7 &amp; 8</span>
+    <h2>String, StringBuilder &amp; StringBuffer · Creating &amp; Using Packages</h2>
+    <p>Ex.7 covers Week 7's syllabus line, Ex.8 covers Week 8's. Every printed value is computed by the models on this page.</p>
+    <div class="runbar"><button class="btn primary" id="labRunAll">▶ Run all eight</button></div>
+  </div>
+  <div id="labHost"></div>
+
+  <div class="card">
+    <h2>Unit 3 recap — one screen</h2>
+    <table>
+      <tr><th>Question</th><th>Answer</th></tr>
+      <tr><td>Why is String immutable?</td><td>Safe sharing, safe as a map key, cacheable hash, and the string pool only works if nobody can edit a shared literal.</td></tr>
+      <tr><td>Why is String final?</td><td>So a subclass cannot override a method and break immutability.</td></tr>
+      <tr><td>Where do literals live?</td><td>The string pool, inside the heap since Java 7. <code>new String()</code> always makes a separate object.</td></tr>
+      <tr><td>String vs StringBuilder vs StringBuffer</td><td>Immutable / mutable-fast / mutable-synchronized.</td></tr>
+      <tr><td>Default StringBuilder capacity</td><td>16, or <code>length + 16</code> from a String. Growth <code>(old × 2) + 2</code>.</td></tr>
+      <tr><td>== vs equals</td><td>References vs content. Always <code>equals</code> for text.</td></tr>
+      <tr><td>What does compareTo return?</td><td>The character difference at the first mismatch, or the length difference.</td></tr>
+      <tr><td>split trailing empties</td><td>Dropped by default; kept with a negative limit.</td></tr>
+      <tr><td>replace vs replaceAll</td><td>Literal vs regex.</td></tr>
+      <tr><td>MM vs mm in a date pattern</td><td>Month vs minute. The silent killer.</td></tr>
+      <tr><td>Where does <code>package</code> go?</td><td>The first statement in the file, and the folders must match.</td></tr>
+      <tr><td>Which package needs no import?</td><td><code>java.lang</code>.</td></tr>
+      <tr><td>Four access levels, weakest first</td><td>private → default → protected → public.</td></tr>
+      <tr><td>Can a top-level class be private?</td><td>No — only <code>public</code> or default.</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Syntax toolkit</h2>
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;String — every method worth knowing</div><div class="codebody" id="syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;StringBuilder / StringBuffer</div><div class="codebody" id="syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--pink)"></span>&nbsp;dates ↔ strings</div><div class="codebody" id="syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;packages &amp; access</div><div class="codebody" id="syn4"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Twelve traps that cost marks</h2>
+    <table>
+      <tr><th>#</th><th>Trap</th><th>What happens</th></tr>
+      <tr><td>1</td><td><code>s.toUpperCase();</code> on its own line</td><td>Does nothing observable — the new string is discarded. You must assign it.</td></tr>
+      <tr><td>2</td><td><code>==</code> on strings</td><td>Works for literals, fails for anything read at runtime. Use <code>equals</code>.</td></tr>
+      <tr><td>3</td><td><code>+</code> inside a loop</td><td>A new String and a new builder every iteration — O(n²) copying.</td></tr>
+      <tr><td>4</td><td><code>substring(0, s.length())</code> vs <code>substring(0, s.length()-1)</code></td><td>End index is <strong>exclusive</strong>. Off by one and you get <code>StringIndexOutOfBoundsException</code>.</td></tr>
+      <tr><td>5</td><td><code>charAt(s.length())</code></td><td>Valid indices stop at <code>length()-1</code>.</td></tr>
+      <tr><td>6</td><td><code>split(".")</code></td><td><code>.</code> is a regex wildcard — returns an empty array. Escape it: <code>split("\\\\.")</code>.</td></tr>
+      <tr><td>7</td><td>Expecting trailing empties from <code>split</code></td><td>Silently dropped unless the limit is negative.</td></tr>
+      <tr><td>8</td><td><code>sb1.equals(sb2)</code></td><td>Always false — not overridden. Compare <code>toString()</code>s.</td></tr>
+      <tr><td>9</td><td><code>"dd/mm/yyyy"</code></td><td>Prints minutes as the month. No error, wrong date.</td></tr>
+      <tr><td>10</td><td>Sharing one <code>SimpleDateFormat</code> across threads</td><td>Corrupted output, intermittently. <code>DateTimeFormatter</code> is safe.</td></tr>
+      <tr><td>11</td><td><code>package</code> after an import</td><td>Compile error — it must be the first statement.</td></tr>
+      <tr><td>12</td><td><code>protected</code> field accessed on another instance from a different package</td><td>Compile error. Only through <code>this</code> / <code>super</code>.</td></tr>
+    </table>
+  </div>
+</section>
+</main>
+<footer>Java Strings &amp; Packages Lab · Unit 3 · single file · fully offline · real pool model, real capacity growth, real pattern letters</footer>
+<script>
+/* ---------- shared helpers ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(@\w+)|\b(abstract|boolean|break|byte|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false|var)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){let out='',last=0,m;HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){out+=esc(line.slice(last,m.index));
+    const c=m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-s':m[4]?'tok-a':m[5]?'tok-k':m[6]?'tok-t':m[7]?'tok-n':'tok-m';
+    out+='<span class="'+c+'">'+esc(m[0])+'</span>';last=m.index+m[0].length;}
+  return out+esc(line.slice(last));}
+function renderCode(id,lines,opts){opts=opts||{};const b=document.getElementById(id);if(!b)return;b.innerHTML='';
+  lines.forEach((ln,i)=>{const d=document.createElement('div');d.className='cl';d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1))d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';b.appendChild(d);});}
+function L(lines,sub){return lines.findIndex(l=>l.includes(sub))+1;}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}}));
+function mkOut(){const buf=[];
+  const o=(s,c)=>buf.push('<span class="'+(c||'out')+'">'+esc(String(s))+'</span>');
+  o.info=s=>o(s,'info');o.fail=s=>o(s,'fail');o.warn=s=>o(s,'warn');o.dim=s=>o(s,'prompt');
+  o.head=s=>buf.push('<span class="hd">'+esc(String(s))+'</span>');
+  o.raw=s=>buf.push(s);o.text=()=>buf.join('\n');return o;}
+function paint(id,o){const e=document.getElementById(id);if(e)e.innerHTML=o.text();}
+function javaHash(s){let h=0;for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
+function chStrip(hostId,str,marks,spareFrom){
+  const host=document.getElementById(hostId);if(!host)return;host.innerHTML='';
+  if(str===''||str===null){host.innerHTML='<div class="ch spare" style="min-width:110px"><span class="i">&nbsp;</span><span class="c">(empty)</span></div>';return;}
+  for(let i=0;i<str.length;i++){
+    const d=document.createElement('div');
+    d.className='ch'+((marks&&marks[i])?' '+marks[i]:'')+((spareFrom!==undefined&&i>=spareFrom)?' spare':'');
+    let c=str[i];if(c===' ')c='␣';if(c==='\n')c='\\n';if(c==='\t')c='\\t';if(c==='\u0000')c='\\0';
+    d.innerHTML='<span class="i">'+i+'</span><span class="c">'+esc(c)+'</span>';
+    host.appendChild(d);
+  }
+}
+function barChart(svgId,rows,head,foot){
+  const svg=document.getElementById(svgId),NS='http://www.w3.org/2000/svg';
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const max=Math.max(1,...rows.map(r=>r[1])),W=660,X=280;
+  rows.forEach(([nm,v,c],k)=>{
+    const y=52+k*70;
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',266);t.setAttribute('y',y+22);t.setAttribute('fill',c);t.setAttribute('font-size','13');
+    t.setAttribute('text-anchor','end');t.setAttribute('font-weight','700');t.textContent=nm;svg.appendChild(t);
+    const bg=document.createElementNS(NS,'rect');
+    bg.setAttribute('x',X);bg.setAttribute('y',y);bg.setAttribute('width',W);bg.setAttribute('height',32);
+    bg.setAttribute('rx',6);bg.setAttribute('fill','#131730');svg.appendChild(bg);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',X);r.setAttribute('y',y);r.setAttribute('width',Math.max(3,(v/max)*W));r.setAttribute('height',32);
+    r.setAttribute('rx',6);r.setAttribute('fill',c);r.setAttribute('fill-opacity','.75');svg.appendChild(r);
+    const vt=document.createElementNS(NS,'text');
+    vt.setAttribute('x',X+Math.max(3,(v/max)*W)+10);vt.setAttribute('y',y+22);vt.setAttribute('fill',c);
+    vt.setAttribute('font-size','12.5');vt.textContent=v.toLocaleString();svg.appendChild(vt);
+  });
+  const h=document.createElementNS(NS,'text');
+  h.setAttribute('x',20);h.setAttribute('y',26);h.setAttribute('fill','#9aa3c7');h.setAttribute('font-size','12');
+  h.textContent=head;svg.appendChild(h);
+  if(foot){const f=document.createElementNS(NS,'text');
+    f.setAttribute('x',20);f.setAttribute('y',190);f.setAttribute('fill','#6d76a0');f.setAttribute('font-size','11');
+    f.textContent=foot;svg.appendChild(f);}
+}
+
+/* ============ TAB 1 · the string pool ============ */
+const POOL={
+ lit:{code:['String a = "Gsec";','String b = "Gsec";'],
+   objs:[{where:'pool',val:'Gsec',refs:['a','b']}],eq:true,
+   why:'Both are literals, so the compiler put a single "Gsec" in the pool at class-load time and pointed both references at it. One object, two names — <code>==</code> is true, and that is a coincidence of pooling, not a rule about strings.'},
+ new:{code:['String a = "Gsec";','String b = new String("Gsec");'],
+   objs:[{where:'pool',val:'Gsec',refs:['a']},{where:'heap',val:'Gsec',refs:['b']}],eq:false,
+   why:'<code>new</code> is an explicit instruction to allocate. It creates a <strong>second</strong> object on the heap holding the same characters, so <code>==</code> is false while <code>equals()</code> is true. This is the single most-asked question in this unit.'},
+ intern:{code:['String a = "Gsec";','String b = new String("Gsec").intern();'],
+   objs:[{where:'pool',val:'Gsec',refs:['a','b']},{where:'heap',val:'Gsec',refs:['(unreachable)']}],eq:true,
+   why:'<code>intern()</code> asks the pool: "do you already have this text?" It does, so intern returns the <strong>pooled</strong> object and the heap copy is left for the garbage collector. <code>==</code> is true again.'},
+ concatlit:{code:['String a = "Gsec";','String b = "Gs" + "ec";'],
+   objs:[{where:'pool',val:'Gsec',refs:['a','b']}],eq:true,
+   why:'Both operands are literals, so this is a <strong>compile-time constant expression</strong>. javac folds it into the single literal "Gsec" before the class file is even written — there is no concatenation at runtime at all.'},
+ concatvar:{code:['String a = "Gsec";','String x = "Gs";','String b = x + "ec";'],
+   objs:[{where:'pool',val:'Gsec',refs:['a']},{where:'pool',val:'Gs',refs:['x']},{where:'heap',val:'Gsec',refs:['b']}],eq:false,
+   why:'<code>x</code> is a variable, so the value is not known at compile time. The concatenation happens at <strong>runtime</strong> and produces a fresh heap object that is never pooled. <code>==</code> is false — and this is exactly what happens to every string you read from a file or a Scanner.'},
+ final:{code:['String a = "Gsec";','final String x = "Gs";','String b = x + "ec";'],
+   objs:[{where:'pool',val:'Gsec',refs:['a','b']},{where:'pool',val:'Gs',refs:['x']}],eq:true,
+   why:'Adding <code>final</code> changes the answer. A <code>final</code> variable initialised with a literal <em>is</em> a constant expression, so the compiler folds it again and <code>b</code> points at the pooled "Gsec". Remove one keyword and <code>==</code> flips to false — which is precisely why you should never rely on it.'}
+};
+function poolRun(){
+  const k=document.getElementById('poolCase').value,c=POOL[k];
+  const svg=document.getElementById('poolSvg'),NS='http://www.w3.org/2000/svg';
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  function box(x,y,w,h,col,label,sub){
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+    r.setAttribute('rx',10);r.setAttribute('fill',col);r.setAttribute('fill-opacity','.08');
+    r.setAttribute('stroke',col);r.setAttribute('stroke-width','1.4');svg.appendChild(r);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x+12);t.setAttribute('y',y+20);t.setAttribute('fill',col);
+    t.setAttribute('font-size','11.5');t.setAttribute('font-weight','700');t.textContent=label;svg.appendChild(t);
+    if(sub){const s=document.createElementNS(NS,'text');
+      s.setAttribute('x',x+12);s.setAttribute('y',y+36);s.setAttribute('fill','#6d76a0');
+      s.setAttribute('font-size','10.5');s.textContent=sub;svg.appendChild(s);}
+  }
+  function chip(x,y,txt,col,w){
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w||96);r.setAttribute('height',30);
+    r.setAttribute('rx',8);r.setAttribute('fill',col);r.setAttribute('fill-opacity','.16');
+    r.setAttribute('stroke',col);r.setAttribute('stroke-width','1.3');svg.appendChild(r);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x+(w||96)/2);t.setAttribute('y',y+20);t.setAttribute('fill',col);
+    t.setAttribute('font-size','12');t.setAttribute('text-anchor','middle');t.setAttribute('font-weight','700');
+    t.textContent=txt;svg.appendChild(t);
+  }
+  function arrow(x1,y1,x2,y2,col){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke',col);l.setAttribute('stroke-width','1.4');l.setAttribute('marker-end','url(#pa)');svg.appendChild(l);
+  }
+  const defs=document.createElementNS(NS,'defs');
+  defs.innerHTML='<marker id="pa" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#63cfc0"/></marker>';
+  svg.appendChild(defs);
+  box(20,20,220,290,'#86a8f2','STACK — local references','one slot per variable');
+  box(280,20,340,290,'#f0b45f','STRING POOL','inside the heap since Java 7');
+  box(660,20,320,290,'#e8798a','HEAP — ordinary objects','never pooled');
+  const refs=[];c.objs.forEach(o=>o.refs.forEach(r=>{if(r!=='(unreachable)')refs.push({name:r,obj:o});}));
+  refs.forEach((r,i)=>{chip(40,60+i*46,r.name,'#86a8f2',80);});
+  const pool=c.objs.filter(o=>o.where==='pool'),heap=c.objs.filter(o=>o.where==='heap');
+  pool.forEach((o,i)=>{o.x=310;o.y=64+i*66;chip(o.x,o.y,'"'+o.val+'"','#f0b45f',150);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',o.x+4);t.setAttribute('y',o.y+46);t.setAttribute('fill','#6d76a0');t.setAttribute('font-size','10');
+    t.textContent='hash '+javaHash(o.val);svg.appendChild(t);});
+  heap.forEach((o,i)=>{o.x=690;o.y=64+i*66;
+    const un=o.refs[0]==='(unreachable)';
+    chip(o.x,o.y,'"'+o.val+'"','#e8798a',150);
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',o.x+4);t.setAttribute('y',o.y+46);t.setAttribute('fill','#6d76a0');t.setAttribute('font-size','10');
+    t.textContent=un?'no reference → garbage':'new String(...)';svg.appendChild(t);});
+  refs.forEach((r,i)=>{arrow(122,75+i*46,r.obj.x-4,r.obj.y+15,'#63cfc0');});
+  const o=mkOut();
+  o.dim('$ java PoolDemo');
+  c.code.forEach(l=>o.raw('<span class="info">'+esc(l)+'</span>'));
+  o.raw('');
+  o(c.eq?'a == b        → true':'a == b        → false');
+  o('a.equals(b)   → true');
+  o('objects holding "'+(c.objs[0].val)+'" : '+c.objs.filter(x=>x.val===c.objs[0].val).length);
+  o.info(c.why.replace(/<[^>]+>/g,''));
+  paint('poolOut',o);
+}
+document.getElementById('poolRun').addEventListener('click',poolRun);
+document.getElementById('poolCase').addEventListener('change',poolRun);
+poolRun();
+
+renderCode('code-eq',[
+'String a = "Gsec";',
+'String b = "Gsec";',
+'String c = new String("Gsec");',
+'',
+'System.out.println(a == b);          // true  — same pooled object',
+'System.out.println(a == c);          // false — different objects',
+'System.out.println(a.equals(c));     // true  — same characters',
+'System.out.println(a == c.intern()); // true  — intern returns the pooled one',
+'',
+'// the version that actually matters',
+'Scanner sc = new Scanner(System.in);',
+'String typed = sc.nextLine();        // built at runtime, never pooled',
+'if (typed == "Gsec")     { }         // ALWAYS false, even when it matches',
+'if (typed.equals("Gsec")){ }         // correct',
+'',
+'// null-safe form, worth the habit',
+'if ("Gsec".equals(typed)) { }        // no NullPointerException'
+]);
+renderCode('code-immut',[
+'String s = "Gsec";',
+'',
+'s.toUpperCase();                 // result thrown away!',
+'System.out.println(s);           // Gsec  — unchanged',
+'',
+'s = s.toUpperCase();             // reassign the reference',
+'System.out.println(s);           // GSEC',
+'',
+'String t = "  Sreekanth  ";',
+'System.out.println(t.trim().length());   // 9',
+'System.out.println(t.length());          // 13 — t itself never changed',
+'',
+'// every one of these returns a NEW String:',
+'// substring, replace, concat, toUpperCase, toLowerCase,',
+'// trim, strip, repeat, join, format'
+]);
+document.getElementById('runImmut').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java ImmutableDemo');
+  let s='Gsec';
+  s.toUpperCase();
+  o('s.toUpperCase(); then println(s) → '+s);
+  o.warn('   the uppercase String was created, never stored, and immediately became garbage');
+  s=s.toUpperCase();
+  o('s = s.toUpperCase(); println(s)  → '+s);
+  const t='  Sreekanth  ';
+  o('t.trim().length()  → '+t.trim().length);
+  o('t.length()         → '+t.length+'   (t itself is untouched)');
+  o.info('Nothing modified any String. Three String objects existed; the variable simply pointed somewhere new.');
+  paint('outImmut',o);
+});
+document.getElementById('runImmut').click();
+
+function concatRun(){
+  const n=parseInt(document.getElementById('concatN').value,10);
+  let strChars=0,strObjs=0,len=0;
+  for(let i=0;i<n;i++){const add=String(i%10);strChars+=len;len+=add.length;strChars+=add.length;strObjs+=2;}
+  const sb={cap:16,len:0,copies:0};
+  for(let i=0;i<n;i++){const add=String(i%10);
+    while(sb.len+add.length>sb.cap){sb.copies+=sb.len;sb.cap=(sb.cap<<1)+2;}
+    sb.len+=add.length;}
+  const sbChars=sb.copies+sb.len;
+  barChart('concatChart',[['s = s + x  (String)',strChars,'#e8798a'],['sb.append(x)  (StringBuilder)',sbChars,'#8fd6a3']],
+    'characters copied · '+n.toLocaleString()+' iterations','shorter bar = less work');
+  const o=mkOut();
+  o.dim('for (int i = 0; i < '+n+'; i++) { s = s + (i % 10); }        // vs sb.append(i % 10);');
+  o.fail('String  : '+strChars.toLocaleString()+' characters copied, ~'+strObjs.toLocaleString()+' temporary objects created');
+  o('Builder : '+sbChars.toLocaleString()+' characters copied, 1 object, '+(sb.cap>16?'grown to capacity '+sb.cap:'no growth')+'');
+  o.warn('the String version copied '+(strChars/Math.max(1,sbChars)).toFixed(1)+'× more characters');
+  o.info('Each  s = s + x  builds a whole new String from scratch, so the work grows with the square of the loop count. The builder writes into spare room and only copies when it grows — 5 or 6 times in total, whatever n is.');
+  o.dim('Note: a SINGLE  a + b + c  is fine — the compiler turns it into one builder. It is the LOOP that is fatal.');
+  paint('concatOut',o);
+}
+document.getElementById('concatN').addEventListener('input',()=>{document.getElementById('concatNv').textContent=document.getElementById('concatN').value;});
+document.getElementById('concatRun').addEventListener('click',concatRun);
+concatRun();
+</script>
+<script>
+/* ============ TAB 2 · the method engine ============ */
+function IOOB(msg){return {cls:'java.lang.StringIndexOutOfBoundsException',msg:msg};}
+const METHODS=[
+{n:'length()',a:[],ret:'int',d:'The number of characters. A field read on the internal array — O(1), not a count.',
+ run(s){return {r:s.length,marks:{},rs:null,log:[['d','length is stored, not counted — the internal array knows its own size'],['g','returns '+s.length]]};}},
+{n:'charAt(i)',a:['index'],ret:'char',d:'The character at that index. Valid range is 0 to length()-1.',
+ run(s,a){const i=+a;if(i<0||i>=s.length)throw IOOB('index '+i+', length '+s.length);
+   return {r:"'"+s[i]+"'",marks:{[i]:'hit'},rs:s[i],log:[['b','one array read at index '+i],['g',"returns '"+s[i]+"'"]]};}},
+{n:'indexOf(str)',a:['search'],ret:'int',d:'First index where the argument occurs, or -1. A linear scan.',
+ run(s,a){const q=String(a);const i=s.indexOf(q);const m={};
+   if(i>=0)for(let k=i;k<i+q.length;k++)m[k]='hit'; else for(let k=0;k<s.length;k++)m[k]='cut';
+   return {r:i,marks:m,rs:null,log:[['d','scanning left to right for "'+q+'"'],[i>=0?'g':'r','returns '+i+(i<0?'  (not found — note it is -1, not an exception)':'')]]};}},
+{n:'lastIndexOf(str)',a:['search'],ret:'int',d:'Same scan, from the right. Returns the last occurrence, or -1.',
+ run(s,a){const q=String(a);const i=s.lastIndexOf(q);const m={};
+   if(i>=0)for(let k=i;k<i+q.length;k++)m[k]='hit';
+   return {r:i,marks:m,rs:null,log:[['d','scanning right to left for "'+q+'"'],[i>=0?'g':'r','returns '+i]]};}},
+{n:'substring(begin)',a:['begin'],ret:'String',d:'From begin to the end. A NEW String — the original is untouched.',
+ run(s,a){const b=+a;if(b<0||b>s.length)throw IOOB('begin '+b+', length '+s.length);
+   const r=s.substring(b);const m={};for(let k=0;k<s.length;k++)m[k]=k<b?'cut':'rng';
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['d','copies indices '+b+' … '+(s.length-1)+' into a brand-new String'],['g','returns "'+r+'"  (length '+r.length+')']]};}},
+{n:'substring(begin, end)',a:['begin','end'],ret:'String',d:'From begin INCLUSIVE to end EXCLUSIVE. The off-by-one that catches everyone.',
+ run(s,a,b){const x=+a,y=+b;
+   if(x<0||y>s.length||x>y)throw IOOB('begin '+x+', end '+y+', length '+s.length);
+   const r=s.substring(x,y);const m={};for(let k=0;k<s.length;k++)m[k]=(k>=x&&k<y)?'rng':'cut';
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['d','begin '+x+' is INCLUDED, end '+y+' is EXCLUDED'],
+     ['c','so the length is end - begin = '+y+' - '+x+' = '+(y-x)],['g','returns "'+r+'"']]};}},
+{n:'toUpperCase()',a:[],ret:'String',d:'A new String with every letter uppercased. The original never changes.',
+ run(s){const r=s.toUpperCase();const m={};for(let k=0;k<s.length;k++)if(s[k]!==r[k])m[k]='chg';
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['d','builds a new char array, converting each letter'],['g','returns "'+r+'"'],['c','the original is still "'+s+'"']]};}},
+{n:'toLowerCase()',a:[],ret:'String',d:'The same in the other direction.',
+ run(s){const r=s.toLowerCase();const m={};for(let k=0;k<s.length;k++)if(s[k]!==r[k])m[k]='chg';
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['g','returns "'+r+'"']]};}},
+{n:'trim()',a:[],ret:'String',d:'Removes leading and trailing characters with a code <= U+0020. Not Unicode-aware.',
+ run(s){const r=s.replace(/^[\x00-\x20]+|[\x00-\x20]+$/g,'');const m={};
+   let i=0;while(i<s.length&&s.charCodeAt(i)<=32){m[i]='cut';i++;}
+   let j=s.length-1;while(j>=0&&s.charCodeAt(j)<=32){m[j]='cut';j--;}
+   for(let k=i;k<=j;k++)m[k]='rng';
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['d','cuts from both ENDS only — inner spaces are kept'],
+     ['g','returns "'+r+'"  (length '+s.length+' → '+r.length+')'],
+     ['c','strip() (Java 11) does the same but understands all Unicode whitespace']]};}},
+{n:'replace(old, new)',a:['old','new'],ret:'String',d:'Every literal occurrence swapped. LITERAL, not regex.',
+ run(s,a,b){const f=String(a),t=String(b);const r=s.split(f).join(t);const m={};
+   let idx=s.indexOf(f);while(idx>=0&&f){for(let k=idx;k<idx+f.length;k++)m[k]='chg';idx=s.indexOf(f,idx+f.length);}
+   return {r:'"'+r+'"',marks:m,rs:r,log:[['d','treats "'+f+'" as plain text — no regex meaning at all'],
+     ['g','returns "'+r+'"'],['c','replaceAll("'+f+'", ...) would treat it as a REGEX — see tab ④']]};}},
+{n:'contains(str)',a:['search'],ret:'boolean',d:'Shorthand for indexOf(str) >= 0.',
+ run(s,a){const q=String(a);const i=s.indexOf(q);const m={};if(i>=0)for(let k=i;k<i+q.length;k++)m[k]='hit';
+   return {r:i>=0,marks:m,rs:null,log:[['d','implemented as indexOf(s) > -1'],[i>=0?'g':'r','returns '+(i>=0)]]};}},
+{n:'startsWith(str)',a:['prefix'],ret:'boolean',d:'Compares only the first characters — cheaper than a full scan.',
+ run(s,a){const q=String(a);const ok=s.startsWith(q);const m={};for(let k=0;k<Math.min(q.length,s.length);k++)m[k]=ok?'hit':'cut';
+   return {r:ok,marks:m,rs:null,log:[['d','compares '+q.length+' character(s) and stops'],[ok?'g':'r','returns '+ok]]};}},
+{n:'endsWith(str)',a:['suffix'],ret:'boolean',d:'The same from the other end. Common for file extensions.',
+ run(s,a){const q=String(a);const ok=s.endsWith(q);const m={};
+   for(let k=Math.max(0,s.length-q.length);k<s.length;k++)m[k]=ok?'hit':'cut';
+   return {r:ok,marks:m,rs:null,log:[[ok?'g':'r','returns '+ok]]};}},
+{n:'equals(str)',a:['other'],ret:'boolean',d:'Length first, then character by character. The correct way to compare text.',
+ run(s,a){const q=String(a);const ok=s===q;const m={};
+   let i=0;while(i<Math.min(s.length,q.length)&&s[i]===q[i]){m[i]='hit';i++;}
+   if(!ok&&i<s.length)m[i]='cut';
+   return {r:ok,marks:m,rs:null,log:[['d','checks length first — different lengths return false with zero comparisons'],
+     ok?['g','returns true after comparing all '+s.length+' characters']
+       :['r','first mismatch at index '+i+' → returns false immediately']]};}},
+{n:'equalsIgnoreCase(str)',a:['other'],ret:'boolean',d:'Same, case-folded. The right tool for user input.',
+ run(s,a){const q=String(a);const ok=s.toLowerCase()===q.toLowerCase();
+   return {r:ok,marks:{},rs:null,log:[['d','compares character by character after folding case'],[ok?'g':'r','returns '+ok]]};}},
+{n:'compareTo(str)',a:['other'],ret:'int',d:'Not just -1/0/1 — the actual character difference at the first mismatch.',
+ run(s,a){const q=String(a);const n=Math.min(s.length,q.length);const m={};
+   for(let i=0;i<n;i++){if(s[i]!==q[i]){m[i]='cut';
+     const d=s.charCodeAt(i)-q.charCodeAt(i);
+     return {r:d,marks:m,rs:null,log:[['d','first difference at index '+i+": '"+s[i]+"' vs '"+q[i]+"'"],
+       ['c',"returns '"+s[i]+"' - '"+q[i]+"' = "+s.charCodeAt(i)+' - '+q.charCodeAt(i)+' = '+d],
+       ['g','returns '+d+'  → "'+s+'" comes '+(d<0?'BEFORE':'AFTER')+' "'+q+'"']]};}
+     m[i]='hit';}
+   const d=s.length-q.length;
+   return {r:d,marks:m,rs:null,log:[['d','one string is a prefix of the other — no character differs'],
+     ['c','returns the LENGTH difference: '+s.length+' - '+q.length+' = '+d],['g','returns '+d]]};}},
+{n:'concat(str)',a:['other'],ret:'String',d:'Appends and returns a new String. Unlike +, it throws on null.',
+ run(s,a){const q=String(a);const r=s+q;
+   return {r:'"'+r+'"',marks:{},rs:r,log:[['d','allocates a new array of '+s.length+' + '+q.length+' = '+r.length+' characters'],
+     ['g','returns "'+r+'"'],['c','s.concat(null) throws NullPointerException; s + null gives "'+s+'null"']]};}},
+{n:'isEmpty()',a:[],ret:'boolean',d:'length() == 0. A string of spaces is NOT empty.',
+ run(s){return {r:s.length===0,marks:{},rs:null,log:[['d','length() == 0'],['g','returns '+(s.length===0)],
+   ['c','isBlank() (Java 11) returns true for "   " as well — isEmpty() does not']]};}},
+{n:'isBlank()',a:[],ret:'boolean',d:'Java 11: empty OR only whitespace.',
+ run(s){const b=s.trim().length===0;return {r:b,marks:{},rs:null,log:[['g','returns '+b],['c','"   ".isEmpty() is false but "   ".isBlank() is true']]};}},
+{n:'repeat(n)',a:['count'],ret:'String',d:'Java 11: the string n times. Replaces a whole loop.',
+ run(s,a){const n=+a;if(n<0)throw {cls:'java.lang.IllegalArgumentException',msg:'count is negative: '+n};
+   const r=s.repeat(n);return {r:'"'+r+'"',marks:{},rs:r,log:[['g','returns a String of length '+s.length+' × '+n+' = '+r.length]]};}},
+{n:'split(regex)',a:['regex'],ret:'String[]',d:'Cuts on a REGEX. Trailing empties are discarded — see tab ④.',
+ run(s,a){const parts=javaSplit(s,String(a),0);
+   return {r:'['+parts.map(p=>'"'+p+'"').join(', ')+']',marks:{},rs:null,
+     log:[['d','regex "'+a+'" · '+parts.length+' piece(s)'],['g','returns '+parts.length+' element(s)'],
+       ['c','trailing empty strings are dropped unless you pass a negative limit']]};}},
+{n:'toCharArray()',a:[],ret:'char[]',d:'A copy of the characters as a mutable array — the escape hatch from immutability.',
+ run(s){return {r:'['+s.split('').join(', ')+']',marks:{},rs:s,
+   log:[['d','copies all '+s.length+' characters into a NEW array'],
+     ['g','the array is mutable — editing it does not touch the String'],
+     ['c','new String(chars) turns it back into a String']]};}},
+{n:'hashCode()',a:[],ret:'int',d:'s[0]*31^(n-1) + s[1]*31^(n-2) + … Computed once, then cached in the object.',
+ run(s){let h=0;const steps=[];
+   for(let i=0;i<Math.min(s.length,5);i++){h=(Math.imul(31,h)+s.charCodeAt(i))|0;steps.push("after '"+s[i]+"' → "+h);}
+   const full=javaHash(s);
+   return {r:full,marks:{},rs:null,log:[['d','h = 31*h + charAt(i), for every character']].concat(
+     steps.map(t=>['c',t])).concat([[ 'd',s.length>5?'… '+(s.length-5)+' more character(s)':''],['g','returns '+full],
+     ['c','cached after the first call — which is only safe because the String can never change']])};}},
+{n:'chars() / codePointAt(i)',a:['index'],ret:'int',d:'The numeric code of a character.',
+ run(s,a){const i=+a;if(i<0||i>=s.length)throw IOOB('index '+i+', length '+s.length);
+   return {r:s.codePointAt(i),marks:{[i]:'hit'},rs:null,
+     log:[['g',"'"+s[i]+"' has code "+s.codePointAt(i)+'  (U+'+s.codePointAt(i).toString(16).toUpperCase().padStart(4,'0')+')'],
+       ['c','chars() gives an IntStream of all of them']]};}}
+];
+let curM=0;
+(function(){
+  const host=document.getElementById('methodIndex');
+  METHODS.forEach((m,i)=>{
+    const b=document.createElement('button');
+    b.className='mbtn'+(i===0?' on':'');b.type='button';b.textContent=m.n;
+    b.addEventListener('click',()=>{curM=i;
+      host.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      const l1=document.getElementById('mA1L'),l2=document.getElementById('mA2L');
+      l1.textContent=m.a[0]||'—';l2.textContent=m.a[1]||'—';
+      document.getElementById('mA1').disabled=!m.a[0];
+      document.getElementById('mA2').disabled=!m.a[1];
+      mRun();});
+    host.appendChild(b);
+  });
+  const tbl=document.getElementById('methodTable');
+  let rows='<tr><th>Method</th><th>Returns</th><th>What it does</th></tr>';
+  METHODS.forEach(m=>{rows+='<tr><td>'+esc(m.n)+'</td><td>'+m.ret+'</td><td>'+m.d+'</td></tr>';});
+  rows+='<tr><td>String.join(sep, ...)</td><td>String</td><td>Static. Joins any Iterable or varargs with a separator — the readable opposite of split.</td></tr>';
+  rows+='<tr><td>String.format(fmt, ...)</td><td>String</td><td>Static. printf-style: <code>%s %d %.2f %-10s %05d</code>.</td></tr>';
+  rows+='<tr><td>String.valueOf(x)</td><td>String</td><td>Static. Any type to String, and null-safe unlike <code>x.toString()</code>.</td></tr>';
+  rows+='<tr><td>matches(regex)</td><td>boolean</td><td>Does the WHOLE string match the pattern? Not a search — an exact match.</td></tr>';
+  rows+='<tr><td>intern()</td><td>String</td><td>Returns the pooled instance with the same content, adding it if absent.</td></tr>';
+  rows+='<tr><td>strip() / stripLeading() / stripTrailing()</td><td>String</td><td>Java 11. Like trim but Unicode-aware.</td></tr>';
+  rows+='<tr><td>lines()</td><td>Stream&lt;String&gt;</td><td>Java 11. Splits on line terminators — perfect for a file read as one string.</td></tr>';
+  tbl.innerHTML=rows;
+})();
+function mRun(){
+  const m=METHODS[curM];
+  const s=document.getElementById('mSrc').value;
+  const a1=document.getElementById('mA1').value,a2=document.getElementById('mA2').value;
+  const o=mkOut();
+  let res=null;
+  try{res=m.run(s,a1,a2);}catch(e){
+    chStrip('mChars',s,{});chStrip('mResult','',{});
+    document.getElementById('mLog').innerHTML=
+      '<span class="d">"'+esc(s)+'".'+esc(m.n)+'</span>\n<span class="r">'+esc(e.cls+': '+e.msg)+'</span>';
+    return;}
+  chStrip('mChars',s,res.marks);
+  chStrip('mResult',res.rs===null?'':res.rs,{});
+  let html='<span class="d">"'+esc(s)+'".'+esc(m.n)+'   →   '+m.ret+'</span>\n';
+  res.log.forEach(([c,t])=>{if(t)html+='<span class="'+c+'">'+esc(t)+'</span>\n';});
+  html+='<span class="b">result → '+esc(String(res.r))+'</span>';
+  document.getElementById('mLog').innerHTML=html;
+}
+document.getElementById('mRun').addEventListener('click',mRun);
+mRun();
+</script>
+<script>
+/* ============ TAB 3 · StringBuilder model ============ */
+function SB(init){
+  if(typeof init==='string'){this.buf=init.split('');this.cap=init.length+16;}
+  else {this.buf=[];this.cap=init||16;}
+  this.grows=0;this.copies=0;this.log=[];this.marks={};
+}
+SB.prototype.say=function(t,c){this.log.push('<span class="'+(c||'d')+'">'+esc(t)+'</span>');};
+SB.prototype.len=function(){return this.buf.length;};
+SB.prototype.ensure=function(min){
+  if(min<=this.cap)return;
+  const old=this.cap;
+  let nc=(this.cap<<1)+2;
+  if(nc<min)nc=min;
+  this.copies+=this.buf.length;this.grows++;this.cap=nc;
+  this.say('grow: capacity '+old+' → '+nc+'   ((old << 1) + 2), '+this.buf.length+' characters copied to the new array','c');
+};
+SB.prototype.append=function(s){this.marks={};
+  const before=this.buf.length;
+  this.ensure(this.buf.length+s.length);
+  s.split('').forEach(c=>this.buf.push(c));
+  for(let i=before;i<this.buf.length;i++)this.marks[i]='chg';
+  this.say('append("'+s+'") → wrote '+s.length+' char(s) into the spare room. length '+before+' → '+this.buf.length+', capacity '+this.cap+'. NO new object','g');
+  return this;};
+SB.prototype.insert=function(i,s){this.marks={};
+  if(i<0||i>this.buf.length)throw IOOB('offset '+i+', length '+this.buf.length);
+  this.ensure(this.buf.length+s.length);
+  const moved=this.buf.length-i;
+  this.buf.splice(i,0,...s.split(''));
+  for(let k=i;k<i+s.length;k++)this.marks[k]='chg';
+  for(let k=i+s.length;k<this.buf.length;k++)this.marks[k]='rng';
+  this.say('insert('+i+', "'+s+'") → shifted '+moved+' char(s) right, then wrote at '+i,'c');
+  return this;};
+SB.prototype.deleteCharAt=function(i){this.marks={};
+  if(i<0||i>=this.buf.length)throw IOOB('index '+i+', length '+this.buf.length);
+  const c=this.buf[i];this.buf.splice(i,1);
+  this.say('deleteCharAt('+i+") → removed '"+c+"', shifted "+(this.buf.length-i)+' char(s) left. capacity STILL '+this.cap,'r');
+  return this;};
+SB.prototype.setCharAt=function(i,c){this.marks={};
+  if(i<0||i>=this.buf.length)throw IOOB('index '+i+', length '+this.buf.length);
+  const old=this.buf[i];this.buf[i]=c[0];this.marks[i]='chg';
+  this.say("setCharAt("+i+", '"+c[0]+"') → overwrote '"+old+"' IN PLACE. Returns void, unlike everything else",'b');
+  return this;};
+SB.prototype.reverse=function(){this.marks={};this.buf.reverse();
+  for(let i=0;i<this.buf.length;i++)this.marks[i]='chg';
+  this.say('reverse() → swapped in place, no copy, no new object. This is the palindrome one-liner','g');
+  return this;};
+SB.prototype.setLength=function(n){this.marks={};
+  const old=this.buf.length;
+  if(n<0)throw {cls:'java.lang.StringIndexOutOfBoundsException',msg:'newLength '+n};
+  if(n<old){this.buf=this.buf.slice(0,n);this.say('setLength('+n+') → truncated from '+old+' to '+n,'r');}
+  else{this.ensure(n);while(this.buf.length<n)this.buf.push('\u0000');
+    this.say('setLength('+n+') → padded from '+old+' to '+n+" with '\\0' — the null character, which prints as nothing",'c');}
+  return this;};
+SB.prototype.trim=function(){this.marks={};const old=this.cap;this.cap=this.buf.length;
+  this.say('trimToSize() → capacity '+old+' → '+this.cap+'. The only way it ever shrinks','m');return this;};
+SB.prototype.str=function(){return this.buf.join('');};
+const sbuf=new SB('Gsec');
+function sbRender(){
+  const s=sbuf.str();
+  const host=document.getElementById('sbChars');host.innerHTML='';
+  for(let i=0;i<sbuf.cap;i++){
+    const d=document.createElement('div');
+    const used=i<sbuf.buf.length;
+    d.className='ch'+(used?(sbuf.marks[i]?' '+sbuf.marks[i]:''):' spare');
+    let c=used?sbuf.buf[i]:'·';
+    if(c===' ')c='␣';if(c==='\u0000')c='\\0';
+    d.innerHTML='<span class="i">'+i+'</span><span class="c">'+esc(c)+'</span>';
+    host.appendChild(d);
+  }
+  document.getElementById('sbMetrics').innerHTML=
+    '<span class="metric">length() <b>'+sbuf.buf.length+'</b></span>'+
+    '<span class="metric">capacity() <b>'+sbuf.cap+'</b></span>'+
+    '<span class="metric">spare <b>'+(sbuf.cap-sbuf.buf.length)+'</b></span>'+
+    '<span class="metric">grow events <b>'+sbuf.grows+'</b></span>'+
+    '<span class="metric">chars copied by growth <b>'+sbuf.copies+'</b></span>'+
+    '<span class="metric">objects created <b>1</b></span>';
+  document.getElementById('sbLog').innerHTML=sbuf.log.join('\n')+
+    '\n<span class="b">toString() → "'+esc(s)+'"</span>';
+}
+function sbDo(fn){sbuf.log=[];try{fn();}catch(e){sbuf.log=['<span class="r">'+esc(e.cls+': '+e.msg)+'</span>'];}sbRender();}
+const sbV=()=>document.getElementById('sbVal').value||'x';
+const sbI=()=>parseInt(document.getElementById('sbIdx').value,10)||0;
+document.getElementById('sbAppend').addEventListener('click',()=>sbDo(()=>sbuf.append(sbV())));
+document.getElementById('sbInsert').addEventListener('click',()=>sbDo(()=>sbuf.insert(sbI(),sbV())));
+document.getElementById('sbDelete').addEventListener('click',()=>sbDo(()=>sbuf.deleteCharAt(sbI())));
+document.getElementById('sbReplace').addEventListener('click',()=>sbDo(()=>sbuf.setCharAt(sbI(),sbV())));
+document.getElementById('sbReverse').addEventListener('click',()=>sbDo(()=>sbuf.reverse()));
+document.getElementById('sbSetLen').addEventListener('click',()=>sbDo(()=>sbuf.setLength(sbI())));
+document.getElementById('sbTrim').addEventListener('click',()=>sbDo(()=>sbuf.trim()));
+document.getElementById('sbGrow').addEventListener('click',()=>sbDo(()=>{
+  const g=sbuf.grows;let n=0;
+  while(sbuf.grows===g&&n<400){sbuf.append('x');n++;}
+  const grew=sbuf.log.filter(l=>/grow/.test(l));
+  sbuf.log=['<span class="d">appended "x" '+n+' time(s) until the array filled up</span>'].concat(grew);
+}));
+document.getElementById('sbClear').addEventListener('click',()=>sbDo(()=>{
+  sbuf.buf='Gsec'.split('');sbuf.cap=20;sbuf.grows=0;sbuf.copies=0;sbuf.marks={};
+  sbuf.say('new StringBuilder("Gsec") → capacity = 4 + 16 = 20','d');}));
+sbDo(()=>sbuf.say('new StringBuilder("Gsec") → length 4, capacity 4 + 16 = 20','d'));
+
+renderCode('code-sb3',[
+'// 1 · String — every edit is a new object',
+'String s = "Gsec";',
+'s = s + " 2026";            // new String, old one becomes garbage',
+'',
+'// 2 · StringBuilder — mutable, fast, NOT thread-safe',
+'StringBuilder sb = new StringBuilder("Gsec");   // capacity 4 + 16 = 20',
+'sb.append(" 2026")          // writes into the spare room',
+'  .append(" CSE")           // append returns THIS, so calls chain',
+'  .insert(0, ">> ")',
+'  .reverse();',
+'String out = sb.toString(); // ONE new String, at the end',
+'',
+'// 3 · StringBuffer — identical API, every method synchronized',
+'StringBuffer buf = new StringBuffer("Gsec");',
+'buf.append(" 2026");        // acquires the object monitor first',
+'',
+'// capacity is visible, and only on the builders',
+'System.out.println(sb.length() + " / " + sb.capacity());',
+'// String has length() but NO capacity() — nothing to spare'
+]);
+
+/* ============ TAB 4 · manipulation ============ */
+function javaSplit(s,re,limit){
+  // faithful java.lang.String.split: build with a JS regex, then apply Java's trailing rule
+  let rx;
+  try{rx=new RegExp(re.replace(/\\\\/g,'\\'));}catch(e){return null;}
+  let parts;
+  if(re===''){parts=s.split('');}
+  else{
+    parts=[];let rest=s,guard=0;
+    const g=new RegExp(rx.source,'g');
+    let last=0,m;
+    if(limit>0){
+      let count=0;
+      while(count<limit-1&&(m=g.exec(s))!==null){
+        if(m.index===g.lastIndex)g.lastIndex++;
+        if(m[0]===''&&m.index===0)continue;
+        parts.push(s.slice(last,m.index));last=m.index+(m[0].length||1);count++;
+      }
+      parts.push(s.slice(last));
+      return parts;
+    }
+    while((m=g.exec(s))!==null&&guard++<10000){
+      if(m[0]===''){if(g.lastIndex>=s.length)break;g.lastIndex++;continue;}
+      parts.push(s.slice(last,m.index));last=m.index+m[0].length;
+    }
+    parts.push(s.slice(last));
+  }
+  if(limit===0){while(parts.length&&parts[parts.length-1]==='')parts.pop();}
+  return parts;
+}
+function spRun(){
+  const s=document.getElementById('spSrc').value;
+  const re=document.getElementById('spRe').value;
+  const lim=parseInt(document.getElementById('spLim').value,10)||0;
+  const o=mkOut();
+  o.dim('"'+s+'".split("'+re+'"'+(lim!==0?', '+lim:'')+')');
+  const parts=javaSplit(s,re,lim);
+  if(parts===null){o.fail('java.util.regex.PatternSyntaxException — that is not a valid regex');paint('spOut',o);return;}
+  o('length : '+parts.length);
+  parts.forEach((p,i)=>o('  ['+i+'] "'+p+'"'+(p===''?'   ← empty string, still an element':'')));
+  const raw=javaSplit(s,re,-1);
+  if(lim===0&&raw&&raw.length>parts.length)
+    o.warn((raw.length-parts.length)+' trailing empty string(s) were DISCARDED. With limit = -1 you would get '+raw.length+' elements.');
+  if(re==='.'&&!/\\/.test(re))
+    o.fail('"." is a regex wildcard meaning "any character", so every character is a separator and every piece is empty — then all the trailing empties are dropped, leaving an EMPTY array. To split on a real dot, write split("\\\\.").');
+  if(re==='')o.info('split("") gives one element per character. Since Java 8 there is no leading empty string; in Java 7 there was.');
+  if(lim>0)o.info('A positive limit means "at most this many pieces" — the last element keeps the whole remainder, separators included. This is the trick for parsing key=value where the value may contain "=".');
+  if(lim<0)o.info('A negative limit means "no limit, and keep every trailing empty". Use it whenever the empty fields matter — a CSV row with missing values, for instance.');
+  paint('spOut',o);
+}
+function spSet(s,re,l){document.getElementById('spSrc').value=s;document.getElementById('spRe').value=re;
+  document.getElementById('spLim').value=l;spRun();}
+document.getElementById('spRun').addEventListener('click',spRun);
+document.getElementById('spP1').addEventListener('click',()=>spSet('101,Sreekanth,,,',',',0));
+document.getElementById('spP2').addEventListener('click',()=>spSet(',Sreekanth,Dell',',',0));
+document.getElementById('spP3').addEventListener('click',()=>spSet('101,Sreekanth,,,',',',-1));
+document.getElementById('spP4').addEventListener('click',()=>spSet('note=a=b=c','=',2));
+document.getElementById('spP5').addEventListener('click',()=>spSet('a.b.c','.',0));
+document.getElementById('spP6').addEventListener('click',()=>spSet('Gsec','',0));
+document.getElementById('spP7').addEventListener('click',()=>spSet('Java   has  many   spaces','\\\\s+',0));
+spRun();
+
+document.getElementById('rpRun').addEventListener('click',()=>{
+  const s=document.getElementById('rpSrc').value,f=document.getElementById('rpFind').value,w=document.getElementById('rpWith').value;
+  const o=mkOut();
+  o.dim('the string : "'+s+'"');
+  o('replace("'+f+'", "'+w+'")      → "'+s.split(f).join(w)+'"   (literal)');
+  let ra='(invalid regex)',rf='(invalid regex)';
+  try{ra=s.replace(new RegExp(f.replace(/\\\\/g,'\\'),'g'),w);rf=s.replace(new RegExp(f.replace(/\\\\/g,'\\')),w);}catch(e){}
+  o.warn('replaceAll("'+f+'", "'+w+'")   → "'+ra+'"   (regex, every match)');
+  o.warn('replaceFirst("'+f+'", "'+w+'") → "'+rf+'"   (regex, first match only)');
+  if(f==='.')o.fail('With find = "." the regex versions replace EVERY character, because "." matches anything. replace() is literal and only touches real dots.');
+  o.info('None of the three modified the original — all return new Strings. "'+s+'" is still "'+s+'".');
+  paint('rpOut',o);
+});
+document.getElementById('rpRun').click();
+
+renderCode('code-concat',[
+'String a = "Gsec", b = "2026";',
+'',
+'a + " " + b            // + operator — handles null, becomes "null"',
+'a.concat(" ").concat(b) // method — throws NPE on null',
+'',
+'String.join("-", "101", "Sreekanth", "Dell")   // 101-Sreekanth-Dell',
+'String.join(", ", listOfNames)                 // works on any Iterable',
+'',
+'String.format("%-10s %3d %.2f", "Sreekanth", 17, 8.456)',
+'// "Sreekanth   17 8.46"   %-10s = left-pad to 10, %.2f = 2 decimals',
+'',
+'new StringBuilder().append(a).append(" ").append(b).toString()',
+'',
+'"line1\\n" + "line2"      // or, Java 15+: a text block """ ... """'
+]);
+document.getElementById('runConcat').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java Joining');
+  const a='Gsec',b='2026';
+  o('a + " " + b                     → "'+(a+' '+b)+'"');
+  o('a.concat(" ").concat(b)         → "'+(a+' '+b)+'"');
+  o('a + null                        → "'+(a+'null')+'"   ← the + operator prints the word null');
+  o.fail('a.concat(null)                  → NullPointerException');
+  o('String.join("-", 101, name, laptop) → "101-Sreekanth-Dell"');
+  const nm='Sreekanth';
+  o('String.format("%-10s %3d %.2f") → "'+nm.padEnd(10,' ')+' '+String(17).padStart(3,' ')+' '+(8.456).toFixed(2)+'"');
+  o.info('%-10s left-aligns in 10 columns, %3d right-aligns in 3, %.2f rounds to two decimals. This is how you line up a report without counting spaces.');
+  paint('outConcat',o);
+});
+document.getElementById('runConcat').click();
+
+function cmpRun(){
+  const a=document.getElementById('cmpA').value,b=document.getElementById('cmpB').value;
+  const o=mkOut();
+  o.dim('a = "'+a+'"   b = "'+b+'"');
+  o('a == b                  → false   (different objects unless both are the same literal)');
+  o('a.equals(b)             → '+(a===b));
+  o('a.equalsIgnoreCase(b)   → '+(a.toLowerCase()===b.toLowerCase()));
+  const n=Math.min(a.length,b.length);let i=0,d=null;
+  while(i<n){if(a[i]!==b[i]){d=a.charCodeAt(i)-b.charCodeAt(i);break;}i++;}
+  if(d===null)d=a.length-b.length;
+  o('a.compareTo(b)          → '+d);
+  if(i<n&&a[i]!==b[i])o.info("first difference at index "+i+": '"+a[i]+"' ("+a.charCodeAt(i)+") vs '"+b[i]+"' ("+b.charCodeAt(i)+")  →  "+a.charCodeAt(i)+" - "+b.charCodeAt(i)+" = "+d);
+  else o.info('no character differs — one is a prefix of the other, so compareTo returns the length difference '+a.length+' - '+b.length+' = '+d);
+  o('a.compareToIgnoreCase(b) → '+(a.toLowerCase()<b.toLowerCase()?-1:a.toLowerCase()>b.toLowerCase()?1:0)+'   (sign only shown)');
+  o(d===0?'→ equal':(d<0?'→ "'+a+'" sorts BEFORE "'+b+'"':'→ "'+a+'" sorts AFTER "'+b+'"'));
+  o.warn('Uppercase letters have LOWER codes than lowercase ones (A=65, a=97), so "Zebra" sorts before "apple" in a plain compareTo. Use compareToIgnoreCase for human-friendly ordering.');
+  paint('cmpOut',o);
+}
+document.getElementById('cmpRun').addEventListener('click',cmpRun);
+document.getElementById('cmpP1').addEventListener('click',()=>{document.getElementById('cmpA').value='Sreekanth';document.getElementById('cmpB').value='Sreekanth';cmpRun();});
+document.getElementById('cmpP2').addEventListener('click',()=>{document.getElementById('cmpA').value='Sreekanth';document.getElementById('cmpB').value='sreekanth';cmpRun();});
+document.getElementById('cmpP3').addEventListener('click',()=>{document.getElementById('cmpA').value='Apple';document.getElementById('cmpB').value='Banana';cmpRun();});
+document.getElementById('cmpP4').addEventListener('click',()=>{document.getElementById('cmpA').value='Gsec';document.getElementById('cmpB').value='Gsec2026';cmpRun();});
+cmpRun();
+</script>
+<script>
+/* ============ TAB 5 · dates ============ */
+const MON=['January','February','March','April','May','June','July','August','September','October','November','December'];
+const DOW=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+function daysInMonth(y,m){return [31,(y%4===0&&y%100!==0)||y%400===0?29:28,31,30,31,30,31,31,30,31,30,31][m-1];}
+function dowOf(y,m,d){return new Date(Date.UTC(y,m-1,d)).getUTCDay();}
+function dayOfYear(y,m,d){let n=d;for(let k=1;k<m;k++)n+=daysInMonth(y,k);return n;}
+function isoWeekYear(y,m,d){
+  const dt=new Date(Date.UTC(y,m-1,d));
+  const day=(dt.getUTCDay()+6)%7;              // Mon=0
+  dt.setUTCDate(dt.getUTCDate()-day+3);        // Thursday of this ISO week
+  return dt.getUTCFullYear();
+}
+function isoWeek(y,m,d){
+  const dt=new Date(Date.UTC(y,m-1,d));
+  const day=(dt.getUTCDay()+6)%7;
+  dt.setUTCDate(dt.getUTCDate()-day+3);
+  const jan4=new Date(Date.UTC(dt.getUTCFullYear(),0,4));
+  const j4day=(jan4.getUTCDay()+6)%7;
+  jan4.setUTCDate(jan4.getUTCDate()-j4day+3);
+  return 1+Math.round((dt-jan4)/(7*86400000));
+}
+const PAD=(v,n)=>String(v).padStart(n,'0');
+function javaFormat(y,mo,d,h,mi,s,pat){
+  let out='',used=[];
+  let i=0;
+  while(i<pat.length){
+    const c=pat[i];
+    if(c==="'"){ // quoted literal
+      let j=i+1,lit='';
+      while(j<pat.length&&pat[j]!=="'"){lit+=pat[j];j++;}
+      if(lit==='')lit="'";
+      out+=lit;i=j+1;continue;}
+    if(!/[a-zA-Z]/.test(c)){out+=c;i++;continue;}
+    let n=0;while(i+n<pat.length&&pat[i+n]===c)n++;
+    const run=c.repeat(n);
+    switch(c){
+      case 'y': out+=(n===2?PAD(y%100,2):PAD(y,n)); used.push([run,'year']); break;
+      case 'u': out+=PAD(y,n); used.push([run,'year (ISO proleptic)']); break;
+      case 'Y': {const wy=isoWeekYear(y,mo,d);out+=(n===2?PAD(wy%100,2):PAD(wy,n));
+                 used.push([run,'WEEK-BASED year'+(wy!==y?' ← differs from yyyy here!':'')]);break;}
+      case 'M': out+=(n>=4?MON[mo-1]:n===3?MON[mo-1].slice(0,3):PAD(mo,n)); used.push([run,'month']); break;
+      case 'L': out+=(n>=4?MON[mo-1]:n===3?MON[mo-1].slice(0,3):PAD(mo,n)); used.push([run,'month (standalone)']); break;
+      case 'd': out+=PAD(d,n); used.push([run,'day of month']); break;
+      case 'D': out+=PAD(dayOfYear(y,mo,d),n); used.push([run,'day of YEAR']); break;
+      case 'E': {const w=DOW[dowOf(y,mo,d)];out+=(n>=4?w:w.slice(0,3));used.push([run,'day of week']);break;}
+      case 'H': out+=PAD(h,n); used.push([run,'hour 0-23']); break;
+      case 'k': out+=PAD(h===0?24:h,n); used.push([run,'hour 1-24']); break;
+      case 'h': out+=PAD(h%12===0?12:h%12,n); used.push([run,'hour 1-12']); break;
+      case 'K': out+=PAD(h%12,n); used.push([run,'hour 0-11']); break;
+      case 'm': out+=PAD(mi,n); used.push([run,'MINUTE']); break;
+      case 's': out+=PAD(s,n); used.push([run,'second']); break;
+      case 'S': out+=PAD(0,n); used.push([run,'fraction of a second']); break;
+      case 'a': out+=(h<12?'AM':'PM'); used.push([run,'AM/PM']); break;
+      case 'w': out+=PAD(isoWeek(y,mo,d),n); used.push([run,'week of year']); break;
+      case 'z': case 'Z': case 'X': out+=(c==='Z'?'+0530':'IST'); used.push([run,'time zone']); break;
+      default: out+=run; used.push([run,'not a pattern letter — passed through']);
+    }
+    i+=n;
+  }
+  return {out:out,used:used};
+}
+function dtRun(){
+  const ds=document.getElementById('dtDate').value.split('-').map(Number);
+  const ts=document.getElementById('dtTime').value.split(':').map(Number);
+  const pat=document.getElementById('dtPat').value;
+  const [y,mo,d]=[ds[0]||2026,ds[1]||1,ds[2]||1];
+  const [h,mi,s]=[ts[0]||0,ts[1]||0,ts[2]||0];
+  const o=mkOut();
+  if(mo<1||mo>12||d<1||d>daysInMonth(y,mo)){o.fail('that is not a real date');paint('dtOut',o);return;}
+  const r=javaFormat(y,mo,d,h,mi,s,pat);
+  o.dim('LocalDateTime dt = LocalDateTime.of('+y+', '+mo+', '+d+', '+h+', '+mi+', '+s+');');
+  o.dim('dt.format(DateTimeFormatter.ofPattern("'+pat+'"))');
+  o.raw('');
+  o('→  '+r.out);
+  o.raw('');
+  o.dim('how each pattern letter was read:');
+  r.used.forEach(([run,mean])=>o('   '+run.padEnd(6,' ')+' = '+mean,/differs|MINUTE|YEAR/.test(mean)?'warn':'out'));
+  if(/mm/.test(pat)&&!/MM/.test(pat)&&!/:/.test(pat))
+    o.fail('This pattern has lowercase mm and no time separator — you almost certainly meant MM for the month. It printed the minute ('+PAD(mi,2)+') instead.');
+  const wy=isoWeekYear(y,mo,d);
+  if(/Y/.test(pat)&&wy!==y)
+    o.fail('Capital Y gave '+wy+' where lowercase y gives '+y+'. This is the week-based year, and it is why YYYY breaks once a year, at the end of December.');
+  o.dim('the same thing with the legacy API: new SimpleDateFormat("'+pat+'").format(date)');
+  paint('dtOut',o);
+}
+document.getElementById('dtRun').addEventListener('click',dtRun);
+function dtSet(p,dd,tt){document.getElementById('dtPat').value=p;
+  if(dd)document.getElementById('dtDate').value=dd;
+  if(tt)document.getElementById('dtTime').value=tt;dtRun();}
+document.getElementById('dtP1').addEventListener('click',()=>dtSet('dd/MM/yyyy'));
+document.getElementById('dtP2').addEventListener('click',()=>dtSet('dd-MMM-yyyy'));
+document.getElementById('dtP3').addEventListener('click',()=>dtSet('EEEE, d MMMM yyyy'));
+document.getElementById('dtP4').addEventListener('click',()=>dtSet('yyyy-MM-dd HH:mm:ss'));
+document.getElementById('dtP5').addEventListener('click',()=>dtSet('hh:mm a','2026-07-14','17:45:00'));
+document.getElementById('dtP6').addEventListener('click',()=>dtSet('dd/mm/yyyy','2026-07-14','09:05:07'));
+document.getElementById('dtP7').addEventListener('click',()=>dtSet('YYYY-MM-dd','2025-12-29','10:00:00'));
+dtRun();
+
+function psRun(){
+  const txt=document.getElementById('psSrc').value,pat=document.getElementById('psPat').value;
+  const o=mkOut();
+  o.dim('LocalDate.parse("'+txt+'", DateTimeFormatter.ofPattern("'+pat+'"))');
+  // build a matcher from the pattern
+  const fields=[];let rx='';let i=0,ok=true;
+  while(i<pat.length){
+    const c=pat[i];
+    if(!/[a-zA-Z]/.test(c)){rx+=c.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');i++;continue;}
+    let n=0;while(i+n<pat.length&&pat[i+n]===c)n++;
+    if('yMdHhms'.includes(c)){rx+='(\\d{1,'+Math.max(n,4)+'})';fields.push(c);}
+    else if(c==='M'){rx+='(\\w+)';fields.push(c);}
+    else {ok=false;}
+    i+=n;
+  }
+  if(!ok){o.fail('this playground handles numeric patterns only — try dd/MM/yyyy or yyyy-MM-dd');paint('psOut',o);return;}
+  const m=new RegExp('^'+rx+'$').exec(txt);
+  if(!m){
+    o.fail('Exception in thread "main" java.time.format.DateTimeParseException:');
+    o.fail('  Text \''+txt+'\' could not be parsed at index 0');
+    o.warn('The text does not match the pattern. Parsing is strict: "14/07/2026" will not parse with "yyyy-MM-dd", and it will not guess.');
+    o.info('This is the single most common runtime exception when reading dates from a file. Validate, or catch DateTimeParseException and skip the row.');
+    paint('psOut',o);return;
+  }
+  const v={};fields.forEach((f,k)=>v[f]=parseInt(m[k+1],10));
+  const y=v.y||2026,mo=v.M||1,d=v.d||1;
+  o('matched : '+fields.map((f,k)=>f+' = '+m[k+1]).join(', '));
+  if(mo<1||mo>12){
+    o.fail('Exception in thread "main" java.time.format.DateTimeParseException:');
+    o.fail("  Invalid value for MonthOfYear (valid values 1 - 12): "+mo);
+    o.warn('The text matched the shape but the value is impossible. java.time refuses; SimpleDateFormat would have silently rolled it over into the next year.');
+    paint('psOut',o);return;}
+  if(d<1||d>daysInMonth(y,mo)){
+    o.fail('Exception in thread "main" java.time.format.DateTimeParseException:');
+    o.fail('  Invalid date \''+MON[mo-1].toUpperCase()+' '+d+'\''+(mo===2&&d===29?" as '"+y+"' is not a leap year":''));
+    o.warn(MON[mo-1]+' '+y+' has only '+daysInMonth(y,mo)+' days.');
+    o.info('SimpleDateFormat with lenient parsing (the default!) would have accepted this and rolled it forward — one of the strongest reasons to prefer java.time.');
+    paint('psOut',o);return;}
+  o('→ LocalDate  '+y+'-'+PAD(mo,2)+'-'+PAD(d,2));
+  o('   toString() gives the ISO form, always: '+y+'-'+PAD(mo,2)+'-'+PAD(d,2));
+  o('   getDayOfWeek()  → '+DOW[dowOf(y,mo,d)].toUpperCase());
+  o('   getDayOfYear()  → '+dayOfYear(y,mo,d));
+  o('   isLeapYear()    → '+(((y%4===0&&y%100!==0)||y%400===0)));
+  o.info('Round trip: parse turns text into a real date object, format turns it back into whatever text you need. The object in between is what you do arithmetic on.');
+  paint('psOut',o);
+}
+document.getElementById('psRun').addEventListener('click',psRun);
+document.getElementById('psP1').addEventListener('click',()=>{document.getElementById('psSrc').value='2026-07-14';
+  document.getElementById('psPat').value='yyyy-MM-dd';psRun();});
+document.getElementById('psP2').addEventListener('click',()=>{document.getElementById('psSrc').value='14/07/2026';
+  document.getElementById('psPat').value='yyyy-MM-dd';psRun();});
+document.getElementById('psP3').addEventListener('click',()=>{document.getElementById('psSrc').value='29/02/2026';
+  document.getElementById('psPat').value='dd/MM/yyyy';psRun();});
+document.getElementById('psP4').addEventListener('click',()=>{document.getElementById('psSrc').value='14/07/2026 extra';
+  document.getElementById('psPat').value='dd/MM/yyyy';psRun();});
+psRun();
+
+renderCode('code-jt',[
+'import java.time.*;',
+'import java.time.format.*;',
+'',
+'// String  ->  date',
+'LocalDate dob = LocalDate.parse("2009-11-20");            // ISO needs no formatter',
+'',
+'DateTimeFormatter IN = DateTimeFormatter.ofPattern("dd/MM/yyyy");',
+'LocalDate joined = LocalDate.parse("14/07/2026", IN);',
+'',
+'// date  ->  String',
+'DateTimeFormatter OUT = DateTimeFormatter.ofPattern("dd-MMM-yyyy");',
+'System.out.println(joined.format(OUT));      // 14-Jul-2026',
+'',
+'// arithmetic, which is the whole point of having an object',
+'LocalDate today = LocalDate.now();',
+'int age  = Period.between(dob, today).getYears();',
+'long days = ChronoUnit.DAYS.between(dob, today);',
+'boolean adult = !dob.isAfter(today.minusYears(18));',
+'',
+'joined.plusDays(90);  joined.getDayOfWeek();  joined.isLeapYear();',
+'',
+'// and the safety net',
+'try { LocalDate.parse(row, IN); }',
+'catch (DateTimeParseException e) { System.out.println("bad date: " + row); }'
+]);
+renderCode('code-sdf',[
+'import java.text.SimpleDateFormat;',
+'import java.util.Date;',
+'import java.util.Calendar;',
+'',
+'SimpleDateFormat f = new SimpleDateFormat("dd/MM/yyyy");',
+'',
+'String  text = f.format(new Date());        // date  -> String',
+'Date    d    = f.parse("14/07/2026");       // String -> date, throws ParseException',
+'',
+'// three things wrong with this API',
+'// 1 · SimpleDateFormat is NOT thread-safe — one shared instance corrupts output',
+'// 2 · parsing is LENIENT by default: "32/01/2026" becomes 1 Feb, silently',
+'//     f.setLenient(false);   // you must ask for strictness',
+'// 3 · Calendar months are 0-based',
+'Calendar c = Calendar.getInstance();',
+'c.set(2026, 6, 14);      // 6 means JULY, not June',
+'',
+'// Date has no timezone, no calendar system, and mutable state.',
+'// Recognise it in question papers, then write java.time.'
+]);
+
+function agRun(){
+  const a=document.getElementById('agDob').value.split('-').map(Number);
+  const b=document.getElementById('agToday').value.split('-').map(Number);
+  const o=mkOut();
+  if(a.length<3||b.length<3){o.fail('use the yyyy-MM-dd form');paint('agOut',o);return;}
+  let y=b[0]-a[0],m=b[1]-a[1],d=b[2]-a[2];
+  if(d<0){m--;d+=daysInMonth(b[0],b[1]===1?12:b[1]-1);}
+  if(m<0){y--;m+=12;}
+  const total=Math.round((Date.UTC(b[0],b[1]-1,b[2])-Date.UTC(a[0],a[1]-1,a[2]))/86400000);
+  o.dim('LocalDate dob   = LocalDate.parse("'+document.getElementById('agDob').value+'");');
+  o.dim('LocalDate today = LocalDate.parse("'+document.getElementById('agToday').value+'");');
+  o.dim('Period p = Period.between(dob, today);');
+  o.raw('');
+  o('p.getYears()  → '+y);
+  o('p.getMonths() → '+m);
+  o('p.getDays()   → '+d);
+  o('ChronoUnit.DAYS.between(dob, today) → '+total.toLocaleString());
+  o.raw('');
+  o('age in years : '+y);
+  if(y<18){o.fail('validator() → This guy is not eleigible for studying college');
+    const bd=new Date(Date.UTC(a[0]+18,a[1]-1,a[2]));
+    o.info('becomes eligible on '+bd.getUTCFullYear()+'-'+PAD(bd.getUTCMonth()+1,2)+'-'+PAD(bd.getUTCDate(),2)+' — a date your int field could never have told you.');}
+  else o('validator() prints nothing — the student is 18 or over');
+  o.warn('Why this beats storing int age: an int is correct on exactly one day. Store the date of birth, derive the age. Your Gsec class should hold LocalDate dob and compute getAge().');
+  paint('agOut',o);
+}
+document.getElementById('agRun').addEventListener('click',agRun);
+agRun();
+</script>
+<script>
+/* ============ TAB 6 · packages ============ */
+const PKGS=[
+{n:'java.lang',d:'The core of the language — <strong>imported automatically</strong>, which is why you never write an import for <code>String</code>. Contains Object, String, StringBuilder, Math, System, all the wrapper classes, Thread, and every exception in the Throwable family.',
+ e:'String s = "Gsec";           // java.lang.String\nSystem.out.println(Math.PI); // java.lang.System, java.lang.Math\nInteger.parseInt("17");      // java.lang.Integer'},
+{n:'java.util',d:'The toolbox: the whole Collection Framework, plus Scanner, Random, Arrays, Objects, Optional, Date and Calendar. The most-imported package in real code.',
+ e:'import java.util.*;\nList<Gsec> batch = new ArrayList<>();\nScanner sc = new Scanner(System.in);\nArrays.sort(marks);'},
+{n:'java.io',d:'Byte and character streams, and the <code>File</code> class — everything from Unit 4. All of it throws checked <code>IOException</code>.',
+ e:'import java.io.*;\nBufferedReader br = new BufferedReader(new FileReader("gsec.txt"));'},
+{n:'java.time',d:'The modern date and time API (Java 8+): LocalDate, LocalDateTime, Period, Duration, DateTimeFormatter. Immutable and thread-safe throughout.',
+ e:'import java.time.*;\nimport java.time.format.DateTimeFormatter;\nLocalDate dob = LocalDate.parse("2009-11-20");'},
+{n:'java.text',d:'The legacy formatting package: SimpleDateFormat, NumberFormat, DecimalFormat. Superseded by java.time for dates, still used for currency and numbers.',
+ e:'import java.text.*;\nDecimalFormat df = new DecimalFormat("#,##0.00");\nSystem.out.println(df.format(125000.5));  // 125,000.50'},
+{n:'java.math',d:'Arbitrary-precision arithmetic: <code>BigInteger</code> and <code>BigDecimal</code>. Use BigDecimal for money — never <code>double</code>.',
+ e:'import java.math.BigDecimal;\nBigDecimal fee = new BigDecimal("125000.50");\nfee.multiply(new BigDecimal("2"));'},
+{n:'java.net',d:'Networking: URL, URI, Socket, ServerSocket, HttpClient (Java 11+).',
+ e:'import java.net.*;\nURL u = new URL("https://example.com");'},
+{n:'java.sql',d:'JDBC — Connection, Statement, PreparedStatement, ResultSet. Note it has its own <code>Date</code> class, which is the classic import-ambiguity example.',
+ e:'import java.sql.*;\n// import java.util.Date;  <- now Date is AMBIGUOUS\njava.util.Date d = new java.util.Date();  // must qualify'},
+{n:'java.nio.file',d:'The modern file API: Path, Files, Paths. One-line file reads and writes.',
+ e:'import java.nio.file.*;\nList<String> lines = Files.readAllLines(Path.of("gsec.txt"));'},
+{n:'java.util.regex',d:'Pattern and Matcher — the engine behind <code>split</code>, <code>replaceAll</code> and <code>matches</code>.',
+ e:'import java.util.regex.*;\nPattern p = Pattern.compile("\\\\d{3}");\nMatcher m = p.matcher("101,Sreekanth");'},
+{n:'java.util.function',d:'The functional interfaces for lambdas: Function, Predicate, Supplier, Consumer, BiFunction.',
+ e:'import java.util.function.*;\nPredicate<Gsec> minor = g -> g.getAge() < 18;\nbatch.removeIf(minor);'},
+{n:'java.util.stream',d:'Streams: filter, map, collect, groupingBy. The declarative way to process a collection.',
+ e:'import java.util.stream.*;\nList<String> names = batch.stream()\n    .filter(g -> g.getAge() >= 18)\n    .map(g -> g.name)\n    .collect(Collectors.toList());'}
+];
+(function(){
+  const host=document.getElementById('pkgIndex');
+  PKGS.forEach((p,i)=>{
+    const b=document.createElement('button');
+    b.className='mbtn'+(i===0?' on':'');b.type='button';b.textContent=p.n;
+    b.addEventListener('click',()=>{
+      host.querySelectorAll('.mbtn').forEach(x=>x.classList.remove('on'));b.classList.add('on');
+      document.getElementById('pkgDetail').innerHTML=
+        '<h3 style="color:var(--mauve)">'+esc(p.n)+'</h3><p style="color:var(--mut);font-size:14.5px">'+p.d+'</p>'+
+        '<div class="console" style="min-height:0">'+esc(p.e)+'</div>';});
+    host.appendChild(b);
+    if(i===0)b.click();
+  });
+})();
+function pkgRun(){
+  const pk=document.getElementById('pkgName').value.trim()||'com.gsec.model';
+  const cls=document.getElementById('pkgCls').value.trim()||'Gsec';
+  const how=document.getElementById('pkgImp').value;
+  const segs=pk.split('.');
+  document.getElementById('pkgF1').textContent=cls+'.java';
+  let tree='<span class="n">project root  (this is where you run javac and java)</span>\n';
+  segs.forEach((s,i)=>{tree+='  '.repeat(i)+'└── <span class="d">'+esc(s)+'/</span>\n';});
+  tree+='  '.repeat(segs.length)+'└── <span class="f">'+esc(cls)+'.java</span>\n';
+  tree+='  '.repeat(segs.length)+'└── <span class="f">'+esc(cls)+'.class</span>   <span class="n">← after javac</span>\n';
+  tree+='└── <span class="f">Main.java</span>   <span class="n">(the class that uses it)</span>';
+  document.getElementById('pkgTree').innerHTML=tree;
+  renderCode('code-pkg1',[
+    '// file: '+segs.join('/')+'/'+cls+'.java',
+    'package '+pk+';          // FIRST statement in the file',
+    '',
+    'public class '+cls+' {                  // public, so other packages can see it',
+    '',
+    '    public String name;',
+    '    private int age;                 // still private — packages do not weaken this',
+    '',
+    '    public '+cls+'(String name, int age) {   // public constructor, or nobody can build one',
+    '        this.name = name;',
+    '        this.age  = age;',
+    '    }',
+    '',
+    '    public int getAge() { return age; }',
+    '',
+    '    public void validator() {        // was default — must be public to be reachable',
+    '        if (age < 18)',
+    '            System.out.println("This guy is not eleigible for studying college");',
+    '    }',
+    '}'
+  ]);
+  const usage={
+    single:['// file: Main.java   (in the default package, at the root)',
+      'import '+pk+'.'+cls+';        // exactly the one class',
+      '',
+      'public class Main {',
+      '    public static void main(String[] args) {',
+      '        '+cls+' g = new '+cls+'("Sreekanth", 17);',
+      '        g.validator();',
+      '    }',
+      '}'],
+    star:['import '+pk+'.*;           // every PUBLIC class in that package',
+      '                             // (not its sub-packages)',
+      '',
+      'public class Main {',
+      '    public static void main(String[] args) {',
+      '        '+cls+' g = new '+cls+'("Sreekanth", 17);',
+      '        g.validator();',
+      '    }',
+      '}'],
+    fq:['// no import at all — write the full name every time',
+      '',
+      'public class Main {',
+      '    public static void main(String[] args) {',
+      '        '+pk+'.'+cls+' g =',
+      '            new '+pk+'.'+cls+'("Sreekanth", 17);',
+      '        g.validator();',
+      '    }',
+      '}',
+      '',
+      '// This is what an import saves you from. It is also the ONLY way out',
+      '// when two imported packages both contain a class of the same name.'],
+    none:['// no import, and the short name — this does NOT compile',
+      '',
+      'public class Main {',
+      '    public static void main(String[] args) {',
+      '        '+cls+' g = new '+cls+'("Sreekanth", 17);   // error',
+      '    }',
+      '}'],
+    static:['package '+pk+';',
+      'public class Rules { public static final int MIN_AGE = 18; }',
+      '',
+      '// then, in Main.java:',
+      'import static '+pk+'.Rules.MIN_AGE;   // the MEMBER, not the type',
+      '',
+      'public class Main {',
+      '    public static void main(String[] args) {',
+      '        System.out.println(MIN_AGE);   // no Rules. prefix needed',
+      '    }',
+      '}']
+  };
+  renderCode('code-pkg2',usage[how],how==='none'?{err:[5]}:{});
+  const o=mkOut();
+  o.dim('$ javac -d . '+segs.join('/')+'/'+cls+'.java Main.java');
+  if(how==='none'){
+    o.fail('Main.java:5: error: cannot find symbol');
+    o.fail('        '+cls+' g = new '+cls+'("Sreekanth", 17);');
+    o.fail('        ^  symbol:   class '+cls);
+    o.fail('2 errors');
+    o.warn('The class exists and compiles fine — the compiler simply has no idea that the short name '+cls+' means '+pk+'.'+cls+'. Add the import, or write the fully qualified name.');
+  }else{
+    o('compiled — '+cls+'.class written to '+segs.join('/')+'/');
+    o.dim('$ java Main');
+    o.fail('This guy is not eleigible for studying college');
+    o.info('Run from the project ROOT, never from inside '+segs[segs.length-1]+'/. The folder path and the package name must line up, and java resolves the class by walking down from where you launched it.');
+    if(how==='star')o.warn('The wildcard is not slower at runtime — it is resolved at compile time. Its only real cost is ambiguity: import java.util.* and java.sql.* together and the name Date becomes an error.');
+    if(how==='static')o.info('Static import brings in a member (a field or method), not a type. Useful for constants and Math functions; overused it makes code hard to trace.');
+  }
+  paint('pkgOut',o);
+}
+document.getElementById('pkgRun').addEventListener('click',pkgRun);
+document.getElementById('pkgImp').addEventListener('change',pkgRun);
+pkgRun();
+renderCode('code-cmds',[
+'# without packages — everything in one folder',
+'javac Gsec.java',
+'java Main',
+'',
+'# with packages — compile from the ROOT, -d says where to put .class files',
+'javac -d . com/gsec/model/Gsec.java com/gsec/util/Report.java',
+'javac -d . Main.java',
+'',
+'# run by the FULLY QUALIFIED name, from the root',
+'java com.gsec.model.Main',
+'',
+'# if the classes are somewhere else, say so',
+'java -cp build:lib/util.jar com.gsec.model.Main',
+'',
+'# package the whole thing',
+'jar cfe gsec.jar com.gsec.model.Main -C build .',
+'java -jar gsec.jar',
+'',
+'# what goes wrong',
+'# cd com/gsec/model && java Gsec',
+'#   Error: Could not find or load main class Gsec',
+'#   (wrong name: com/gsec/model/Gsec)'
+]);
+
+/* ============ TAB 7 · access specifiers ============ */
+const AC_MODS=['private','default','protected','public'];
+const AC_FROM=[['same','the same class'],['pkg','another class, same package'],
+  ['sub','a subclass, same package'],['subout','a subclass, DIFFERENT package'],['out','unrelated class, different package']];
+const AC_RULES={
+ private:{same:1,pkg:0,sub:0,subout:0,out:0},
+ default:{same:1,pkg:1,sub:1,subout:0,out:0},
+ protected:{same:1,pkg:1,sub:1,subout:2,out:0},
+ public:{same:1,pkg:1,sub:1,subout:1,out:1}
+};
+const AC_WHY={
+ 'private:same':'The whole point of private: the class itself has full access. Your getAge() and setAge() work precisely because they live inside Gsec.',
+ 'private:pkg':'Private means THIS CLASS ONLY. Another class in the same file or the same package still cannot see it.',
+ 'private:sub':'A subclass does not get private members. It inherits them in the sense that they exist in the object, but it cannot name them — it must go through a public or protected getter.',
+ 'private:subout':'Same answer, and for the same reason. private stops at the class brace.',
+ 'private:out':'No access. This is the strongest guarantee Java offers.',
+ 'default:same':'Always allowed.',
+ 'default:pkg':'This is what default MEANS — package-private. Any class in the same package can read and write it. Your name, laptop and registerNumber fields are in this state, which is why any class in the package can corrupt them.',
+ 'default:sub':'Allowed, but only because the subclass happens to be in the same package. Move it to another package and it breaks.',
+ 'default:subout':'Denied. Inheritance does not help — default access is measured by PACKAGE, not by family.',
+ 'default:out':'Denied.',
+ 'protected:same':'Always allowed.',
+ 'protected:pkg':'Allowed. protected includes everything default allows, and then adds subclasses.',
+ 'protected:sub':'Allowed.',
+ 'protected:subout':'Allowed — but ONLY through inheritance. this.age and super.age compile; new Gsec().age does NOT, even inside that subclass. This is the subtlest rule in Java access control.',
+ 'protected:out':'Denied. No inheritance, no package, no access.',
+ 'public:same':'Allowed.','public:pkg':'Allowed.','public:sub':'Allowed.','public:subout':'Allowed.',
+ 'public:out':'Allowed everywhere. A public field is a promise to the entire world that you will never change or validate it — which is why fields are almost never public.'
+};
+function acRun(){
+  const mod=document.getElementById('acMod').value,from=document.getElementById('acFrom').value;
+  const v=AC_RULES[mod][from];
+  const o=mkOut();
+  const label=AC_FROM.find(f=>f[0]===from)[1];
+  o.dim((mod==='default'?'int age;              // no keyword = default':mod+' int age;')+'      accessed from '+label);
+  if(v===1)o('✓ ALLOWED — this compiles');
+  else if(v===2){o.warn('✓ ALLOWED, but only through inheritance');
+    o('   this.age   → fine');o('   super.age  → fine');
+    o.fail('   new Gsec().age  → error: age has protected access in Gsec');}
+  else{o.fail('✗ DENIED');
+    if(mod==='private')o.fail('   error: age has private access in Gsec');
+    else if(mod==='default')o.fail('   error: age is not public in com.gsec.model.Gsec; cannot be accessed from outside package');
+    else o.fail('   error: age has protected access in Gsec');}
+  o.raw('');
+  o.info(AC_WHY[mod+':'+from]);
+  paint('acOut',o);
+  // highlight the grid
+  document.querySelectorAll('#acMatrix td').forEach(td=>td.classList.remove('sel'));
+  const cell=document.querySelector('#acMatrix td[data-k="'+mod+':'+from+'"]');
+  if(cell)cell.classList.add('sel');
+}
+(function(){
+  const t=document.getElementById('acMatrix');
+  let h='<tr><th></th>'+AC_FROM.map(f=>'<th>'+f[1].replace(', ','<br>')+'</th>').join('')+'</tr>';
+  AC_MODS.forEach(m=>{
+    h+='<tr><td class="lbl">'+m+(m==='default'?'<br><span style="color:var(--dim);font-weight:400">(no keyword)</span>':'')+'</td>';
+    AC_FROM.forEach(f=>{const v=AC_RULES[m][f[0]];
+      h+='<td class="clik '+(v?'yes':'no')+'" data-k="'+m+':'+f[0]+'">'+(v===2?'✓ *':v?'✓':'✗')+'</td>';});
+    h+='</tr>';
+  });
+  t.innerHTML=h;
+  t.querySelectorAll('td.clik').forEach(td=>td.addEventListener('click',()=>{
+    const [m,f]=td.dataset.k.split(':');
+    document.getElementById('acMod').value=m;document.getElementById('acFrom').value=f;acRun();}));
+})();
+document.getElementById('acRun').addEventListener('click',acRun);
+document.getElementById('acMod').addEventListener('change',acRun);
+document.getElementById('acFrom').addEventListener('change',acRun);
+acRun();
+renderCode('code-audit',[
+'class Gsec{                     // DEFAULT class — invisible outside its package',
+'',
+'    String name;                // default  → any class in the package can rewrite it',
+'    String laptop;              // default  → same',
+'  private int age;              // private  → correct, the only protected field',
+'    int registerNumber;         // default  → the identity field, unprotected',
+'',
+'    public void setAge(int age){ ... }   // public  → correct',
+'    public int  getAge(){ ... }          // public  → correct',
+'',
+'    void validator(){ ... }     // default → unreachable from another package',
+'    void display(){ ... }       // default → same',
+'    String displayString(){ }   // default → same',
+'',
+'  public Gsec(String namenew, String laptop, int age, int registerNumber){ ... }',
+'}                               // public constructor on a default class:',
+'                                // nobody outside the package can even name the type'
+]);
+document.getElementById('auditRun').addEventListener('click',()=>{
+  const o=mkOut();
+  o.dim('$ access audit of Gsec.java');
+  o.raw('');
+  o('age              private   ✓  correct — the setter is the only way in');
+  o.fail('name             default   ✗  any class in the package can assign it directly');
+  o.fail('laptop           default   ✗  same');
+  o.fail('registerNumber   default   ✗  this is the identity field; it should be private final');
+  o('setAge / getAge  public    ✓  correct');
+  o.warn('validator()      default   ⚠  works today only because Main is in the same package');
+  o.warn('display()        default   ⚠  same');
+  o.warn('class Gsec       default   ⚠  put this in com.gsec.model and no other package can use it');
+  o.raw('');
+  o.info('The fix is four words: make the three remaining fields private, add getters, and mark the class and its public API public. Nothing else in the file has to change.');
+  o.dim('Note the asymmetry: you protected age and then left the register number — the field that identifies the student — wide open.');
+  paint('auditOut',o);
+});
+document.getElementById('auditRun').click();
+</script>
+<script>
+/* ============ TAB 8 · Gsec ============ */
+const SRC_GSEC=['class Gsec{','    ','    //class  variables','    ','    String name;','    String laptop;','  private int age;','    int registerNumber;','    ','    // setter for age','    // public , void ','    public void setAge(int age){','        this.age=age;','    }','    ','    // getter for age','    public int getAge(){','        return age;','    }','    ','    void validator(){','        if(age<18){','            System.out.println("This guy is not eleigible for studying college");','        }','    }','    ','    // methods','    void display(){','        System.out.println("Hi sreekanth");','        System.out.println(getAge());','    }','    ','    String displayString(){','        return "hello";','    }','    ','    // String helloMethod(){','        ','    // }','    //No-arg constructor','//   public Gsec(){','        ','//     }','  public Gsec(    String namenew,String laptop,int age,int registerNumber){','        name=namenew;','        this.laptop=laptop;','        this.age=age;','        this.registerNumber=registerNumber;','    }','}','class Main{','    ','    public static void main(String[] args){','        ','        Gsec scoldavinas=new Gsec();','        scoldavinas.setAge(17);','        scoldavinas.validator();','        scoldavinas.display();','    }','}'];
+renderCode('code-gsec',SRC_GSEC,{err:[L(SRC_GSEC,'Gsec scoldavinas=new Gsec();')]});
+const BATCH=[['Sreekanth','Dell',17,101,'2009-11-20'],['Divya','HP',19,102,'2007-03-08'],
+             ['Arun','Lenovo',18,103,'2008-06-30'],['Kavya','Asus',16,104,'2010-01-15']];
+const GP=[
+{id:'p1',cls:'GsecToString',n:'1',tag:'toString · StringBuilder',
+ title:'Replace displayString() with a real toString()',
+ desc:'Your <code>displayString()</code> returns the literal "hello" and is never called. Renamed to <code>toString()</code> and built with a StringBuilder, it fixes every print in the program at once.',
+ code:[
+'@Override',
+'public String toString() {',
+'    StringBuilder sb = new StringBuilder(48);   // pre-sized: no growth',
+'    sb.append(registerNumber)',
+'      .append(" | ").append(name)',
+'      .append(" | ").append(laptop)',
+'      .append(" | age ").append(age)',
+'      .append(age < 18 ? "  [INELIGIBLE]" : "");',
+'    return sb.toString();          // ONE String, created once',
+'}',
+'',
+'// now every one of these just works:',
+'System.out.println(g);                 // println calls toString()',
+'System.out.println("student: " + g);   // so does +',
+'System.out.println(listOfGsec);        // and so does a List',
+'',
+'// and display() finally uses the field instead of a literal',
+'void display() {',
+'    System.out.println("Hi " + name);   // was "Hi sreekanth" for everyone',
+'    System.out.println(getAge());',
+'}'],
+ run(o){
+   o.fail('before — println(g) with no toString():');
+   BATCH.forEach((b,i)=>o('   Gsec@'+(0x1b6d3586+i*977).toString(16)));
+   o.raw('');
+   o('after — println(g):');
+   BATCH.forEach(([n,l,a,r])=>o('   '+r+' | '+n+' | '+l+' | age '+a+(a<18?'  [INELIGIBLE]':'')));
+   o.raw('');
+   o.warn('and display() before the fix, for all four students:');
+   BATCH.forEach(()=>o.warn('   Hi sreekanth'));
+   o('after the fix:');
+   BATCH.forEach(([n])=>o('   Hi '+n));
+   o.info('One StringBuilder, one toString() call per print. Using  "" + a + " | " + b + " | " ...  would work too — the compiler builds a builder for you — but writing it explicitly makes the pre-sizing possible.');},
+ note:'<code>new StringBuilder(48)</code> guesses the final length so the array never grows. Get it wrong and nothing breaks; the buffer just grows once. Getting it roughly right is free performance.'},
+
+{id:'p2',cls:'GsecCsvParser',n:'2',tag:'split · trim · parseInt',
+ title:'Parse a CSV row into a Gsec — the split() workhorse',
+ desc:'This is the single most common real use of <code>split()</code>. Note the defensive details: <code>trim()</code> on every field, a limit of -1 so blank fields survive, and a length check before indexing.',
+ code:[
+'public static Gsec parse(String row) {',
+'',
+'    String[] f = row.split(",", -1);      // -1 KEEPS trailing empties',
+'',
+'    if (f.length != 4)',
+'        throw new IllegalArgumentException("expected 4 fields, got " + f.length);',
+'',
+'    int reg = Integer.parseInt(f[0].trim());   // trim: " 101" would throw',
+'    String name   = f[1].trim();',
+'    String laptop = f[2].trim();',
+'    int age = Integer.parseInt(f[3].trim());',
+'',
+'    return new Gsec(name, laptop, age, reg);   // the 4-arg constructor',
+'}',
+'',
+'// the rows this has to survive',
+'parse("101, Sreekanth , Dell , 17");   // padded with spaces',
+'parse("102,Divya,HP,");                // empty age  -> NumberFormatException',
+'parse("103,Arun,Lenovo");              // 3 fields   -> IllegalArgumentException'],
+ run(o){
+   const rows=['101, Sreekanth , Dell , 17','102,Divya,HP,19','103,Arun,Lenovo','104,Kavya,Asus,','105,Meena,Acer,21'];
+   rows.forEach(row=>{
+     const f=javaSplit(row,',',-1);
+     o.dim('parse("'+row+'")');
+     o('   split(",", -1) → '+f.length+' field(s): ['+f.map(x=>'"'+x+'"').join(', ')+']');
+     if(f.length!==4){o.fail('   IllegalArgumentException: expected 4 fields, got '+f.length);return;}
+     const ageTxt=f[3].trim();
+     if(ageTxt===''||isNaN(Number(ageTxt))){
+       o.fail('   NumberFormatException: For input string: "'+ageTxt+'"');
+       o.warn('   this is why the field is trimmed AND checked before parseInt');return;}
+     const g={reg:parseInt(f[0].trim(),10),name:f[1].trim(),laptop:f[2].trim(),age:parseInt(ageTxt,10)};
+     o('   → Gsec '+g.reg+' | '+g.name+' | '+g.laptop+' | age '+g.age);
+     if(g.age<18)o.fail('     validator() → This guy is not eleigible for studying college');
+   });
+   o.raw('');
+   o.info('Without trim(), Integer.parseInt(" 17") throws — the space is not a digit. Without limit -1, row 104 would come back with 3 fields and the length check would reject a row that is merely incomplete rather than malformed.');},
+ note:'<code>split(",")</code> on <code>"104,Kavya,Asus,"</code> gives <strong>3</strong> elements, because the trailing empty is dropped. With <code>-1</code> you get 4 and can give a precise error. For CSV, always pass -1.'},
+
+{id:'p3',cls:'GsecReport',n:'3',tag:'String.format · StringBuilder · padding',
+ title:'A formatted report table',
+ desc:'Lining up columns by counting spaces is a losing game. <code>String.format</code> does it declaratively, and a StringBuilder assembles the whole report as one object.',
+ code:[
+'StringBuilder report = new StringBuilder();',
+'',
+'report.append(String.format("%-6s %-12s %-10s %5s %s%n",',
+'                            "REG", "NAME", "LAPTOP", "AGE", "STATUS"));',
+'report.append("-".repeat(48)).append(System.lineSeparator());   // Java 11',
+'',
+'for (Gsec g : batch) {',
+'    report.append(String.format("%-6d %-12s %-10s %5d %s%n",',
+'            g.registerNumber, g.name, g.laptop, g.getAge(),',
+'            g.getAge() < 18 ? "INELIGIBLE" : "ok"));',
+'}',
+'',
+'System.out.print(report);      // one print, one String',
+'',
+'// %-12s  left-align in 12 columns      %5d   right-align in 5',
+'// %n     platform newline (safer than \\n)   %.2f  two decimals'],
+ run(o){
+   const pad=(s,n)=>String(s).padEnd(n,' '),rp=(s,n)=>String(s).padStart(n,' ');
+   o(pad('REG',6)+' '+pad('NAME',12)+' '+pad('LAPTOP',10)+' '+rp('AGE',5)+' STATUS');
+   o('-'.repeat(48));
+   BATCH.forEach(([n,l,a,r])=>o(pad(r,6)+' '+pad(n,12)+' '+pad(l,10)+' '+rp(a,5)+' '+(a<18?'INELIGIBLE':'ok')));
+   o.raw('');
+   const under=BATCH.filter(b=>b[2]<18).length;
+   o(String.prototype.padEnd?('summary : '+BATCH.length+' students, '+under+' ineligible'):'');
+   o.info('%-12s pads on the RIGHT (left-aligned text); %5d pads on the LEFT (right-aligned numbers). That single convention is what makes a column of numbers readable.');
+   o.warn('Use %n rather than \\n: on Windows the line separator is \\r\\n, and %n emits whichever the platform uses.');},
+ note:'<code>"-".repeat(48)</code> needs Java 11. Before that it was a loop or <code>String.join</code> over a filled array — worth mentioning if your lab machines run Java 8.'},
+
+{id:'p4',cls:'GsecDob',n:'4',tag:'LocalDate · Period · DateTimeFormatter',
+ title:'Store a date of birth, compute the age',
+ desc:'The real fix for <code>int age</code>. The field becomes a date, <code>getAge()</code> becomes a calculation, and <code>validator()</code> is finally correct on every day of the year.',
+ code:[
+'import java.time.*;',
+'import java.time.format.*;',
+'',
+'public class Gsec {',
+'    private final LocalDate dob;          // the FACT',
+'    ...',
+'',
+'    public Gsec(String name, String laptop, String dobText, int reg) {',
+'        this.dob = LocalDate.parse(dobText,',
+'                       DateTimeFormatter.ofPattern("yyyy-MM-dd"));',
+'    }',
+'',
+'    public int getAge() {                 // the DERIVED value',
+'        return Period.between(dob, LocalDate.now()).getYears();',
+'    }',
+'',
+'    public void validator() {',
+'        if (getAge() < 18)',
+'            System.out.println("This guy is not eleigible for studying college");',
+'    }',
+'',
+'    public String dobFormatted() {',
+'        return dob.format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"));',
+'    }',
+'',
+'    public LocalDate eligibleOn() { return dob.plusYears(18); }',
+'}'],
+ run(o){
+   const today=[2026,7,14];
+   o.dim('today = 2026-07-14');
+   BATCH.forEach(([n,l,a,r,dob])=>{
+     const p=dob.split('-').map(Number);
+     let y=today[0]-p[0],m=today[1]-p[1],d=today[2]-p[2];
+     if(d<0){m--;}if(m<0){y--;m+=12;}
+     const f=javaFormat(p[0],p[1],p[2],0,0,0,'dd-MMM-yyyy').out;
+     o(n.padEnd(11,' ')+' dob '+f+'   age '+y+(a!==y?'   ← the stored int said '+a:''));
+     if(y<18){
+       o.fail('            validator() → This guy is not eleigible for studying college');
+       const e=javaFormat(p[0]+18,p[1],p[2],0,0,0,'dd-MMM-yyyy').out;
+       o.info('            eligibleOn() → '+e);}
+   });
+   o.raw('');
+   o.warn('Notice the mismatches: a stored int is a snapshot taken on some forgotten day. A date of birth is a fact that never goes stale, and the age falls out of it whenever you ask.');
+   o.info('Period.between gives years, months and days. ChronoUnit.DAYS.between gives a single total. Use Period for "how old", ChronoUnit for "how long since".');},
+ note:'Make the field <code>final</code>. A date of birth cannot change, and a final field can never drift out of sync with anything derived from it — which also makes the object safe to use as a map key.'},
+
+{id:'p5',cls:'GsecStringChecks',n:'5',tag:'equals · equalsIgnoreCase · compareTo',
+ title:'Comparing and sorting students by name',
+ desc:'Where <code>==</code> would quietly fail, and why <code>compareTo</code> puts uppercase names first.',
+ code:[
+'String typed = scanner.nextLine();        // built at runtime -> never pooled',
+'',
+'if (typed == g.name)                { }   // ALWAYS false',
+'if (typed.equals(g.name))           { }   // correct',
+'if (typed.equalsIgnoreCase(g.name)) { }   // correct AND user-friendly',
+'',
+'// sorting the batch by name',
+'batch.sort((a, b) -> a.name.compareTo(b.name));              // ASCII order',
+'batch.sort((a, b) -> a.name.compareToIgnoreCase(b.name));    // human order',
+'',
+'// a search that tolerates messy input',
+'String q = typed.trim().toLowerCase();',
+'for (Gsec g : batch)',
+'    if (g.name.toLowerCase().contains(q)) System.out.println(g);'],
+ run(o){
+   const typed='sreekanth';
+   o.dim('the user typed "'+typed+'"; the stored name is "Sreekanth"');
+   o.fail('typed == g.name                → false   (a Scanner string is never pooled)');
+   o.fail('typed.equals(g.name)           → false   (case differs)');
+   o('typed.equalsIgnoreCase(g.name) → true');
+   o('"Sreekanth".compareTo("sreekanth") → '+('S'.charCodeAt(0)-'s'.charCodeAt(0))+"   ('S' 83 - 's' 115)");
+   o.raw('');
+   const names=['Kavya','arun','Divya','sreekanth'];
+   o('unsorted            : '+names.join(', '));
+   o('compareTo           : '+names.slice().sort().join(', ')+'   ← all capitals first');
+   o('compareToIgnoreCase : '+names.slice().sort((a,b)=>a.toLowerCase()<b.toLowerCase()?-1:1).join(', '));
+   o.warn('Uppercase letters have lower codes than lowercase (A=65, a=97), so a plain compareTo sorts "Zebra" before "apple". For anything a human reads, use compareToIgnoreCase — or a Collator for real locale rules.');},
+ note:'The trim-and-lowercase pair is the standard shape for tolerant search. Do it on <em>both</em> sides — the query and the stored value — or half your matches disappear.'},
+
+{id:'p6',cls:'GsecPalindromeEtc',n:'6',tag:'StringBuilder.reverse · charAt · classic problems',
+ title:'The three classic string programs, on your data',
+ desc:'Palindrome, vowel count and word reversal — the questions that appear in every exam paper, written on the register numbers and names you already have.',
+ code:[
+'// 1 · palindrome, the one-line version',
+'boolean pal = s.equals(new StringBuilder(s).reverse().toString());',
+'',
+'// 2 · palindrome, the version they want you to write',
+'boolean isPal(String s) {',
+'    int i = 0, j = s.length() - 1;',
+'    while (i < j) {',
+'        if (s.charAt(i) != s.charAt(j)) return false;',
+'        i++; j--;',
+'    }',
+'    return true;                 // 0 or 1 characters is a palindrome',
+'}',
+'',
+'// 3 · count vowels',
+'int v = 0;',
+'for (char c : s.toLowerCase().toCharArray())',
+'    if ("aeiou".indexOf(c) >= 0) v++;',
+'',
+'// 4 · reverse the WORDS, not the characters',
+'String[] w = sentence.trim().split("\\\\s+");',
+'StringBuilder sb = new StringBuilder();',
+'for (int i = w.length - 1; i >= 0; i--) sb.append(w[i]).append(i > 0 ? " " : "");',
+'',
+'// 5 · count each character',
+'Map<Character,Integer> freq = new HashMap<>();',
+'for (char c : s.toCharArray()) freq.merge(c, 1, Integer::sum);'],
+ run(o){
+   const tests=['101','madam','Sreekanth','121'];
+   o.head('1 · palindrome');
+   tests.forEach(t=>{const rev=t.split('').reverse().join('');
+     o('   "'+t+'"'.padEnd(13,' ')+' reversed "'+rev+'"  → '+(t===rev));});
+   o.head('2 · vowel count');
+   ['Sreekanth','Divya','Arun','Kavya'].forEach(n=>{
+     const v=n.toLowerCase().split('').filter(c=>'aeiou'.includes(c)).length;
+     o('   '+n.padEnd(11,' ')+' vowels '+v+'   consonants '+(n.length-v));});
+   o.head('3 · reverse the words');
+   const sent='Sreekanth studies at Gsec college';
+   o('   in  : '+sent);
+   o('   out : '+sent.split(/\s+/).reverse().join(' '));
+   o.head('4 · character frequency of "Sreekanth"');
+   const f={};'Sreekanth'.split('').forEach(c=>f[c]=(f[c]||0)+1);
+   o('   '+Object.keys(f).map(k=>k+'='+f[k]).join('  '));
+   o.info('reverse() on a StringBuilder is in place — no copy, no new object. That is why the one-line palindrome check is also the fast one.');},
+ note:'The two-pointer version is the one to write in an exam: it stops at the first mismatch, uses no extra memory, and shows you understand <code>charAt</code> and index arithmetic.'},
+
+{id:'p7',cls:'GsecPackaged',n:'7',tag:'package · access · the finished class',
+ title:'The whole class, rewritten for Unit 3',
+ desc:'Everything from this unit applied at once: a package, honest access specifiers, a date of birth, a toString, and a static factory that parses a CSV row.',
+ code:[
+'package com.gsec.model;',
+'',
+'import java.time.LocalDate;',
+'import java.time.Period;',
+'import java.time.format.DateTimeFormatter;',
+'',
+'public class Gsec {',
+'',
+'    private static final DateTimeFormatter IN  = DateTimeFormatter.ofPattern("yyyy-MM-dd");',
+'    private static final DateTimeFormatter OUT = DateTimeFormatter.ofPattern("dd-MMM-yyyy");',
+'    public  static final int MIN_AGE = 18;',
+'',
+'    private final int       registerNumber;   // identity: private AND final',
+'    private final String    name;',
+'    private       String    laptop;           // this one can change',
+'    private final LocalDate dob;',
+'',
+'    public Gsec(String name, String laptop, String dobText, int registerNumber) {',
+'        this.name           = name;',
+'        this.laptop         = laptop;',
+'        this.dob            = LocalDate.parse(dobText, IN);',
+'        this.registerNumber = registerNumber;',
+'    }',
+'',
+'    /** builds one from a CSV row: reg,name,laptop,yyyy-MM-dd */',
+'    public static Gsec parse(String row) {',
+'        String[] f = row.split(",", -1);',
+'        if (f.length != 4) throw new IllegalArgumentException("bad row: " + row);',
+'        return new Gsec(f[1].trim(), f[2].trim(), f[3].trim(),',
+'                        Integer.parseInt(f[0].trim()));',
+'    }',
+'',
+'    public int    getAge()  { return Period.between(dob, LocalDate.now()).getYears(); }',
+'    public String getName() { return name; }',
+'    public int    getRegisterNumber() { return registerNumber; }',
+'',
+'    public boolean isEligible() { return getAge() >= MIN_AGE; }',
+'',
+'    public void validator() {',
+'        if (!isEligible())',
+'            System.out.println(name + " is not eligible for studying college");',
+'    }',
+'',
+'    @Override public String toString() {',
+'        return new StringBuilder(48)',
+'                .append(registerNumber).append(" | ").append(name)',
+'                .append(" | ").append(laptop)',
+'                .append(" | dob ").append(dob.format(OUT))',
+'                .append(" | age ").append(getAge())',
+'                .append(isEligible() ? "" : "  [INELIGIBLE]")',
+'                .toString();',
+'    }',
+'',
+'    @Override public boolean equals(Object o) {',
+'        return o instanceof Gsec && ((Gsec) o).registerNumber == registerNumber;',
+'    }',
+'    @Override public int hashCode() { return Integer.hashCode(registerNumber); }',
+'}'],
+ run(o){
+   o.dim('$ javac -d . com/gsec/model/Gsec.java Main.java');
+   o.dim('$ java com.gsec.model.Main');
+   o.raw('');
+   const rows=['101,Sreekanth,Dell,2009-11-20','102,Divya,HP,2007-03-08','103,Arun,Lenovo,2008-06-30','104,Kavya,Asus,2010-01-15'];
+   rows.forEach(r=>{
+     const f=javaSplit(r,',',-1);
+     const p=f[3].split('-').map(Number);
+     let y=2026-p[0],m=7-p[1],d=14-p[2];
+     if(d<0)m--; if(m<0)y--;
+     const dob=javaFormat(p[0],p[1],p[2],0,0,0,'dd-MMM-yyyy').out;
+     o(f[0]+' | '+f[1]+' | '+f[2]+' | dob '+dob+' | age '+y+(y<18?'  [INELIGIBLE]':''));
+     if(y<18)o.fail('   '+f[1]+' is not eligible for studying college');
+   });
+   o.raw('');
+   o.info('Compared with the original: the typo is gone, display() greets the right student, the age is derived rather than stored, three more fields are private, and the class can now be imported from anywhere. The public API is five methods instead of eight accidental ones.');
+   o.warn('One thing deliberately kept: the 4-arg constructor. Adding a no-arg constructor back would let someone build a Gsec with no register number and no date of birth — an object that cannot answer its own questions.');},
+ note:'Note <code>private static final DateTimeFormatter</code> — one shared instance for the whole class. That is safe here precisely because <code>DateTimeFormatter</code> is immutable; doing the same with <code>SimpleDateFormat</code> would be a threading bug.'}
+];
+(function(){
+  const host=document.getElementById('gsecHost');
+  GP.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-blue">Program '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="console" id="con-'+x.id+'"></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(c);renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();});
+  document.getElementById('gsecRunAll').addEventListener('click',()=>GP.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+/* ============ TAB 9 · Lab 7 & 8 ============ */
+const LAB=[
+{id:'L1',cls:'Lab7_1',n:'7.1',title:'String methods — the full sweep',tag:'String class & methods',
+ code:[
+'public class Lab7_1 {',
+'    public static void main(String[] args) {',
+'        String s = "  Gsec College 2026  ";',
+'',
+'        System.out.println("length          : " + s.length());',
+'        System.out.println("trim            : [" + s.trim() + "]");',
+'        String t = s.trim();',
+'        System.out.println("upper           : " + t.toUpperCase());',
+'        System.out.println("charAt(0)       : " + t.charAt(0));',
+'        System.out.println("indexOf(College): " + t.indexOf("College"));',
+'        System.out.println("substring(5,12) : " + t.substring(5, 12));',
+'        System.out.println("replace         : " + t.replace("2026", "2027"));',
+'        System.out.println("contains Gsec   : " + t.contains("Gsec"));',
+'        System.out.println("split count     : " + t.split(" ").length);',
+'        System.out.println("hashCode        : " + t.hashCode());',
+'        System.out.println("original是      : [" + s + "]   unchanged");',
+'    }',
+'}'],
+ run(o){
+   const s='  Gsec College 2026  ',t=s.trim();
+   o('length          : '+s.length);
+   o('trim            : ['+t+']');
+   o('upper           : '+t.toUpperCase());
+   o('charAt(0)       : '+t.charAt(0));
+   o('indexOf(College): '+t.indexOf('College'));
+   o('substring(5,12) : '+t.substring(5,12));
+   o('replace         : '+t.replace('2026','2027'));
+   o('contains Gsec   : '+t.includes('Gsec'));
+   o('split count     : '+javaSplit(t,' ',0).length);
+   o('hashCode        : '+javaHash(t));
+   o('original        : ['+s+']   unchanged');
+   o.info('Not one of those calls modified s. Every result is a new String; the original is still 20 characters long with its spaces intact.');}},
+
+{id:'L2',cls:'Lab7_2',n:'7.2',title:'StringBuilder — build, edit, reverse',tag:'StringBuilder methods & usage',
+ code:[
+'StringBuilder sb = new StringBuilder("Gsec");',
+'System.out.println("length/capacity : " + sb.length() + " / " + sb.capacity());',
+'',
+'sb.append(" College").append(" 2026");',
+'sb.insert(0, ">> ");',
+'sb.replace(3, 7, "GSEC");',
+'sb.deleteCharAt(sb.length() - 1);',
+'System.out.println(sb);',
+'System.out.println("reverse : " + new StringBuilder(sb).reverse());',
+'System.out.println("length/capacity : " + sb.length() + " / " + sb.capacity());',
+'',
+'sb.setLength(8);',
+'System.out.println("after setLength(8) : " + sb);',
+'sb.trimToSize();',
+'System.out.println("capacity after trim : " + sb.capacity());'],
+ run(o){
+   const b=new SB('Gsec');
+   o('length/capacity : '+b.len()+' / '+b.cap+'   (4 + 16)');
+   b.append(' College');b.append(' 2026');
+   const grew=b.grows;
+   o('after appends   : "'+b.str()+'"   length '+b.len()+' / capacity '+b.cap+(grew?'   ← it grew '+grew+' time(s)':''));
+   b.insert(0,'>> ');
+   o('after insert    : "'+b.str()+'"');
+   const s=b.str();const rep=s.slice(0,3)+'GSEC'+s.slice(7);
+   b.buf=rep.split('');
+   o('after replace(3,7,"GSEC") : "'+b.str()+'"');
+   b.deleteCharAt(b.len()-1);
+   o('after deleteCharAt(last)  : "'+b.str()+'"');
+   o('reverse                   : "'+b.str().split('').reverse().join('')+'"');
+   o('length/capacity : '+b.len()+' / '+b.cap);
+   b.setLength(8);
+   o('after setLength(8)  : "'+b.str()+'"');
+   b.trim();
+   o('capacity after trim : '+b.cap);
+   o.info('One object throughout. A String version of this program would have created a new object on every single line.');}},
+
+{id:'L3',cls:'Lab7_3',n:'7.3',title:'StringBuffer vs StringBuilder',tag:'StringBuffer — methods & differences',
+ code:[
+'StringBuffer  buf = new StringBuffer("Gsec");   // synchronized',
+'StringBuilder bld = new StringBuilder("Gsec");  // not synchronized',
+'',
+'buf.append(" 2026");  bld.append(" 2026");',
+'System.out.println(buf + " | " + bld);',
+'',
+'// identical API, identical results',
+'System.out.println(buf.reverse() + " | " + bld.reverse());',
+'',
+'// the ONE difference you can observe from code:',
+'System.out.println(buf.toString().equals(bld.toString()));  // true',
+'System.out.println(buf.equals(bld));                        // false!',
+'',
+'// and the difference you cannot see, only reason about:',
+'// every StringBuffer method acquires the object monitor first.'],
+ run(o){
+   o('StringBuffer  : "Gsec 2026"');
+   o('StringBuilder : "Gsec 2026"');
+   o('after reverse : "6202 cesG" | "6202 cesG"   — identical behaviour');
+   o.raw('');
+   o('buf.toString().equals(bld.toString()) → true');
+   o.fail('buf.equals(bld)                      → false');
+   o.warn('Neither class overrides equals(), so it falls back to reference comparison. Two buffers holding the same text are still "different objects".');
+   o.raw('');
+   o.dim('the real difference, measured in method calls:');
+   o('StringBuffer  append() → acquire monitor, write, release monitor');
+   o('StringBuilder append() → write');
+   o.info('For a local variable — which a builder almost always is — the lock can never be contended, so StringBuffer pays for a guarantee that is impossible to need. Use StringBuilder unless the buffer is genuinely a shared field.');}},
+
+{id:'L4',cls:'Lab7_4',n:'7.4',title:'Palindrome, vowels, word count, reversal',tag:'the classic programs',
+ code:[
+'Scanner sc = new Scanner(System.in);',
+'String s = sc.nextLine();',
+'',
+'// palindrome',
+'String clean = s.replaceAll("[^a-zA-Z]", "").toLowerCase();',
+'boolean pal = clean.equals(new StringBuilder(clean).reverse().toString());',
+'',
+'// vowels and consonants',
+'int v = 0, c = 0;',
+'for (char ch : clean.toCharArray())',
+'    if ("aeiou".indexOf(ch) >= 0) v++; else c++;',
+'',
+'// words',
+'int words = s.trim().isEmpty() ? 0 : s.trim().split("\\\\s+").length;',
+'',
+'// reverse the words',
+'String[] w = s.trim().split("\\\\s+");',
+'StringBuilder r = new StringBuilder();',
+'for (int i = w.length - 1; i >= 0; i--) r.append(w[i]).append(i > 0 ? " " : "");'],
+ run(o){
+   ['Madam, in Eden I\u2019m Adam','Gsec College 2026','level'].forEach(s=>{
+     const clean=s.replace(/[^a-zA-Z]/g,'').toLowerCase();
+     const rev=clean.split('').reverse().join('');
+     const v=clean.split('').filter(c=>'aeiou'.includes(c)).length;
+     const words=javaSplit(s.trim(),'\\\\s+',0).length;
+     o.dim('input : "'+s+'"');
+     o('   cleaned    : "'+clean+'"');
+     o('   palindrome : '+(clean===rev));
+     o('   vowels '+v+' · consonants '+(clean.length-v));
+     o('   words      : '+words);
+     o('   reversed   : "'+javaSplit(s.trim(),'\\\\s+',0).reverse().join(' ')+'"');
+     o.raw('');
+   });
+   o.info('replaceAll("[^a-zA-Z]", "") strips punctuation and spaces so the palindrome test compares letters only — the detail that turns a textbook answer into a correct one.');}},
+
+{id:'L5',cls:'Lab8_1',n:'8.1',title:'split, replace, concat, compare',tag:'string manipulation',
+ code:[
+'String row = "101,Sreekanth,Dell,17";',
+'',
+'String[] f = row.split(",");',
+'System.out.println("fields : " + f.length);',
+'',
+'System.out.println(row.replace(",", " | "));            // literal',
+'System.out.println(row.replaceAll("\\\\d", "#"));         // regex: every digit',
+'System.out.println(row.replaceFirst("\\\\d+", "REG"));    // first run of digits',
+'',
+'System.out.println(f[1].concat(" - ").concat(f[2]));',
+'System.out.println(String.join(" / ", f));',
+'',
+'System.out.println(f[1].equals("Sreekanth"));',
+'System.out.println(f[1].equalsIgnoreCase("SREEKANTH"));',
+'System.out.println(f[1].compareTo("Sreekanth"));',
+'System.out.println(f[1].compareTo("Divya"));'],
+ run(o){
+   const row='101,Sreekanth,Dell,17';
+   const f=javaSplit(row,',',0);
+   o('fields : '+f.length+'   ['+f.join(' | ')+']');
+   o('replace(",", " | ")     : '+row.split(',').join(' | '));
+   o('replaceAll("\\\\d", "#")  : '+row.replace(/\d/g,'#'));
+   o('replaceFirst("\\\\d+","REG"): '+row.replace(/\d+/,'REG'));
+   o('concat                  : '+f[1]+' - '+f[2]);
+   o('String.join(" / ", f)   : '+f.join(' / '));
+   o('equals("Sreekanth")     : '+(f[1]==='Sreekanth'));
+   o('equalsIgnoreCase        : '+(f[1].toLowerCase()==='sreekanth'));
+   o('compareTo("Sreekanth")  : 0');
+   o('compareTo("Divya")      : '+('S'.charCodeAt(0)-'D'.charCodeAt(0))+"   ('S' 83 - 'D' 68)");
+   o.warn('replaceAll took a REGEX: \\d means "any digit", so 101 and 17 all became #. replace() would have looked for the literal two characters \\ and d and found nothing.');}},
+
+{id:'L6',cls:'Lab8_2',n:'8.2',title:'Dates as strings — parse, format, age',tag:'java.time round trip',
+ code:[
+'DateTimeFormatter IN  = DateTimeFormatter.ofPattern("dd/MM/yyyy");',
+'DateTimeFormatter OUT = DateTimeFormatter.ofPattern("EEEE, d MMMM yyyy");',
+'',
+'String[] rows = {"20/11/2009", "08/03/2007", "15/01/2010", "31/02/2026"};',
+'',
+'for (String r : rows) {',
+'    try {',
+'        LocalDate d = LocalDate.parse(r, IN);',
+'        int age = Period.between(d, LocalDate.of(2026, 7, 14)).getYears();',
+'        System.out.printf("%-12s -> %-28s age %2d %s%n",',
+'            r, d.format(OUT), age, age < 18 ? "INELIGIBLE" : "");',
+'    } catch (DateTimeParseException e) {',
+'        System.out.println(r + " -> bad date, row skipped");',
+'    }',
+'}'],
+ run(o){
+   ['20/11/2009','08/03/2007','15/01/2010','31/02/2026'].forEach(r=>{
+     const p=r.split('/').map(Number);
+     if(p[1]<1||p[1]>12||p[0]<1||p[0]>daysInMonth(p[2],p[1])){
+       o.fail(r.padEnd(12,' ')+' -> bad date, row skipped   (February '+p[2]+' has only '+daysInMonth(p[2],p[1])+' days)');return;}
+     const pretty=javaFormat(p[2],p[1],p[0],0,0,0,'EEEE, d MMMM yyyy').out;
+     let y=2026-p[2],m=7-p[1],d=14-p[0];
+     if(d<0)m--; if(m<0)y--;
+     o(r.padEnd(12,' ')+' -> '+pretty.padEnd(28,' ')+' age '+String(y).padStart(2,' ')+(y<18?' INELIGIBLE':''));
+   });
+   o.info('Parsing is where a bad row is caught. java.time refuses 31 February outright; SimpleDateFormat, being lenient by default, would silently turn it into 3 March.');}},
+
+{id:'L7',cls:'Lab8_3',n:'8.3',title:'Creating and using a package',tag:'package · import · javac -d',
+ code:[
+'// ---------- file: com/gsec/model/Gsec.java ----------',
+'package com.gsec.model;',
+'',
+'public class Gsec {',
+'    private final int reg;',
+'    private final String name;',
+'    public Gsec(int reg, String name) { this.reg = reg; this.name = name; }',
+'    public String toString() { return reg + " " + name; }',
+'}',
+'',
+'// ---------- file: com/gsec/util/Report.java ----------',
+'package com.gsec.util;',
+'import com.gsec.model.Gsec;          // one package importing another',
+'',
+'public class Report {',
+'    public static String line(Gsec g) { return "  * " + g; }',
+'}',
+'',
+'// ---------- file: Main.java ----------',
+'import com.gsec.model.Gsec;',
+'import com.gsec.util.Report;',
+'',
+'public class Main {',
+'    public static void main(String[] args) {',
+'        Gsec g = new Gsec(101, "Sreekanth");',
+'        System.out.println(Report.line(g));',
+'    }',
+'}'],
+ run(o){
+   o.dim('$ javac -d . com/gsec/model/Gsec.java com/gsec/util/Report.java Main.java');
+   o('compiled 3 files');
+   o.dim('$ java Main');
+   o('  * 101 Sreekanth');
+   o.raw('');
+   o.dim('the tree that had to exist first:');
+   o('  com/');
+   o('    gsec/');
+   o('      model/Gsec.java');
+   o('      util/Report.java');
+   o('  Main.java');
+   o.raw('');
+   o.warn('Move Gsec.java one folder up and you get: error: class Gsec is public, should be declared in a file named ... — the folder path and the package statement must agree exactly.');
+   o.info('Report imports from com.gsec.model even though both are under com.gsec. Packages are not hierarchical for access purposes: com.gsec.util has no special rights over com.gsec.model.');}},
+
+{id:'L8',cls:'Lab8_4',n:'8.4',title:'Access specifiers across two packages',tag:'private · default · protected · public',
+ code:[
+'// ---------- com/gsec/model/Base.java ----------',
+'package com.gsec.model;',
+'',
+'public class Base {',
+'    private   int a = 1;',
+'              int b = 2;      // default',
+'    protected int c = 3;',
+'    public    int d = 4;',
+'}',
+'',
+'// ---------- com/gsec/model/SamePackage.java ----------',
+'package com.gsec.model;',
+'public class SamePackage {',
+'    void test(Base x) {',
+'        // x.a;   ERROR — private',
+'        int p = x.b;   //  OK — default, same package',
+'        int q = x.c;   //  OK',
+'        int r = x.d;   //  OK',
+'    }',
+'}',
+'',
+'// ---------- com/gsec/other/Child.java ----------',
+'package com.gsec.other;',
+'import com.gsec.model.Base;',
+'',
+'public class Child extends Base {',
+'    void test() {',
+'        // this.a;         ERROR — private',
+'        // this.b;         ERROR — default, different package',
+'        int q = this.c;    //  OK — protected, through inheritance',
+'        int r = this.d;    //  OK — public',
+'',
+'        Base other = new Base();',
+'        // other.c;        ERROR — protected, but not through inheritance!',
+'        int s = other.d;   //  OK',
+'    }',
+'}'],
+ run(o){
+   o.dim('from SamePackage (same package, not a subclass):');
+   o.fail('   x.a  ✗  a has private access in Base');
+   o('   x.b  ✓  default — same package');
+   o('   x.c  ✓  protected includes the package');
+   o('   x.d  ✓  public');
+   o.raw('');
+   o.dim('from Child (different package, IS a subclass):');
+   o.fail('   this.a  ✗  private stops at the class');
+   o.fail('   this.b  ✗  default is package-only, and we left the package');
+   o('   this.c  ✓  protected, reached through inheritance');
+   o('   this.d  ✓  public');
+   o.fail('   other.c ✗  protected — but on an arbitrary Base instance, not through inheritance');
+   o('   other.d ✓  public');
+   o.raw('');
+   o.info('The last two lines are the whole subtlety of protected: it grants access to what YOU inherited, not to every instance of the parent that happens to be in scope.');
+   o.warn('Applied to your class: age is private, so no subclass in any package can touch it — correct. name, laptop and registerNumber are default, so they are exposed to the package and hidden from subclasses elsewhere, which is almost certainly the opposite of what you wanted.');}}
+];
+(function(){
+  const host=document.getElementById('labHost');
+  LAB.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-pink">Ex '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2>'+
+      '<div class="twocol"><div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div><div class="runbar" style="margin-top:0"><button class="btn run" id="run-'+x.id+'">▶ Run Ex '+x.n+'</button></div>'+
+      '<div class="console" id="con-'+x.id+'"></div></div></div>';
+    host.appendChild(c);renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();});
+  document.getElementById('labRunAll').addEventListener('click',()=>LAB.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+renderCode('syn1',[
+'String s = "Gsec College";',
+'',
+'s.length();  s.charAt(0);  s.isEmpty();  s.isBlank();      // 11+',
+'s.indexOf("o");  s.indexOf("o", 6);  s.lastIndexOf("o");',
+'s.substring(5);  s.substring(5, 12);   // end is EXCLUSIVE',
+'s.toUpperCase();  s.toLowerCase();',
+'s.trim();  s.strip();  s.stripLeading();               // 11+',
+'s.replace("o", "0");                   // LITERAL',
+'s.replaceAll("[aeiou]", "*");          // REGEX',
+'s.contains("Gsec");  s.startsWith("G");  s.endsWith("e");',
+'s.equals(t);  s.equalsIgnoreCase(t);  s.compareTo(t);',
+'s.concat("!");  s.split(" ");  s.split(",", -1);',
+'s.toCharArray();  s.chars();  s.hashCode();  s.intern();',
+'s.matches("[A-Za-z ]+");  s.repeat(3);  s.lines();      // 11+',
+'',
+'String.join("-", "a", "b");             // static',
+'String.format("%-10s %5d %.2f", n, a, f);',
+'String.valueOf(17);  Integer.parseInt("17");'
+]);
+renderCode('syn2',[
+'StringBuilder sb = new StringBuilder();        // capacity 16',
+'StringBuilder sb2 = new StringBuilder("Gsec"); // capacity 4 + 16 = 20',
+'StringBuilder sb3 = new StringBuilder(100);    // capacity 100',
+'',
+'sb.append("Gsec").append(2026).append(true);   // chains — returns this',
+'sb.insert(0, ">> ");',
+'sb.delete(0, 3);            // [0,3)  end exclusive',
+'sb.deleteCharAt(0);',
+'sb.replace(0, 4, "GSEC");   // any length',
+'sb.reverse();               // IN PLACE',
+'sb.setCharAt(0, \'g\');       // returns void',
+'',
+'sb.length();  sb.capacity();  sb.charAt(0);  sb.indexOf("s");',
+'sb.setLength(4);  sb.ensureCapacity(200);  sb.trimToSize();',
+'String out = sb.toString();',
+'',
+'// StringBuffer: identical API, every method synchronized',
+'StringBuffer buf = new StringBuffer("Gsec");',
+'// growth for both: newCapacity = (old << 1) + 2'
+]);
+renderCode('syn3',[
+'import java.time.*;  import java.time.format.*;',
+'',
+'// String -> date',
+'LocalDate.parse("2026-07-14");                             // ISO, no formatter',
+'LocalDate.parse("14/07/2026", DateTimeFormatter.ofPattern("dd/MM/yyyy"));',
+'LocalDateTime.parse("14/07/2026 09:05",',
+'        DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));',
+'',
+'// date -> String',
+'d.format(DateTimeFormatter.ofPattern("dd-MMM-yyyy"));      // 14-Jul-2026',
+'d.toString();                                              // 2026-07-14',
+'',
+'// arithmetic',
+'Period.between(dob, today).getYears();',
+'ChronoUnit.DAYS.between(dob, today);',
+'d.plusDays(90);  d.minusYears(18);  d.getDayOfWeek();  d.isLeapYear();',
+'d.isBefore(other);  d.isAfter(other);',
+'',
+'// pattern letters:  yyyy MM dd HH mm ss   MMM MMMM EEE EEEE a',
+'//   MM = month     mm = MINUTE',
+'//   yyyy = year    YYYY = week-based year (breaks each December)',
+'',
+'// legacy, for recognition only',
+'new SimpleDateFormat("dd/MM/yyyy").format(new Date());   // not thread-safe'
+]);
+renderCode('syn4',[
+'// ---- declaring ----',
+'package com.gsec.model;       // FIRST statement, folders must match',
+'',
+'import com.gsec.util.Report;  // one class',
+'import java.util.*;           // every public class in the package',
+'import static java.lang.Math.PI;   // a MEMBER, not a type',
+'',
+'// ---- compiling and running ----',
+'// javac -d . com/gsec/model/Gsec.java',
+'// java com.gsec.model.Main        (from the project ROOT)',
+'// java -cp build com.gsec.model.Main',
+'',
+'// ---- access specifiers ----',
+'private   int a;   // this class only',
+'          int b;   // default: the package',
+'protected int c;   // package + subclasses anywhere (via this/super)',
+'public    int d;   // everywhere',
+'',
+'// a top-level class may only be public or default —',
+'// never private, never protected.'
+]);
+</script>
+</body>
+</html>

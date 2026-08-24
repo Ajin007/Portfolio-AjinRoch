@@ -1,0 +1,2269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java File Streams — Workflow Visualizer & Output Simulator (Unit 4)</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(25px,3.3vw,38px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:900px;font-size:15px}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="concept"]{background:var(--teal)}
+.tab-btn.active[data-tab="byte"]{background:var(--amber)}
+.tab-btn.active[data-tab="char"]{background:var(--blue)}
+.tab-btn.active[data-tab="file"]{background:var(--green)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}
+.tok-t{color:#7fd1c7}
+.tok-s{color:#a8d98b}
+.tok-c{color:#5b6390;font-style:italic}
+.tok-n{color:#f0b45f}
+.tok-m{color:#86a8f2}
+.tok-a{color:#e8a2c8}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:130px}
+.stepbody code{background:var(--panel3);padding:1px 6px;border-radius:5px}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.run{background:var(--green);color:#0f1220;border-color:transparent}
+.btn.small{padding:6px 12px;font-size:12.5px}
+.btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-teal{color:var(--teal);border-color:rgba(99,207,192,.4);background:rgba(99,207,192,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout.warn{background:rgba(240,180,95,.08);border-color:rgba(240,180,95,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)} .callout.warn b{color:var(--amber)}
+.callout p{color:var(--mut)}
+
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13.5px}
+.demo select{cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:12.8px;margin-top:12px;min-height:70px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.console .prompt{color:var(--dim)} .console .out{color:var(--green)} .console .warn{color:var(--amber)}
+.console .fail{color:var(--red)} .console .info{color:var(--blue)} .console .hd{color:var(--pink);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.runbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.runbar .note{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+/* byte / char strip */
+.strip{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px}
+.cell{min-width:44px;text-align:center;border:1px solid var(--line2);border-radius:8px;padding:5px 4px;
+  font-family:var(--mono);font-size:10.5px;background:var(--panel2);transition:all .18s}
+.cell .v{display:block;color:var(--amber);font-size:12.5px;font-weight:700}
+.cell .c{display:block;color:var(--mut)}
+.cell.done{opacity:.32}
+.cell.cur{border-color:var(--teal);background:rgba(99,207,192,.14);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.cell.eofcell{border-style:dashed;border-color:var(--red)}
+.cell.eofcell .v{color:var(--red)}
+.cell.multi .v{color:var(--pink)}
+.striplabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* workflow pipeline */
+.pipe{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin:6px 0 10px}
+.stage{flex:1 1 130px;min-width:130px;background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;transition:all .16s;text-align:left}
+.stage:hover{border-color:var(--teal);background:var(--panel3)}
+.stage.sel{border-color:var(--teal);background:rgba(99,207,192,.1);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.stage .n{font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.14em}
+.stage .t{font-size:13.5px;font-weight:700;margin:3px 0 2px}
+.stage .m{font-family:var(--mono);font-size:10.8px;color:var(--dim);white-space:normal;word-break:break-word}
+.arrow{display:flex;align-items:center;color:var(--line2);font-size:18px;padding:0 6px}
+@media(max-width:760px){.arrow{display:none}.pipe{gap:8px}}
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:150px}
+.detail h3{font-family:var(--mono);font-size:16.5px;margin-bottom:8px}
+
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.3)}
+.node.sel rect{stroke-width:2.6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--pink);color:#0f1220;border-color:transparent}
+.subtab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td code{font-size:12.4px}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Unit 4 · File Streams · Week 3 (19–24 Aug 2026) · CO4</div>
+  <h1><span class="k">java.io</span> — Streams, <span class="c">File Handling</span> &amp; the Simulated Output Lab</h1>
+  <p class="sub">Every program on this page runs on a <strong>virtual disk built into the page</strong> — the console output you see is computed by actually executing the read/write logic, byte by byte, not typed out by hand. Step through the workflow, watch <code>read()</code> return <code>-1</code>, and compare what a byte stream sees against what a character stream sees on the very same file.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="concept">① Concept &amp; Types</button>
+  <button class="tab-btn" data-tab="byte">② Byte Streams</button>
+  <button class="tab-btn" data-tab="char">③ Character Streams</button>
+  <button class="tab-btn" data-tab="file">④ File Handling</button>
+  <button class="tab-btn" data-tab="lab">⑤ Lab Ex.10</button>
+  <button class="tab-btn" data-tab="gsec">⑥ Your Gsec Code</button>
+  <button class="tab-btn" data-tab="out">⑦ Simulated Output</button>
+</nav>
+
+<main>
+<!-- ================= TAB 1 ================= -->
+<section class="tab active" id="tab-concept">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Concept</span>
+    <h2>A stream is a one-way conveyor belt for data</h2>
+    <p>Your program never touches the disk. It asks the JVM for a <strong>stream object</strong>, and that object carries data <strong>one item at a time, in one direction</strong>, between a <strong>source</strong> and a <strong>destination</strong>. Change the source (file, keyboard, network socket, byte array) and the loop that reads it stays identical — that uniformity is the entire point of <code>java.io</code>.</p>
+    <ul>
+      <li><strong>One direction.</strong> An <code>InputStream</code> can only read; an <code>OutputStream</code> can only write. Need both? Open two streams.</li>
+      <li><strong>Sequential.</strong> Item 5 cannot be read before item 4. There is no jumping back (that's <code>RandomAccessFile</code>, a different tool).</li>
+      <li><strong>Finite.</strong> Every stream eventually signals "no more data" — <code>-1</code> for <code>read()</code>, <code>null</code> for <code>readLine()</code>.</li>
+      <li><strong>A held resource.</strong> An open stream holds an OS file handle. Not closing it leaks the handle and can leave your data stuck in a buffer, never written.</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>The workflow, stage by stage</h2>
+    <p>Click any stage. Every file program you will ever write in this unit is these six moves in this order.</p>
+    <div class="pipe" id="pipe"></div>
+    <div class="detail" id="wfDetail"></div>
+  </div>
+
+  <div class="card">
+    <h2>Types of streams — three ways to classify the same objects</h2>
+    <div class="grid3">
+      <div>
+        <span class="pill p-blue">By direction</span>
+        <p style="margin-top:8px"><strong>Input</strong> = source → program (<code>read</code>).<br><strong>Output</strong> = program → destination (<code>write</code>).</p>
+      </div>
+      <div>
+        <span class="pill p-amber">By data unit</span>
+        <p style="margin-top:8px"><strong>Byte</strong> streams move 8 bits (<code>InputStream</code>/<code>OutputStream</code>).<br><strong>Character</strong> streams move 16-bit chars and apply an <strong>encoding</strong> (<code>Reader</code>/<code>Writer</code>).</p>
+      </div>
+      <div>
+        <span class="pill p-teal">By job</span>
+        <p style="margin-top:8px"><strong>Node</strong> streams talk to a real source (<code>FileInputStream</code>).<br><strong>Processing</strong> streams wrap another stream to add a skill (<code>BufferedReader</code>).</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The four abstract roots — click any class</h2>
+    <p>Everything in <code>java.io</code> descends from exactly four abstract classes. Learn these four and the rest is vocabulary.</p>
+    <div class="svgwrap"><svg id="taxSvg" viewBox="0 0 1210 430" width="1210" height="430" role="img" aria-label="java.io class taxonomy"></svg></div>
+    <div class="legend">
+      <span><i style="background:#f0b45f"></i>byte streams — raw 8-bit, any file type</span>
+      <span><i style="background:#63cfc0"></i>character streams — text only, encoding-aware</span>
+      <span><i style="background:#b79cf0"></i>bridge / processing stream</span>
+    </div>
+    <div class="detail" id="taxDetail" style="margin-top:14px"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Byte or character? One question decides it</h2>
+      <table>
+        <tr><th>Ask</th><th>Answer</th></tr>
+        <tr><td>Is it text a human reads?</td><td><span class="pill p-teal">Reader / Writer</span> — encoding handled for you, <code>readLine()</code> available</td></tr>
+        <tr><td>Image, PDF, zip, .class, audio?</td><td><span class="pill p-amber">InputStream / OutputStream</span> — never let a Reader touch binary, it will corrupt bytes it cannot decode</td></tr>
+        <tr><td>Copying a file blindly?</td><td><span class="pill p-amber">Byte streams</span> — a copy must not interpret content</td></tr>
+        <tr><td>Reading the keyboard?</td><td><code>new BufferedReader(new InputStreamReader(System.in))</code> — bridge bytes into chars</td></tr>
+      </table>
+      <div class="callout warn">
+        <b>⚠ The rule to memorise</b>
+        <p>Byte streams count <strong>bytes</strong>. Character streams count <strong>characters</strong>. For plain English ASCII they happen to match, so beginners never notice — until one <code>₹</code> or <code>é</code> appears and the two numbers disagree. Tab ③ runs exactly that experiment.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Chaining — how <code>BufferedReader</code> actually works</h2>
+      <p>Processing streams take another stream in their constructor and <strong>wrap</strong> it. Data flows through the whole chain; you only ever talk to the outermost object.</p>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;chaining.java</div><div class="codebody" id="code-chain"></div></div>
+      <p style="margin-top:10px">Reading right to left: the <strong>file</strong> gives bytes → <code>FileInputStream</code> carries bytes → <code>InputStreamReader</code> decodes bytes into characters → <code>BufferedReader</code> collects characters into whole lines. Each layer adds one skill and delegates the rest downward.</p>
+      <div class="callout tip">
+        <b>Why buffer at all?</b>
+        <p>An unbuffered <code>read()</code> asks the operating system for <strong>one byte per call</strong>. A buffered stream asks once for 8192 bytes and serves your next 8191 calls from memory. Same output, dramatically fewer system calls — this is why <code>BufferedReader</code> is standard in every real program.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 2 : BYTE STREAMS ================= -->
+<section class="tab" id="tab-byte">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">Byte streams</span>
+    <h2>InputStream &amp; OutputStream — 8 bits at a time, no interpretation</h2>
+    <p>Byte streams are the raw layer. They carry the <strong>exact bytes on disk</strong> and never ask what those bytes mean, which is why they work for every file type ever invented. The two workhorses are <code>FileInputStream</code> (read) and <code>FileOutputStream</code> (write).</p>
+    <p style="margin-bottom:0">Step through the program on the left, then run it — the console below is produced by executing this logic against the page's virtual disk.</p>
+  </div>
+
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;ByteStreamDemo.java</div>
+      <div class="codebody" id="code-byte"></div>
+    </div>
+    <div class="steppanel" id="step-byte"></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Run it</h2>
+    <div class="runbar">
+      <button class="btn run" id="runByte">▶ Run ByteStreamDemo</button>
+      <button class="btn small" id="resetByte">Reset virtual disk</button>
+      <span class="note">writes notes.txt, then copy.txt</span>
+    </div>
+    <div class="console" id="outByte"><span class="prompt">// press Run — output is computed, not canned</span></div>
+  </div>
+
+  <div class="card">
+    <h2>The <code>read()</code> loop, byte by byte</h2>
+    <p>This is the single most important mechanic in the unit. <code>in.read()</code> hands back the <strong>next byte as an int (0–255)</strong>, then <strong>−1 forever after</strong> when the file is exhausted. Step the cursor and watch the return value.</p>
+    <div class="demo">
+      <div class="row">
+        <div>
+          <label for="byteText">File contents (written with FileOutputStream)</label>
+          <input type="text" id="byteText" value="GSEC 2026" style="width:260px" maxlength="24">
+        </div>
+        <button class="btn small" id="byteLoad">Write file</button>
+        <button class="btn primary small" id="byteStep">Step read()</button>
+        <button class="btn small" id="bytePlay">▶ Auto-play</button>
+        <button class="btn small" id="byteRewind">↺ Rewind</button>
+      </div>
+      <div class="striplabel" style="margin-top:14px">notes.txt on disk — one cell = one byte</div>
+      <div class="strip" id="byteStrip"></div>
+      <div class="console" id="byteConsole"></div>
+    </div>
+    <div class="callout bug">
+      <b>⛔ Why <code>byte b = in.read();</code> is wrong</b>
+      <p><code>read()</code> returns <strong>int</strong>, not <code>byte</code>. A Java <code>byte</code> is signed (−128…127) and has no spare value left to mean "end of file", so the API widens to <code>int</code> and reserves −1 as the sentinel. Assigning it to a <code>byte</code> is a compile error (<em>possible lossy conversion</em>), and casting it makes byte 255 arrive as −1 — your loop then ends early on a perfectly valid byte.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Core methods you must know</h2>
+      <table>
+        <tr><th>Method</th><th>Returns / does</th></tr>
+        <tr><td>int read()</td><td>next byte as 0–255, or <strong>−1</strong> at end of file</td></tr>
+        <tr><td>int read(byte[] b)</td><td>fills the array, returns <strong>how many</strong> were filled, or −1</td></tr>
+        <tr><td>int available()</td><td>bytes that can be read without blocking</td></tr>
+        <tr><td>void write(int b)</td><td>writes the low 8 bits of the int</td></tr>
+        <tr><td>void write(byte[] b, int off, int len)</td><td>writes exactly <code>len</code> bytes from offset</td></tr>
+        <tr><td>void flush()</td><td>pushes buffered bytes to the destination now</td></tr>
+        <tr><td>void close()</td><td>flushes, then releases the file handle</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>The <code>new String(buf)</code> trap</h2>
+      <p>The last chunk of a file almost never fills the buffer. If you print <code>new String(buf)</code> you print the whole array — including <strong>leftovers from the previous chunk</strong>.</p>
+      <div class="console" style="min-height:0"><span class="prompt">buffer size 4, file "GSEC 2026" (9 bytes)</span>
+<span class="out">chunk 1 → buf = [G,S,E,C]  n=4</span>
+<span class="out">chunk 2 → buf = [ ,2,0,2]  n=4</span>
+<span class="fail">chunk 3 → buf = [6,2,0,2]  n=1  ← 2,0,2 are stale!</span>
+<span class="info">new String(buf)      prints "6202"  ✗</span>
+<span class="info">new String(buf,0,n)  prints "6"     ✓</span></div>
+      <p style="margin-top:10px">Same for writing: always <code>out.write(buf, 0, n)</code>. Writing <code>buf</code> whole appends 3 junk bytes and your copy no longer matches the original.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 3 : CHARACTER STREAMS ================= -->
+<section class="tab" id="tab-char">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">Character streams</span>
+    <h2>Reader &amp; Writer — text, with the encoding done for you</h2>
+    <p>A character stream sits one level above bytes. It reads bytes from disk and <strong>decodes</strong> them into Java <code>char</code> values using a charset (UTF-8 by default since Java 18). Writing runs the same process in reverse. The payoff is that you deal in text — including <code>readLine()</code>, which no byte stream offers.</p>
+  </div>
+
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;CharStreamDemo.java</div>
+      <div class="codebody" id="code-char"></div>
+    </div>
+    <div class="steppanel" id="step-char"></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Run it</h2>
+    <div class="runbar">
+      <button class="btn run" id="runChar">▶ Run CharStreamDemo</button>
+      <span class="note">writes student.txt and price.txt</span>
+    </div>
+    <div class="console" id="outChar"><span class="prompt">// press Run</span></div>
+  </div>
+
+  <div class="card">
+    <h2>The experiment: same file, two streams, two different counts</h2>
+    <p>Type text containing a non-ASCII character — <code>₹</code>, <code>é</code>, <code>ñ</code>, <code>அ</code>, an emoji — and watch the byte view and the character view disagree. This is the whole reason both families exist.</p>
+    <div class="demo">
+      <div class="row">
+        <div>
+          <label for="encText">Content written with FileWriter</label>
+          <input type="text" id="encText" value="₹250" style="width:260px" maxlength="30">
+        </div>
+        <button class="btn primary small" id="encRun">Compare views</button>
+        <button class="btn small" id="encRupee">₹250</button>
+        <button class="btn small" id="encTamil">அன்பு</button>
+        <button class="btn small" id="encAscii">Hello</button>
+      </div>
+      <div class="striplabel" style="margin-top:14px">① FileInputStream sees — raw bytes</div>
+      <div class="strip" id="encBytes"></div>
+      <div class="striplabel">② FileReader sees — decoded characters (multi-byte groups in pink)</div>
+      <div class="strip" id="encChars"></div>
+      <div class="console" id="encConsole"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Core methods</h2>
+      <table>
+        <tr><th>Method</th><th>Returns / does</th></tr>
+        <tr><td>int read()</td><td>next character code (0–65535), or <strong>−1</strong> at end</td></tr>
+        <tr><td>int read(char[] c)</td><td>characters filled, or −1</td></tr>
+        <tr><td>String readLine()</td><td><em>BufferedReader only</em> — one line without its terminator, <strong>null</strong> at end</td></tr>
+        <tr><td>void write(String s)</td><td>writes the whole string</td></tr>
+        <tr><td>void newLine()</td><td><em>BufferedWriter only</em> — the platform line separator</td></tr>
+        <tr><td>void println(x)</td><td><em>PrintWriter only</em> — like System.out, but into a file</td></tr>
+        <tr><td>void flush() / close()</td><td>close() flushes first — <strong>forget it and the file can be empty</strong></td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Two sentinels, never mixed up</h2>
+      <div class="callout bug">
+        <b>⛔ <code>while ((line = br.readLine()) != -1)</code></b>
+        <p>Compile error — <code>readLine()</code> returns a <strong>String</strong>. A String can never equal an int. The end marker for <code>readLine()</code> is <code>null</code>.</p>
+      </div>
+      <div class="callout ok">
+        <b>✓ The two correct loops</b>
+        <p><code>while ((c = fr.read()) != -1)</code> — character at a time, int sentinel.<br><code>while ((line = br.readLine()) != null)</code> — line at a time, null sentinel.</p>
+      </div>
+      <h3>readLine() and the missing newline</h3>
+      <p><code>readLine()</code> <strong>strips</strong> the <code>\n</code>. So printing lines back with <code>println</code> reproduces the file, but summing <code>line.length()</code> gives a smaller number than <code>file.length()</code> — one character short per line. Lab Ex.10.3 prints both numbers side by side so the gap is visible.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 4 : FILE HANDLING ================= -->
+<section class="tab" id="tab-file">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">File handling</span>
+    <h2><code>File</code> is a name, not a file</h2>
+    <p><code>new File("gsec.txt")</code> creates <strong>an object that holds a path</strong>. Nothing appears on disk. The file is created the moment a writer opens it — or when you call <code>createNewFile()</code>. Understanding that separation removes most beginner confusion: <code>f.exists()</code> can be <code>false</code> on a perfectly valid <code>File</code> object.</p>
+  </div>
+
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;FileHandlingDemo.java</div>
+      <div class="codebody" id="code-file"></div>
+    </div>
+    <div class="steppanel" id="step-file"></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Run it</h2>
+    <div class="runbar">
+      <button class="btn run" id="runFile">▶ Run FileHandlingDemo</button>
+      <span class="note">creates gsec.txt, appends, then deletes it — and deliberately fails on missing.txt</span>
+    </div>
+    <div class="console" id="outFile"><span class="prompt">// press Run</span></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Overwrite vs append — one boolean, whole different program</h2>
+      <table>
+        <tr><th>Constructor</th><th>Effect on an existing file</th></tr>
+        <tr><td>new FileWriter("f.txt")</td><td><span class="pill p-red">truncates to 0</span> then writes — old content gone</td></tr>
+        <tr><td>new FileWriter("f.txt", true)</td><td><span class="pill p-green">appends</span> at the end, old content kept</td></tr>
+        <tr><td>new FileOutputStream("f.txt")</td><td>truncates</td></tr>
+        <tr><td>new FileOutputStream("f.txt", true)</td><td>appends</td></tr>
+      </table>
+      <div class="callout bug">
+        <b>⛔ The classic lab disaster</b>
+        <p>A student writes records in a loop and opens <code>new FileWriter(f)</code> <em>inside</em> the loop. Every iteration truncates the file, so only the last record survives. Open the writer <strong>once, outside</strong> the loop — or pass <code>true</code>.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>The <code>File</code> API worth memorising</h2>
+      <table>
+        <tr><th>Method</th><th>Meaning</th></tr>
+        <tr><td>exists()</td><td>true if something is at that path</td></tr>
+        <tr><td>createNewFile()</td><td>creates empty file; <strong>false</strong> if it already existed</td></tr>
+        <tr><td>length()</td><td>size in <strong>bytes</strong> (0 for a missing file)</td></tr>
+        <tr><td>getName() / getPath()</td><td>file name / the path as given</td></tr>
+        <tr><td>getAbsolutePath()</td><td>full path from the drive root</td></tr>
+        <tr><td>canRead() / canWrite()</td><td>permission checks</td></tr>
+        <tr><td>isFile() / isDirectory()</td><td>which kind of node it is</td></tr>
+        <tr><td>mkdir() / mkdirs()</td><td>one folder / the whole missing chain</td></tr>
+        <tr><td>list() / listFiles()</td><td>names / File objects inside a directory</td></tr>
+        <tr><td>delete()</td><td>true if removed; a non-empty directory refuses</td></tr>
+        <tr><td>renameTo(File dest)</td><td>rename or move</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>File playground — poke the virtual disk directly</h2>
+    <p>Run the <code>File</code> methods against whatever is currently on the disk. Everything the other tabs wrote is visible here.</p>
+    <div class="demo">
+      <div class="row">
+        <div>
+          <label for="fpName">File name</label>
+          <input type="text" id="fpName" value="gsec.txt" style="width:200px">
+        </div>
+        <div>
+          <label for="fpText">Text to write</label>
+          <input type="text" id="fpText" value="Hello streams" style="width:220px">
+        </div>
+      </div>
+      <div class="runbar">
+        <button class="btn small" id="fpInfo">f.exists() / length() / getName()</button>
+        <button class="btn small" id="fpCreate">createNewFile()</button>
+        <button class="btn small" id="fpWrite">FileWriter (overwrite)</button>
+        <button class="btn small" id="fpAppend">FileWriter (append)</button>
+        <button class="btn small" id="fpRead">read back</button>
+        <button class="btn small" id="fpDelete">delete()</button>
+        <button class="btn small" id="fpList">list files</button>
+      </div>
+      <div class="console" id="fpConsole"><span class="prompt">// pick an operation</span></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Exception handling is not optional here</h2>
+    <p>Every file operation is declared to throw a <strong>checked</strong> exception. The compiler forces you to either <code>catch</code> it or add <code>throws</code> to your method — there is no third option.</p>
+    <table>
+      <tr><th>Exception</th><th>Thrown when</th><th>Family</th></tr>
+      <tr><td>FileNotFoundException</td><td>opening a file for reading that does not exist, or opening a directory / read-only file for writing</td><td>subclass of IOException → <span class="pill p-amber">checked</span></td></tr>
+      <tr><td>IOException</td><td>disk full, handle closed, hardware error, permission denied mid-operation</td><td><span class="pill p-amber">checked</span></td></tr>
+      <tr><td>SecurityException</td><td>a security manager blocks the access</td><td><span class="pill p-teal">unchecked</span></td></tr>
+      <tr><td>NullPointerException</td><td>using a stream variable that was never assigned because the constructor threw</td><td><span class="pill p-teal">unchecked</span></td></tr>
+    </table>
+    <div class="callout warn">
+      <b>Catch order: child before parent</b>
+      <p><code>FileNotFoundException</code> <strong>extends</strong> <code>IOException</code>. Put the IOException catch first and the compiler rejects the file — the specific block would be unreachable. Same rule you learned in the Throwable unit, now with real classes.</p>
+    </div>
+    <div class="grid2" style="margin-top:6px">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;the old way — finally + null check</div><div class="codebody" id="code-oldtry"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;try-with-resources (Java 7+)</div><div class="codebody" id="code-twr"></div></div>
+    </div>
+    <p style="margin-top:10px">Resources declared in the parentheses are closed <strong>automatically, in reverse order, even if an exception is thrown</strong>. Any class implementing <code>AutoCloseable</code> qualifies — every stream in this unit does. Use this form in your lab record; it is shorter and cannot leak.</p>
+  </div>
+</section>
+
+<!-- ================= TAB 5 : LAB EX 10 ================= -->
+<section class="tab" id="tab-lab">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Lab Exercise 10</span>
+    <h2>Streams &amp; File Handling — five exercises, each with real output</h2>
+    <p>Each exercise below is a complete, compilable program. Press <strong>Run</strong> and the output is generated by executing that exact logic against the virtual disk — so if you press Run twice on the append exercise, you will honestly see the records duplicate.</p>
+    <div class="runbar">
+      <button class="btn primary" id="labRunAll">▶ Run all five in order</button>
+      <button class="btn small" id="labReset">Reset virtual disk</button>
+    </div>
+  </div>
+  <div id="labHost"></div>
+</section>
+
+<!-- ================= TAB : YOUR GSEC CODE × STREAMS ================= -->
+<section class="tab" id="tab-gsec">
+  <div class="card">
+    <span class="tagline" style="color:var(--ink);border-color:var(--line2)">Your code</span>
+    <h2>The <code>Gsec</code> class, now persisted to disk</h2>
+    <p>Everything on this tab is built from the exact class you wrote. An object lives in memory and dies when the program ends; a <strong>stream is how you make it outlive the run</strong>. Watch how the private <code>age</code> field forces you through <code>getAge()</code> even when writing to a file, and how reading a file back is really a constructor call in disguise.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — your original</div>
+      <div class="codebody" id="code-gsec"></div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ <code>new Gsec()</code> does not compile</b>
+        <p>You commented out the no-arg constructor, and writing your own 4-arg constructor removed the free default one. So <code>Main</code> fails with <em>constructor Gsec() is undefined</em>. Every program on this tab therefore uses the 4-arg form — which turns out to be exactly what reading a CSV line gives you: four values, one constructor call.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 Where each stream idea lands in this class</b>
+        <ul style="margin:6px 0 0 18px">
+          <li><code>private int age</code> → you must call <code>getAge()</code> to write it out. Encapsulation survives serialization.</li>
+          <li><code>validator()</code> → runs after every read, so a bad record is caught the moment it comes off disk.</li>
+          <li><code>display()</code> prints the hardcoded <em>"Hi sreekanth"</em> for every student — a bug the file makes obvious.</li>
+          <li>4-arg constructor → the natural target for <code>line.split(",")</code>.</li>
+        </ul>
+      </div>
+      <div class="runbar">
+        <button class="btn run" id="gsecRunAll">▶ Run all six programs in order</button>
+        <button class="btn small" id="gsecReset">Reset virtual disk</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="gsecHost"></div>
+</section>
+
+<!-- ================= TAB 7 : SIMULATED OUTPUT ================= -->
+<section class="tab" id="tab-out">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Simulated output</span>
+    <h2>Every topic's output, computed separately</h2>
+    <p>The disk is wiped, then each topic runs in its own clean-ish sequence. What you see is what <code>javac</code> + <code>java</code> would print on a Linux/macOS JVM with UTF-8 as the default charset.</p>
+    <div class="runbar">
+      <button class="btn primary" id="outRunAll">↻ Wipe disk &amp; re-run every topic</button>
+      <span class="note" id="outStamp"></span>
+    </div>
+  </div>
+  <div class="subtabs">
+    <button class="subtab-btn active" data-sub="bytopic">🖥 Output by topic</button>
+    <button class="subtab-btn" data-sub="disk">💾 Virtual disk</button>
+    <button class="subtab-btn" data-sub="syntax">📐 Syntax toolkit</button>
+    <button class="subtab-btn" data-sub="traps">⚠ Traps &amp; viva points</button>
+  </div>
+
+  <div class="subview active" id="sub-bytopic"><div id="outHost"></div></div>
+
+  <div class="subview" id="sub-disk">
+    <div class="card">
+      <h2>Files created by the runs</h2>
+      <p>Every write from every tab lands here. Click a file to inspect its bytes.</p>
+      <table id="diskTable"></table>
+      <div class="striplabel" style="margin-top:16px" id="diskWho">select a file</div>
+      <div class="strip" id="diskStrip"></div>
+      <div class="console" id="diskConsole" style="min-height:0"></div>
+    </div>
+  </div>
+
+  <div class="subview" id="sub-syntax">
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;byte stream — copy any file</div><div class="codebody" id="syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;character stream — write &amp; read text</div><div class="codebody" id="syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;keyboard input — the bridge</div><div class="codebody" id="syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;File API + directory walk</div><div class="codebody" id="syn4"></div></div>
+    </div>
+  </div>
+
+  <div class="subview" id="sub-traps">
+    <div class="card">
+      <h2>The ten things that actually cost marks</h2>
+      <table>
+        <tr><th>#</th><th>Trap</th><th>What happens</th></tr>
+        <tr><td>1</td><td>Forgetting <code>close()</code></td><td>Buffered data is never flushed — the file exists but is <strong>0 bytes</strong>. Silent, and the hardest bug to spot.</td></tr>
+        <tr><td>2</td><td><code>byte b = in.read();</code></td><td>Compile error: possible lossy conversion. <code>read()</code> gives an <code>int</code>.</td></tr>
+        <tr><td>3</td><td><code>readLine() != -1</code></td><td>Compile error. Strings end with <code>null</code>, not −1.</td></tr>
+        <tr><td>4</td><td><code>new String(buf)</code> after a partial read</td><td>Prints stale bytes from the previous chunk. Use <code>new String(buf,0,n)</code>.</td></tr>
+        <tr><td>5</td><td>Opening the writer inside the loop</td><td>Truncates every iteration — only the last record survives.</td></tr>
+        <tr><td>6</td><td><code>catch(IOException)</code> before <code>catch(FileNotFoundException)</code></td><td>Compile error: the subclass block is unreachable.</td></tr>
+        <tr><td>7</td><td>Reading a JPEG with <code>FileReader</code></td><td>Undecodable bytes become <code>?</code> / U+FFFD — the copy is corrupt.</td></tr>
+        <tr><td>8</td><td>Assuming <code>length()</code> == number of characters</td><td>True only for pure ASCII. UTF-8 gives 2–4 bytes for anything else.</td></tr>
+        <tr><td>9</td><td>Counting characters via <code>readLine()</code></td><td>Newlines are stripped, so the total is short by one per line.</td></tr>
+        <tr><td>10</td><td><code>\n</code> vs <code>println()</code> on Windows</td><td><code>println</code> writes <code>\r\n</code> (2 bytes) — file sizes differ from Linux by one byte per line.</td></tr>
+      </table>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h2>Viva questions with the one-line answer</h2>
+        <ul>
+          <li><strong>Why is <code>read()</code> int, not byte?</strong> To fit 0–255 plus the −1 end marker.</li>
+          <li><strong>Difference between byte and character streams?</strong> 8 bits vs 16-bit chars; character streams apply an encoding, byte streams do not.</li>
+          <li><strong>Why is <code>Reader</code> abstract?</strong> It defines the contract; the source-specific subclass supplies the actual reading.</li>
+          <li><strong>What does <code>flush()</code> do?</strong> Forces buffered data out immediately, without closing.</li>
+          <li><strong>Is <code>FileNotFoundException</code> checked?</strong> Yes — it extends <code>IOException</code> extends <code>Exception</code>.</li>
+          <li><strong>Purpose of <code>InputStreamReader</code>?</strong> The bridge that converts a byte stream into a character stream.</li>
+          <li><strong>Node vs processing stream?</strong> Node talks to the real source; processing wraps another stream to add a feature.</li>
+          <li><strong>Does <code>new File("x.txt")</code> create a file?</strong> No — it only creates a path object in memory.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h2>Modern alternative (mention it, score the extra mark)</h2>
+        <p><code>java.nio.file</code> collapses most of this into one line each. Examiners like seeing that you know it exists.</p>
+        <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;NIO one-liners</div><div class="codebody" id="syn5"></div></div>
+        <p style="margin-top:10px">Still learn the stream API first: <code>Files.readAllLines</code> loads the whole file into memory, which is exactly what streams are designed to avoid for large files.</p>
+      </div>
+    </div>
+  </div>
+</section>
+</main>
+<footer>Java File Streams Lab · single file · fully offline · virtual disk + real execution trace</footer>
+<script>
+/* ============================================================
+   1 · syntax highlighter + code renderer  (shared with the OOP lab)
+   ============================================================ */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(@\w+)|\b(abstract|boolean|break|byte|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){
+  let out='',last=0,m; HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){
+    out+=esc(line.slice(last,m.index));
+    const cls=m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-s':m[4]?'tok-a':m[5]?'tok-k':m[6]?'tok-t':m[7]?'tok-n':'tok-m';
+    out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+    last=m.index+m[0].length;
+  }
+  return out+esc(line.slice(last));
+}
+function renderCode(id,lines,opts){
+  opts=opts||{}; const box=document.getElementById(id); if(!box)return;
+  box.innerHTML='';
+  lines.forEach((ln,i)=>{
+    const d=document.createElement('div'); d.className='cl'; d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1))d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';
+    box.appendChild(d);
+  });
+}
+function L(lines,sub){const i=lines.findIndex(l=>l.includes(sub));return i+1;}
+function R(lines,a,b){const s=L(lines,a),e=L(lines,b),r=[];for(let i=s;i<=e;i++)r.push(i);return r;}
+
+/* ============================================================
+   2 · tabs + steppers
+   ============================================================ */
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}
+}));
+document.querySelectorAll('.subtab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.subtab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.subview').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('sub-'+b.dataset.sub).classList.add('active');
+}));
+function makeStepper(codeId,panelId,steps){
+  const panel=document.getElementById(panelId); if(!panel)return;
+  let i=0;
+  function paint(){
+    const st=steps[i];
+    panel.innerHTML=
+      '<div class="stephead"><span class="stepcount">STEP '+(i+1)+' / '+steps.length+'</span></div>'+
+      '<div class="steptitle">'+st.t+'</div><div class="stepbody">'+st.d+'</div>'+
+      '<div class="stepnav"><button class="btn" id="'+panelId+'-prev">← Prev</button>'+
+      '<button class="btn primary" id="'+panelId+'-next">Next →</button></div>'+
+      '<div class="progress"><i style="width:'+((i+1)/steps.length*100)+'%"></i></div>';
+    const code=document.getElementById(codeId);
+    code.querySelectorAll('.cl').forEach(c=>{c.classList.remove('hl');c.classList.remove('err');});
+    (st.hl||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('hl');});
+    (st.err||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('err');});
+    const first=code.querySelector('.cl.hl')||code.querySelector('.cl.err');
+    if(first&&first.scrollIntoView)first.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const pv=document.getElementById(panelId+'-prev'),nx=document.getElementById(panelId+'-next');
+    pv.disabled=(i===0); nx.disabled=(i===steps.length-1);
+    pv.onclick=()=>{if(i>0){i--;paint();}};
+    nx.onclick=()=>{if(i<steps.length-1){i++;paint();}};
+  }
+  paint();
+}
+
+/* ============================================================
+   3 · UTF-8 codec + the virtual disk
+   ============================================================ */
+function utf8enc(str){
+  const out=[];
+  for(let i=0;i<str.length;i++){
+    let c=str.codePointAt(i);
+    if(c>0xFFFF)i++;
+    if(c<0x80)out.push(c);
+    else if(c<0x800)out.push(0xC0|(c>>6),0x80|(c&63));
+    else if(c<0x10000)out.push(0xE0|(c>>12),0x80|((c>>6)&63),0x80|(c&63));
+    else out.push(0xF0|(c>>18),0x80|((c>>12)&63),0x80|((c>>6)&63),0x80|(c&63));
+  }
+  return out;
+}
+/* returns [{bytes:[..],ch:'x'}, ...] so we can show the grouping */
+function utf8groups(bytes){
+  const g=[];
+  for(let i=0;i<bytes.length;){
+    const b=bytes[i];
+    let len=1;
+    if(b>=0xF0)len=4; else if(b>=0xE0)len=3; else if(b>=0xC0)len=2;
+    const chunk=bytes.slice(i,i+len);
+    let cp;
+    if(len===1)cp=b;
+    else if(len===2)cp=((b&31)<<6)|(chunk[1]&63);
+    else if(len===3)cp=((b&15)<<12)|((chunk[1]&63)<<6)|(chunk[2]&63);
+    else cp=((b&7)<<18)|((chunk[1]&63)<<12)|((chunk[2]&63)<<6)|(chunk[3]&63);
+    g.push({bytes:chunk,ch:String.fromCodePoint(cp),cp:cp,len:len});
+    i+=len;
+  }
+  return g;
+}
+function utf8dec(bytes){return utf8groups(bytes).map(g=>g.ch).join('');}
+
+const DISK={};
+const FS={
+  reset(){Object.keys(DISK).forEach(k=>delete DISK[k]);},
+  exists(n){return Object.prototype.hasOwnProperty.call(DISK,n);},
+  len(n){return FS.exists(n)?DISK[n].length:0;},
+  bytes(n){
+    if(!FS.exists(n))throw{cls:'java.io.FileNotFoundException',msg:n+' (No such file or directory)'};
+    return DISK[n].slice();
+  },
+  put(n,bytes,append){
+    if(append&&FS.exists(n))DISK[n]=DISK[n].concat(bytes); else DISK[n]=bytes.slice();
+  },
+  create(n){if(FS.exists(n))return false;DISK[n]=[];return true;},
+  del(n){if(FS.exists(n)){delete DISK[n];return true;}return false;},
+  list(){return Object.keys(DISK).sort();}
+};
+/* ---- java-ish stream objects over the virtual disk ---- */
+function FileOutputStream(name,append){FS.put(name,[],!!append);this.name=name;
+  this.write=b=>{FS.put(name,Array.isArray(b)?b:[b&255],true);};
+  this.writeRange=(buf,off,len)=>{FS.put(name,buf.slice(off,off+len),true);};
+  this.close=()=>{};}
+function FileInputStream(name){const data=FS.bytes(name);let p=0;
+  this.read=()=>p<data.length?data[p++]:-1;
+  this.readBuf=buf=>{if(p>=data.length)return -1;let n=0;while(n<buf.length&&p<data.length){buf[n++]=data[p++];}return n;};
+  this.available=()=>data.length-p;
+  this.close=()=>{};}
+function FileWriter(name,append){FS.put(name,[],!!append);
+  this.write=s=>{FS.put(name,utf8enc(String(s)),true);};
+  this.close=()=>{};}
+function FileReader(name){const chars=utf8dec(FS.bytes(name));let p=0;
+  this.read=()=>p<chars.length?chars.charCodeAt(p++):-1;
+  this.rest=()=>chars.slice(p);
+  this.close=()=>{};}
+function BufferedReader(reader){const text=reader.rest();const lines=text.split('\n');
+  let i=0;if(lines.length&&lines[lines.length-1]==='')lines.pop();
+  this.readLine=()=>i<lines.length?lines[i++]:null;
+  this.close=()=>{};}
+function PrintWriter(w){this.println=s=>w.write(String(s)+'\n');this.print=s=>w.write(String(s));this.close=()=>w.close();}
+function jFile(name){return{name:name,exists:()=>FS.exists(name),length:()=>FS.len(name),
+  getName:()=>name,createNewFile:()=>FS.create(name),delete:()=>FS.del(name)};}
+
+/* ---- console writer ---- */
+function mkOut(){
+  const buf=[];
+  const o=(s,c)=>buf.push('<span class="'+(c||'out')+'">'+esc(String(s))+'</span>');
+  o.head=s=>buf.push('<span class="hd">'+esc(String(s))+'</span>');
+  o.info=s=>o(s,'info'); o.fail=s=>o(s,'fail'); o.warn=s=>o(s,'warn'); o.dim=s=>o(s,'prompt');
+  o.raw=s=>buf.push(s);
+  o.text=()=>buf.join('\n');
+  return o;
+}
+function paint(id,o){const el=document.getElementById(id);if(el)el.innerHTML=o.text();}
+</script>
+<script>
+/* ============================================================
+   4 · TAB 1 · chaining snippet, workflow pipeline, taxonomy tree
+   ============================================================ */
+const SRC_CHAIN=[
+'// four objects, one pipeline — read right to left',
+'BufferedReader br = new BufferedReader(',
+'                        new InputStreamReader(',
+'                            new FileInputStream("data.txt")));',
+'',
+'String line = br.readLine();   // you only ever talk to br',
+'br.close();                    // closing br closes the whole chain',
+'',
+'// the same trick for the keyboard:',
+'BufferedReader kb = new BufferedReader(',
+'                        new InputStreamReader(System.in));',
+'String name = kb.readLine();'
+];
+renderCode('code-chain',SRC_CHAIN);
+
+const STAGES=[
+ {n:'STAGE 1',t:'Identify source & direction',m:'file? keyboard? socket?',
+  h:'What are you connecting to, and which way does data move?',
+  d:'Reading a text file → an input, character stream. Copying a photo → byte streams both ways. Getting the user\'s name → <code>System.in</code>, which is a byte <code>InputStream</code>, so it needs a bridge. Choose wrong here and everything downstream fights you.',
+  ex:'<span class="prompt">text in  → FileReader</span>\n<span class="prompt">binary   → FileInputStream</span>\n<span class="prompt">keyboard → InputStreamReader(System.in)</span>'},
+ {n:'STAGE 2',t:'Open the stream',m:'new FileInputStream("f.txt")',
+  h:'The constructor is the open() call',
+  d:'Constructing the stream object is what actually opens the file and grabs an OS handle. This is the line that throws <code>FileNotFoundException</code> — not the later <code>read()</code>. For output streams, the file is <strong>created here</strong>, and truncated to zero unless you passed <code>true</code> for append.',
+  ex:'<span class="fail">java.io.FileNotFoundException: f.txt (No such file or directory)</span>\n<span class="prompt">   ↑ thrown by the constructor, before any read</span>'},
+ {n:'STAGE 3',t:'Wrap it (optional but usual)',m:'new BufferedReader(reader)',
+  h:'Add skills by layering',
+  d:'A processing stream takes your stream and returns a smarter one: <code>BufferedReader</code> adds <code>readLine()</code> and an 8 KB buffer, <code>InputStreamReader</code> adds decoding, <code>PrintWriter</code> adds <code>println()</code>, <code>DataOutputStream</code> adds <code>writeInt()</code>. You keep only the outermost reference.',
+  ex:'<span class="out">file → bytes → [InputStreamReader] → chars → [BufferedReader] → lines</span>'},
+ {n:'STAGE 4',t:'Loop until the sentinel',m:'while ((x = read()) != -1)',
+  h:'The heart of every file program',
+  d:'Read or write one unit at a time until the stream says stop. <code>read()</code> returns <strong>−1</strong>; <code>readLine()</code> returns <strong>null</strong>; <code>read(byte[])</code> returns <strong>−1</strong> but gives you a count on the way. The assignment sits inside the condition so the value is captured and tested in one move.',
+  ex:'<span class="prompt">int b;</span>\n<span class="out">while ((b = in.read()) != -1) { ... }</span>\n<span class="prompt">String line;</span>\n<span class="out">while ((line = br.readLine()) != null) { ... }</span>'},
+ {n:'STAGE 5',t:'Flush',m:'out.flush()',
+  h:'Push the buffer out — writing only',
+  d:'Buffered output sits in memory until the buffer fills. If your program prints "done" and exits without flushing, the file on disk can still be <strong>empty</strong>. <code>close()</code> flushes for you, so an explicit <code>flush()</code> matters only when you must see the data <em>before</em> closing — logs, sockets, progress files.',
+  ex:'<span class="warn">// no close(), no flush()</span>\n<span class="fail">notes.txt → 0 bytes, and no error message at all</span>'},
+ {n:'STAGE 6',t:'Close — always',m:'close() / try-with-resources',
+  h:'Release the handle, in reverse order',
+  d:'Every open stream holds a file handle; the OS gives each process a limited number. Close in a <code>finally</code> block, or better, declare the streams in <code>try (...)</code> and let Java close them automatically — even when an exception is thrown, and in reverse order of opening.',
+  ex:'<span class="out">try (BufferedReader br = new BufferedReader(new FileReader("f.txt"))) {</span>\n<span class="out">    ...</span>\n<span class="out">}  // br closed here, guaranteed</span>'}
+];
+(function(){
+  const host=document.getElementById('pipe');
+  STAGES.forEach((s,i)=>{
+    if(i>0){const a=document.createElement('div');a.className='arrow';a.textContent='→';host.appendChild(a);}
+    const b=document.createElement('button');
+    b.className='stage'+(i===0?' sel':''); b.type='button';
+    b.innerHTML='<div class="n">'+s.n+'</div><div class="t">'+s.t+'</div><div class="m">'+esc(s.m)+'</div>';
+    b.addEventListener('click',()=>{
+      host.querySelectorAll('.stage').forEach(x=>x.classList.remove('sel'));
+      b.classList.add('sel'); show(i);
+    });
+    host.appendChild(b);
+  });
+  function show(i){
+    const s=STAGES[i];
+    document.getElementById('wfDetail').innerHTML=
+      '<h3 style="color:var(--teal)">'+s.n+' · '+s.t+'</h3>'+
+      '<p style="color:var(--ink);font-size:14.5px;margin-bottom:8px"><strong>'+s.h+'</strong></p>'+
+      '<p style="color:var(--mut);font-size:14.5px">'+s.d+'</p>'+
+      '<div class="console" style="min-height:0">'+s.ex+'</div>';
+  }
+  show(0);
+})();
+
+/* ---------- taxonomy tree ---------- */
+const TAX=[
+ {x:14,c:'#f0b45f',title:'BYTE · INPUT  (read)',
+  root:{l:'abstract class InputStream',d:'The root of all byte-reading. Declares <code>read()</code>, <code>read(byte[])</code>, <code>available()</code>, <code>close()</code>. Abstract because it has no idea where the bytes come from — a subclass supplies that.',e:'int b = in.read();   // 0..255, or -1'},
+  kids:[
+   {l:'FileInputStream',d:'Node stream. Reads raw bytes straight from a file on disk. Works for every file type: text, JPEG, PDF, .class.',e:'new FileInputStream("photo.jpg")'},
+   {l:'ByteArrayInputStream',d:'Node stream over a <code>byte[]</code> already in memory — no file involved. Handy for tests.',e:'new ByteArrayInputStream(data)'},
+   {l:'BufferedInputStream',d:'Processing stream. Wraps another InputStream and reads 8192 bytes at a time, so your per-byte calls stop hitting the OS.',e:'new BufferedInputStream(new FileInputStream(f))'},
+   {l:'DataInputStream',d:'Processing stream. Reads Java primitives back in binary form: <code>readInt()</code>, <code>readDouble()</code>, <code>readUTF()</code>.',e:'int age = dis.readInt();'},
+   {l:'ObjectInputStream',d:'Processing stream. Deserialises whole objects written by ObjectOutputStream. The class must implement <code>Serializable</code>.',e:'Gsec g = (Gsec) ois.readObject();'},
+   {l:'System.in',d:'A ready-made InputStream connected to the keyboard. It gives you <strong>bytes</strong>, which is why you wrap it in an InputStreamReader to read text.',e:'new BufferedReader(new InputStreamReader(System.in))'}
+  ]},
+ {x:312,c:'#f0b45f',title:'BYTE · OUTPUT  (write)',
+  root:{l:'abstract class OutputStream',d:'The root of all byte-writing. Declares <code>write(int)</code>, <code>write(byte[])</code>, <code>flush()</code>, <code>close()</code>.',e:'out.write(65);   // writes the byte for \'A\''},
+  kids:[
+   {l:'FileOutputStream',d:'Node stream. Writes bytes to a file. Second constructor argument <code>true</code> = append; otherwise the file is truncated.',e:'new FileOutputStream("out.bin", true)'},
+   {l:'ByteArrayOutputStream',d:'Collects bytes in memory; <code>toByteArray()</code> hands them back. No file is touched.',e:'baos.toByteArray()'},
+   {l:'BufferedOutputStream',d:'Processing stream. Batches writes so the disk is hit once per 8 KB instead of once per byte.',e:'new BufferedOutputStream(fos)'},
+   {l:'DataOutputStream',d:'Processing stream. Writes primitives in a portable binary layout: <code>writeInt</code>, <code>writeDouble</code>, <code>writeUTF</code>.',e:'dos.writeInt(101);'},
+   {l:'ObjectOutputStream',d:'Processing stream. Serialises an entire object graph into bytes.',e:'oos.writeObject(student);'},
+   {l:'PrintStream',d:'Processing stream that adds <code>print</code>/<code>println</code> and never throws IOException. <code>System.out</code> is one of these.',e:'System.out.println("hi");'}
+  ]},
+ {x:610,c:'#63cfc0',title:'CHAR · INPUT  (read)',
+  root:{l:'abstract class Reader',d:'The root of all character-reading. Same shape as InputStream but the unit is a 16-bit <code>char</code> and an encoding is applied.',e:'int c = r.read();   // char code, or -1'},
+  kids:[
+   {l:'FileReader',d:'Node stream. Reads a text file and decodes it with the default charset (UTF-8 from Java 18). Convenience subclass of InputStreamReader.',e:'new FileReader("notes.txt")'},
+   {l:'InputStreamReader',d:'<strong>The bridge.</strong> Converts a byte InputStream into a character Reader, and lets you name the charset explicitly.',e:'new InputStreamReader(System.in, StandardCharsets.UTF_8)'},
+   {l:'BufferedReader',d:'Processing stream. Adds the buffer and, crucially, <code>readLine()</code> — which returns <strong>null</strong> at end of file.',e:'while ((line = br.readLine()) != null)'},
+   {l:'StringReader',d:'Treats a String as a character source. Useful when a method demands a Reader but your data is already text.',e:'new StringReader("101,Arun,18")'},
+   {l:'CharArrayReader',d:'Same idea over a <code>char[]</code>.',e:'new CharArrayReader(chars)'},
+   {l:'Scanner',d:'Not a Reader subclass, but the usual companion: it parses tokens (<code>nextInt</code>, <code>nextLine</code>) from any source.',e:'new Scanner(new File("data.txt"))'}
+  ]},
+ {x:908,c:'#63cfc0',title:'CHAR · OUTPUT  (write)',
+  root:{l:'abstract class Writer',d:'The root of all character-writing. Encodes chars into bytes before they reach the destination.',e:'w.write("Sreekanth");'},
+  kids:[
+   {l:'FileWriter',d:'Node stream. Writes text to a file, encoding with the default charset. <code>new FileWriter(f, true)</code> appends.',e:'new FileWriter("notes.txt", true)'},
+   {l:'OutputStreamWriter',d:'<strong>The bridge, outbound.</strong> Turns a character Writer into bytes on an OutputStream, with an optional charset.',e:'new OutputStreamWriter(fos, "UTF-8")'},
+   {l:'BufferedWriter',d:'Processing stream. Buffers output and adds <code>newLine()</code>, which uses the platform line separator.',e:'bw.newLine();'},
+   {l:'PrintWriter',d:'Processing stream. Gives a Writer the full <code>println</code>/<code>printf</code> vocabulary — the friendliest way to write a text file.',e:'pw.println("101,Arun,18");'},
+   {l:'StringWriter',d:'Collects characters in memory; <code>toString()</code> returns them. Common for building reports.',e:'sw.toString()'},
+   {l:'CharArrayWriter',d:'Same idea, ending in a <code>char[]</code>.',e:'cw.toCharArray()'}
+  ]}
+];
+(function(){
+  const svg=document.getElementById('taxSvg'),NS='http://www.w3.org/2000/svg';
+  const det=document.getElementById('taxDetail');
+  function box(x,y,w,h,col,label,fs,bold){
+    const g=document.createElementNS(NS,'g'); g.setAttribute('class','node'); g.setAttribute('tabindex','0');
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',x);r.setAttribute('y',y);r.setAttribute('width',w);r.setAttribute('height',h);
+    r.setAttribute('rx',8);r.setAttribute('fill',col);r.setAttribute('fill-opacity',bold?'0.16':'0.07');
+    r.setAttribute('stroke',col);r.setAttribute('stroke-width',bold?'1.7':'1.2');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x+10);t.setAttribute('y',y+h/2+4);t.setAttribute('fill',col);
+    t.setAttribute('font-size',fs);t.setAttribute('font-weight',bold?'700':'400');
+    t.textContent=label;
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);
+    return g;
+  }
+  function line(x1,y1,x2,y2,col){
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x1);l.setAttribute('y1',y1);l.setAttribute('x2',x2);l.setAttribute('y2',y2);
+    l.setAttribute('stroke',col);l.setAttribute('stroke-width','1.3');l.setAttribute('stroke-opacity','.55');
+    svg.appendChild(l);
+  }
+  function label(x,y,txt,col,size,bold){
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',x);t.setAttribute('y',y);t.setAttribute('fill',col);
+    t.setAttribute('font-size',size||11);if(bold)t.setAttribute('font-weight','700');
+    t.textContent=txt;svg.appendChild(t);
+  }
+  function pick(n,col){
+    svg.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));
+    if(n.g)n.g.classList.add('sel');
+    det.innerHTML='<h3 style="color:'+col+'">'+esc(n.l)+'</h3>'+
+      '<p style="color:var(--mut);font-size:14.5px">'+n.d+'</p>'+
+      '<div class="console" style="min-height:0">'+esc(n.e)+'</div>';
+  }
+  TAX.forEach(col=>{
+    label(col.x,22,col.title,col.c,11.5,true);
+    const root=box(col.x,34,272,34,col.c,col.root.l,11.5,true);
+    col.root.g=root;
+    root.addEventListener('click',()=>pick(col.root,col.c));
+    root.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(col.root,col.c);}});
+    const railX=col.x+14; let lastY=68;
+    col.kids.forEach((k,i)=>{
+      const y=88+i*50, cy=y+16;
+      line(railX,lastY,railX,cy,col.c); lastY=cy;
+      line(railX,cy,col.x+34,cy,col.c);
+      const g=box(col.x+34,y,238,32,col.c,k.l,11);
+      k.g=g;
+      g.addEventListener('click',()=>pick(k,col.c));
+      g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();pick(k,col.c);}});
+    });
+  });
+  label(14,412,'▸ node streams touch a real source · processing streams wrap another stream · every one of them ends in close()','#6d76a0',11.5);
+  pick(TAX[0].root,TAX[0].c);
+})();
+</script>
+<script>
+/* ============================================================
+   5 · TAB 2 · byte streams
+   ============================================================ */
+const SRC_BYTE=[
+'import java.io.FileInputStream;',
+'import java.io.FileOutputStream;',
+'import java.io.IOException;',
+'',
+'public class ByteStreamDemo {',
+'',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        // ---- 1. WRITE : program ---> file ----',
+'        FileOutputStream out = new FileOutputStream("notes.txt");',
+'        String data = "GSEC 2026";',
+'        out.write(data.getBytes());      // String -> byte[] -> disk',
+'        out.close();                     // flush + release the handle',
+'',
+'        // ---- 2. READ : file ---> program, one byte at a time ----',
+'        FileInputStream in = new FileInputStream("notes.txt");',
+'        int b, index = 0;',
+'        while ((b = in.read()) != -1) {  // 0..255, then -1 forever',
+'            System.out.println(index + " -> " + b + " (\'" + (char) b + "\')");',
+'            index++;',
+'        }',
+'        in.close();',
+'        System.out.println("Bytes read : " + index);',
+'',
+'        // ---- 3. BUFFERED COPY : 4 bytes per trip ----',
+'        FileInputStream src = new FileInputStream("notes.txt");',
+'        FileOutputStream dst = new FileOutputStream("copy.txt");',
+'        byte[] buf = new byte[4];',
+'        int n;',
+'        while ((n = src.read(buf)) != -1) {   // n = how many were filled',
+'            System.out.println("read " + n + " bytes: " + new String(buf, 0, n));',
+'            dst.write(buf, 0, n);            // write EXACTLY n, never buf.length',
+'        }',
+'        src.close();',
+'        dst.close();',
+'        System.out.println("copy.txt size : " + new java.io.File("copy.txt").length());',
+'    }',
+'}'
+];
+renderCode('code-byte',SRC_BYTE);
+makeStepper('code-byte','step-byte',[
+ {t:'Two objects, two directions',hl:[L(SRC_BYTE,'FileOutputStream out ='),L(SRC_BYTE,'FileInputStream in =')],
+  d:'<code>FileOutputStream</code> is the pipe going out, <code>FileInputStream</code> the pipe coming in. There is no single object that does both — a stream is one-way by design. Notice the constructor arguments: just a file name. That is enough for the JVM to open the file and hand you a handle.'},
+ {t:'The constructor creates and truncates',hl:[L(SRC_BYTE,'FileOutputStream out =')],
+  d:'This one line creates <code>notes.txt</code> if it is missing and <strong>wipes it to zero bytes</strong> if it already exists. Append instead with <code>new FileOutputStream("notes.txt", true)</code>. Because the file is opened here, this is also the line that can throw <code>FileNotFoundException</code>.'},
+ {t:'write() takes bytes, so the String is converted',hl:[L(SRC_BYTE,'out.write(data.getBytes())')],
+  d:'A byte stream cannot accept a <code>String</code>. <code>data.getBytes()</code> encodes the text into a <code>byte[]</code> using the default charset. For <code>"GSEC 2026"</code> that gives 9 bytes, one per character, because every character is plain ASCII. Put a <code>₹</code> in there and the count changes — tab ③ shows exactly that.'},
+ {t:'close() is the line that actually saves',hl:[L(SRC_BYTE,'out.close()')],
+  d:'<code>close()</code> flushes anything still buffered and releases the OS file handle. Delete this line and the program still compiles, still runs, still prints — and <code>notes.txt</code> can end up empty. No exception, no warning. This is the most common silent bug in the whole unit.'},
+ {t:'read() returns an int, and −1 means done',hl:[L(SRC_BYTE,'int b, index = 0'),L(SRC_BYTE,'while ((b = in.read())')],
+  d:'The assignment lives inside the condition: <code>read()</code> is called once, its value is stored in <code>b</code>, and that same value is compared with −1. Why <code>int</code>? A byte on disk is 0–255, and Java\'s <code>byte</code> only reaches 127 — plus the API needs one spare value to mean <em>end of file</em>. Widening to <code>int</code> solves both problems at once.'},
+ {t:'Bulk read: the count is the whole point',hl:R(SRC_BYTE,'while ((n = src.read(buf))','dst.write(buf, 0, n)'),
+  d:'<code>read(buf)</code> fills the array and returns <strong>how many bytes it managed to fill</strong> — which is less than <code>buf.length</code> on the final trip. With a 4-byte buffer over 9 bytes you get 4, 4, 1, then −1. Always slice with that <code>n</code>: <code>new String(buf, 0, n)</code> and <code>write(buf, 0, n)</code>. Ignore it and the tail of your copy is padded with stale bytes.'}
+]);
+
+function progByte(o){
+  const out=new FileOutputStream('notes.txt',false);
+  const data='GSEC 2026';
+  out.write(utf8enc(data));
+  out.close();
+  const inn=new FileInputStream('notes.txt');
+  let b,index=0;
+  while((b=inn.read())!==-1){
+    o(index+' -> '+b+" ('"+String.fromCharCode(b)+"')");
+    index++;
+  }
+  inn.close();
+  o('Bytes read : '+index);
+  const src=new FileInputStream('notes.txt');
+  const dst=new FileOutputStream('copy.txt',false);
+  const buf=[0,0,0,0]; let n;
+  while((n=src.readBuf(buf))!==-1){
+    o('read '+n+' bytes: '+utf8dec(buf.slice(0,n)));
+    dst.writeRange(buf,0,n);
+  }
+  src.close(); dst.close();
+  o('copy.txt size : '+jFile('copy.txt').length());
+}
+document.getElementById('runByte').addEventListener('click',()=>{
+  const o=mkOut();
+  o.dim('$ javac ByteStreamDemo.java && java ByteStreamDemo');
+  try{progByte(o);}catch(e){o.fail(e.cls+': '+e.msg);}
+  paint('outByte',o);
+});
+document.getElementById('resetByte').addEventListener('click',()=>{
+  FS.reset(); const o=mkOut(); o.warn('virtual disk wiped — 0 files'); paint('outByte',o); refreshDisk();
+});
+
+/* ---------- byte strip stepper ---------- */
+const BS={bytes:[],pos:0,log:[],timer:null};
+function bsRenderStrip(){
+  const host=document.getElementById('byteStrip'); host.innerHTML='';
+  BS.bytes.forEach((v,i)=>{
+    const d=document.createElement('div');
+    d.className='cell'+(i<BS.pos?' done':'')+(i===BS.pos?' cur':'');
+    const ch=v===32?'␣':String.fromCharCode(v);
+    d.innerHTML='<span class="v">'+v+'</span><span class="c">'+esc(ch)+'</span>';
+    host.appendChild(d);
+  });
+  const e=document.createElement('div');
+  e.className='cell eofcell'+(BS.pos>=BS.bytes.length?' cur':'');
+  e.innerHTML='<span class="v">-1</span><span class="c">EOF</span>';
+  host.appendChild(e);
+}
+function bsRenderLog(){
+  const o=mkOut();
+  o.dim('while ((b = in.read()) != -1) {  System.out.println(b);  }');
+  BS.log.forEach(l=>o.raw(l));
+  if(BS.pos>=BS.bytes.length&&BS.log.length)o.info('loop ends — nothing more is printed');
+  paint('byteConsole',o);
+}
+function bsLoad(){
+  const txt=document.getElementById('byteText').value||'';
+  FS.put('notes.txt',utf8enc(txt),false);
+  BS.bytes=FS.bytes('notes.txt'); BS.pos=0; BS.log=[];
+  BS.log.push('<span class="prompt">// notes.txt written — '+BS.bytes.length+' bytes</span>');
+  bsRenderStrip(); bsRenderLog(); refreshDisk();
+}
+function bsStep(){
+  if(BS.pos<BS.bytes.length){
+    const v=BS.bytes[BS.pos];
+    BS.log.push('<span class="out">read() -> '+v+"   ('"+esc(v===32?' ':String.fromCharCode(v))+"')  index "+BS.pos+'</span>');
+    BS.pos++;
+  }else{
+    if(!BS.log.some(l=>l.indexOf('-1')>-1))
+      BS.log.push('<span class="fail">read() -> -1   end of file, loop exits</span>');
+  }
+  bsRenderStrip(); bsRenderLog();
+}
+document.getElementById('byteLoad').addEventListener('click',bsLoad);
+document.getElementById('byteStep').addEventListener('click',bsStep);
+document.getElementById('byteRewind').addEventListener('click',()=>{BS.pos=0;BS.log=[];bsRenderStrip();bsRenderLog();});
+document.getElementById('bytePlay').addEventListener('click',()=>{
+  if(BS.timer){clearInterval(BS.timer);BS.timer=null;return;}
+  BS.pos=0;BS.log=[];
+  BS.timer=setInterval(()=>{
+    if(BS.pos>BS.bytes.length){clearInterval(BS.timer);BS.timer=null;return;}
+    bsStep();
+  },380);
+});
+
+/* ============================================================
+   6 · TAB 3 · character streams
+   ============================================================ */
+const SRC_CHAR=[
+'import java.io.*;',
+'',
+'public class CharStreamDemo {',
+'',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        // ---- 1. WRITE characters ----',
+'        FileWriter fw = new FileWriter("student.txt");',
+'        fw.write("Sreekanth\\n");',
+'        fw.write("Dell\\n");',
+'        fw.write("Age:17\\n");',
+'        fw.close();                     // close() flushes; skip it and the file stays empty',
+'',
+'        // ---- 2. READ one character at a time ----',
+'        FileReader fr = new FileReader("student.txt");',
+'        int c, chars = 0;',
+'        while ((c = fr.read()) != -1) { // a CHAR code, -1 at the end',
+'            chars++;',
+'        }',
+'        fr.close();',
+'        System.out.println("Characters read : " + chars);',
+'',
+'        // ---- 3. READ line by line ----',
+'        BufferedReader br = new BufferedReader(new FileReader("student.txt"));',
+'        String line;',
+'        int no = 1;',
+'        while ((line = br.readLine()) != null) {   // null, NOT -1',
+'            System.out.println(no + ": " + line);  // the \\n is stripped',
+'            no++;',
+'        }',
+'        br.close();',
+'',
+'        // ---- 4. the same file through both families ----',
+'        FileWriter pw = new FileWriter("price.txt");',
+'        pw.write("\u20B9250");',
+'        pw.close();',
+'        System.out.println("price.txt on disk : " + new File("price.txt").length() + " bytes");',
+'',
+'        FileInputStream bs = new FileInputStream("price.txt");',
+'        int by, nb = 0;',
+'        while ((by = bs.read()) != -1) { System.out.print(by + " "); nb++; }',
+'        bs.close();',
+'        System.out.println("\\nFileInputStream saw : " + nb + " bytes");',
+'',
+'        FileReader cs = new FileReader("price.txt");',
+'        int ch, nc = 0;',
+'        while ((ch = cs.read()) != -1) { System.out.print((char) ch); nc++; }',
+'        cs.close();',
+'        System.out.println("\\nFileReader saw      : " + nc + " characters");',
+'    }',
+'}'
+];
+renderCode('code-char',SRC_CHAR);
+makeStepper('code-char','step-char',[
+ {t:'A Writer accepts text directly',hl:R(SRC_CHAR,'FileWriter fw =','fw.write("Age:17'),
+  d:'No <code>getBytes()</code> anywhere. <code>FileWriter.write(String)</code> takes the characters and encodes them for you on the way to disk. Three calls, three lines of text — the <code>\\n</code> is just another character you write yourself.'},
+ {t:'close() flushes — this is not optional',hl:[L(SRC_CHAR,'fw.close()')],
+  d:'Character streams buffer aggressively. Remove this line and <code>student.txt</code> is created but <strong>empty</strong>, and the reading half of the program then reports 0 characters and prints nothing. If a lab program "writes nothing", this is the first line to check.'},
+ {t:'read() gives a character code, still −1 at the end',hl:R(SRC_CHAR,'FileReader fr =','fr.close()'),
+  d:'Structurally identical to the byte loop, but the number coming back is a <strong>character code</strong> (0–65535), not a byte. Cast it with <code>(char) c</code> to print the letter. The end-of-stream sentinel is the same <code>-1</code>.'},
+ {t:'BufferedReader wraps a Reader — decorator in action',hl:[L(SRC_CHAR,'BufferedReader br =')],
+  d:'Read the line inside-out: <code>new FileReader(...)</code> produces a Reader, and <code>new BufferedReader(...)</code> wraps it. You now hold one object that can do everything the Reader could, plus <code>readLine()</code>. Closing <code>br</code> closes the wrapped FileReader too.'},
+ {t:'readLine() ends with null and strips the newline',hl:R(SRC_CHAR,'while ((line = br.readLine())','no++;'),
+  d:'Two things to hold on to. First, the sentinel is <code>null</code> — comparing a String with <code>-1</code> is a compile error. Second, the returned String does <strong>not</strong> include the <code>\\n</code>, which is why <code>System.out.println(line)</code> reproduces the file correctly instead of double-spacing it.'},
+ {t:'The proof: 6 bytes, 4 characters, one file',hl:R(SRC_CHAR,'FileWriter pw =','FileReader saw'),
+  d:'<code>₹</code> is U+20B9, which UTF-8 stores as <strong>three</strong> bytes (226, 130, 185). So <code>file.length()</code> reports 6 while the FileReader counts 4 characters. Byte streams count storage; character streams count text. Run it, then try the same experiment with Tamil or an emoji in the panel below.'}
+]);
+
+function progChar(o){
+  const fw=new FileWriter('student.txt',false);
+  fw.write('Sreekanth\n'); fw.write('Dell\n'); fw.write('Age:17\n'); fw.close();
+  const fr=new FileReader('student.txt');
+  let c,chars=0;
+  while((c=fr.read())!==-1)chars++;
+  fr.close();
+  o('Characters read : '+chars);
+  const br=new BufferedReader(new FileReader('student.txt'));
+  let line,no=1;
+  while((line=br.readLine())!==null){o(no+': '+line);no++;}
+  br.close();
+  const pw=new FileWriter('price.txt',false);
+  pw.write('\u20B9250'); pw.close();
+  o('price.txt on disk : '+jFile('price.txt').length()+' bytes');
+  const bs=new FileInputStream('price.txt');
+  let by,nb=0,acc='';
+  while((by=bs.read())!==-1){acc+=by+' ';nb++;}
+  bs.close();
+  o(acc);
+  o('FileInputStream saw : '+nb+' bytes');
+  const cs=new FileReader('price.txt');
+  let ch,nc=0,acc2='';
+  while((ch=cs.read())!==-1){acc2+=String.fromCharCode(ch);nc++;}
+  cs.close();
+  o(acc2);
+  o('FileReader saw      : '+nc+' characters');
+}
+document.getElementById('runChar').addEventListener('click',()=>{
+  const o=mkOut(); o.dim('$ java CharStreamDemo');
+  try{progChar(o);}catch(e){o.fail(e.cls+': '+e.msg);}
+  paint('outChar',o); refreshDisk();
+});
+
+/* ---------- encoding comparison ---------- */
+function encRun(){
+  const txt=document.getElementById('encText').value||'';
+  FS.put('price.txt',utf8enc(txt),false);
+  const bytes=FS.bytes('price.txt');
+  const groups=utf8groups(bytes);
+  const bh=document.getElementById('encBytes'); bh.innerHTML='';
+  let gi=0,within=0;
+  bytes.forEach((v)=>{
+    const g=groups[gi];
+    const d=document.createElement('div');
+    d.className='cell'+(g.len>1?' multi':'');
+    d.innerHTML='<span class="v">'+v+'</span><span class="c">'+(g.len>1?'part '+(within+1)+'/'+g.len:esc(v===32?'␣':String.fromCharCode(v)))+'</span>';
+    bh.appendChild(d);
+    within++; if(within===g.len){gi++;within=0;}
+  });
+  const ch=document.getElementById('encChars'); ch.innerHTML='';
+  groups.forEach(g=>{
+    const d=document.createElement('div');
+    d.className='cell'+(g.len>1?' multi':'');
+    d.innerHTML='<span class="v">'+esc(g.ch===' '?'␣':g.ch)+'</span><span class="c">U+'+g.cp.toString(16).toUpperCase().padStart(4,'0')+'</span>';
+    ch.appendChild(d);
+  });
+  const o=mkOut();
+  o.dim('$ java EncodingCompare');
+  o('new File("price.txt").length()  -> '+bytes.length+' bytes');
+  o('FileInputStream read count     -> '+bytes.length);
+  o('FileReader      read count     -> '+groups.length+' characters');
+  o('text.length() in Java          -> '+txt.length+' (UTF-16 units)');
+  const multi=groups.filter(g=>g.len>1).length;
+  if(multi===0)o.info('Pure ASCII: every character is exactly 1 byte, so both streams agree. This is why the difference stays invisible until it bites.');
+  else o.warn(multi+' character(s) need more than one byte. Byte count '+bytes.length+' \u2260 character count '+groups.length+' — read this file with a byte stream and you will split a character in half.');
+  paint('encConsole',o); refreshDisk();
+}
+document.getElementById('encRun').addEventListener('click',encRun);
+document.getElementById('encRupee').addEventListener('click',()=>{document.getElementById('encText').value='\u20B9250';encRun();});
+document.getElementById('encTamil').addEventListener('click',()=>{document.getElementById('encText').value='\u0B85\u0BA9\u0BCD\u0BAA\u0BC1';encRun();});
+document.getElementById('encAscii').addEventListener('click',()=>{document.getElementById('encText').value='Hello';encRun();});
+</script>
+<script>
+/* ============================================================
+   7 · TAB 4 · file handling
+   ============================================================ */
+const SRC_FILE=[
+'import java.io.*;',
+'',
+'public class FileHandlingDemo {',
+'',
+'    public static void main(String[] args) {',
+'',
+'        File f = new File("gsec.txt");     // just a NAME — nothing on disk yet',
+'        System.out.println("exists() before : " + f.exists());',
+'',
+'        try (FileWriter w = new FileWriter(f)) {       // OVERWRITE -> creates the file',
+'            w.write("Line 1\\n");',
+'        } catch (IOException e) {',
+'            System.out.println("write failed : " + e.getMessage());',
+'        }',
+'',
+'        System.out.println("exists() after  : " + f.exists());',
+'        System.out.println("getName()       : " + f.getName());',
+'        System.out.println("length()        : " + f.length() + " bytes");',
+'',
+'        try (FileWriter a = new FileWriter(f, true)) { // APPEND -> keeps Line 1',
+'            a.write("Line 2\\n");',
+'        } catch (IOException e) { }',
+'',
+'        System.out.println("after append    : " + f.length() + " bytes");',
+'',
+'        try (BufferedReader br = new BufferedReader(new FileReader("missing.txt"))) {',
+'            System.out.println(br.readLine());',
+'        } catch (FileNotFoundException e) {            // child first',
+'            System.out.println("Caught : " + e);',
+'        } catch (IOException e) {                      // parent second',
+'            System.out.println("IO problem : " + e.getMessage());',
+'        } finally {',
+'            System.out.println("finally always runs");',
+'        }',
+'',
+'        System.out.println("delete() : " + f.delete());',
+'        System.out.println("exists() : " + f.exists());',
+'    }',
+'}'
+];
+renderCode('code-file',SRC_FILE);
+makeStepper('code-file','step-file',[
+ {t:'File is a path object, not a file',hl:[L(SRC_FILE,'File f = new File'),L(SRC_FILE,'exists() before')],
+  d:'<code>new File("gsec.txt")</code> allocates an object holding a string path. The disk is not touched, so <code>exists()</code> prints <strong>false</strong>. A <code>File</code> can happily describe something that has never existed — that is what makes <code>exists()</code>, <code>mkdir()</code> and <code>createNewFile()</code> meaningful.'},
+ {t:'The writer is what creates the file',hl:R(SRC_FILE,'try (FileWriter w =','w.write("Line 1'),
+  d:'Opening a <code>FileWriter</code> creates the file if it is missing and truncates it to zero if it is not. That is why <code>exists()</code> flips to <strong>true</strong> straight after. Note the writer takes the <code>File</code> object directly — a String path works equally well.'},
+ {t:'length() counts bytes, not characters',hl:[L(SRC_FILE,'length()        :')],
+  d:'"Line 1\\n" is 7 characters, all ASCII, so the file is 7 bytes. Write anything non-ASCII and this number pulls ahead of the character count. On Windows, <code>println</code> would write <code>\\r\\n</code> and make it 8 — a genuine source of "why is my file size different" confusion.'},
+ {t:'The append flag is the whole difference',hl:R(SRC_FILE,'try (FileWriter a =','a.write("Line 2'),
+  d:'One extra argument — <code>true</code> — and the writer positions itself at the end instead of wiping the file. Length goes 7 → 14. Drop the flag and Line 1 vanishes silently. This single boolean is the most common lab mistake in the unit.'},
+ {t:'Catch the child before the parent',hl:R(SRC_FILE,'try (BufferedReader br =','finally {'),
+  d:'The <code>FileReader</code> constructor throws <code>FileNotFoundException</code>, so <code>br</code> is never assigned and the body never runs. Because <code>FileNotFoundException extends IOException</code>, its catch block must come <strong>first</strong> — reverse them and the compiler rejects the file as unreachable code. <code>finally</code> still runs, as always.'},
+ {t:'try-with-resources closes for you',hl:[L(SRC_FILE,'try (FileWriter w ='),L(SRC_FILE,'try (BufferedReader br =')],
+  d:'Anything declared inside <code>try ( ... )</code> is closed automatically when the block ends — normally or by exception — in reverse order of declaration. No <code>finally</code>, no null checks, no leaked handles. Every stream class in this unit implements <code>AutoCloseable</code>, so this form always works.'}
+]);
+
+function progFile(o){
+  const f=jFile('gsec.txt');
+  o('exists() before : '+f.exists());
+  try{const w=new FileWriter('gsec.txt',false);w.write('Line 1\n');w.close();}
+  catch(e){o('write failed : '+e.msg);}
+  o('exists() after  : '+f.exists());
+  o('getName()       : '+f.getName());
+  o('length()        : '+f.length()+' bytes');
+  try{const a=new FileWriter('gsec.txt',true);a.write('Line 2\n');a.close();}catch(e){}
+  o('after append    : '+f.length()+' bytes');
+  try{
+    const br=new BufferedReader(new FileReader('missing.txt'));
+    o(br.readLine());
+    br.close();
+  }catch(e){
+    if(e.cls==='java.io.FileNotFoundException')o.fail('Caught : '+e.cls+': '+e.msg);
+    else o.fail('IO problem : '+e.msg);
+  }finally{
+    o.info('finally always runs');
+  }
+  o('delete() : '+f.delete());
+  o('exists() : '+f.exists());
+}
+document.getElementById('runFile').addEventListener('click',()=>{
+  const o=mkOut(); o.dim('$ java FileHandlingDemo');
+  try{progFile(o);}catch(e){o.fail(e.cls+': '+e.msg);}
+  paint('outFile',o); refreshDisk();
+});
+
+/* ---------- file playground ---------- */
+function fpName(){return document.getElementById('fpName').value.trim()||'untitled.txt';}
+function fpText(){return document.getElementById('fpText').value;}
+function fpOut(fn){const o=mkOut();try{fn(o);}catch(e){o.fail(e.cls+': '+e.msg);}paint('fpConsole',o);refreshDisk();}
+document.getElementById('fpInfo').addEventListener('click',()=>fpOut(o=>{
+  const f=jFile(fpName());
+  o.dim('File f = new File("'+fpName()+'");');
+  o('f.exists()   : '+f.exists());
+  o('f.getName()  : '+f.getName());
+  o('f.length()   : '+f.length()+' bytes');
+  o('f.isFile()   : '+f.exists());
+}));
+document.getElementById('fpCreate').addEventListener('click',()=>fpOut(o=>{
+  const made=jFile(fpName()).createNewFile();
+  o.dim('f.createNewFile();');
+  o('returned '+made+(made?'   // empty file created':'   // it already existed, nothing changed'));
+}));
+document.getElementById('fpWrite').addEventListener('click',()=>fpOut(o=>{
+  const before=FS.len(fpName());
+  const w=new FileWriter(fpName(),false); w.write(fpText()); w.close();
+  o.dim('new FileWriter("'+fpName()+'")        // no append flag');
+  o.warn('truncated '+before+' bytes -> 0, then wrote '+FS.len(fpName())+' bytes');
+}));
+document.getElementById('fpAppend').addEventListener('click',()=>fpOut(o=>{
+  const before=FS.len(fpName());
+  const w=new FileWriter(fpName(),true); w.write(fpText()); w.close();
+  o.dim('new FileWriter("'+fpName()+'", true)  // append');
+  o('kept '+before+' bytes, file is now '+FS.len(fpName())+' bytes');
+}));
+document.getElementById('fpRead').addEventListener('click',()=>fpOut(o=>{
+  o.dim('BufferedReader br = new BufferedReader(new FileReader("'+fpName()+'"));');
+  const br=new BufferedReader(new FileReader(fpName()));
+  let line,n=0;
+  while((line=br.readLine())!==null){o((++n)+': '+line);}
+  br.close();
+  if(n===0)o.warn('readLine() returned null immediately — the file is empty');
+  else o.info('readLine() returned null after '+n+' line(s)');
+}));
+document.getElementById('fpDelete').addEventListener('click',()=>fpOut(o=>{
+  o.dim('f.delete();');
+  o('returned '+jFile(fpName()).delete());
+}));
+document.getElementById('fpList').addEventListener('click',()=>fpOut(o=>{
+  o.dim('for (File x : new File(".").listFiles()) ...');
+  const l=FS.list();
+  if(!l.length)o.warn('the virtual disk is empty');
+  else l.forEach(n=>o(n.padEnd(20,' ')+FS.len(n)+' bytes'));
+}));
+
+/* ============================================================
+   8 · TAB 5 · Lab Exercise 10
+   ============================================================ */
+const LAB=[
+{id:'l1',n:'10.1',title:'Write a text file, then read it back',
+ tag:'FileWriter + BufferedReader',
+ desc:'The smallest complete round trip: create a file, put two lines in it, read them out again, and confirm the size on disk.',
+ code:[
+'import java.io.*;',
+'',
+'public class Lab10_1 {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        FileWriter fw = new FileWriter("lab10.txt");',
+'        fw.write("Streams carry data.\\n");',
+'        fw.write("Java has byte and character streams.\\n");',
+'        fw.close();',
+'',
+'        BufferedReader br = new BufferedReader(new FileReader("lab10.txt"));',
+'        String s;',
+'        while ((s = br.readLine()) != null)',
+'            System.out.println(s);',
+'        br.close();',
+'',
+'        System.out.println("File size : " + new File("lab10.txt").length() + " bytes");',
+'    }',
+'}'],
+ run(o){
+   const fw=new FileWriter('lab10.txt',false);
+   fw.write('Streams carry data.\n');
+   fw.write('Java has byte and character streams.\n');
+   fw.close();
+   const br=new BufferedReader(new FileReader('lab10.txt'));
+   let s;
+   while((s=br.readLine())!==null)o(s);
+   br.close();
+   o('File size : '+jFile('lab10.txt').length()+' bytes');
+ },
+ note:'Two lines of 19 and 36 characters, plus one <code>\\n</code> each — so the byte count is 4 more than the characters you typed.'},
+
+{id:'l2',n:'10.2',title:'Copy a file with byte streams',
+ tag:'FileInputStream + FileOutputStream',
+ desc:'A copy must not interpret content, so this is byte-stream work. An 8-byte buffer makes the partial final chunk visible.',
+ code:[
+'import java.io.*;',
+'',
+'public class Lab10_2 {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        FileInputStream  in  = new FileInputStream("lab10.txt");',
+'        FileOutputStream out = new FileOutputStream("lab10_copy.txt");',
+'',
+'        byte[] buf = new byte[8];',
+'        int n, total = 0, chunk = 0;',
+'        while ((n = in.read(buf)) != -1) {',
+'            out.write(buf, 0, n);',
+'            total += n;',
+'            chunk++;',
+'            System.out.println("chunk " + chunk + " -> " + n + " bytes");',
+'        }',
+'        in.close();',
+'        out.close();',
+'',
+'        System.out.println("copied " + total + " bytes in " + chunk + " chunks");',
+'        System.out.println("sizes match ? " +',
+'            (new File("lab10.txt").length() == new File("lab10_copy.txt").length()));',
+'    }',
+'}'],
+ run(o){
+   const inn=new FileInputStream('lab10.txt');
+   const out=new FileOutputStream('lab10_copy.txt',false);
+   const buf=new Array(8).fill(0);
+   let n,total=0,chunk=0;
+   while((n=inn.readBuf(buf))!==-1){
+     out.writeRange(buf,0,n); total+=n; chunk++;
+     o('chunk '+chunk+' -> '+n+' bytes');
+   }
+   inn.close(); out.close();
+   o('copied '+total+' bytes in '+chunk+' chunks');
+   o('sizes match ? '+(jFile('lab10.txt').length()===jFile('lab10_copy.txt').length()));
+ },
+ note:'Needs <code>lab10.txt</code> from 10.1 — run this one on an empty disk and you get a real <code>FileNotFoundException</code> instead, thrown by the constructor.'},
+
+{id:'l3',n:'10.3',title:'Count lines, words and characters',
+ tag:'BufferedReader.readLine()',
+ desc:'The classic wc exercise. It also exposes the newline gap: characters counted through readLine() never include the terminators.',
+ code:[
+'import java.io.*;',
+'',
+'public class Lab10_3 {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        BufferedReader br = new BufferedReader(new FileReader("lab10.txt"));',
+'        String line;',
+'        int lines = 0, words = 0, chars = 0;',
+'',
+'        while ((line = br.readLine()) != null) {',
+'            lines++;',
+'            chars += line.length();',
+'            if (!line.trim().isEmpty())',
+'                words += line.trim().split("\\\\s+").length;',
+'        }',
+'        br.close();',
+'',
+'        System.out.println("Lines      : " + lines);',
+'        System.out.println("Words      : " + words);',
+'        System.out.println("Characters : " + chars + "   (newlines NOT counted)");',
+'        System.out.println("File size  : " + new File("lab10.txt").length()',
+'                           + " bytes   (newlines counted)");',
+'    }',
+'}'],
+ run(o){
+   const br=new BufferedReader(new FileReader('lab10.txt'));
+   let line,lines=0,words=0,chars=0;
+   while((line=br.readLine())!==null){
+     lines++; chars+=line.length;
+     if(line.trim()!=='')words+=line.trim().split(/\s+/).length;
+   }
+   br.close();
+   o('Lines      : '+lines);
+   o('Words      : '+words);
+   o('Characters : '+chars+'   (newlines NOT counted)');
+   o('File size  : '+jFile('lab10.txt').length()+' bytes   (newlines counted)');
+ },
+ note:'The gap between the last two numbers is exactly the number of lines — one stripped <code>\\n</code> each. Examiners love asking why they differ.'},
+
+{id:'l4',n:'10.4',title:'Append student records and filter them',
+ tag:'PrintWriter + append mode + split()',
+ desc:'Writes CSV records in append mode, reads them back, and applies the eligibility rule from your Gsec class.',
+ code:[
+'import java.io.*;',
+'',
+'public class Lab10_4 {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        String[] rows = { "101,Sreekanth,17", "102,Divya,19", "103,Arun,18" };',
+'',
+'        PrintWriter pw = new PrintWriter(new FileWriter("students.txt", true));',
+'        for (String r : rows) pw.println(r);',
+'        pw.close();',
+'',
+'        BufferedReader br = new BufferedReader(new FileReader("students.txt"));',
+'        String line;',
+'        while ((line = br.readLine()) != null) {',
+'            String[] p = line.split(",");',
+'            int age = Integer.parseInt(p[2]);',
+'            System.out.println(p[1] + " (" + age + ") -> " + (age < 18',
+'                ? "This guy is not eleigible for studying college"',
+'                : "eligible"));',
+'        }',
+'        br.close();',
+'',
+'        System.out.println("students.txt : " + new File("students.txt").length() + " bytes");',
+'    }',
+'}'],
+ run(o){
+   const rows=['101,Sreekanth,17','102,Divya,19','103,Arun,18'];
+   const pw=new PrintWriter(new FileWriter('students.txt',true));
+   rows.forEach(r=>pw.println(r));
+   pw.close();
+   const br=new BufferedReader(new FileReader('students.txt'));
+   let line;
+   while((line=br.readLine())!==null){
+     const p=line.split(',');
+     const age=parseInt(p[2],10);
+     o(p[1]+' ('+age+') -> '+(age<18?'This guy is not eleigible for studying college':'eligible'));
+   }
+   br.close();
+   o('students.txt : '+jFile('students.txt').length()+' bytes');
+ },
+ note:'Press Run twice and the records genuinely duplicate — that is append mode being honest. The misspelt message is copied straight from your Gsec.validator(), because the compiler never checks the inside of a String.'},
+
+{id:'l5',n:'10.5',title:'Handle a missing file properly',
+ tag:'try-with-resources + catch order',
+ desc:'The same method is called twice: once on a file that exists, once on one that does not. Both paths end in finally.',
+ code:[
+'import java.io.*;',
+'',
+'public class Lab10_5 {',
+'    public static void main(String[] args) {',
+'        read("students.txt");',
+'        read("no_such_file.txt");',
+'    }',
+'',
+'    static void read(String name) {',
+'        System.out.println("--- reading " + name + " ---");',
+'        try (BufferedReader br = new BufferedReader(new FileReader(name))) {',
+'            System.out.println("first line : " + br.readLine());',
+'        } catch (FileNotFoundException e) {   // child FIRST',
+'            System.out.println("Caught : " + e);',
+'        } catch (IOException e) {             // parent SECOND',
+'            System.out.println("IO problem : " + e.getMessage());',
+'        } finally {',
+'            System.out.println("finally runs either way");',
+'        }',
+'    }',
+'}'],
+ run(o){
+   ['students.txt','no_such_file.txt'].forEach(name=>{
+     o.info('--- reading '+name+' ---');
+     try{
+       const br=new BufferedReader(new FileReader(name));
+       o('first line : '+br.readLine());
+       br.close();
+     }catch(e){
+       if(e.cls==='java.io.FileNotFoundException')o.fail('Caught : '+e.cls+': '+e.msg);
+       else o.fail('IO problem : '+e.msg);
+     }finally{
+       o.warn('finally runs either way');
+     }
+   });
+ },
+ note:'Swap the two catch blocks and this stops compiling: <em>exception FileNotFoundException has already been caught</em>.'}
+];
+(function(){
+  const host=document.getElementById('labHost');
+  LAB.forEach(x=>{
+    const card=document.createElement('div');
+    card.className='card';
+    card.innerHTML=
+      '<span class="pill p-mauve">Ex '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;Lab10_'+x.n.split('.')[1]+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run Ex '+x.n+'</button>'+
+      '<span class="note">'+x.tag+'</span></div>'+
+      '<div class="console" id="con-'+x.id+'"><span class="prompt">// press Run</span></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(card);
+    renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut(); o.dim('$ java Lab10_'+x.n.split('.')[1]);
+      try{x.run(o);}catch(e){o.fail('Exception in thread "main" '+(e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o); refreshDisk();
+    });
+  });
+  document.getElementById('labRunAll').addEventListener('click',()=>{
+    LAB.forEach(x=>document.getElementById('run-'+x.id).click());
+  });
+  document.getElementById('labReset').addEventListener('click',()=>{
+    FS.reset(); refreshDisk();
+    LAB.forEach(x=>{const o=mkOut();o.warn('virtual disk wiped');paint('con-'+x.id,o);});
+  });
+})();
+</script>
+<script>
+/* ============================================================
+   TAB 6 · the student's own Gsec class, written to and read from disk
+   ============================================================ */
+const SRC_GSEC=[
+'class Gsec{',
+'    ',
+'    //class  variables',
+'    ',
+'    String name;',
+'    String laptop;',
+'  private int age;',
+'    int registerNumber;',
+'    ',
+'    // setter for age',
+'    // public , void ',
+'    public void setAge(int age){',
+'        this.age=age;',
+'    }',
+'    ',
+'    // getter for age',
+'    public int getAge(){',
+'        return age;',
+'    }',
+'    ',
+'    void validator(){',
+'        if(age<18){',
+'            System.out.println("This guy is not eleigible for studying college");',
+'        }',
+'    }',
+'    ',
+'    // methods',
+'    void display(){',
+'        System.out.println("Hi sreekanth");',
+'        System.out.println(getAge());',
+'    }',
+'    ',
+'    String displayString(){',
+'        return "hello";',
+'    }',
+'    ',
+'    // String helloMethod(){',
+'        ',
+'    // }',
+'    //No-arg constructor',
+'//   public Gsec(){',
+'        ',
+'//     }',
+'  public Gsec(    String namenew,String laptop,int age,int registerNumber){',
+'        name=namenew;',
+'        this.laptop=laptop;',
+'        this.age=age;',
+'        this.registerNumber=registerNumber;',
+'    }',
+'}',
+'class Main{',
+'    ',
+'    public static void main(String[] args){',
+'        ',
+'        Gsec scoldavinas=new Gsec();',
+'        scoldavinas.setAge(17);',
+'        scoldavinas.validator();',
+'        scoldavinas.display();',
+'    }',
+'}'
+];
+renderCode('code-gsec',SRC_GSEC,{err:[L(SRC_GSEC,'Gsec scoldavinas=new Gsec();')]});
+
+/* a faithful JS stand-in for the class — age really is private here too */
+function Gsec(namenew,laptop,age,registerNumber){
+  let _age=age;
+  this.name=namenew; this.laptop=laptop; this.registerNumber=registerNumber;
+  this.setAge=a=>{_age=a;};
+  this.getAge=()=>_age;
+  this.validator=o=>{if(_age<18)o('This guy is not eleigible for studying college');};
+  this.display=o=>{o('Hi sreekanth');o(String(_age));};
+  this.displayString=()=>'hello';
+  this.csv=()=>this.registerNumber+','+this.name+','+this.laptop+','+_age;
+}
+const BATCH=()=>[new Gsec('Sreekanth','Dell',17,101),
+                 new Gsec('Divya','HP',19,102),
+                 new Gsec('Arun','Lenovo',18,103)];
+
+const GSEC_PROGS=[
+{id:'g1',cls:'GsecFileWriter',n:'1',title:'Write Gsec objects to a text file',tag:'PrintWriter + getAge()',
+ desc:'Three objects built with your 4-arg constructor, flattened into CSV lines. Note the one thing you cannot avoid: <code>age</code> is private, so the writer must go through <code>getAge()</code>.',
+ code:[
+'import java.io.*;',
+'',
+'public class GsecFileWriter {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        Gsec[] batch = {',
+'            new Gsec("Sreekanth", "Dell",   17, 101),',
+'            new Gsec("Divya",     "HP",     19, 102),',
+'            new Gsec("Arun",      "Lenovo", 18, 103)',
+'        };',
+'',
+'        PrintWriter pw = new PrintWriter(new FileWriter("gsec.txt"));',
+'        for (Gsec g : batch) {',
+'            pw.println(g.registerNumber + "," + g.name + ","',
+'                     + g.laptop + "," + g.getAge());   // getAge(), not g.age',
+'        }',
+'        pw.close();          // flushes — without this the file stays 0 bytes',
+'',
+'        System.out.println("records written : " + batch.length);',
+'        System.out.println("gsec.txt size   : " + new File("gsec.txt").length() + " bytes");',
+'    }',
+'}'],
+ run(o){
+   const batch=BATCH();
+   const pw=new PrintWriter(new FileWriter('gsec.txt',false));
+   batch.forEach(g=>pw.println(g.csv()));
+   pw.close();
+   o('records written : '+batch.length);
+   o('gsec.txt size   : '+jFile('gsec.txt').length()+' bytes');
+   o.info('file now holds:');
+   utf8dec(FS.bytes('gsec.txt')).split('\n').forEach((l,i)=>{if(l)o('  '+(i+1)+': '+l);});
+ },
+ note:'<code>g.age</code> would be a compile error here — <em>age has private access in Gsec</em>. The getter you wrote is not decoration; it is the only door out of the object, including the door to the disk.'},
+
+{id:'g2',cls:'GsecFileReader',n:'2',title:'Read the file back into Gsec objects',tag:'BufferedReader + split() + constructor',
+ desc:'Each line becomes four strings, which become one constructor call. Then <code>validator()</code> and <code>display()</code> run exactly as they would in your <code>Main</code>.',
+ code:[
+'import java.io.*;',
+'',
+'public class GsecFileReader {',
+'    public static void main(String[] args) throws IOException {',
+'',
+'        BufferedReader br = new BufferedReader(new FileReader("gsec.txt"));',
+'        String line;',
+'',
+'        while ((line = br.readLine()) != null) {      // null, not -1',
+'            String[] f = line.split(",");',
+'',
+'            Gsec g = new Gsec(f[1], f[2],',
+'                              Integer.parseInt(f[3]),   // String -> int',
+'                              Integer.parseInt(f[0]));',
+'',
+'            System.out.println("--- register " + g.registerNumber + " ---");',
+'            g.validator();     // speaks up only for the under-18 record',
+'            g.display();',
+'        }',
+'        br.close();',
+'    }',
+'}'],
+ run(o){
+   const br=new BufferedReader(new FileReader('gsec.txt'));
+   let line;
+   while((line=br.readLine())!==null){
+     const f=line.split(',');
+     const g=new Gsec(f[1],f[2],parseInt(f[3],10),parseInt(f[0],10));
+     o.info('--- register '+g.registerNumber+' ---');
+     g.validator(x=>o.fail(x));
+     g.display(x=>o(x));
+   }
+   br.close();
+ },
+ note:'Every record prints <em>"Hi sreekanth"</em>, including Divya\'s and Arun\'s, because <code>display()</code> hardcodes the name instead of printing <code>name</code>. On one object you would never notice; three records off a file make it obvious. Changing it to <code>System.out.println("Hi " + name);</code> fixes it.'},
+
+{id:'g3',cls:'Main',n:'3',title:'The Main bug, and why the file fixes it',tag:'constructor overloading',
+ desc:'Your <code>Main</code> does not compile. The file-reading version does — because a CSV line naturally supplies all four arguments.',
+ code:[
+'// your Main — does NOT compile',
+'Gsec scoldavinas = new Gsec();        // constructor Gsec() is undefined',
+'scoldavinas.setAge(17);',
+'scoldavinas.validator();',
+'scoldavinas.display();',
+'',
+'// fix A — uncomment the no-arg constructor in Gsec, then this works',
+'//   public Gsec(){ }',
+'',
+'// fix B — use the constructor you actually wrote',
+'Gsec scoldavinas = new Gsec("Sreekanth", "Dell", 17, 101);',
+'scoldavinas.validator();',
+'scoldavinas.display();',
+'',
+'// fix C — which is what reading a file gives you for free',
+'String[] f = "101,Sreekanth,Dell,17".split(",");',
+'Gsec fromFile = new Gsec(f[1], f[2], Integer.parseInt(f[3]), Integer.parseInt(f[0]));'],
+ run(o){
+   o.dim('$ javac Main.java');
+   o.fail('Main.java:5: error: constructor Gsec in class Gsec cannot be applied to given types;');
+   o.fail('        Gsec scoldavinas=new Gsec();');
+   o.fail('                         ^');
+   o.fail('  required: String,String,int,int');
+   o.fail('  found:    no arguments');
+   o.fail('1 error');
+   o.raw('');
+   o.dim('$ javac MainFixed.java && java MainFixed      // using the 4-arg constructor');
+   const g=new Gsec('Sreekanth','Dell',17,101);
+   g.validator(x=>o.fail(x));
+   g.display(x=>o(x));
+   o.raw('');
+   o.dim('$ java MainFromFile                            // same object, built from a CSV line');
+   const f='101,Sreekanth,Dell,17'.split(',');
+   const g2=new Gsec(f[1],f[2],parseInt(f[3],10),parseInt(f[0],10));
+   g2.validator(x=>o.fail(x));
+   g2.display(x=>o(x));
+   o.info('setAge(17) was never needed — the constructor already set it.');
+ },
+ note:'Writing any constructor removes the free default one. Two constructors with different parameter lists in one class is <strong>constructor overloading</strong> — compile-time polymorphism, and one uncomment away in your file.'},
+
+{id:'g4',cls:'GsecBatch',n:'4',title:'Append a new admission, then re-validate everyone',tag:'append mode',
+ desc:'A new student joins mid-semester. Open the writer with <code>true</code> and the three existing records survive; open it without and they are gone.',
+ code:[
+'// APPEND — the second argument is the whole difference',
+'PrintWriter pw = new PrintWriter(new FileWriter("gsec.txt", true));',
+'Gsec latecomer = new Gsec("Kavya", "Asus", 16, 104);',
+'pw.println(latecomer.registerNumber + "," + latecomer.name + ","',
+'         + latecomer.laptop + "," + latecomer.getAge());',
+'pw.close();',
+'',
+'// re-run the whole batch through validator()',
+'BufferedReader br = new BufferedReader(new FileReader("gsec.txt"));',
+'String line;',
+'int under = 0, total = 0;',
+'while ((line = br.readLine()) != null) {',
+'    String[] f = line.split(",");',
+'    Gsec g = new Gsec(f[1], f[2], Integer.parseInt(f[3]), Integer.parseInt(f[0]));',
+'    total++;',
+'    if (g.getAge() < 18) { under++; System.out.print(g.name + " -> "); g.validator(); }',
+'}',
+'br.close();',
+'System.out.println(under + " of " + total + " are under 18");'],
+ run(o){
+   const pw=new PrintWriter(new FileWriter('gsec.txt',true));
+   const late=new Gsec('Kavya','Asus',16,104);
+   pw.println(late.csv()); pw.close();
+   o('appended register 104 — gsec.txt is now '+jFile('gsec.txt').length()+' bytes');
+   const br=new BufferedReader(new FileReader('gsec.txt'));
+   let line,under=0,total=0;
+   while((line=br.readLine())!==null){
+     const f=line.split(',');
+     const g=new Gsec(f[1],f[2],parseInt(f[3],10),parseInt(f[0],10));
+     total++;
+     if(g.getAge()<18){under++;g.validator(x=>o.fail(g.name+' -> '+x));}
+   }
+   br.close();
+   o(under+' of '+total+' are under 18');
+ },
+ note:'Press Run twice and Kavya appears twice — append mode being honest. Drop the <code>true</code> and the file collapses to a single record, which is the classic lab disaster.'},
+
+{id:'g5',cls:'GsecBytes',n:'5',title:'What the record looks like as raw bytes',tag:'FileInputStream',
+ desc:'The same file through a byte stream. Names are ASCII so bytes and characters agree — until a laptop model carries a non-ASCII character.',
+ code:[
+'FileInputStream in = new FileInputStream("gsec.txt");',
+'int b, n = 0;',
+'while ((b = in.read()) != -1 && n < 20) {   // first 20 bytes only',
+'    System.out.print(b + " ");',
+'    n++;',
+'}',
+'in.close();',
+'',
+'// now a model name with a non-ASCII character',
+'Gsec g = new Gsec("Meena", "Dell XPS\\u00AE", 20, 105);',
+'FileWriter w = new FileWriter("one.txt");',
+'w.write(g.getAge() + "," + g.laptop);',
+'w.close();',
+'System.out.println("length()   : " + new File("one.txt").length() + " bytes");'],
+ run(o){
+   const inn=new FileInputStream('gsec.txt');
+   let b,n=0,acc='';
+   while((b=inn.read())!==-1&&n<20){acc+=b+' ';n++;}
+   inn.close();
+   o(acc.trim());
+   o.info('as characters: '+utf8dec(FS.bytes('gsec.txt')).slice(0,20));
+   const g=new Gsec('Meena','Dell XPS\u00AE',20,105);
+   const w=new FileWriter('one.txt',false);
+   w.write(g.getAge()+','+g.laptop); w.close();
+   const bytes=FS.bytes('one.txt'), chars=utf8groups(bytes).length;
+   o.raw('');
+   o('length()   : '+bytes.length+' bytes');
+   o('characters : '+chars);
+   o.warn('The ® is one character but '+(bytes.length-chars+1)+' bytes in UTF-8 — so a byte stream reading this file must never split mid-character.');
+ },
+ note:'This is why a byte stream copies your file safely but must not be used to <em>interpret</em> it, and why <code>File.length()</code> is not a character count.'},
+
+{id:'g6',cls:'GsecSerialize',n:'6',title:'Serializing the whole object instead of flattening it',tag:'ObjectOutputStream',
+ desc:'CSV throws away the object and keeps only text. Serialization stores the object itself — private fields included — with no <code>split()</code> on the way back.',
+ code:[
+'import java.io.*;',
+'',
+'class Gsec implements Serializable {      // one interface, no methods to write',
+'    String name;',
+'    String laptop;',
+'    private int age;                      // private is still serialized',
+'    transient int registerNumber;         // transient is NOT — it comes back as 0',
+'    // ... your constructor and methods unchanged',
+'}',
+'',
+'// write',
+'ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream("gsec.ser"));',
+'oos.writeObject(new Gsec("Sreekanth", "Dell", 17, 101));',
+'oos.close();',
+'',
+'// read',
+'ObjectInputStream ois = new ObjectInputStream(new FileInputStream("gsec.ser"));',
+'Gsec back = (Gsec) ois.readObject();      // cast + ClassNotFoundException',
+'ois.close();',
+'back.validator();',
+'back.display();',
+'System.out.println("registerNumber : " + back.registerNumber);   // transient -> 0'],
+ run(o){
+   const header=[0xAC,0xED,0x00,0x05];
+   const body=utf8enc('Gsec|Sreekanth|Dell|17');
+   FS.put('gsec.ser',header.concat(body),false);
+   o('gsec.ser written : '+jFile('gsec.ser').length()+' bytes');
+   o.info('first four bytes : '+header.map(b=>b.toString(16).toUpperCase().padStart(2,'0')).join(' ')+'   ← the Java serialization magic number, then the stream version');
+   const g=new Gsec('Sreekanth','Dell',17,101);
+   o.raw('');
+   o.dim('$ java GsecDeserialize');
+   g.validator(x=>o.fail(x));
+   g.display(x=>o(x));
+   o('registerNumber : 0');
+   o.warn('registerNumber came back 0 because it was declared transient — the field was never written to the stream.');
+ },
+ note:'Honest caveat: the four header bytes above are real (<code>AC ED 00 05</code>), but the rest of a serialized stream is a JVM-defined binary layout that this page only stands in for. The behaviour shown — private fields preserved, <code>transient</code> fields reset to their default — is exactly what Java does.'}
+];
+(function(){
+  const host=document.getElementById('gsecHost');
+  GSEC_PROGS.forEach(x=>{
+    const c=document.createElement('div');
+    c.className='card';
+    c.innerHTML='<span class="pill p-blue">Program '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;'+
+      x.cls+'.java'+
+      '</div><div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run program '+x.n+'</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="console" id="con-'+x.id+'"><span class="prompt">// press Run</span></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(c);
+    renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut(); o.dim('$ java '+(x.cls||'GsecDemo'));
+      try{x.run(o);}catch(e){o.fail('Exception in thread "main" '+(e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o); refreshDisk();
+    });
+  });
+  document.getElementById('gsecRunAll').addEventListener('click',()=>{
+    GSEC_PROGS.forEach(x=>document.getElementById('run-'+x.id).click());
+  });
+  document.getElementById('gsecReset').addEventListener('click',()=>{
+    FS.reset(); refreshDisk();
+    GSEC_PROGS.forEach(x=>{const o=mkOut();o.warn('virtual disk wiped');paint('con-'+x.id,o);});
+  });
+})();
+function progGsec(o){
+  o.head('— 1 · write the batch —');
+  GSEC_PROGS[0].run(o);
+  o.raw('');
+  o.head('— 2 · read it back and validate —');
+  GSEC_PROGS[1].run(o);
+  o.raw('');
+  o.head('— 3 · append a late admission, re-validate —');
+  GSEC_PROGS[3].run(o);
+}
+</script>
+
+<script>
+/* ============================================================
+   9 · TAB 6 · simulated output, virtual disk, syntax toolkit
+   ============================================================ */
+function progConcept(o){
+  const text='stream\n';
+  o.info('stage 1 · choose source   : demo.txt holds text -> character stream');
+  const w=new FileWriter('demo.txt',false);
+  o.info('stage 2 · open            : new FileWriter("demo.txt") -> created, 0 bytes');
+  w.write(text);
+  o.info('stage 4 · write           : '+text.length+' characters handed to the writer');
+  o.info('stage 5 · flush           : buffer pushed to disk -> '+jFile('demo.txt').length()+' bytes');
+  w.close();
+  o.info('stage 6 · close           : handle released');
+  const fr=new FileReader('demo.txt');
+  o.info('stage 2 · open for read   : new FileReader("demo.txt")');
+  const br=new BufferedReader(fr);
+  o.info('stage 3 · wrap            : new BufferedReader(reader) — adds readLine()');
+  let line,n=0;
+  while((line=br.readLine())!==null){n++;o('stage 4 · loop            : line '+n+' = "'+line+'"');}
+  o('stage 4 · loop            : readLine() -> null, loop ends');
+  br.close();
+  o.info('stage 6 · close           : closing the wrapper closes the FileReader too');
+  o.warn('unbuffered : '+jFile('demo.txt').length()+' round trips to the source, one per character');
+  o.warn('buffered   : 1 bulk fill, the other '+(jFile('demo.txt').length()-1)+' reads served from memory');
+}
+const TOPICS=[
+ {id:'t1',n:'①',title:'Streams — concept, types & the six-stage workflow',file:'WorkflowTrace.java',
+  blurb:'Traces every stage of the standard workflow and measures what wrapping a BufferedReader actually buys you.',run:progConcept},
+ {id:'t2',n:'②',title:'Byte streams — InputStream & OutputStream',file:'ByteStreamDemo.java',
+  blurb:'Writes 9 bytes, reads them back one at a time showing each int value, then copies the file through a 4-byte buffer.',run:progByte},
+ {id:'t3',n:'③',title:'Character streams — Reader & Writer',file:'CharStreamDemo.java',
+  blurb:'Character counting, line-by-line reading, and the byte-count vs character-count experiment on ₹250.',run:progChar},
+ {id:'t4',n:'④',title:'File handling — File API, append, exceptions',file:'FileHandlingDemo.java',
+  blurb:'exists / length / append / delete, plus a deliberate FileNotFoundException caught in the right order.',run:progFile},
+ {id:'t5',n:'⑤',title:'Lab Ex.10 — all five exercises in sequence',file:'Lab10_1 … Lab10_5',
+  cmd:'for f in Lab10_*.java; do javac $f; done   # then run each in turn',
+  blurb:'Round trip, byte copy, word count, appended records with the eligibility filter, and exception handling.',
+  run(o){LAB.forEach(x=>{o.head('$ java Lab10_'+x.n.split('.')[1]+'   — '+x.title);x.run(o);o.raw('');});}},
+ {id:'t6',n:'⑥',title:'Your Gsec class — objects onto disk and back',file:'GsecFileWriter.java / GsecFileReader.java',
+  cmd:'javac Gsec.java GsecFileWriter.java GsecFileReader.java && java GsecFileWriter && java GsecFileReader',
+  blurb:'Three Gsec objects written as CSV through getAge(), read back through the 4-arg constructor, validated, then a fourth appended and the whole batch re-checked.',run:progGsec}
+];
+(function(){
+  const host=document.getElementById('outHost');
+  TOPICS.forEach(t=>{
+    const c=document.createElement('div');
+    c.className='card';
+    c.innerHTML='<span class="pill p-pink" style="color:var(--pink);border-color:rgba(232,162,200,.4);background:rgba(232,162,200,.08)">Topic '+t.n+'</span>'+
+      '<h2 style="margin-top:8px">'+t.title+'</h2><p>'+t.blurb+'</p>'+
+      '<div class="runbar"><button class="btn small" id="tr-'+t.id+'">▶ Run just this topic</button>'+
+      '<span class="note">'+t.file+'</span></div>'+
+      '<div class="console" id="tc-'+t.id+'"></div>';
+    host.appendChild(c);
+    document.getElementById('tr-'+t.id).addEventListener('click',()=>runTopic(t));
+  });
+})();
+function runTopic(t){
+  const o=mkOut();
+  o.dim('$ '+(t.cmd||('javac '+t.file+' && java '+t.file.replace('.java',''))));
+  try{t.run(o);}catch(e){o.fail('Exception in thread "main" '+(e.cls||'Error')+': '+(e.msg||e.message));}
+  paint('tc-'+t.id,o); refreshDisk();
+}
+function runEverything(){
+  FS.reset();
+  TOPICS.forEach(runTopic);
+  const s=document.getElementById('outStamp');
+  if(s)s.textContent='disk wiped, '+TOPICS.length+' topics executed, '+FS.list().length+' files on disk';
+  refreshDisk();
+}
+document.getElementById('outRunAll').addEventListener('click',runEverything);
+
+/* ---------- virtual disk viewer ---------- */
+let diskSel=null;
+function refreshDisk(){
+  const tbl=document.getElementById('diskTable'); if(!tbl)return;
+  const files=FS.list();
+  let html='<tr><th>file</th><th>size</th><th>first line</th><th></th></tr>';
+  if(!files.length)html+='<tr><td colspan="4" style="font-family:var(--sans);color:var(--dim)">Nothing written yet — run a program from any tab.</td></tr>';
+  files.forEach(n=>{
+    const txt=utf8dec(FS.bytes(n));
+    const first=txt.split('\n')[0];
+    html+='<tr><td>'+esc(n)+'</td><td>'+FS.len(n)+' B</td><td>'+esc(first.length>42?first.slice(0,42)+'…':first||'(empty)')+
+      '</td><td><button class="btn small" data-file="'+esc(n)+'">inspect</button></td></tr>';
+  });
+  tbl.innerHTML=html;
+  tbl.querySelectorAll('button[data-file]').forEach(b=>b.addEventListener('click',()=>showFile(b.dataset.file)));
+  if(!diskSel&&files.length)diskSel=files[0];
+  if(diskSel&&FS.exists(diskSel))showFile(diskSel);
+  else if(diskSel){diskSel=null;document.getElementById('diskStrip').innerHTML='';
+    document.getElementById('diskWho').textContent='select a file';
+    document.getElementById('diskConsole').innerHTML='';}
+}
+function showFile(name){
+  diskSel=name;
+  const bytes=FS.bytes(name), groups=utf8groups(bytes);
+  document.getElementById('diskWho').textContent=name+' — '+bytes.length+' bytes / '+groups.length+' characters';
+  const strip=document.getElementById('diskStrip'); strip.innerHTML='';
+  bytes.slice(0,120).forEach(v=>{
+    const d=document.createElement('div'); d.className='cell';
+    let ch=String.fromCharCode(v);
+    if(v===10)ch='\\n'; else if(v===13)ch='\\r'; else if(v===32)ch='␣'; else if(v<32||v>126)ch='·';
+    d.innerHTML='<span class="v">'+v+'</span><span class="c">'+esc(ch)+'</span>';
+    strip.appendChild(d);
+  });
+  if(bytes.length>120){
+    const d=document.createElement('div'); d.className='cell';
+    d.innerHTML='<span class="v">…</span><span class="c">+'+(bytes.length-120)+'</span>';
+    strip.appendChild(d);
+  }
+  const o=mkOut();
+  o.dim('// contents decoded as UTF-8');
+  const txt=utf8dec(bytes);
+  if(txt==='')o.warn('(empty file — 0 bytes)');
+  else txt.split('\n').forEach((l,i,arr)=>{if(i===arr.length-1&&l==='')return;o((i+1)+': '+l);});
+  o.info('length() = '+bytes.length+' bytes · characters = '+groups.length+' · lines = '+txt.split('\n').filter((l,i,a)=>!(i===a.length-1&&l==='')).length);
+  paint('diskConsole',o);
+}
+
+/* ---------- syntax cards ---------- */
+renderCode('syn1',[
+'// copy ANY file — text, image, pdf — bytes are never interpreted',
+'try (FileInputStream  in  = new FileInputStream("source.jpg");',
+'     FileOutputStream out = new FileOutputStream("target.jpg")) {',
+'',
+'    byte[] buf = new byte[4096];',
+'    int n;',
+'    while ((n = in.read(buf)) != -1) {',
+'        out.write(buf, 0, n);       // write EXACTLY n bytes',
+'    }',
+'}                                   // both closed automatically'
+]);
+renderCode('syn2',[
+'// write text',
+'try (PrintWriter pw = new PrintWriter(new FileWriter("out.txt", true))) {',
+'    pw.println("101,Arun,18");      // append mode keeps old records',
+'}',
+'',
+'// read text, line by line',
+'try (BufferedReader br = new BufferedReader(new FileReader("out.txt"))) {',
+'    String line;',
+'    while ((line = br.readLine()) != null) {   // null = end of file',
+'        System.out.println(line);',
+'    }',
+'}'
+]);
+renderCode('syn3',[
+'// System.in is a byte InputStream — bridge it into characters',
+'BufferedReader kb = new BufferedReader(',
+'                        new InputStreamReader(System.in));',
+'',
+'System.out.print("Name : ");',
+'String name = kb.readLine();',
+'System.out.print("Age  : ");',
+'int age = Integer.parseInt(kb.readLine());   // readLine gives a String',
+'',
+'// naming the charset explicitly — never rely on the default in production',
+'Reader r = new InputStreamReader(new FileInputStream("f.txt"), "UTF-8");'
+]);
+renderCode('syn4',[
+'File f = new File("data/records.txt");',
+'',
+'f.getParentFile().mkdirs();      // create the folder chain first',
+'if (!f.exists()) f.createNewFile();',
+'',
+'System.out.println(f.getName() + " " + f.length() + " bytes");',
+'System.out.println("readable ? " + f.canRead());',
+'',
+'File dir = new File("data");',
+'for (File x : dir.listFiles()) {',
+'    System.out.println((x.isDirectory() ? "[D] " : "[F] ") + x.getName());',
+'}',
+'f.renameTo(new File("data/archive.txt"));',
+'f.delete();'
+]);
+renderCode('syn5',[
+'import java.nio.file.*;',
+'',
+'Path p = Path.of("notes.txt");',
+'',
+'Files.writeString(p, "hello\\n");',
+'String all = Files.readString(p);',
+'List<String> lines = Files.readAllLines(p);',
+'Files.copy(p, Path.of("copy.txt"), StandardCopyOption.REPLACE_EXISTING);',
+'boolean there = Files.exists(p);',
+'long size = Files.size(p);',
+'Files.delete(p);'
+]);
+renderCode('code-oldtry',[
+'BufferedReader br = null;',
+'try {',
+'    br = new BufferedReader(new FileReader("f.txt"));',
+'    System.out.println(br.readLine());',
+'} catch (IOException e) {',
+'    e.printStackTrace();',
+'} finally {',
+'    if (br != null) {        // must null-check',
+'        try { br.close(); }  // close can throw too',
+'        catch (IOException e) { }',
+'    }',
+'}'
+]);
+renderCode('code-twr',[
+'try (BufferedReader br =',
+'         new BufferedReader(new FileReader("f.txt"))) {',
+'',
+'    System.out.println(br.readLine());',
+'',
+'} catch (IOException e) {',
+'    e.printStackTrace();',
+'}',
+'// br.close() happens automatically, even if an',
+'// exception is thrown. No finally, no null check.'
+]);
+
+/* ---------- boot ---------- */
+runEverything();
+bsLoad();
+encRun();
+(function(){const o=mkOut();o.dim('// press Run — output is computed, not canned');paint('outByte',o);paint('outChar',o);paint('outFile',o);})();
+</script>
+</body>
+</html>

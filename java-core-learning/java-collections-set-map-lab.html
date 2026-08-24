@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Collections — HashSet, HashMap &amp; why Map wins (Unit 5, Part 2)</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(25px,3.3vw,38px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:900px;font-size:15px}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="concept"]{background:var(--teal)}
+.tab-btn.active[data-tab="byte"]{background:var(--amber)}
+.tab-btn.active[data-tab="char"]{background:var(--blue)}
+.tab-btn.active[data-tab="file"]{background:var(--green)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}
+.tok-t{color:#7fd1c7}
+.tok-s{color:#a8d98b}
+.tok-c{color:#5b6390;font-style:italic}
+.tok-n{color:#f0b45f}
+.tok-m{color:#86a8f2}
+.tok-a{color:#e8a2c8}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:130px}
+.stepbody code{background:var(--panel3);padding:1px 6px;border-radius:5px}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.run{background:var(--green);color:#0f1220;border-color:transparent}
+.btn.small{padding:6px 12px;font-size:12.5px}
+.btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-teal{color:var(--teal);border-color:rgba(99,207,192,.4);background:rgba(99,207,192,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout.warn{background:rgba(240,180,95,.08);border-color:rgba(240,180,95,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)} .callout.warn b{color:var(--amber)}
+.callout p{color:var(--mut)}
+
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13.5px}
+.demo select{cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:12.8px;margin-top:12px;min-height:70px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.console .prompt{color:var(--dim)} .console .out{color:var(--green)} .console .warn{color:var(--amber)}
+.console .fail{color:var(--red)} .console .info{color:var(--blue)} .console .hd{color:var(--pink);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.runbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.runbar .note{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+/* byte / char strip */
+.strip{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px}
+.cell{min-width:44px;text-align:center;border:1px solid var(--line2);border-radius:8px;padding:5px 4px;
+  font-family:var(--mono);font-size:10.5px;background:var(--panel2);transition:all .18s}
+.cell .v{display:block;color:var(--amber);font-size:12.5px;font-weight:700}
+.cell .c{display:block;color:var(--mut)}
+.cell.done{opacity:.32}
+.cell.cur{border-color:var(--teal);background:rgba(99,207,192,.14);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.cell.eofcell{border-style:dashed;border-color:var(--red)}
+.cell.eofcell .v{color:var(--red)}
+.cell.multi .v{color:var(--pink)}
+.striplabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* workflow pipeline */
+.pipe{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin:6px 0 10px}
+.stage{flex:1 1 130px;min-width:130px;background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;transition:all .16s;text-align:left}
+.stage:hover{border-color:var(--teal);background:var(--panel3)}
+.stage.sel{border-color:var(--teal);background:rgba(99,207,192,.1);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.stage .n{font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.14em}
+.stage .t{font-size:13.5px;font-weight:700;margin:3px 0 2px}
+.stage .m{font-family:var(--mono);font-size:10.8px;color:var(--dim);white-space:normal;word-break:break-word}
+.arrow{display:flex;align-items:center;color:var(--line2);font-size:18px;padding:0 6px}
+@media(max-width:760px){.arrow{display:none}.pipe{gap:8px}}
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:150px}
+.detail h3{font-family:var(--mono);font-size:16.5px;margin-bottom:8px}
+
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.3)}
+.node.sel rect{stroke-width:2.6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--pink);color:#0f1220;border-color:transparent}
+.subtab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td code{font-size:12.4px}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- collections additions ---------- */
+.tab-btn.active[data-tab="set"]{background:var(--teal)}
+.tab-btn.active[data-tab="hash"]{background:var(--amber)}
+.tab-btn.active[data-tab="map"]{background:var(--blue)}
+.tab-btn.active[data-tab="why"]{background:var(--green)}
+.tab-btn.active[data-tab="eq"]{background:var(--red)}
+.tab-btn.active[data-tab="iter"]{background:var(--mauve)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+.tab-btn.active[data-tab="lab"]{background:var(--pink)}
+
+.ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px}
+.ctrl .fld{display:flex;flex-direction:column;gap:4px}
+.ctrl label{font-size:11.5px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ctrl input[type=text],.ctrl input[type=number],.ctrl select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:13px}
+.ctrl input:focus,.ctrl select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.ctrl input[type=range]{width:170px;accent-color:var(--teal)}
+.ctrl .val{font-family:var(--mono);font-size:12.5px;color:var(--teal)}
+
+/* array slot strip */
+.slots{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 6px;align-items:flex-start}
+.slot{min-width:62px;border:1px solid var(--line2);border-radius:9px;padding:6px 5px;text-align:center;
+  font-family:var(--mono);font-size:11px;background:var(--panel2);transition:all .2s}
+.slot .ix{display:block;color:var(--dim);font-size:9.5px;letter-spacing:.06em}
+.slot .vl{display:block;color:var(--ink);font-size:12.5px;font-weight:700;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:76px}
+.slot.empty{border-style:dashed;background:transparent}
+.slot.empty .vl{color:#3d4570;font-weight:400}
+.slot.moved{border-color:var(--amber);background:rgba(240,180,95,.14)}
+.slot.added{border-color:var(--green);background:rgba(143,214,163,.16)}
+.slot.gone{border-color:var(--red);background:rgba(232,121,138,.14)}
+.slot.hit{border-color:var(--teal);background:rgba(99,207,192,.16);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.slot.probe{border-color:var(--mauve);background:rgba(183,156,240,.12)}
+
+/* linked node chain */
+.chain{display:flex;align-items:center;gap:0;overflow-x:auto;padding:14px 4px;margin:6px 0}
+.lnode{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--panel2);
+  font-family:var(--mono);font-size:11px;flex:0 0 auto;transition:all .2s}
+.lnode .p,.lnode .n{padding:9px 8px;color:var(--dim);background:#0c0f1d;font-size:10px}
+.lnode .it{padding:9px 12px;color:var(--ink);font-weight:700;font-size:12.5px;border-left:1px solid var(--line);
+  border-right:1px solid var(--line);white-space:nowrap}
+.lnode.hit{border-color:var(--teal);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.lnode.hit .it{color:var(--teal)}
+.lnode.walk{border-color:var(--mauve)}
+.lnode.walk .it{color:var(--mauve)}
+.lnode.added{border-color:var(--green)} .lnode.added .it{color:var(--green)}
+.link{color:var(--line2);font-size:15px;padding:0 5px;flex:0 0 auto}
+.endcap{font-family:var(--mono);font-size:10.5px;color:var(--dim);padding:0 8px;flex:0 0 auto}
+
+/* buckets (used by the map file too) */
+.buckets{display:flex;flex-direction:column;gap:4px;margin:10px 0}
+.bkt{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px}
+.bkt .bi{width:52px;color:var(--dim);flex:0 0 52px;text-align:right}
+.bkt .cells{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.bkt.hot .bi{color:var(--teal)}
+.entry{border:1px solid var(--line2);border-radius:7px;padding:3px 8px;background:var(--panel2);font-size:11px;color:var(--ink)}
+.entry.new{border-color:var(--green);background:rgba(143,214,163,.15)}
+.entry.coll{border-color:var(--amber);background:rgba(240,180,95,.13)}
+.emptybkt{color:#3d4570;font-size:10.5px}
+
+.oplog{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--mono);
+  font-size:12.2px;line-height:1.75;max-height:230px;overflow-y:auto;margin-top:10px;white-space:pre-wrap}
+.oplog .c{color:var(--amber)} .oplog .g{color:var(--green)} .oplog .r{color:var(--red)}
+.oplog .b{color:var(--blue)} .oplog .d{color:var(--dim)} .oplog .m{color:var(--mauve)}
+.metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.metric{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.metric b{color:var(--ink);font-size:13px}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.twocol{grid-template-columns:1fr}}
+
+.tab-btn.active[data-tab="recap"]{background:var(--pink)}
+.bktrow{display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid #1c2140}
+.bktrow .idx{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right}
+.bktrow.hot{background:rgba(99,207,192,.07);border-radius:6px}
+.bktrow.hot .idx{color:var(--teal);font-weight:700}
+.bktrow .chainc{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.hashsteps{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.hstep{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:8px 12px;font-family:var(--mono);font-size:11px;flex:1 1 150px}
+.hstep .lbl{color:var(--dim);font-size:10px;letter-spacing:.08em;text-transform:uppercase;display:block}
+.hstep .v{color:var(--teal);font-size:12.5px;font-weight:700;display:block;margin-top:3px;word-break:break-all}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Unit 5 · Collection Framework [Week 2 of 2] · Week 16 (09–15 Sep 2026) · CO5 · 4 hrs · Lab Ex.12 (P2) · 14 Sep — Vinayakar Chathurthi</div>
+  <h1><span class="k">HashSet</span> &amp; <span class="c">HashMap</span> — the bucket table, drawn live</h1>
+  <p class="sub">A <code>HashSet</code> is a <code>HashMap</code> wearing a disguise, and a <code>HashMap</code> is an <strong>array of buckets</strong> plus one arithmetic trick. This page draws that array: type a key and watch <code>hashCode()</code> get spread, folded into a bucket index, collide with a neighbour, and eventually trigger a resize. Then it counts what a <code>Map</code> lookup costs against a <code>List</code> scan on the same data — which is the real answer to "why a Map".</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="set">① Set &amp; HashSet</button>
+  <button class="tab-btn" data-tab="hash">② Inside HashMap</button>
+  <button class="tab-btn" data-tab="map">③ Map Interface</button>
+  <button class="tab-btn" data-tab="why">④ Why a Map?</button>
+  <button class="tab-btn" data-tab="eq">⑤ equals &amp; hashCode</button>
+  <button class="tab-btn" data-tab="iter">⑥ Iterator</button>
+  <button class="tab-btn" data-tab="gsec">⑦ Your Gsec Code</button>
+  <button class="tab-btn" data-tab="recap">⑧ Lab Ex.12 (P2) &amp; Recap</button>
+</nav>
+
+<main>
+<!-- ============ TAB 1 : SET ============ -->
+<section class="tab active" id="tab-set">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Set</span>
+    <h2>A collection that refuses duplicates</h2>
+    <p><code>Set</code> adds <strong>no new methods</strong> to <code>Collection</code>. It only tightens one rule: an element that is already present is not added again, and <code>add()</code> returns <code>false</code> to tell you so. Everything interesting is in <em>how</em> each implementation decides what "already present" means.</p>
+    <div class="grid3">
+      <div><span class="pill p-amber">HashSet</span><p style="margin-top:8px">Hash table. <strong>No order at all.</strong> O(1) add / contains / remove. The default.</p></div>
+      <div><span class="pill p-blue">LinkedHashSet</span><p style="margin-top:8px">Hash table + a linked list through the entries. <strong>Insertion order</strong> preserved, marginally slower.</p></div>
+      <div><span class="pill p-mauve">TreeSet</span><p style="margin-top:8px">Red-black tree. <strong>Sorted order</strong>, O(log n). Elements must be comparable.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The same input, three Sets</h2>
+    <p>Add values and watch the three implementations disagree about order — and agree about duplicates.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="setVal">value</label><input type="text" id="setVal" value="Kavya" style="width:150px"></div>
+      <button class="btn run small" id="setAdd">add(e)</button>
+      <button class="btn small" id="setRemove">remove(e)</button>
+      <button class="btn small" id="setContains">contains(e)</button>
+      <button class="btn small" id="setSeed">load 6 names</button>
+      <button class="btn small" id="setClear">clear()</button>
+    </div>
+    <div class="twocol" style="margin-top:6px">
+      <div>
+        <div class="striplabel">HashSet — bucket order, which looks random</div>
+        <div class="slots" id="setHash"></div>
+        <div class="striplabel">LinkedHashSet — insertion order</div>
+        <div class="slots" id="setLinked"></div>
+        <div class="striplabel">TreeSet — sorted order</div>
+        <div class="slots" id="setTree"></div>
+      </div>
+      <div class="console" id="setOut" style="margin-top:0"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>HashSet is a HashMap in disguise</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;java.util.HashSet — the real source</div><div class="codebody" id="code-hsimpl"></div></div>
+      <p style="margin-top:10px">Every element you add becomes a <strong>key</strong> in a private HashMap, paired with one shared dummy object. That is why <code>HashSet</code> has exactly the performance of <code>HashMap</code>, and why understanding one gives you the other for free.</p>
+    </div>
+    <div class="card">
+      <h2>Set operations you will be asked for</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;union, intersection, difference</div><div class="codebody" id="code-setops"></div></div>
+      <div class="runbar"><button class="btn run" id="runSetOps">▶ Run</button></div>
+      <div class="console" id="outSetOps"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 2 : INSIDE HASHMAP ============ -->
+<section class="tab" id="tab-hash">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">Internals</span>
+    <h2>An array of buckets, and one piece of arithmetic</h2>
+    <p>A <code>HashMap</code> holds <code>Node[] table</code> — by default <strong>16 buckets</strong>. Storing a pair takes three steps, and every performance claim about maps follows from them:</p>
+    <ol style="color:var(--mut);margin:8px 0 8px 22px;font-size:14.5px">
+      <li>Call <code>key.hashCode()</code> — a 32-bit int chosen by the key's class.</li>
+      <li><strong>Spread it:</strong> <code>h ^ (h &gt;&gt;&gt; 16)</code>. This mixes the high bits down, because step 3 would otherwise ignore them entirely.</li>
+      <li><strong>Fold it:</strong> <code>index = (n - 1) &amp; hash</code>. With n a power of two this is a fast modulo — it simply keeps the low bits.</li>
+    </ol>
+    <p style="margin-bottom:0">Two different keys can land in the same bucket. That is a <strong>collision</strong>, and the bucket becomes a small linked list — converted to a red-black tree once it passes 8 entries.</p>
+  </div>
+
+  <div class="card">
+    <h2>Put a key and watch it land</h2>
+    <div class="ctrl">
+      <div class="fld"><label for="hmKey">key</label><input type="text" id="hmKey" value="Sreekanth" style="width:170px"></div>
+      <div class="fld"><label for="hmVal">value</label><input type="text" id="hmVal" value="Dell" style="width:130px"></div>
+      <button class="btn run small" id="hmPut">put(k, v)</button>
+      <button class="btn small" id="hmGet">get(k)</button>
+      <button class="btn small" id="hmRemove">remove(k)</button>
+      <button class="btn small" id="hmSeed">load 8 students</button>
+      <button class="btn small" id="hmFlood">put 13 keys → force a resize</button>
+      <button class="btn small" id="hmCollide">force a collision</button>
+      <button class="btn small" id="hmClear">clear()</button>
+    </div>
+    <div class="hashsteps" id="hmSteps"></div>
+    <div class="metrics" id="hmMetrics"></div>
+    <div class="striplabel" style="margin-top:12px">Node[] table — every bucket, including the empty ones</div>
+    <div class="buckets" id="hmBuckets"></div>
+    <div class="oplog" id="hmLog"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;java.util.HashMap — the parts that matter</div><div class="codebody" id="code-hmsrc"></div></div>
+    <div>
+      <div class="card" style="margin:0 0 18px">
+        <h2>The numbers to memorise</h2>
+        <table>
+          <tr><td>default capacity</td><td><strong>16</strong> buckets, always a power of two</td></tr>
+          <tr><td>load factor</td><td><strong>0.75</strong> — the space/time compromise</td></tr>
+          <tr><td>threshold</td><td>capacity × load factor = <strong>12</strong> for a new map</td></tr>
+          <tr><td>resize</td><td>at the 13th entry: capacity <strong>doubles</strong> to 32 and every entry is rehashed</td></tr>
+          <tr><td>treeify</td><td>a bucket with <strong>8+</strong> entries becomes a red-black tree (if capacity ≥ 64)</td></tr>
+          <tr><td>worst case</td><td>all keys collide → O(n) before treeify, O(log n) after</td></tr>
+        </table>
+      </div>
+      <div class="callout tip">
+        <b>💡 Why 0.75 and not 1.0?</b>
+        <p>A hash table only stays O(1) while buckets are mostly short. Waiting until the table is completely full guarantees long chains; resizing too early wastes memory. 0.75 is the measured sweet spot, and it means a HashMap is <strong>always at least 25% empty</strong> by design.</p>
+      </div>
+      <div class="callout warn">
+        <b>Order is not a promise, and it is not random either</b>
+        <p>Iteration follows bucket order, which depends on hash codes and on the current capacity. It looks arbitrary, it is perfectly deterministic, and it <strong>changes after a resize</strong>. Never rely on it — use <code>LinkedHashMap</code> or <code>TreeMap</code> if order matters.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3 : MAP INTERFACE ============ -->
+<section class="tab" id="tab-map">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">Map</span>
+    <h2>Key → value, and deliberately not a Collection</h2>
+    <p>A <code>Map</code> stores <strong>pairs</strong>. <code>Collection.add(E)</code> takes one element, so a Map cannot implement it without lying — which is why <code>Map</code> sits outside the <code>Collection</code> branch of the hierarchy. It offers three <strong>views</strong> instead, and those views <em>are</em> Collections.</p>
+    <div class="grid3">
+      <div><span class="pill p-blue">keySet()</span><p style="margin-top:8px">A <code>Set&lt;K&gt;</code> of the keys — no duplicates, by definition.</p></div>
+      <div><span class="pill p-amber">values()</span><p style="margin-top:8px">A <code>Collection&lt;V&gt;</code> — duplicates allowed, because two keys may share a value.</p></div>
+      <div><span class="pill p-teal">entrySet()</span><p style="margin-top:8px">A <code>Set&lt;Map.Entry&lt;K,V&gt;&gt;</code> — the pairs themselves, and the <strong>only</strong> efficient way to iterate both at once.</p></div>
+    </div>
+    <div class="callout warn">
+      <b>They are views, not copies</b>
+      <p><code>map.keySet().remove(k)</code> removes the entry from the <strong>map</strong>. Changes flow both ways. That is powerful and occasionally surprising.</p>
+    </div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;the Map contract</div><div class="codebody" id="code-mapapi"></div></div>
+    <div>
+      <table>
+        <tr><th>Method</th><th>Does</th></tr>
+        <tr><td>put(k, v)</td><td>inserts or <strong>replaces</strong>; returns the <strong>old</strong> value, or <code>null</code></td></tr>
+        <tr><td>get(k)</td><td>the value, or <code>null</code> if the key is absent</td></tr>
+        <tr><td>getOrDefault(k, d)</td><td>the value, or <code>d</code> — removes most null checks</td></tr>
+        <tr><td>containsKey(k)</td><td>O(1) — the reason maps exist</td></tr>
+        <tr><td>containsValue(v)</td><td><span class="pill p-red">O(n)</span> — a full scan, no index on values</td></tr>
+        <tr><td>remove(k)</td><td>removes and returns the old value</td></tr>
+        <tr><td>putIfAbsent(k, v)</td><td>only writes when the key is missing</td></tr>
+        <tr><td>merge(k, v, fn)</td><td>insert, or combine with what is there — perfect for counting</td></tr>
+        <tr><td>computeIfAbsent(k, fn)</td><td>build a value on demand — perfect for grouping</td></tr>
+        <tr><td>size() / isEmpty() / clear()</td><td>housekeeping</td></tr>
+      </table>
+      <div class="callout bug">
+        <b>⛔ <code>get()</code> returning <code>null</code> is ambiguous</b>
+        <p><code>null</code> can mean "no such key" <em>or</em> "the key is there and its value is null". <code>containsKey()</code> is the only way to tell them apart. <code>HashMap</code> allows <strong>one null key</strong> and any number of null values; <code>TreeMap</code> and <code>Hashtable</code> allow no null key at all.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The four map implementations</h2>
+    <table>
+      <tr><th></th><th>HashMap</th><th>LinkedHashMap</th><th>TreeMap</th><th>Hashtable</th></tr>
+      <tr><td>order</td><td>none</td><td>insertion (or access)</td><td>sorted by key</td><td>none</td></tr>
+      <tr><td>get / put</td><td>O(1)</td><td>O(1)</td><td>O(log n)</td><td>O(1)</td></tr>
+      <tr><td>null key</td><td>one allowed</td><td>one allowed</td><td>not allowed</td><td>not allowed</td></tr>
+      <tr><td>thread-safe</td><td>no</td><td>no</td><td>no</td><td>yes — every method synchronized</td></tr>
+      <tr><td>use it for</td><td>almost everything</td><td>caches, ordered output</td><td>ranges, sorted reports</td><td>nothing new — legacy</td></tr>
+    </table>
+    <p style="margin-top:8px">For concurrent code the modern answer is <code>ConcurrentHashMap</code>, which locks only parts of the table rather than the whole map — far faster than <code>Hashtable</code> under contention.</p>
+  </div>
+</section>
+
+<!-- ============ TAB 4 : WHY A MAP ============ -->
+<section class="tab" id="tab-why">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">The case for Map</span>
+    <h2>Because looking something up by name should not mean reading everything</h2>
+    <p>Find student 104 in a <code>List&lt;Gsec&gt;</code> and you compare register numbers one at a time until you hit it — on average half the list. Find them in a <code>Map&lt;Integer,Gsec&gt;</code> and you do one hash calculation and land in the right bucket. Below, both run on the same data and the comparisons are <strong>counted</strong>.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="whyN">students <span class="val" id="whyNv">1000</span></label><input type="range" id="whyN" min="50" max="10000" step="50" value="1000"></div>
+      <div class="fld"><label for="whyQ">lookups <span class="val" id="whyQv">100</span></label><input type="range" id="whyQ" min="1" max="500" step="1" value="100"></div>
+      <button class="btn run" id="whyRun">▶ Look them all up</button>
+    </div>
+    <div class="svgwrap" style="padding:14px"><svg id="whyChart" viewBox="0 0 1000 210" width="1000" height="210"></svg></div>
+    <div class="console" id="whyOut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Where a Map is the right answer</h2>
+      <table>
+        <tr><th>Problem</th><th>Shape</th></tr>
+        <tr><td>Look up a student by register number</td><td><code>Map&lt;Integer, Gsec&gt;</code></td></tr>
+        <tr><td>Count how many students own each laptop brand</td><td><code>Map&lt;String, Integer&gt;</code> + <code>merge</code></td></tr>
+        <tr><td>Group students by branch</td><td><code>Map&lt;String, List&lt;Gsec&gt;&gt;</code> + <code>computeIfAbsent</code></td></tr>
+        <tr><td>Cache an expensive result</td><td><code>Map&lt;Input, Result&gt;</code></td></tr>
+        <tr><td>Word frequency in a document</td><td><code>Map&lt;String, Integer&gt;</code></td></tr>
+        <tr><td>Config settings by name</td><td><code>Map&lt;String, String&gt;</code></td></tr>
+        <tr><td>Detect duplicates in a stream of ids</td><td><code>Set</code> — a Map with no values</td></tr>
+      </table>
+      <div class="callout ok">
+        <b>✓ The one-line rule</b>
+        <p>If you ever find yourself writing a loop that searches a list for a match on one field — <strong>that field wants to be a map key.</strong></p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>And where it is the wrong answer</h2>
+      <ul>
+        <li><strong>You need order or position.</strong> "The third student who registered" is a List question.</li>
+        <li><strong>You search by value, not key.</strong> <code>containsValue()</code> is O(n) — a map gives you nothing there.</li>
+        <li><strong>The data is tiny.</strong> For five elements a list scan beats hashing; the map only pays off as n grows.</li>
+        <li><strong>You need every element in order every time.</strong> Iterating a HashMap is fine, but a List is simpler and cache-friendlier.</li>
+        <li><strong>Duplicate keys are meaningful.</strong> A Map silently overwrites — <code>put</code> on an existing key replaces the old value and returns it.</li>
+      </ul>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;put() overwrites, quietly</div><div class="codebody" id="code-overwrite"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The three idioms worth learning by heart</h2>
+    <div class="grid3">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;counting</div><div class="codebody" id="code-count"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;grouping</div><div class="codebody" id="code-group"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;indexing</div><div class="codebody" id="code-index"></div></div>
+    </div>
+    <div class="runbar"><button class="btn run" id="runIdioms">▶ Run all three on the Gsec batch</button></div>
+    <div class="console" id="outIdioms"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 5 : EQUALS & HASHCODE ============ -->
+<section class="tab" id="tab-eq">
+  <div class="card">
+    <span class="tagline" style="color:var(--red);border-color:rgba(232,121,138,.4)">The contract</span>
+    <h2>Your <code>Gsec</code> class breaks a HashSet, and here is exactly how</h2>
+    <p>A hash collection finds an element in two moves: <strong>hash to a bucket</strong>, then <strong>walk that bucket comparing with equals()</strong>. Your class overrides neither method, so it inherits <code>Object</code>'s versions — hash based on the memory address, equality based on the memory address. Two students with the same register number therefore hash to <em>different buckets</em> and are never even compared.</p>
+    <div class="callout bug">
+      <b>⛔ The contract, in one line each</b>
+      <p>1 · If <code>a.equals(b)</code> then <code>a.hashCode() == b.hashCode()</code> — <strong>always</strong>.<br>
+         2 · Equal hash codes do <strong>not</strong> imply equality; that is just a collision.<br>
+         3 · Both must be computed from the <strong>same fields</strong>, and those fields should not change while the object sits in a set or map.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Run the experiment</h2>
+    <p>Four <code>Gsec</code> objects, two of which are the same student (register 101) created twice. Choose which methods the class overrides.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="eqMode">Gsec overrides</label><select id="eqMode">
+        <option value="none">nothing — your class as written</option>
+        <option value="eqonly">equals() only — the half fix</option>
+        <option value="hashonly">hashCode() only</option>
+        <option value="both">equals() and hashCode() — correct</option>
+        <option value="mutable">both, but age is the key field and then changes</option>
+      </select></div>
+      <button class="btn run" id="eqRun">▶ Run</button>
+    </div>
+    <div class="striplabel" style="margin-top:12px">HashSet&lt;Gsec&gt; internal buckets</div>
+    <div class="buckets" id="eqBuckets"></div>
+    <div class="console" id="eqOut"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;the correct implementation for Gsec</div><div class="codebody" id="code-eqfix"></div></div>
+    <div>
+      <div class="card" style="margin:0 0 18px">
+        <h2>Why <code>equals()</code> alone is not enough</h2>
+        <p>Without <code>hashCode()</code>, two equal objects get two different address-based hashes, so they land in <strong>different buckets</strong>. The set never puts them side by side, never calls your <code>equals()</code>, and stores both. Your override is correct and completely unused.</p>
+        <h3>And <code>hashCode()</code> alone?</h3>
+        <p>Both objects reach the <strong>same bucket</strong> — then the set compares them with the inherited address equality, decides they differ, and chains them. Same duplicate, one bucket instead of two.</p>
+      </div>
+      <div class="callout warn">
+        <b>The mutable-key trap</b>
+        <p>Put an object in a HashSet, then change a field its <code>hashCode()</code> depends on. The object now hashes to a different bucket than the one it is physically sitting in — <code>contains()</code> returns <code>false</code> for an object that is demonstrably inside the set, and <code>remove()</code> cannot find it either. Base <code>hashCode()</code> on fields that never change: for <code>Gsec</code>, that is <code>registerNumber</code>, never <code>age</code>.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 6 : ITERATOR ============ -->
+<section class="tab" id="tab-iter">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Iterator</span>
+    <h2>One cursor, every collection</h2>
+    <p>Because <code>Iterable</code> sits at the top of the hierarchy, the same three methods walk a List, a Set, or any view of a Map. That uniformity is the whole point of the framework.</p>
+    <div class="twocol">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;iterating every collection type</div><div class="codebody" id="code-iterall"></div></div>
+      <div>
+        <table>
+          <tr><th>Method</th><th>Does</th></tr>
+          <tr><td>hasNext()</td><td>is there another element? Never moves the cursor.</td></tr>
+          <tr><td>next()</td><td>returns the next element <strong>and</strong> advances. <code>NoSuchElementException</code> if there is none.</td></tr>
+          <tr><td>remove()</td><td>removes what <code>next()</code> just returned. The <strong>only</strong> safe removal during a walk. Calling it before <code>next()</code> throws <code>IllegalStateException</code>.</td></tr>
+        </table>
+        <div class="callout bug">
+          <b>⛔ Maps have no iterator()</b>
+          <p><code>map.iterator()</code> does not compile — a Map is not <code>Iterable</code>. You iterate one of its <strong>views</strong>: <code>map.keySet()</code>, <code>map.values()</code>, or <code>map.entrySet()</code>. Use <code>entrySet()</code> when you need both key and value — looping keys and calling <code>get(k)</code> inside does the hash lookup twice for every entry.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Iterating a map three ways, with the cost counted</h2>
+    <div class="runbar"><button class="btn run" id="runIterMap">▶ Compare entrySet vs keySet + get</button></div>
+    <div class="console" id="outIterMap"></div>
+  </div>
+
+  <div class="card">
+    <h2>ConcurrentModificationException, on a Set this time</h2>
+    <p>Removing under-18 students from a <code>Set&lt;Gsec&gt;</code> while walking it. Same trap as a List, same fix.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="cmeMode">technique</label><select id="cmeMode">
+        <option value="foreach">for-each + set.remove(...) — the trap</option>
+        <option value="iterator">Iterator + it.remove() — the fix</option>
+        <option value="removeif">removeIf(...) — Java 8 fix</option>
+        <option value="keyset">map.keySet().removeIf(...) — works on a view</option>
+      </select></div>
+      <button class="btn run" id="cmeRun">▶ Run</button>
+    </div>
+    <div class="console" id="cmeOut"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 7 : GSEC ============ -->
+<section class="tab" id="tab-gsec">
+  <div class="card">
+    <span class="tagline" style="color:var(--ink);border-color:var(--line2)">Your code</span>
+    <h2><code>Gsec</code> as a set element and as a map value</h2>
+    <p>A List keeps your students in a line. A <strong>Set</strong> answers "have I seen this student before?" and a <strong>Map</strong> answers "give me student 104" — both in one step instead of a scan. But both depend on two methods your class does not have, so this tab starts by fixing that.</p>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — your original</div>
+      <div class="codebody" id="code-gsec"></div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ Two missing methods, three broken collections</b>
+        <p>Without <code>equals()</code> and <code>hashCode()</code>: a <code>HashSet&lt;Gsec&gt;</code> stores the same student twice, <code>map.containsKey(gsec)</code> is always false for a rebuilt object, and <code>list.contains(gsec)</code> fails too. Your <code>registerNumber</code> is the natural identity — tab ⑤ runs the experiment.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 The good news</b>
+        <p><code>private int age</code> and <code>getAge()</code> work unchanged as map values and grouping criteria. <code>validator()</code> runs over an <code>entrySet()</code> exactly as it ran over a List. Nothing about your class needs to change except adding the two contract methods — and a <code>toString()</code> so the output is readable.</p>
+      </div>
+      <div class="runbar"><button class="btn run" id="gsecRunAll">▶ Run all six programs</button></div>
+    </div>
+  </div>
+  <div id="gsecHost"></div>
+</section>
+
+<!-- ============ TAB 8 : LAB + RECAP ============ -->
+<section class="tab" id="tab-recap">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Lab Exercise 12 · Part 2</span>
+    <h2>Set &amp; Map — creation, put, get, iterate</h2>
+    <p>Five programs covering the Week 16 syllabus line exactly. Every printed order, size and bucket index is computed by the models on this page.</p>
+    <div class="runbar"><button class="btn primary" id="labRunAll">▶ Run all five</button></div>
+  </div>
+  <div id="labHost"></div>
+
+  <div class="card">
+    <h2>Unit 5 recap — the whole framework on one screen</h2>
+    <table>
+      <tr><th></th><th>ArrayList</th><th>LinkedList</th><th>HashSet</th><th>TreeSet</th><th>HashMap</th><th>TreeMap</th></tr>
+      <tr><td>stores</td><td>elements</td><td>elements</td><td>unique elements</td><td>unique, sorted</td><td>key→value</td><td>key→value sorted</td></tr>
+      <tr><td>duplicates</td><td>yes</td><td>yes</td><td>no</td><td>no</td><td>keys no, values yes</td><td>keys no</td></tr>
+      <tr><td>order</td><td>index</td><td>index</td><td>none</td><td>sorted</td><td>none</td><td>sorted by key</td></tr>
+      <tr><td>get by index</td><td>O(1)</td><td>O(n)</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+      <tr><td>get by key/value</td><td>O(n)</td><td>O(n)</td><td>O(1)</td><td>O(log n)</td><td>O(1)</td><td>O(log n)</td></tr>
+      <tr><td>add at end</td><td>O(1)*</td><td>O(1)</td><td>O(1)</td><td>O(log n)</td><td>O(1)</td><td>O(log n)</td></tr>
+      <tr><td>add at front</td><td>O(n)</td><td>O(1)</td><td>n/a</td><td>n/a</td><td>n/a</td><td>n/a</td></tr>
+      <tr><td>needs equals/hashCode</td><td>for contains</td><td>for contains</td><td><strong>yes</strong></td><td>needs Comparable</td><td><strong>yes, on keys</strong></td><td>needs Comparable</td></tr>
+      <tr><td>null</td><td>allowed</td><td>allowed</td><td>one null</td><td>no null</td><td>one null key</td><td>no null key</td></tr>
+    </table>
+  </div>
+
+  <div class="card">
+    <h2>Syntax toolkit</h2>
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;HashSet — every operation</div><div class="codebody" id="syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;HashMap — every operation</div><div class="codebody" id="syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;iterating a Map</div><div class="codebody" id="syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;equals + hashCode for your own class</div><div class="codebody" id="syn4"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ten traps that cost marks</h2>
+    <table>
+      <tr><th>#</th><th>Trap</th><th>What happens</th></tr>
+      <tr><td>1</td><td><code>equals()</code> without <code>hashCode()</code></td><td>HashSet stores duplicates; map lookups miss. The single most-tested point in this unit.</td></tr>
+      <tr><td>2</td><td>Expecting HashSet or HashMap to keep order</td><td>It never promises one. Use LinkedHashSet / LinkedHashMap.</td></tr>
+      <tr><td>3</td><td><code>map.iterator()</code></td><td>Does not compile — Map is not Iterable. Iterate <code>entrySet()</code>.</td></tr>
+      <tr><td>4</td><td>keySet() + get() inside the loop</td><td>Two hash lookups per entry instead of one. Use entrySet().</td></tr>
+      <tr><td>5</td><td>Treating <code>get()==null</code> as "absent"</td><td>Could be a stored null. Use <code>containsKey()</code>.</td></tr>
+      <tr><td>6</td><td>Mutating a key after inserting it</td><td>The object hashes elsewhere and becomes unreachable inside its own map.</td></tr>
+      <tr><td>7</td><td>Removing during a for-each</td><td>ConcurrentModificationException, on Sets and Maps too.</td></tr>
+      <tr><td>8</td><td>Assuming <code>put()</code> refuses duplicate keys</td><td>It silently replaces the value and returns the old one.</td></tr>
+      <tr><td>9</td><td>Using <code>containsValue()</code> for lookups</td><td>O(n) — the map gives you nothing there.</td></tr>
+      <tr><td>10</td><td>Null key in a TreeMap</td><td>NullPointerException — it must compare keys.</td></tr>
+    </table>
+  </div>
+</section>
+</main>
+<footer>Java Collections Lab · Part 2 · HashSet, HashMap &amp; the case for Map · single file · fully offline · real hashing, real buckets, real resize</footer>
+<script>
+/* ---------- shared helpers ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(@\w+)|\b(abstract|boolean|break|byte|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false|var)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){let out='',last=0,m;HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){out+=esc(line.slice(last,m.index));
+    const c=m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-s':m[4]?'tok-a':m[5]?'tok-k':m[6]?'tok-t':m[7]?'tok-n':'tok-m';
+    out+='<span class="'+c+'">'+esc(m[0])+'</span>';last=m.index+m[0].length;}
+  return out+esc(line.slice(last));}
+function renderCode(id,lines,opts){opts=opts||{};const b=document.getElementById(id);if(!b)return;b.innerHTML='';
+  lines.forEach((ln,i)=>{const d=document.createElement('div');d.className='cl';d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1))d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';b.appendChild(d);});}
+function L(lines,sub){return lines.findIndex(l=>l.includes(sub))+1;}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}}));
+function mkOut(){const buf=[];
+  const o=(s,c)=>buf.push('<span class="'+(c||'out')+'">'+esc(String(s))+'</span>');
+  o.info=s=>o(s,'info');o.fail=s=>o(s,'fail');o.warn=s=>o(s,'warn');o.dim=s=>o(s,'prompt');
+  o.head=s=>buf.push('<span class="hd">'+esc(String(s))+'</span>');
+  o.raw=s=>buf.push(s);o.text=()=>buf.join('\n');return o;}
+function paint(id,o){const e=document.getElementById(id);if(e)e.innerHTML=o.text();}
+
+/* ---------- Java's real hash functions ---------- */
+function javaStringHash(s){let h=0;s=String(s);for(let i=0;i<s.length;i++)h=(Math.imul(31,h)+s.charCodeAt(i))|0;return h;}
+function spread(h){return (h^(h>>>16))|0;}          // HashMap.hash(key)
+function bucketOf(h,n){return (n-1)&h;}             // (n - 1) & hash
+function bin(x,bits){let s=(x>>>0).toString(2);while(s.length<bits)s='0'+s;return s.slice(-bits);}
+
+/* ============================================================
+   a real HashMap model — 16 buckets, 0.75 load factor, doubling resize
+   ============================================================ */
+function HM(cap){this.cap=cap||16;this.table=[];for(let i=0;i<this.cap;i++)this.table.push([]);
+  this.size=0;this.threshold=Math.floor(this.cap*0.75);this.probes=0;this.resizes=0;
+  this.log=[];this.hot=-1;this.lastKey=null;this.steps=null;}
+HM.prototype.say=function(t,c){this.log.push('<span class="'+(c||'d')+'">'+t+'</span>');};
+HM.prototype.hashOf=function(k){return (k&&k.__hash!==undefined)?k.__hash:(typeof k==='number'?(k|0):javaStringHash(k));};
+HM.prototype.eq=function(a,b){
+  if(a&&a.__eq)return a.__eq(b);
+  return a===b;};
+HM.prototype.keyStr=function(k){return (k&&k.__str)?k.__str():String(k);};
+HM.prototype.resize=function(){
+  const old=this.cap;this.cap*=2;this.threshold=Math.floor(this.cap*0.75);this.resizes++;
+  const all=[];this.table.forEach(b=>b.forEach(e=>all.push(e)));
+  this.table=[];for(let i=0;i<this.cap;i++)this.table.push([]);
+  all.forEach(e=>{const idx=bucketOf(spread(this.hashOf(e.k)),this.cap);this.table[idx].push(e);});
+  this.say('RESIZE: size '+this.size+' passed the threshold. capacity '+old+' → '+this.cap+
+    ', threshold '+Math.floor(old*0.75)+' → '+this.threshold+', all '+all.length+' entries rehashed into new buckets','c');
+};
+HM.prototype.put=function(k,v,quiet){
+  this.log=[];this.lastKey=k;
+  const raw=this.hashOf(k),h=spread(raw),idx=bucketOf(h,this.cap);
+  this.hot=idx;
+  this.steps={key:this.keyStr(k),raw:raw,spread:h,idx:idx,cap:this.cap,
+    lowbits:bin(h,Math.log2(this.cap))};
+  const b=this.table[idx];
+  for(let i=0;i<b.length;i++){this.probes++;
+    if(this.hashOf(b[i].k)===raw&&this.eq(b[i].k,k)){
+      const old=b[i].v;b[i].v=v;
+      if(!quiet)this.say('put("'+this.keyStr(k)+'") → key already in bucket '+idx+'. Value REPLACED ("'+old+'" → "'+v+'"), size unchanged. put() returns the old value','c');
+      return old;}}
+  b.push({k:k,v:v,fresh:true});this.size++;
+  if(!quiet){
+    if(b.length>1)this.say('put("'+this.keyStr(k)+'") → bucket '+idx+' was already occupied — COLLISION. Chained after '+(b.length-1)+' existing entry/entries','c');
+    else this.say('put("'+this.keyStr(k)+'") → bucket '+idx+' was empty. One step, done','g');
+  }
+  if(this.size>this.threshold)this.resize();
+  return null;};
+HM.prototype.get=function(k){
+  this.log=[];this.lastKey=k;
+  const raw=this.hashOf(k),h=spread(raw),idx=bucketOf(h,this.cap);
+  this.hot=idx;
+  this.steps={key:this.keyStr(k),raw:raw,spread:h,idx:idx,cap:this.cap,lowbits:bin(h,Math.log2(this.cap))};
+  const b=this.table[idx];let walked=0;
+  for(let i=0;i<b.length;i++){walked++;this.probes++;
+    if(this.hashOf(b[i].k)===raw&&this.eq(b[i].k,k)){
+      this.say('get("'+this.keyStr(k)+'") → "'+b[i].v+'"  found in bucket '+idx+' after '+walked+' comparison(s)','g');
+      return b[i].v;}}
+  this.say('get("'+this.keyStr(k)+'") → null  bucket '+idx+' held '+b.length+' entry/entries, none matched','r');
+  return null;};
+HM.prototype.remove=function(k){
+  this.log=[];const raw=this.hashOf(k),h=spread(raw),idx=bucketOf(h,this.cap);
+  this.hot=idx;this.steps={key:this.keyStr(k),raw:raw,spread:h,idx:idx,cap:this.cap,lowbits:bin(h,Math.log2(this.cap))};
+  const b=this.table[idx];
+  for(let i=0;i<b.length;i++){this.probes++;
+    if(this.hashOf(b[i].k)===raw&&this.eq(b[i].k,k)){
+      const v=b[i].v;b.splice(i,1);this.size--;
+      this.say('remove("'+this.keyStr(k)+'") → removed from bucket '+idx+'. capacity stays '+this.cap+' — a HashMap never shrinks','r');
+      return v;}}
+  this.say('remove("'+this.keyStr(k)+'") → null, key not present','r');
+  return null;};
+HM.prototype.containsKey=function(k){
+  const raw=this.hashOf(k),idx=bucketOf(spread(raw),this.cap);
+  return this.table[idx].some(e=>this.hashOf(e.k)===raw&&this.eq(e.k,k));};
+HM.prototype.entries=function(){const a=[];this.table.forEach(b=>b.forEach(e=>a.push(e)));return a;};
+HM.prototype.keys=function(){return this.entries().map(e=>this.keyStr(e.k));};
+HM.prototype.clear=function(){this.table=[];for(let i=0;i<this.cap;i++)this.table.push([]);this.size=0;this.log=[];this.hot=-1;this.steps=null;};
+HM.prototype.clearFresh=function(){this.table.forEach(b=>b.forEach(e=>e.fresh=false));};
+HM.prototype.str=function(){return '{'+this.entries().map(e=>this.keyStr(e.k)+'='+e.v).join(', ')+'}';};
+</script>
+<script>
+/* ============ TAB 1 · Set ============ */
+renderCode('code-hsimpl',[
+'public class HashSet<E> implements Set<E> {',
+'',
+'    private transient HashMap<E, Object> map;      // it IS a HashMap',
+'',
+'    // one shared dummy object for every value in that map',
+'    private static final Object PRESENT = new Object();',
+'',
+'    public boolean add(E e) {',
+'        return map.put(e, PRESENT) == null;   // null means "was not there"',
+'    }',
+'',
+'    public boolean contains(Object o) { return map.containsKey(o); }',
+'    public boolean remove(Object o)   { return map.remove(o) == PRESENT; }',
+'    public int     size()             { return map.size(); }',
+'    public Iterator<E> iterator()     { return map.keySet().iterator(); }',
+'}'
+]);
+renderCode('code-setops',[
+'Set<String> a = new HashSet<>(Set.of("Java","DBMS","OS"));',
+'Set<String> b = new HashSet<>(Set.of("OS","CN","Java"));',
+'',
+'Set<String> union = new HashSet<>(a);',
+'union.addAll(b);                 // A ∪ B',
+'',
+'Set<String> inter = new HashSet<>(a);',
+'inter.retainAll(b);              // A ∩ B   — keep only what is in both',
+'',
+'Set<String> diff = new HashSet<>(a);',
+'diff.removeAll(b);               // A − B',
+'',
+'System.out.println(union + "\\n" + inter + "\\n" + diff);',
+'System.out.println("subset? " + b.containsAll(inter));'
+]);
+document.getElementById('runSetOps').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java SetOps');
+  const A=['Java','DBMS','OS'],B=['OS','CN','Java'];
+  const u=new HM();A.concat(B).forEach(x=>u.put(x,1));
+  const inter=A.filter(x=>B.includes(x)),diff=A.filter(x=>!B.includes(x));
+  o('A            : ['+A.join(', ')+']');
+  o('B            : ['+B.join(', ')+']');
+  o('union        : ['+u.keys().join(', ')+']   ← bucket order, not insertion order');
+  o('intersection : ['+inter.join(', ')+']');
+  o('difference   : ['+diff.join(', ')+']');
+  o('subset?      : true');
+  o.info('addAll / retainAll / removeAll are the union / intersection / difference of set theory, already written for you.');
+  paint('outSetOps',o);
+});
+document.getElementById('runSetOps').click();
+const SETS={hash:new HM(),linked:[],tree:[]};
+function setRender(msg,cls){
+  const cell=(v,k)=>'<div class="slot'+(k||'')+'"><span class="ix">&nbsp;</span><span class="vl">'+esc(v)+'</span></div>';
+  const emp='<div class="slot empty" style="min-width:120px"><span class="ix">&nbsp;</span><span class="vl">(empty)</span></div>';
+  document.getElementById('setHash').innerHTML=SETS.hash.size?SETS.hash.keys().map(v=>cell(v)).join(''):emp;
+  document.getElementById('setLinked').innerHTML=SETS.linked.length?SETS.linked.map(v=>cell(v)).join(''):emp;
+  document.getElementById('setTree').innerHTML=SETS.tree.length?SETS.tree.slice().sort().map(v=>cell(v)).join(''):emp;
+  const o=mkOut();
+  if(msg)o(msg,cls||'out');
+  o.dim('size : '+SETS.hash.size+'  (all three hold the same elements)');
+  o.info('HashSet order comes from bucket index = (capacity-1) & spread(hashCode). It is deterministic, it is not insertion order, and it changes if the set resizes.');
+  paint('setOut',o);
+}
+function setAdd(v){
+  const had=SETS.hash.containsKey(v);
+  SETS.hash.put(v,1,true);
+  if(!had){SETS.linked.push(v);SETS.tree.push(v);}
+  setRender('add("'+v+'") returned '+(!had)+(had?'   — already present, nothing changed':''),had?'warn':'out');
+}
+document.getElementById('setAdd').addEventListener('click',()=>setAdd(document.getElementById('setVal').value||'x'));
+document.getElementById('setRemove').addEventListener('click',()=>{
+  const v=document.getElementById('setVal').value||'x';
+  const had=SETS.hash.containsKey(v);
+  SETS.hash.remove(v);SETS.linked=SETS.linked.filter(x=>x!==v);SETS.tree=SETS.tree.filter(x=>x!==v);
+  setRender('remove("'+v+'") returned '+had,had?'out':'fail');});
+document.getElementById('setContains').addEventListener('click',()=>{
+  const v=document.getElementById('setVal').value||'x';
+  setRender('contains("'+v+'") → '+SETS.hash.containsKey(v)+'   one hash, one bucket — no scanning',SETS.hash.containsKey(v)?'out':'fail');});
+document.getElementById('setSeed').addEventListener('click',()=>{
+  ['Sreekanth','Divya','Arun','Kavya','Meena','Divya'].forEach(n=>{
+    if(!SETS.hash.containsKey(n)){SETS.hash.put(n,1,true);SETS.linked.push(n);SETS.tree.push(n);}});
+  setRender('added 6 names — "Divya" appears twice in the input but once in every set','warn');});
+document.getElementById('setClear').addEventListener('click',()=>{SETS.hash.clear();SETS.linked=[];SETS.tree=[];setRender('cleared');});
+setAdd('Sreekanth');setAdd('Divya');setAdd('Arun');
+
+/* ============ TAB 2 · inside HashMap ============ */
+const hmap=new HM();
+function hmRender(){
+  const st=hmap.steps;
+  document.getElementById('hmSteps').innerHTML=st?
+    '<div class="hstep"><span class="lbl">1 · key.hashCode()</span><span class="v">'+st.raw+'</span></div>'+
+    '<div class="hstep"><span class="lbl">2 · spread: h ^ (h>>>16)</span><span class="v">'+st.spread+'</span></div>'+
+    '<div class="hstep"><span class="lbl">3 · low '+Math.log2(st.cap)+' bits of that</span><span class="v">'+st.lowbits+'</span></div>'+
+    '<div class="hstep"><span class="lbl">index = (n-1) &amp; hash</span><span class="v">bucket '+st.idx+' of '+st.cap+'</span></div>'
+    :'<div class="hstep"><span class="lbl">waiting</span><span class="v">put a key to see the arithmetic</span></div>';
+  const chains=hmap.table.map(b=>b.length);
+  const used=chains.filter(c=>c>0).length,maxc=Math.max(0,...chains);
+  document.getElementById('hmMetrics').innerHTML=
+    '<span class="metric">size <b>'+hmap.size+'</b></span>'+
+    '<span class="metric">capacity <b>'+hmap.cap+'</b></span>'+
+    '<span class="metric">threshold <b>'+hmap.threshold+'</b></span>'+
+    '<span class="metric">buckets used <b>'+used+'/'+hmap.cap+'</b></span>'+
+    '<span class="metric">longest chain <b>'+maxc+'</b></span>'+
+    '<span class="metric">resizes <b>'+hmap.resizes+'</b></span>'+
+    '<span class="metric">key comparisons <b>'+hmap.probes+'</b></span>';
+  const host=document.getElementById('hmBuckets');host.innerHTML='';
+  hmap.table.forEach((b,i)=>{
+    const row=document.createElement('div');
+    row.className='bktrow'+(i===hmap.hot?' hot':'');
+    row.innerHTML='<div class="idx">['+i+']</div><div class="chainc">'+
+      (b.length?b.map((e,j)=>'<span class="entry'+(e.fresh?' new':(j>0?' coll':''))+'">'+esc(hmap.keyStr(e.k))+'='+esc(e.v)+'</span>'+
+        (j<b.length-1?'<span style="color:var(--line2)">→</span>':'')).join('')
+       :'<span class="emptybkt">null</span>')+'</div>';
+    host.appendChild(row);
+  });
+  document.getElementById('hmLog').innerHTML=hmap.log.join('\n')+'\n<span class="b">map → '+esc(hmap.str())+'</span>';
+  hmap.clearFresh();
+}
+const hmK=()=>document.getElementById('hmKey').value||'k';
+const hmV=()=>document.getElementById('hmVal').value||'v';
+document.getElementById('hmPut').addEventListener('click',()=>{hmap.put(hmK(),hmV());hmRender();});
+document.getElementById('hmGet').addEventListener('click',()=>{hmap.get(hmK());hmRender();});
+document.getElementById('hmRemove').addEventListener('click',()=>{hmap.remove(hmK());hmRender();});
+document.getElementById('hmClear').addEventListener('click',()=>{hmap.clear();hmap.say('clear() → every bucket set to null, size 0. capacity stays '+hmap.cap,'r');hmRender();});
+document.getElementById('hmSeed').addEventListener('click',()=>{
+  const st=[['Sreekanth','Dell'],['Divya','HP'],['Arun','Lenovo'],['Kavya','Asus'],
+            ['Meena','Acer'],['Ravi','MSI'],['Anu','Dell'],['Bala','HP']];
+  const logs=[];st.forEach(([k,v])=>{hmap.put(k,v);hmap.log.forEach(l=>{if(/COLLISION|RESIZE/.test(l))logs.push(l);});});
+  hmap.log=['<span class="d">8 students put in, one at a time</span>'].concat(logs.length?logs:['<span class="g">no collisions with these 8 keys at capacity '+hmap.cap+'</span>']);
+  hmRender();});
+document.getElementById('hmFlood').addEventListener('click',()=>{
+  const logs=[];
+  for(let i=1;i<=13;i++){hmap.put('key'+i,'v'+i);hmap.log.forEach(l=>{if(/RESIZE|COLLISION/.test(l))logs.push(l);});}
+  hmap.log=['<span class="d">put key1 … key13</span>'].concat(logs);
+  if(!hmap.resizes)hmap.log.push('<span class="c">no resize yet — it fires the moment size passes '+hmap.threshold+'</span>');
+  hmRender();});
+document.getElementById('hmCollide').addEventListener('click',()=>{
+  hmap.put('Aa','first');const b1=hmap.steps.idx;
+  hmap.put('BB','second');const b2=hmap.steps.idx;
+  hmap.log=['<span class="c">"Aa".hashCode() = '+javaStringHash('Aa')+'</span>',
+            '<span class="c">"BB".hashCode() = '+javaStringHash('BB')+'   ← identical, and this is a real Java quirk, not a trick</span>',
+            '<span class="c">both land in bucket '+b1+(b1===b2?' — a genuine collision, chained in one bucket':'')+'</span>',
+            '<span class="d">equal hash codes do NOT mean equal objects: the map still calls equals() to tell them apart</span>'];
+  hmRender();});
+['Sreekanth','Divya','Arun'].forEach((k,i)=>hmap.put(k,['Dell','HP','Lenovo'][i]));
+hmap.log=['<span class="d">three students already in — press the buttons above to watch the arithmetic</span>'];
+hmRender();
+
+renderCode('code-hmsrc',[
+'public class HashMap<K,V> {',
+'',
+'    static final int DEFAULT_INITIAL_CAPACITY = 1 << 4;   // 16',
+'    static final float DEFAULT_LOAD_FACTOR    = 0.75f;',
+'    static final int TREEIFY_THRESHOLD        = 8;',
+'',
+'    transient Node<K,V>[] table;    // the buckets',
+'    int size;',
+'    int threshold;                  // capacity * loadFactor',
+'',
+'    static class Node<K,V> {',
+'        final int   hash;',
+'        final K     key;',
+'        V           value;',
+'        Node<K,V>   next;           // the chain, when keys collide',
+'    }',
+'',
+'    // step 2 — spread the high bits down into the low ones',
+'    static final int hash(Object key) {',
+'        int h;',
+'        return (key == null) ? 0 : (h = key.hashCode()) ^ (h >>> 16);',
+'    }',
+'',
+'    public V put(K key, V value) {',
+'        int n = table.length;',
+'        int i = (n - 1) & hash(key);       // step 3 — fold to an index',
+'',
+'        for (Node<K,V> e = table[i]; e != null; e = e.next)',
+'            if (e.hash == hash && (e.key == key || key.equals(e.key)))',
+'                { V old = e.value; e.value = value; return old; }   // replace',
+'',
+'        table[i] = new Node<>(hash, key, value, table[i]);          // prepend',
+'        if (++size > threshold) resize();      // double and rehash everything',
+'        return null;',
+'    }',
+'}'
+]);
+</script>
+<script>
+/* ============ TAB 3 · Map interface ============ */
+renderCode('code-mapapi',[
+'public interface Map<K,V> {          // NOT extends Collection',
+'',
+'    V       put(K key, V value);     // returns the OLD value, or null',
+'    V       get(Object key);         // null if absent',
+'    V       getOrDefault(Object k, V def);',
+'    V       remove(Object key);',
+'    boolean containsKey(Object key);      // O(1)',
+'    boolean containsValue(Object value);  // O(n) — full scan',
+'    int     size();',
+'    boolean isEmpty();',
+'    void    clear();',
+'',
+'    V putIfAbsent(K key, V value);',
+'    V merge(K key, V value, BiFunction<V,V,V> remap);',
+'    V computeIfAbsent(K key, Function<K,V> mapping);',
+'',
+'    Set<K>              keySet();      // views — backed by the map',
+'    Collection<V>       values();',
+'    Set<Map.Entry<K,V>> entrySet();',
+'',
+'    interface Entry<K,V> { K getKey(); V getValue(); V setValue(V v); }',
+'}'
+]);
+renderCode('code-overwrite',[
+'Map<Integer,String> m = new HashMap<>();',
+'',
+'m.put(101, "Sreekanth");',
+'String old = m.put(101, "Someone else");   // SAME key',
+'',
+'System.out.println(old);      // Sreekanth  — silently replaced',
+'System.out.println(m.size()); // 1          — not 2',
+'',
+'// if that overwrite would be a bug, guard it:',
+'m.putIfAbsent(101, "Third");  // does nothing, key exists',
+'if (!m.containsKey(101)) m.put(101, "Third");'
+]);
+renderCode('code-count',[
+'// how many students own each laptop brand',
+'Map<String,Integer> byBrand = new HashMap<>();',
+'',
+'for (Gsec g : batch)',
+'    byBrand.merge(g.laptop, 1, Integer::sum);',
+'',
+'// the long form, if merge is unfamiliar:',
+'// int c = byBrand.getOrDefault(g.laptop, 0);',
+'// byBrand.put(g.laptop, c + 1);'
+]);
+renderCode('code-group',[
+'// students grouped by laptop brand',
+'Map<String,List<Gsec>> groups = new HashMap<>();',
+'',
+'for (Gsec g : batch)',
+'    groups.computeIfAbsent(g.laptop, k -> new ArrayList<>())',
+'          .add(g);',
+'',
+'// computeIfAbsent creates the empty list',
+'// only the first time a brand is seen.'
+]);
+renderCode('code-index',[
+'// a register-number index, built once',
+'Map<Integer,Gsec> byReg = new HashMap<>();',
+'',
+'for (Gsec g : batch)',
+'    byReg.put(g.registerNumber, g);',
+'',
+'// now every lookup is one step, forever',
+'Gsec found = byReg.get(104);',
+'if (found != null) found.validator();'
+]);
+const GB=()=>[['Sreekanth','Dell',17,101],['Divya','HP',19,102],['Arun','Lenovo',18,103],
+              ['Kavya','Asus',16,104],['Meena','Dell',21,105],['Ravi','HP',20,106]];
+document.getElementById('runIdioms').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java MapIdioms');
+  const b=GB();
+  o.head('1 · counting — merge(brand, 1, Integer::sum)');
+  const cnt=new HM();b.forEach(([n,l])=>{const c=cnt.get(l);cnt.put(l,(c===null?0:c)+1,true);});
+  cnt.entries().forEach(e=>o('   '+e.k.padEnd(8,' ')+' → '+e.v));
+  o.head('2 · grouping — computeIfAbsent(brand, k -> new ArrayList<>())');
+  const grp={};b.forEach(([n,l])=>{(grp[l]=grp[l]||[]).push(n);});
+  Object.keys(grp).forEach(k=>o('   '+k.padEnd(8,' ')+' → ['+grp[k].join(', ')+']'));
+  o.head('3 · indexing — put(registerNumber, student)');
+  const idx=new HM();b.forEach(a=>idx.put(a[3],a[0],true));
+  o('   byReg.get(104) → '+idx.get(104)+'    (1 hash + 1 comparison)');
+  o('   byReg.get(999) → null            (absent, still 1 step)');
+  o.info('All three replace a nested loop with a single pass. That is the practical reason maps are everywhere in real Java code.');
+  paint('outIdioms',o);
+});
+document.getElementById('runIdioms').click();
+
+/* ============ TAB 4 · why a map ============ */
+function whyRun(){
+  const N=parseInt(document.getElementById('whyN').value,10);
+  const Q=parseInt(document.getElementById('whyQ').value,10);
+  const regs=[];for(let i=0;i<N;i++)regs.push(100+i);
+  const map=new HM();regs.forEach(r=>map.put(r,'S'+r,true));
+  map.probes=0;
+  let listCmp=0;
+  const queries=[];for(let q=0;q<Q;q++)queries.push(100+((q*7919)%N));
+  queries.forEach(t=>{for(let i=0;i<N;i++){listCmp++;if(regs[i]===t)break;}});
+  queries.forEach(t=>map.get(t));
+  const mapCmp=map.probes;
+  const svg=document.getElementById('whyChart'),NS='http://www.w3.org/2000/svg';
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const max=Math.max(listCmp,mapCmp,1),W=680,X=250;
+  [['List scan',listCmp,'#e8798a',52],['Map lookup',mapCmp,'#8fd6a3',122]].forEach(([nm,v,c,y])=>{
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',236);t.setAttribute('y',y+22);t.setAttribute('fill',c);t.setAttribute('font-size','13');
+    t.setAttribute('text-anchor','end');t.setAttribute('font-weight','700');t.textContent=nm;svg.appendChild(t);
+    const bg=document.createElementNS(NS,'rect');
+    bg.setAttribute('x',X);bg.setAttribute('y',y);bg.setAttribute('width',W);bg.setAttribute('height',32);
+    bg.setAttribute('rx',6);bg.setAttribute('fill','#131730');svg.appendChild(bg);
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',X);r.setAttribute('y',y);r.setAttribute('width',Math.max(3,(v/max)*W));r.setAttribute('height',32);
+    r.setAttribute('rx',6);r.setAttribute('fill',c);r.setAttribute('fill-opacity','.75');svg.appendChild(r);
+    const vt=document.createElementNS(NS,'text');
+    vt.setAttribute('x',X+Math.max(3,(v/max)*W)+10);vt.setAttribute('y',y+22);vt.setAttribute('fill',c);
+    vt.setAttribute('font-size','12.5');vt.textContent=v.toLocaleString();svg.appendChild(vt);
+  });
+  const hd=document.createElementNS(NS,'text');
+  hd.setAttribute('x',20);hd.setAttribute('y',26);hd.setAttribute('fill','#9aa3c7');hd.setAttribute('font-size','12');
+  hd.textContent='key comparisons performed · '+N.toLocaleString()+' students · '+Q+' lookups by register number';
+  svg.appendChild(hd);
+  const o=mkOut();
+  o.dim('for each lookup:  list → scan until match   |   map → hash, then walk one bucket');
+  o('List<Gsec>.indexOf : '+listCmp.toLocaleString()+' comparisons   ('+(listCmp/Q).toFixed(1)+' per lookup, about half the list)');
+  o('Map<Integer,Gsec>.get : '+mapCmp.toLocaleString()+' comparisons   ('+(mapCmp/Q).toFixed(2)+' per lookup — flat, whatever N is)');
+  o.warn('The map did '+(listCmp/Math.max(1,mapCmp)).toFixed(0)+'× less work.');
+  o.info('Now drag the student slider. The red bar grows with N; the green bar barely moves. That flatness is the entire argument for a Map — O(1) versus O(n) is not a small constant factor, it is a different shape.');
+  o.dim('Cost of the map: it had to be built first ('+N.toLocaleString()+' puts) and it holds a bucket array that is at least 25% empty. Worth it the moment you look things up more than once.');
+  paint('whyOut',o);
+}
+document.getElementById('whyN').addEventListener('input',()=>{document.getElementById('whyNv').textContent=document.getElementById('whyN').value;});
+document.getElementById('whyQ').addEventListener('input',()=>{document.getElementById('whyQv').textContent=document.getElementById('whyQ').value;});
+document.getElementById('whyRun').addEventListener('click',whyRun);
+whyRun();
+
+/* ============ TAB 5 · equals & hashCode ============ */
+renderCode('code-eqfix',[
+'class Gsec {',
+'    String name;',
+'    String laptop;',
+'    private int age;',
+'    int registerNumber;          // the natural identity',
+'',
+'    @Override',
+'    public boolean equals(Object o) {',
+'        if (this == o) return true;                 // same object',
+'        if (o == null || getClass() != o.getClass()) return false;',
+'        Gsec other = (Gsec) o;',
+'        return registerNumber == other.registerNumber;',
+'    }',
+'',
+'    @Override',
+'    public int hashCode() {',
+'        return Integer.hashCode(registerNumber);',
+'        // or, for several fields:',
+'        // return Objects.hash(registerNumber, name);',
+'    }',
+'',
+'    @Override',
+'    public String toString() {',
+'        return registerNumber + " " + name + " (" + age + ")";',
+'    }',
+'}',
+'',
+'// NOTE: age is deliberately NOT part of hashCode.',
+'// setAge() must never move an object between buckets.'
+]);
+function eqRun(){
+  const mode=document.getElementById('eqMode').value;
+  const o=mkOut();
+  const rows=[['Sreekanth','Dell',17,101],['Divya','HP',19,102],['Arun','Lenovo',18,103],['Sreekanth','Dell',17,101]];
+  let uid=0;
+  const mk=r=>{
+    const g={name:r[0],laptop:r[1],age:r[2],reg:r[3],id:++uid};
+    g.__str=()=>g.name+'#'+g.reg;
+    if(mode==='none'){g.__hash=0x1b6d3586+g.id*104729;g.__eq=b=>b===g;}
+    else if(mode==='eqonly'){g.__hash=0x1b6d3586+g.id*104729;g.__eq=b=>b.reg===g.reg;}
+    else if(mode==='hashonly'){g.__hash=g.reg;g.__eq=b=>b===g;}
+    else if(mode==='both'){g.__hash=g.reg;g.__eq=b=>b.reg===g.reg;}
+    else{g.__hash=g.age;g.__eq=b=>b.age===g.age;}
+    return g;};
+  const objs=rows.map(mk);
+  const set=new HM();
+  objs.forEach(g=>set.put(g,'PRESENT',true));
+  const host=document.getElementById('eqBuckets');host.innerHTML='';
+  set.table.forEach((b,i)=>{
+    if(!b.length&&i>7)return;
+    const row=document.createElement('div');
+    row.className='bktrow'+(b.length>1?' hot':'');
+    row.innerHTML='<div class="idx">['+i+']</div><div class="chainc">'+
+      (b.length?b.map((e,j)=>'<span class="entry'+(j>0?' coll':'')+'">'+esc(set.keyStr(e.k))+'</span>'+
+        (j<b.length-1?'<span style="color:var(--line2)">→</span>':'')).join(''):'<span class="emptybkt">null</span>')+'</div>';
+    host.appendChild(row);
+  });
+  o.dim('four Gsec objects added to a HashSet — but Sreekanth#101 was created TWICE');
+  o('set.size() : '+set.size+(set.size===3?'   ✓ the duplicate was rejected':'   ✗ the duplicate got in'));
+  o('contents   : ['+set.keys().join(', ')+']');
+  const probe=mk([ 'Sreekanth','Dell',17,101]);
+  o('contains(new Gsec("Sreekanth","Dell",17,101)) : '+set.containsKey(probe));
+  o.raw('');
+  if(mode==='none'){
+    o.fail('Neither method overridden. Object.hashCode() is address-based, so the two Sreekanth objects got DIFFERENT hashes and landed in DIFFERENT buckets. equals() was never even called. Size 4 for 3 students.');
+    o.fail('And contains() with a freshly built object is false — the set holds him, but you cannot find him.');
+  }else if(mode==='eqonly'){
+    o.fail('equals() is correct but hashCode() is not overridden. The two Sreekanth objects hash to different buckets, so the set never compares them — your correct equals() is never called. Size 4.');
+    o.warn('This is the most common half-fix, and it looks right in code review.');
+  }else if(mode==='hashonly'){
+    o.warn('hashCode() is overridden, so both Sreekanth objects reach the SAME bucket — look at the chain above. But equals() is still address-based, so the set decides they differ and chains them. Size 4, one bucket.');
+    o.info('Closer, and still wrong. Both methods or neither.');
+  }else if(mode==='both'){
+    o('Correct. Same hash → same bucket; equals() then confirms the match → the duplicate is rejected. Size 3.');
+    o('contains() with a brand-new object works, because identity now means "same registerNumber".');
+  }else{
+    o.warn('hashCode() is based on age — which is mutable. Watch what happens next:');
+    const g=objs[1];
+    o('   set.contains(Divya) before setAge : '+set.containsKey(g));
+    g.age=25;g.__hash=25;
+    o.fail('   Divya.setAge(25);');
+    o.fail('   set.contains(Divya) after setAge  : '+set.containsKey(g)+'   ← she is still physically in the set');
+    o.fail('   The object now hashes to bucket '+((set.cap-1)&spread(25))+', but it is sitting in bucket '+((set.cap-1)&spread(19))+'. It is unreachable, and remove() cannot find it either — a genuine memory leak.');
+    o.info('Base hashCode() on fields that never change. For Gsec that is registerNumber.');
+  }
+  paint('eqOut',o);
+}
+document.getElementById('eqRun').addEventListener('click',eqRun);
+eqRun();
+
+/* ============ TAB 6 · iterator ============ */
+renderCode('code-iterall',[
+'// a List',
+'for (Gsec g : list) g.validator();',
+'',
+'// a Set — identical syntax, no index available',
+'for (Gsec g : set) g.validator();',
+'',
+'// a Map has NO iterator() — iterate a VIEW instead',
+'for (Integer reg : map.keySet())            System.out.println(reg);',
+'for (Gsec    g   : map.values())            g.validator();',
+'',
+'for (Map.Entry<Integer,Gsec> e : map.entrySet()) {   // BEST: both at once',
+'    System.out.println(e.getKey() + " -> " + e.getValue().name);',
+'    e.setValue(replacement);        // writes through to the map',
+'}',
+'',
+'// explicit Iterator — the only safe way to remove while walking',
+'Iterator<Map.Entry<Integer,Gsec>> it = map.entrySet().iterator();',
+'while (it.hasNext()) {',
+'    Map.Entry<Integer,Gsec> e = it.next();',
+'    if (e.getValue().getAge() < 18) it.remove();',
+'}',
+'',
+'// Java 8',
+'map.forEach((reg, g) -> System.out.println(reg + " " + g.name));'
+]);
+document.getElementById('runIterMap').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java MapIteration');
+  const b=GB();const m=new HM();b.forEach(r=>m.put(r[3],r[0],true));
+  m.probes=0;
+  o.head('A · entrySet() — one pass');
+  m.entries().forEach(e=>o('   '+e.k+' -> '+e.v));
+  const aProbes=0;
+  o('   hash lookups performed : 0   (the entry already holds both key and value)');
+  o.head('B · keySet() + get(k) inside the loop');
+  m.keys().forEach(k=>{m.get(Number(k));});
+  o('   same output, but '+m.probes+' extra key comparisons — one hash lookup per entry, for data you already had');
+  o.warn('For 6 entries that is invisible. For 100 000 it is a real cost, and it is entirely avoidable.');
+  o.head('C · values() — when the key is irrelevant');
+  o('   ['+m.entries().map(e=>e.v).join(', ')+']');
+  o.info('Rule: need both → entrySet(). Need only values → values(). Need only keys → keySet(). Never keySet() plus get().');
+  paint('outIterMap',o);
+});
+document.getElementById('runIterMap').click();
+function cmeRun(){
+  const mode=document.getElementById('cmeMode').value;
+  const o=mkOut();
+  let set=[['Sreekanth',17],['Divya',19],['Arun',18],['Kavya',16],['Meena',20]];
+  o.dim('set : '+set.map(g=>g[0]+'('+g[1]+')').join(', '));
+  if(mode==='foreach'){
+    o.dim('for (Gsec g : set) if (g.getAge() < 18) set.remove(g);');
+    o('  visiting Sreekanth(17)');
+    o.warn('  set.remove(Sreekanth) → modCount changed');
+    o.fail('Exception in thread "main" java.util.ConcurrentModificationException');
+    o.fail('\tat java.base/java.util.HashMap$HashIterator.nextNode(HashMap.java:1597)');
+    o.fail('\tat java.base/java.util.HashMap$KeyIterator.next(HashMap.java:1620)');
+    o.warn('The iterator snapshotted modCount when it was created and re-checks on every next(). The set is left half-processed — Kavya is still in it.');
+    paint('cmeOut',o);return;
+  }
+  const gone=[];
+  if(mode==='foreach2'){}
+  set=set.filter(g=>{if(g[1]<18){gone.push(g[0]);return false;}return true;});
+  if(mode==='iterator')o.dim('Iterator<Gsec> it = set.iterator(); while (it.hasNext()) { if (it.next().getAge() < 18) it.remove(); }');
+  else if(mode==='removeif')o.dim('set.removeIf(g -> g.getAge() < 18);');
+  else o.dim('map.keySet().removeIf(g -> g.getAge() < 18);   // the VIEW writes through to the map');
+  o('  removed : '+gone.join(', '));
+  o('  final   : '+set.map(g=>g[0]+'('+g[1]+')').join(', '));
+  if(mode==='keyset')o.info('keySet() is a view, so removing from it removes the whole entry — key AND value — from the underlying map. Adding to it, however, throws UnsupportedOperationException: a key with no value would be meaningless.');
+  else o.info('No exception: the iterator updates its own expectedModCount when IT does the removing.');
+  paint('cmeOut',o);
+}
+document.getElementById('cmeRun').addEventListener('click',cmeRun);
+cmeRun();
+</script>
+<script>
+/* ============ TAB 7 · Gsec ============ */
+const SRC_GSEC=['class Gsec{','    ','    //class  variables','    ','    String name;','    String laptop;','  private int age;','    int registerNumber;','    ','    // setter for age','    // public , void ','    public void setAge(int age){','        this.age=age;','    }','    ','    // getter for age','    public int getAge(){','        return age;','    }','    ','    void validator(){','        if(age<18){','            System.out.println("This guy is not eleigible for studying college");','        }','    }','    ','    // methods','    void display(){','        System.out.println("Hi sreekanth");','        System.out.println(getAge());','    }','    ','    String displayString(){','        return "hello";','    }','    ','    // String helloMethod(){','        ','    // }','    //No-arg constructor','//   public Gsec(){','        ','//     }','  public Gsec(    String namenew,String laptop,int age,int registerNumber){','        name=namenew;','        this.laptop=laptop;','        this.age=age;','        this.registerNumber=registerNumber;','    }','}','class Main{','    ','    public static void main(String[] args){','        ','        Gsec scoldavinas=new Gsec();','        scoldavinas.setAge(17);','        scoldavinas.validator();','        scoldavinas.display();','    }','}'];
+renderCode('code-gsec',SRC_GSEC,{err:[L(SRC_GSEC,'Gsec scoldavinas=new Gsec();')]});
+function G(name,laptop,age,reg){
+  let _age=age;
+  const g={name:name,laptop:laptop,registerNumber:reg};
+  g.getAge=()=>_age;g.setAge=a=>{_age=a;};
+  g.validator=o=>{if(_age<18)o('This guy is not eleigible for studying college');};
+  g.__hash=reg;g.__eq=b=>b.registerNumber===reg;g.__str=()=>reg+' '+name;
+  return g;}
+const BATCH=()=>[G('Sreekanth','Dell',17,101),G('Divya','HP',19,102),G('Arun','Lenovo',18,103),
+                 G('Kavya','Asus',16,104),G('Meena','Dell',21,105),G('Ravi','HP',20,106)];
+const GP=[
+{id:'p1',cls:'GsecRegistry',n:'1',tag:'Map<Integer,Gsec> · put · get · containsKey',
+ title:'A register-number registry — the map your college actually needs',
+ desc:'Register number is unique and never changes, which makes it a textbook map key. Build the index once; every lookup afterwards is one step.',
+ code:[
+'import java.util.*;',
+'',
+'public class GsecRegistry {',
+'    public static void main(String[] args) {',
+'',
+'        Map<Integer, Gsec> byReg = new HashMap<>();',
+'',
+'        for (Gsec g : batch)',
+'            byReg.put(g.registerNumber, g);        // key = register number',
+'',
+'        System.out.println("size : " + byReg.size());',
+'',
+'        Gsec found = byReg.get(104);               // ONE step',
+'        System.out.print(found.name + " -> ");',
+'        found.validator();',
+'',
+'        System.out.println("containsKey(999) : " + byReg.containsKey(999));',
+'        System.out.println("get(999)         : " + byReg.get(999));',
+'',
+'        Gsec old = byReg.put(104, new Gsec("Impostor","Mac",30,104));',
+'        System.out.println("put on an existing key returned : " + old.name);',
+'        System.out.println("size is still : " + byReg.size());',
+'    }',
+'}'],
+ run(o){
+   const m=new HM();BATCH().forEach(g=>m.put(g.registerNumber,g,true));
+   o('size : '+m.size);
+   const f=m.get(104);
+   let msg='';f.validator(x=>msg=x);
+   o(f.name+' -> '+msg);
+   o('containsKey(999) : '+m.containsKey(999));
+   o('get(999)         : null');
+   const old=m.put(104,G('Impostor','Mac',30,104),true);
+   o.warn('put on an existing key returned : '+old.name+'   ← the original was silently replaced');
+   o('size is still : '+m.size);
+   o.info('put() never refuses a duplicate key. If overwriting would be a bug, use putIfAbsent() or check containsKey() first.');},
+ note:'Never use <code>age</code> or <code>name</code> as the key: ages change and names repeat. <code>registerNumber</code> is unique and immutable, which is exactly what a key must be.'},
+
+{id:'p2',cls:'GsecDedupe',n:'2',tag:'HashSet · equals · hashCode',
+ title:'Removing duplicate admissions with a Set',
+ desc:'The same student submitted the form twice. A Set answers "seen before?" in one step — but only after your class honours the hash contract.',
+ code:[
+'Set<Gsec> unique = new HashSet<>();',
+'',
+'for (Gsec g : withDuplicates) {',
+'    boolean added = unique.add(g);',
+'    if (!added)',
+'        System.out.println("duplicate rejected : " + g.registerNumber);',
+'}',
+'',
+'System.out.println("submitted : " + withDuplicates.size());',
+'System.out.println("unique    : " + unique.size());',
+'',
+'// this only works because Gsec now has:',
+'//   equals()   -> same registerNumber means same student',
+'//   hashCode() -> Integer.hashCode(registerNumber)'],
+ run(o){
+   const dupes=BATCH().concat([G('Sreekanth','Dell',17,101),G('Kavya','Asus',16,104)]);
+   const set=new HM();let rejected=0;
+   dupes.forEach(g=>{
+     const before=set.size;set.put(g,'PRESENT',true);
+     if(set.size===before){rejected++;o.warn('duplicate rejected : '+g.registerNumber+' '+g.name);}});
+   o('submitted : '+dupes.length);
+   o('unique    : '+set.size);
+   o.info(rejected+' duplicate(s) caught in '+dupes.length+' add() calls — each one a single hash lookup, not a scan of everything added so far.');
+   o.fail('Without equals() and hashCode() on Gsec this prints "unique : 8" and rejects nothing. Tab ⑤ runs that version.');},
+ note:'A <code>List</code> could do this too — with <code>contains()</code> inside the loop, which is O(n) per check and O(n²) overall. The Set makes it O(n).'},
+
+{id:'p3',cls:'GsecGroupBy',n:'3',tag:'Map<String,List<Gsec>> · computeIfAbsent',
+ title:'Grouping students by laptop brand',
+ desc:'A map whose values are lists. This one shape covers most "group by" problems you will ever be given.',
+ code:[
+'Map<String, List<Gsec>> byBrand = new HashMap<>();',
+'',
+'for (Gsec g : batch)',
+'    byBrand.computeIfAbsent(g.laptop, k -> new ArrayList<>())',
+'           .add(g);',
+'',
+'for (Map.Entry<String, List<Gsec>> e : byBrand.entrySet()) {',
+'    System.out.print(e.getKey() + " (" + e.getValue().size() + ") : ");',
+'    for (Gsec g : e.getValue()) System.out.print(g.name + " ");',
+'    System.out.println();',
+'}',
+'',
+'// Java 8 stream equivalent:',
+'// batch.stream().collect(Collectors.groupingBy(g -> g.laptop));'],
+ run(o){
+   const m=new HM();
+   BATCH().forEach(g=>{let l=m.get(g.laptop);if(l===null){l=[];m.put(g.laptop,l,true);}l.push(g);});
+   m.log=[];
+   m.entries().forEach(e=>o(e.k.padEnd(8,' ')+'('+e.v.length+') : '+e.v.map(g=>g.name).join(' ')));
+   o.info('computeIfAbsent creates the empty ArrayList exactly once per brand — the first time that brand is seen. Without it you write four lines of get / null-check / put / add.');},
+ note:'Entry order here is <strong>bucket order</strong>, not insertion order. Swap in a <code>LinkedHashMap</code> and brands appear in the order first encountered; a <code>TreeMap</code> and they come out alphabetically.'},
+
+{id:'p4',cls:'GsecCounter',n:'4',tag:'merge · getOrDefault',
+ title:'Counting — eligible vs ineligible, and per brand',
+ desc:'Your validator() rule, turned into a tally. Two idioms, both one line inside the loop.',
+ code:[
+'Map<String,Integer> brandCount  = new HashMap<>();',
+'Map<String,Integer> statusCount = new HashMap<>();',
+'',
+'for (Gsec g : batch) {',
+'    brandCount.merge(g.laptop, 1, Integer::sum);',
+'',
+'    String status = g.getAge() < 18 ? "ineligible" : "eligible";',
+'    statusCount.merge(status, 1, Integer::sum);',
+'',
+'    g.validator();      // still prints for the under-18 students',
+'}',
+'',
+'System.out.println(brandCount);',
+'System.out.println(statusCount);'],
+ run(o){
+   const brand=new HM(),status=new HM();
+   BATCH().forEach(g=>{
+     const c=brand.get(g.laptop);brand.put(g.laptop,(c===null?0:c)+1,true);
+     const s=g.getAge()<18?'ineligible':'eligible';
+     const d=status.get(s);status.put(s,(d===null?0:d)+1,true);
+     g.validator(x=>o.fail(g.name+' -> '+x));});
+   brand.log=[];status.log=[];
+   o('brand  : '+brand.str());
+   o('status : '+status.str());
+   o.info('merge(key, 1, Integer::sum) means: if the key is absent store 1, otherwise apply sum to the old value and 1. It is the counting idiom, and it replaces the getOrDefault / put pair entirely.');},
+ note:'Note that <code>validator()</code> is still the single source of truth for the rule — the map only counts. Keep the business rule in your class, not scattered through the collection code.'},
+
+{id:'p5',cls:'GsecOrderedMaps',n:'5',tag:'HashMap · LinkedHashMap · TreeMap',
+ title:'The same students in three maps, three orders',
+ desc:'One data set, three implementations. This is the program to run when someone claims a HashMap "lost" their order.',
+ code:[
+'Map<Integer,String> hash   = new HashMap<>();',
+'Map<Integer,String> linked = new LinkedHashMap<>();',
+'Map<Integer,String> tree   = new TreeMap<>();',
+'',
+'int[] regs = {106, 101, 104, 102, 105, 103};',
+'',
+'for (int r : regs) {',
+'    hash.put(r, nameOf(r));',
+'    linked.put(r, nameOf(r));',
+'    tree.put(r, nameOf(r));',
+'}',
+'',
+'System.out.println("HashMap       : " + hash.keySet());',
+'System.out.println("LinkedHashMap : " + linked.keySet());',
+'System.out.println("TreeMap       : " + tree.keySet());'],
+ run(o){
+   const regs=[106,101,104,102,105,103];
+   const names={101:'Sreekanth',102:'Divya',103:'Arun',104:'Kavya',105:'Meena',106:'Ravi'};
+   const h=new HM();regs.forEach(r=>h.put(r,names[r],true));
+   o('insertion order : ['+regs.join(', ')+']');
+   o('HashMap         : ['+h.keys().join(', ')+']   ← bucket order');
+   o('LinkedHashMap   : ['+regs.join(', ')+']   ← insertion order preserved');
+   o('TreeMap         : ['+regs.slice().sort((a,b)=>a-b).join(', ')+']   ← sorted by key');
+   o.info('For small Integer keys the HashMap order often looks sorted, because Integer.hashCode() is the value itself and low numbers land in low buckets. That coincidence disappears with String keys or larger numbers — which is precisely why it must never be relied on.');},
+ note:'Run this with <code>String</code> keys (student names) and the HashMap order stops looking sorted immediately. The tab ① panel shows exactly that.'},
+
+{id:'p6',cls:'GsecListVsMap',n:'6',tag:'the measured argument',
+ title:'Looking up 50 students: List versus Map',
+ desc:'Your batch scaled to 2 000 students, with 50 register-number lookups. The comparison count is the answer to "why not just use a List?".',
+ code:[
+'List<Gsec> list = new ArrayList<>();        // 2000 students',
+'Map<Integer,Gsec> map = new HashMap<>();',
+'',
+'for (Gsec g : batch) { list.add(g); map.put(g.registerNumber, g); }',
+'',
+'// find student 1567 in the list',
+'Gsec viaList = null;',
+'for (Gsec g : list)                          // scan',
+'    if (g.registerNumber == 1567) { viaList = g; break; }',
+'',
+'// find the same student in the map',
+'Gsec viaMap = map.get(1567);                 // hash',
+'',
+'// same object, very different amount of work'],
+ run(o){
+   const N=2000,Q=50;
+   const regs=[];for(let i=0;i<N;i++)regs.push(1000+i);
+   const m=new HM();regs.forEach(r=>m.put(r,'S'+r,true));m.probes=0;
+   let listCmp=0;const qs=[];for(let q=0;q<Q;q++)qs.push(1000+((q*7919)%N));
+   qs.forEach(t=>{for(let i=0;i<N;i++){listCmp++;if(regs[i]===t)break;}});
+   qs.forEach(t=>m.get(t));
+   o('students : '+N.toLocaleString()+'   lookups : '+Q);
+   o.fail('List scan  : '+listCmp.toLocaleString()+' comparisons   ('+(listCmp/Q).toFixed(0)+' per lookup)');
+   o('Map lookup : '+m.probes.toLocaleString()+' comparisons   ('+(m.probes/Q).toFixed(2)+' per lookup)');
+   o.warn('the map did '+(listCmp/Math.max(1,m.probes)).toFixed(0)+'× less work — and the gap widens as the college grows');
+   o.info('The map cost '+N.toLocaleString()+' put() calls to build and holds a bucket array that is deliberately never more than 75% full. Both are worth paying the moment you look anything up more than a handful of times.');},
+ note:'This is the whole case for <code>Map</code> in one program. If you take one thing from Part 2: <strong>a loop that searches a list for a match on one field means that field wants to be a map key.</strong>'}
+];
+(function(){
+  const host=document.getElementById('gsecHost');
+  GP.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-blue">Program '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="console" id="con-'+x.id+'"></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(c);renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();});
+  document.getElementById('gsecRunAll').addEventListener('click',()=>GP.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+/* ============ TAB 8 · Lab 12 P2 ============ */
+const LAB=[
+{id:'L1',cls:'Lab12_6',n:'12.6',title:'HashSet — creation, add, duplicates, remove, iterate',tag:'HashSet basics',
+ code:[
+'import java.util.*;',
+'',
+'public class Lab12_6 {',
+'    public static void main(String[] args) {',
+'',
+'        HashSet<String> subjects = new HashSet<>();',
+'',
+'        System.out.println(subjects.add("Java"));   // true',
+'        System.out.println(subjects.add("DBMS"));   // true',
+'        System.out.println(subjects.add("OS"));     // true',
+'        System.out.println(subjects.add("Java"));   // FALSE — already there',
+'',
+'        System.out.println(subjects + "  size " + subjects.size());',
+'        System.out.println("contains OS : " + subjects.contains("OS"));',
+'        System.out.println("remove DBMS : " + subjects.remove("DBMS"));',
+'',
+'        for (String s : subjects) System.out.println("  " + s);',
+'    }',
+'}'],
+ run(o){
+   const s=new HM();
+   ['Java','DBMS','OS','Java'].forEach(x=>{const b=s.size;s.put(x,1,true);
+     o('add("'+x+'") → '+(s.size>b));});
+   o('['+s.keys().join(', ')+']  size '+s.size);
+   o('contains OS : '+s.containsKey('OS'));
+   o('remove DBMS : true');s.remove('DBMS');
+   s.keys().forEach(k=>o('  '+k));
+   o.warn('The iteration order is not the order you typed. It is bucket order, and it is stable only until the set resizes.');}},
+
+{id:'L2',cls:'Lab12_7',n:'12.7',title:'HashSet vs LinkedHashSet vs TreeSet',tag:'three Set implementations',
+ code:[
+'String[] input = {"Meena","Arun","Sreekanth","Divya","Arun"};',
+'',
+'Set<String> hash   = new HashSet<>();',
+'Set<String> linked = new LinkedHashSet<>();',
+'Set<String> tree   = new TreeSet<>();',
+'',
+'for (String s : input) { hash.add(s); linked.add(s); tree.add(s); }',
+'',
+'System.out.println("input        : " + Arrays.toString(input));',
+'System.out.println("HashSet      : " + hash);',
+'System.out.println("LinkedHashSet: " + linked);',
+'System.out.println("TreeSet      : " + tree);',
+'System.out.println("TreeSet first/last : " + ((TreeSet<String>) tree).first()',
+'                 + " / " + ((TreeSet<String>) tree).last());'],
+ run(o){
+   const input=['Meena','Arun','Sreekanth','Divya','Arun'];
+   const h=new HM();const lin=[],tr=[];
+   input.forEach(s=>{if(!h.containsKey(s)){h.put(s,1,true);lin.push(s);tr.push(s);}});
+   const sorted=tr.slice().sort();
+   o('input         : ['+input.join(', ')+']');
+   o('HashSet       : ['+h.keys().join(', ')+']');
+   o('LinkedHashSet : ['+lin.join(', ')+']');
+   o('TreeSet       : ['+sorted.join(', ')+']');
+   o('TreeSet first/last : '+sorted[0]+' / '+sorted[sorted.length-1]);
+   o.info('All three dropped the duplicate "Arun" — 5 inputs, 4 elements. They differ only in the order they hand them back.');}},
+
+{id:'L3',cls:'Lab12_8',n:'12.8',title:'HashMap — creation, put, get, iterate',tag:'HashMap basics',
+ code:[
+'HashMap<String,Integer> marks = new HashMap<>();',
+'',
+'marks.put("Java", 78);',
+'marks.put("DBMS", 91);',
+'marks.put("OS",   45);',
+'',
+'System.out.println("put existing key returns : " + marks.put("Java", 85));',
+'System.out.println(marks + "  size " + marks.size());',
+'',
+'System.out.println("get(DBMS)          : " + marks.get("DBMS"));',
+'System.out.println("get(CN)            : " + marks.get("CN"));',
+'System.out.println("getOrDefault(CN,0) : " + marks.getOrDefault("CN", 0));',
+'System.out.println("containsKey(OS)    : " + marks.containsKey("OS"));',
+'System.out.println("remove(OS)         : " + marks.remove("OS"));',
+'',
+'for (Map.Entry<String,Integer> e : marks.entrySet())',
+'    System.out.println("  " + e.getKey() + " = " + e.getValue());'],
+ run(o){
+   const m=new HM();
+   m.put('Java',78,true);m.put('DBMS',91,true);m.put('OS',45,true);
+   o('put existing key returns : '+m.put('Java',85,true));
+   o(m.str()+'  size '+m.size);
+   o('get(DBMS)          : '+m.get('DBMS'));
+   o('get(CN)            : null');
+   o('getOrDefault(CN,0) : 0');
+   o('containsKey(OS)    : '+m.containsKey('OS'));
+   o('remove(OS)         : '+m.remove('OS'));
+   m.log=[];
+   m.entries().forEach(e=>o('  '+e.k+' = '+e.v));
+   o.info('put() on an existing key returned 78 — the OLD mark. size stayed at 3, because a key is never stored twice.');}},
+
+{id:'L4',cls:'Lab12_9',n:'12.9',title:'Iterating a Map with an Iterator',tag:'Iterator + entrySet + safe removal',
+ code:[
+'Map<String,Integer> marks = new HashMap<>(...);',
+'',
+'// keySet',
+'for (String k : marks.keySet()) System.out.print(k + " ");',
+'',
+'// values',
+'for (int v : marks.values()) System.out.print(v + " ");',
+'',
+'// entrySet — key and value together',
+'for (Map.Entry<String,Integer> e : marks.entrySet())',
+'    System.out.println(e.getKey() + " = " + e.getValue());',
+'',
+'// explicit Iterator — remove every fail',
+'Iterator<Map.Entry<String,Integer>> it = marks.entrySet().iterator();',
+'while (it.hasNext()) {',
+'    Map.Entry<String,Integer> e = it.next();',
+'    if (e.getValue() < 50) it.remove();      // safe',
+'}',
+'System.out.println("passes only : " + marks);'],
+ run(o){
+   const m=new HM();[['Java',78],['DBMS',91],['OS',45],['CN',38]].forEach(([k,v])=>m.put(k,v,true));
+   o('keySet   : '+m.keys().join(' '));
+   o('values   : '+m.entries().map(e=>e.v).join(' '));
+   m.entries().forEach(e=>o('  '+e.k+' = '+e.v));
+   const gone=m.entries().filter(e=>e.v<50).map(e=>e.k);
+   gone.forEach(k=>m.remove(k));m.log=[];
+   o.warn('removed via it.remove() : '+gone.join(', '));
+   o('passes only : '+m.str());
+   o.fail('The for-each version — for (String k : marks.keySet()) marks.remove(k); — throws ConcurrentModificationException.');}},
+
+{id:'L5',cls:'Lab12_10',n:'12.10',title:'Student report: Set for uniqueness, Map for lookup',tag:'Set + Map + your Gsec class',
+ code:[
+'// 1 · Set drops the duplicate submissions',
+'Set<Gsec> unique = new HashSet<>(submissions);',
+'',
+'// 2 · Map indexes them by register number',
+'Map<Integer,Gsec> byReg = new HashMap<>();',
+'for (Gsec g : unique) byReg.put(g.registerNumber, g);',
+'',
+'// 3 · Map counts them by brand',
+'Map<String,Integer> byBrand = new HashMap<>();',
+'for (Gsec g : unique) byBrand.merge(g.laptop, 1, Integer::sum);',
+'',
+'// 4 · and the eligibility rule still lives in Gsec',
+'int under = 0;',
+'for (Gsec g : unique) if (g.getAge() < 18) { g.validator(); under++; }',
+'',
+'System.out.println("unique students : " + unique.size());',
+'System.out.println("by brand        : " + byBrand);',
+'System.out.println("under 18        : " + under);',
+'System.out.println("lookup 105      : " + byReg.get(105).name);'],
+ run(o){
+   const subs=BATCH().concat([G('Sreekanth','Dell',17,101),G('Meena','Dell',21,105)]);
+   const set=new HM();subs.forEach(g=>set.put(g,'P',true));
+   const uniq=set.entries().map(e=>e.k);
+   const byReg=new HM();uniq.forEach(g=>byReg.put(g.registerNumber,g,true));
+   const byBrand=new HM();uniq.forEach(g=>{const c=byBrand.get(g.laptop);byBrand.put(g.laptop,(c===null?0:c)+1,true);});
+   let under=0;
+   uniq.forEach(g=>{if(g.getAge()<18){g.validator(x=>o.fail(g.name+' -> '+x));under++;}});
+   byBrand.log=[];byReg.log=[];
+   o('submissions     : '+subs.length);
+   o('unique students : '+uniq.length+'   ('+(subs.length-uniq.length)+' duplicate(s) dropped by the Set)');
+   o('by brand        : '+byBrand.str());
+   o('under 18        : '+under);
+   o('lookup 105      : '+byReg.get(105).name);
+   o.info('Three collections, three jobs: Set for uniqueness, Map for lookup, Map for counting — and your Gsec class unchanged apart from equals() and hashCode().');}}
+];
+(function(){
+  const host=document.getElementById('labHost');
+  LAB.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-mauve">Ex '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2>'+
+      '<div class="twocol"><div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--pink)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div><div class="runbar" style="margin-top:0"><button class="btn run" id="run-'+x.id+'">▶ Run Ex '+x.n+'</button></div>'+
+      '<div class="console" id="con-'+x.id+'"></div></div></div>';
+    host.appendChild(c);renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();});
+  document.getElementById('labRunAll').addEventListener('click',()=>LAB.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+renderCode('syn1',[
+'Set<String> s = new HashSet<>();',
+'Set<String> l = new LinkedHashSet<>();   // insertion order',
+'Set<String> t = new TreeSet<>();         // sorted',
+'',
+'s.add("a");          // true first time, false after',
+'s.remove("a");       // true if it was there',
+'s.contains("a");     // O(1)',
+'s.size();  s.isEmpty();  s.clear();',
+'',
+'s.addAll(other);     // union',
+'s.retainAll(other);  // intersection',
+'s.removeAll(other);  // difference',
+'s.containsAll(other);// subset test',
+'s.removeIf(x -> x.isEmpty());',
+'',
+'// TreeSet extras',
+'((TreeSet<String>) t).first();   ((TreeSet<String>) t).last();',
+'((TreeSet<String>) t).headSet("m");  ((TreeSet<String>) t).tailSet("m");'
+]);
+renderCode('syn2',[
+'Map<Integer,Gsec> m = new HashMap<>();',
+'Map<Integer,Gsec> l = new LinkedHashMap<>();',
+'Map<Integer,Gsec> t = new TreeMap<>();',
+'',
+'m.put(101, g);                 // returns the OLD value or null',
+'m.get(101);                    // null if absent',
+'m.getOrDefault(999, fallback);',
+'m.containsKey(101);            // O(1)',
+'m.containsValue(g);            // O(n) — avoid',
+'m.remove(101);',
+'m.size();  m.isEmpty();  m.clear();',
+'',
+'m.putIfAbsent(101, g);',
+'m.merge("Dell", 1, Integer::sum);                    // counting',
+'m.computeIfAbsent(k, key -> new ArrayList<>()).add(g); // grouping',
+'',
+'new HashMap<>(1000);           // pre-sized: fewer resizes'
+]);
+renderCode('syn3',[
+'// BEST — one pass, key and value together',
+'for (Map.Entry<Integer,Gsec> e : map.entrySet()) {',
+'    System.out.println(e.getKey() + " -> " + e.getValue().name);',
+'}',
+'',
+'// keys only',
+'for (Integer reg : map.keySet()) { ... }',
+'',
+'// values only',
+'for (Gsec g : map.values()) g.validator();',
+'',
+'// AVOID — two hash lookups per entry',
+'for (Integer reg : map.keySet()) {',
+'    Gsec g = map.get(reg);        // you already had it',
+'}',
+'',
+'// safe removal',
+'Iterator<Map.Entry<Integer,Gsec>> it = map.entrySet().iterator();',
+'while (it.hasNext()) if (it.next().getValue().getAge() < 18) it.remove();',
+'',
+'// Java 8',
+'map.forEach((reg, g) -> System.out.println(reg + " " + g.name));',
+'map.values().removeIf(g -> g.getAge() < 18);'
+]);
+renderCode('syn4',[
+'@Override',
+'public boolean equals(Object o) {',
+'    if (this == o) return true;',
+'    if (o == null || getClass() != o.getClass()) return false;',
+'    Gsec other = (Gsec) o;',
+'    return registerNumber == other.registerNumber;',
+'}',
+'',
+'@Override',
+'public int hashCode() {',
+'    return Integer.hashCode(registerNumber);',
+'    // several fields:  return Objects.hash(registerNumber, name);',
+'}',
+'',
+'// the three rules',
+'// 1 · equal objects MUST have equal hash codes',
+'// 2 · equal hash codes do NOT mean equal objects',
+'// 3 · use only fields that never change while the object',
+'//     is inside a Set or used as a Map key  -> registerNumber, never age'
+]);
+</script>
+</body>
+</html>

@@ -1,0 +1,1841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Collections — List, ArrayList &amp; LinkedList Visualizer (Unit 5, Part 1)</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(25px,3.3vw,38px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:900px;font-size:15px}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="concept"]{background:var(--teal)}
+.tab-btn.active[data-tab="byte"]{background:var(--amber)}
+.tab-btn.active[data-tab="char"]{background:var(--blue)}
+.tab-btn.active[data-tab="file"]{background:var(--green)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}
+.tok-t{color:#7fd1c7}
+.tok-s{color:#a8d98b}
+.tok-c{color:#5b6390;font-style:italic}
+.tok-n{color:#f0b45f}
+.tok-m{color:#86a8f2}
+.tok-a{color:#e8a2c8}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:130px}
+.stepbody code{background:var(--panel3);padding:1px 6px;border-radius:5px}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.run{background:var(--green);color:#0f1220;border-color:transparent}
+.btn.small{padding:6px 12px;font-size:12.5px}
+.btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-teal{color:var(--teal);border-color:rgba(99,207,192,.4);background:rgba(99,207,192,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout.warn{background:rgba(240,180,95,.08);border-color:rgba(240,180,95,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)} .callout.warn b{color:var(--amber)}
+.callout p{color:var(--mut)}
+
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13.5px}
+.demo select{cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:12.8px;margin-top:12px;min-height:70px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.console .prompt{color:var(--dim)} .console .out{color:var(--green)} .console .warn{color:var(--amber)}
+.console .fail{color:var(--red)} .console .info{color:var(--blue)} .console .hd{color:var(--pink);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.runbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.runbar .note{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+/* byte / char strip */
+.strip{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px}
+.cell{min-width:44px;text-align:center;border:1px solid var(--line2);border-radius:8px;padding:5px 4px;
+  font-family:var(--mono);font-size:10.5px;background:var(--panel2);transition:all .18s}
+.cell .v{display:block;color:var(--amber);font-size:12.5px;font-weight:700}
+.cell .c{display:block;color:var(--mut)}
+.cell.done{opacity:.32}
+.cell.cur{border-color:var(--teal);background:rgba(99,207,192,.14);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.cell.eofcell{border-style:dashed;border-color:var(--red)}
+.cell.eofcell .v{color:var(--red)}
+.cell.multi .v{color:var(--pink)}
+.striplabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* workflow pipeline */
+.pipe{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin:6px 0 10px}
+.stage{flex:1 1 130px;min-width:130px;background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;transition:all .16s;text-align:left}
+.stage:hover{border-color:var(--teal);background:var(--panel3)}
+.stage.sel{border-color:var(--teal);background:rgba(99,207,192,.1);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.stage .n{font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.14em}
+.stage .t{font-size:13.5px;font-weight:700;margin:3px 0 2px}
+.stage .m{font-family:var(--mono);font-size:10.8px;color:var(--dim);white-space:normal;word-break:break-word}
+.arrow{display:flex;align-items:center;color:var(--line2);font-size:18px;padding:0 6px}
+@media(max-width:760px){.arrow{display:none}.pipe{gap:8px}}
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:150px}
+.detail h3{font-family:var(--mono);font-size:16.5px;margin-bottom:8px}
+
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.3)}
+.node.sel rect{stroke-width:2.6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--pink);color:#0f1220;border-color:transparent}
+.subtab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td code{font-size:12.4px}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- collections additions ---------- */
+.tab-btn.active[data-tab="fw"]{background:var(--teal)}
+.tab-btn.active[data-tab="list"]{background:var(--blue)}
+.tab-btn.active[data-tab="al"]{background:var(--amber)}
+.tab-btn.active[data-tab="ll"]{background:var(--green)}
+.tab-btn.active[data-tab="vs"]{background:var(--red)}
+.tab-btn.active[data-tab="iter"]{background:var(--mauve)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+.tab-btn.active[data-tab="lab"]{background:var(--pink)}
+
+.ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px}
+.ctrl .fld{display:flex;flex-direction:column;gap:4px}
+.ctrl label{font-size:11.5px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ctrl input[type=text],.ctrl input[type=number],.ctrl select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:8px 10px;font-family:var(--mono);font-size:13px}
+.ctrl input:focus,.ctrl select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.ctrl input[type=range]{width:170px;accent-color:var(--teal)}
+.ctrl .val{font-family:var(--mono);font-size:12.5px;color:var(--teal)}
+
+/* array slot strip */
+.slots{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 6px;align-items:flex-start}
+.slot{min-width:62px;border:1px solid var(--line2);border-radius:9px;padding:6px 5px;text-align:center;
+  font-family:var(--mono);font-size:11px;background:var(--panel2);transition:all .2s}
+.slot .ix{display:block;color:var(--dim);font-size:9.5px;letter-spacing:.06em}
+.slot .vl{display:block;color:var(--ink);font-size:12.5px;font-weight:700;margin-top:2px;
+  white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:76px}
+.slot.empty{border-style:dashed;background:transparent}
+.slot.empty .vl{color:#3d4570;font-weight:400}
+.slot.moved{border-color:var(--amber);background:rgba(240,180,95,.14)}
+.slot.added{border-color:var(--green);background:rgba(143,214,163,.16)}
+.slot.gone{border-color:var(--red);background:rgba(232,121,138,.14)}
+.slot.hit{border-color:var(--teal);background:rgba(99,207,192,.16);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.slot.probe{border-color:var(--mauve);background:rgba(183,156,240,.12)}
+
+/* linked node chain */
+.chain{display:flex;align-items:center;gap:0;overflow-x:auto;padding:14px 4px;margin:6px 0}
+.lnode{display:flex;border:1px solid var(--line2);border-radius:10px;overflow:hidden;background:var(--panel2);
+  font-family:var(--mono);font-size:11px;flex:0 0 auto;transition:all .2s}
+.lnode .p,.lnode .n{padding:9px 8px;color:var(--dim);background:#0c0f1d;font-size:10px}
+.lnode .it{padding:9px 12px;color:var(--ink);font-weight:700;font-size:12.5px;border-left:1px solid var(--line);
+  border-right:1px solid var(--line);white-space:nowrap}
+.lnode.hit{border-color:var(--teal);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.lnode.hit .it{color:var(--teal)}
+.lnode.walk{border-color:var(--mauve)}
+.lnode.walk .it{color:var(--mauve)}
+.lnode.added{border-color:var(--green)} .lnode.added .it{color:var(--green)}
+.link{color:var(--line2);font-size:15px;padding:0 5px;flex:0 0 auto}
+.endcap{font-family:var(--mono);font-size:10.5px;color:var(--dim);padding:0 8px;flex:0 0 auto}
+
+/* buckets (used by the map file too) */
+.buckets{display:flex;flex-direction:column;gap:4px;margin:10px 0}
+.bkt{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px}
+.bkt .bi{width:52px;color:var(--dim);flex:0 0 52px;text-align:right}
+.bkt .cells{display:flex;gap:5px;flex-wrap:wrap;flex:1}
+.bkt.hot .bi{color:var(--teal)}
+.entry{border:1px solid var(--line2);border-radius:7px;padding:3px 8px;background:var(--panel2);font-size:11px;color:var(--ink)}
+.entry.new{border-color:var(--green);background:rgba(143,214,163,.15)}
+.entry.coll{border-color:var(--amber);background:rgba(240,180,95,.13)}
+.emptybkt{color:#3d4570;font-size:10.5px}
+
+.oplog{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:10px 12px;font-family:var(--mono);
+  font-size:12.2px;line-height:1.75;max-height:230px;overflow-y:auto;margin-top:10px;white-space:pre-wrap}
+.oplog .c{color:var(--amber)} .oplog .g{color:var(--green)} .oplog .r{color:var(--red)}
+.oplog .b{color:var(--blue)} .oplog .d{color:var(--dim)} .oplog .m{color:var(--mauve)}
+.metrics{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.metric{background:var(--panel2);border:1px solid var(--line2);border-radius:9px;padding:7px 12px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.metric b{color:var(--ink);font-size:13px}
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.twocol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Unit 5 · Collection Framework [Week 1 of 2] · Week 15 (01–08 Sep 2026) · CO5 · 4 hrs · Lab Ex.12 (P1)</div>
+  <h1><span class="k">List</span> — <span class="c">ArrayList</span> vs <span class="c">LinkedList</span>, drawn from the inside</h1>
+  <p class="sub">An <code>ArrayList</code> is a resizable array; a <code>LinkedList</code> is a chain of nodes. Every claim about which is faster comes from that one sentence — so this page draws the <strong>actual backing array</strong> with its spare capacity, and the <strong>actual node chain</strong> with its prev/next pointers, and then <em>counts the work</em> each operation costs. No hand-waving about Big-O.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="fw">① Framework</button>
+  <button class="tab-btn" data-tab="list">② List Interface</button>
+  <button class="tab-btn" data-tab="al">③ ArrayList</button>
+  <button class="tab-btn" data-tab="ll">④ LinkedList</button>
+  <button class="tab-btn" data-tab="vs">⑤ Head to Head</button>
+  <button class="tab-btn" data-tab="iter">⑥ Iterate &amp; Modify</button>
+  <button class="tab-btn" data-tab="gsec">⑦ Your Gsec Code</button>
+  <button class="tab-btn" data-tab="lab">⑧ Lab Ex.12 (P1)</button>
+</nav>
+
+<main>
+<!-- ============ TAB 1 : FRAMEWORK ============ -->
+<section class="tab active" id="tab-fw">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Overview</span>
+    <h2>One set of interfaces, many implementations</h2>
+    <p>Before collections, Java had arrays (fixed size) and <code>Vector</code>/<code>Hashtable</code> (unrelated APIs). The Collection Framework, added in Java 1.2, put <strong>one contract</strong> in front of every data structure: learn <code>add</code>, <code>remove</code>, <code>size</code>, <code>iterator</code> once and every implementation obeys it. Swapping an <code>ArrayList</code> for a <code>LinkedList</code> then becomes a one-word change.</p>
+    <div class="grid3">
+      <div><span class="pill p-blue">Interfaces</span><p style="margin-top:8px">What a collection <em>promises</em> — <code>List</code>, <code>Set</code>, <code>Queue</code>, <code>Map</code>. You program against these.</p></div>
+      <div><span class="pill p-amber">Implementations</span><p style="margin-top:8px">How the promise is <em>kept</em> — <code>ArrayList</code>, <code>LinkedList</code>, <code>HashSet</code>, <code>HashMap</code>. You choose one by cost.</p></div>
+      <div><span class="pill p-teal">Algorithms</span><p style="margin-top:8px">Static helpers that work on any of them — <code>Collections.sort</code>, <code>reverse</code>, <code>max</code>, <code>shuffle</code>, <code>unmodifiableList</code>.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>The hierarchy — click any type</h2>
+    <p>Note where <code>Map</code> sits: <strong>outside</strong> <code>Collection</code>. A Map stores pairs, not elements, so it cannot honour the <code>Collection</code> contract. That single fact answers a very common exam question.</p>
+    <div class="svgwrap"><svg id="fwSvg" viewBox="0 0 1120 500" width="1120" height="500" role="img" aria-label="collection framework hierarchy"></svg></div>
+    <div class="legend">
+      <span><i style="background:#63cfc0"></i>interface</span>
+      <span><i style="background:#f0b45f"></i>class you instantiate</span>
+      <span><i style="background:#b79cf0"></i>abstract / legacy</span>
+      <span><i style="background:#3a4170"></i>dashed = implements</span>
+    </div>
+    <div class="detail" id="fwDetail" style="margin-top:14px"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Which one do I pick?</h2>
+      <table>
+        <tr><th>You need</th><th>Use</th><th>Because</th></tr>
+        <tr><td>indexed access, duplicates allowed</td><td>ArrayList</td><td>O(1) <code>get(i)</code>, contiguous memory</td></tr>
+        <tr><td>constant-time add/remove at the ends</td><td>LinkedList / ArrayDeque</td><td>only pointers change</td></tr>
+        <tr><td>no duplicates, order irrelevant</td><td>HashSet</td><td>O(1) <code>contains</code></td></tr>
+        <tr><td>no duplicates, insertion order kept</td><td>LinkedHashSet</td><td>hash table + linked list</td></tr>
+        <tr><td>no duplicates, sorted</td><td>TreeSet</td><td>red-black tree, O(log n)</td></tr>
+        <tr><td>look things up by a key</td><td>HashMap</td><td>O(1) <code>get(key)</code></td></tr>
+        <tr><td>FIFO processing</td><td>ArrayDeque / LinkedList</td><td>Queue contract</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h2>Generics, autoboxing and the two rules</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;basics.java</div><div class="codebody" id="code-basics"></div></div>
+      <div class="callout warn">
+        <b>Collections hold objects, never primitives</b>
+        <p><code>List&lt;int&gt;</code> does not compile. You write <code>List&lt;Integer&gt;</code> and Java <strong>autoboxes</strong> each <code>int</code> into an <code>Integer</code> object. That is why a list of a million numbers costs far more memory than <code>int[1000000]</code> — and why <code>remove(1)</code> on a <code>List&lt;Integer&gt;</code> removes <em>index</em> 1, while <code>remove(Integer.valueOf(1))</code> removes the <em>value</em> 1.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 2 : LIST INTERFACE ============ -->
+<section class="tab" id="tab-list">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">List</span>
+    <h2>An ordered collection that allows duplicates</h2>
+    <p>Two promises define <code>List</code>: every element has an <strong>integer index</strong> from 0 to size−1, and <strong>duplicates are allowed</strong>. Everything else — array or nodes, fast or slow — is the implementation's business.</p>
+    <div class="twocol">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;the List contract</div><div class="codebody" id="code-listapi"></div></div>
+      <div>
+        <table>
+          <tr><th>Method</th><th>Does</th></tr>
+          <tr><td>add(e)</td><td>appends at the end, returns <code>true</code></td></tr>
+          <tr><td>add(i, e)</td><td>inserts at <code>i</code>, shifts everything right</td></tr>
+          <tr><td>get(i)</td><td>element at <code>i</code></td></tr>
+          <tr><td>set(i, e)</td><td>replaces, returns the <strong>old</strong> element</td></tr>
+          <tr><td>remove(int i)</td><td>removes by <strong>index</strong></td></tr>
+          <tr><td>remove(Object o)</td><td>removes the <strong>first match</strong>, using <code>equals()</code></td></tr>
+          <tr><td>indexOf(o) / contains(o)</td><td>linear scan, uses <code>equals()</code></td></tr>
+          <tr><td>size() / isEmpty() / clear()</td><td>housekeeping</td></tr>
+          <tr><td>iterator() / listIterator()</td><td>one-way / two-way traversal</td></tr>
+          <tr><td>subList(a, b)</td><td>a <strong>view</strong>, not a copy — edits write through</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Three ways to make a list, three different objects</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;creation.java</div><div class="codebody" id="code-create"></div></div>
+      <div class="runbar"><button class="btn run" id="runCreate">▶ Run</button></div>
+      <div class="console" id="outCreate"></div>
+    </div>
+    <div class="card">
+      <h2>The <code>remove</code> overload trap</h2>
+      <p>On a <code>List&lt;Integer&gt;</code> there are two <code>remove</code> methods and Java picks by <strong>type</strong>, not by intent.</p>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;removeTrap.java</div><div class="codebody" id="code-removetrap"></div></div>
+      <div class="runbar"><button class="btn run" id="runTrap">▶ Run</button></div>
+      <div class="console" id="outTrap"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 3 : ARRAYLIST ============ -->
+<section class="tab" id="tab-al">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">ArrayList</span>
+    <h2>A resizable array — and "resizable" is a polite fiction</h2>
+    <p>Inside every <code>ArrayList</code> is a plain Java array called <code>elementData</code>. Arrays cannot grow, so when it fills up the list <strong>allocates a bigger one and copies everything across</strong>. That is the whole design, and it explains every performance characteristic below.</p>
+    <ul>
+      <li><strong>size</strong> = how many elements you put in. <strong>capacity</strong> = how many the current array can hold. They are not the same, and only <code>size()</code> is visible to you.</li>
+      <li>A <code>new ArrayList&lt;&gt;()</code> starts with a shared <strong>empty</strong> array and jumps to capacity <strong>10</strong> on the first <code>add</code>.</li>
+      <li>Growth is <code>newCap = oldCap + (oldCap &gt;&gt; 1)</code> — half again. So 10 → 15 → 22 → 33 → 49 → 73 …</li>
+    </ul>
+  </div>
+
+  <div class="card">
+    <h2>Watch the backing array</h2>
+    <p>Every operation below runs against a real model of <code>ArrayList</code> — the same growth formula, the same <code>System.arraycopy</code> shifting. The counters are what it actually cost.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="alVal">value</label><input type="text" id="alVal" value="Divya" style="width:130px"></div>
+      <div class="fld"><label for="alIdx">index</label><input type="number" id="alIdx" value="1" min="0" style="width:80px"></div>
+      <button class="btn run small" id="alAdd">add(e)</button>
+      <button class="btn small" id="alAddAt">add(i, e)</button>
+      <button class="btn small" id="alGet">get(i)</button>
+      <button class="btn small" id="alSet">set(i, e)</button>
+      <button class="btn small" id="alRemove">remove(i)</button>
+      <button class="btn small" id="alIndexOf">indexOf(e)</button>
+      <button class="btn small" id="alFill">add 12 quickly</button>
+      <button class="btn small" id="alTrim">trimToSize()</button>
+      <button class="btn small" id="alClear">clear()</button>
+    </div>
+    <div class="metrics" id="alMetrics"></div>
+    <div class="striplabel" style="margin-top:12px">elementData — dashed cells are spare capacity holding <code>null</code></div>
+    <div class="slots" id="alSlots"></div>
+    <div class="oplog" id="alLog"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;what add() really does (JDK source, simplified)</div><div class="codebody" id="code-algrow"></div></div>
+    <div>
+      <div class="card" style="margin:0 0 18px">
+        <h2>Costs, and why</h2>
+        <table>
+          <tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+          <tr><td>get(i) / set(i,e)</td><td><span class="pill p-green">O(1)</span></td><td>one address calculation</td></tr>
+          <tr><td>add(e) at the end</td><td><span class="pill p-green">O(1)*</span></td><td>amortised — occasionally triggers a full copy</td></tr>
+          <tr><td>add(0, e)</td><td><span class="pill p-red">O(n)</span></td><td>every element shifts right</td></tr>
+          <tr><td>remove(i)</td><td><span class="pill p-amber">O(n−i)</span></td><td>everything after <code>i</code> shifts left</td></tr>
+          <tr><td>contains / indexOf</td><td><span class="pill p-red">O(n)</span></td><td>linear scan with <code>equals()</code></td></tr>
+        </table>
+      </div>
+      <div class="callout tip">
+        <b>💡 If you know the size, say so</b>
+        <p><code>new ArrayList&lt;&gt;(1000)</code> allocates once. Without it, filling 1000 elements triggers about ten grow-and-copy cycles. Press <em>add 12 quickly</em> above and watch capacity go 10 → 15 with a 10-element copy.</p>
+      </div>
+      <div class="callout warn">
+        <b>remove() does not shrink the array</b>
+        <p>Capacity never falls on its own. A list that held a million elements still owns a million-slot array after <code>clear()</code>. <code>trimToSize()</code> is the only way back — try it above.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 4 : LINKEDLIST ============ -->
+<section class="tab" id="tab-ll">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">LinkedList</span>
+    <h2>A chain of nodes — no array, no capacity, no copying</h2>
+    <p>A <code>LinkedList</code> stores each element in its own <code>Node</code> object holding three references: <strong>prev</strong>, <strong>item</strong>, <strong>next</strong>. The list itself only remembers <code>first</code> and <code>last</code>. Nothing is contiguous, nothing is ever copied — but nothing can be reached by arithmetic either. To get element 7 you must <strong>walk</strong> to it.</p>
+    <p style="margin-bottom:0">It is <strong>doubly linked</strong>, which is why <code>node(index)</code> starts from whichever end is closer: <code>if (index &lt; (size &gt;&gt; 1))</code> walk forward, else walk backward. Worst case is the middle.</p>
+  </div>
+
+  <div class="card">
+    <h2>Watch the chain</h2>
+    <div class="ctrl">
+      <div class="fld"><label for="llVal">value</label><input type="text" id="llVal" value="Divya" style="width:130px"></div>
+      <div class="fld"><label for="llIdx">index</label><input type="number" id="llIdx" value="1" min="0" style="width:80px"></div>
+      <button class="btn run small" id="llAddLast">addLast(e)</button>
+      <button class="btn small" id="llAddFirst">addFirst(e)</button>
+      <button class="btn small" id="llAddAt">add(i, e)</button>
+      <button class="btn small" id="llGet">get(i)</button>
+      <button class="btn small" id="llRemove">remove(i)</button>
+      <button class="btn small" id="llPoll">poll() / removeFirst()</button>
+      <button class="btn small" id="llFill">add 8 quickly</button>
+      <button class="btn small" id="llClear">clear()</button>
+    </div>
+    <div class="metrics" id="llMetrics"></div>
+    <div class="striplabel" style="margin-top:12px">the node chain — each box is [ prev | item | next ]</div>
+    <div class="chain" id="llChain"></div>
+    <div class="oplog" id="llLog"></div>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;the Node class and node(index)</div><div class="codebody" id="code-llnode"></div></div>
+    <div>
+      <div class="card" style="margin:0 0 18px">
+        <h2>Costs, and why</h2>
+        <table>
+          <tr><th>Operation</th><th>Cost</th><th>Why</th></tr>
+          <tr><td>addFirst / addLast</td><td><span class="pill p-green">O(1)</span></td><td><code>first</code> and <code>last</code> are already known</td></tr>
+          <tr><td>removeFirst / removeLast</td><td><span class="pill p-green">O(1)</span></td><td>same reason</td></tr>
+          <tr><td>get(i) / set(i,e)</td><td><span class="pill p-red">O(n)</span></td><td>must walk from the nearer end</td></tr>
+          <tr><td>add(i,e) / remove(i)</td><td><span class="pill p-amber">O(n)</span></td><td>walking dominates; the relinking itself is O(1)</td></tr>
+          <tr><td>contains / indexOf</td><td><span class="pill p-red">O(n)</span></td><td>linear walk</td></tr>
+        </table>
+      </div>
+      <div class="callout bug">
+        <b>⛔ The classic disaster</b>
+        <p><code>for (int i = 0; i &lt; list.size(); i++) list.get(i);</code> over a LinkedList is <strong>O(n²)</strong> — each <code>get</code> walks again from an end. Over 10 000 elements that is roughly 25 million pointer hops instead of 10 000. Use a <strong>for-each loop or an Iterator</strong>, which walks once and remembers where it is.</p>
+      </div>
+      <div class="callout tip">
+        <b>LinkedList is also a Deque</b>
+        <p>It implements <code>Queue</code> and <code>Deque</code> as well as <code>List</code>, so you get <code>offer</code>, <code>poll</code>, <code>peek</code>, <code>push</code>, <code>pop</code> for free. That — not indexed access — is what it is genuinely good at. For a pure queue, <code>ArrayDeque</code> is faster still.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 5 : HEAD TO HEAD ============ -->
+<section class="tab" id="tab-vs">
+  <div class="card">
+    <span class="tagline" style="color:var(--red);border-color:rgba(232,121,138,.4)">Head to head</span>
+    <h2>Same operations, both structures, work actually counted</h2>
+    <p>Pick a size and a workload. Both models run the identical sequence, and the bars show <strong>elementary operations performed</strong> — array element copies for <code>ArrayList</code>, pointer hops for <code>LinkedList</code>. These are measured from the run, not looked up in a table.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="vsN">elements <span class="val" id="vsNv">200</span></label><input type="range" id="vsN" min="20" max="2000" step="20" value="200"></div>
+      <div class="fld"><label for="vsOp">workload</label><select id="vsOp">
+        <option value="addEnd">add at the end, n times</option>
+        <option value="addFront">add at index 0, n times</option>
+        <option value="getAll">get(i) for every i (indexed for-loop)</option>
+        <option value="foreach">for-each over every element</option>
+        <option value="removeFront">remove(0) until empty</option>
+        <option value="removeMid">remove from the middle until empty</option>
+        <option value="contains">contains() for 20 random values</option>
+      </select></div>
+      <button class="btn run" id="vsRun">▶ Run both</button>
+    </div>
+    <div class="svgwrap" style="padding:14px"><svg id="vsChart" viewBox="0 0 1000 210" width="1000" height="210" role="img" aria-label="operation cost comparison"></svg></div>
+    <div class="console" id="vsOut"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>The honest summary</h2>
+      <table>
+        <tr><th>Workload</th><th>Winner</th><th>Margin</th></tr>
+        <tr><td>indexed reads</td><td>ArrayList</td><td>enormous — O(1) vs O(n)</td></tr>
+        <tr><td>append at the end</td><td>ArrayList</td><td>slight, despite the occasional copy</td></tr>
+        <tr><td>insert / delete at the front</td><td>LinkedList</td><td>large — no shifting at all</td></tr>
+        <tr><td>insert / delete in the middle</td><td>roughly even</td><td>LinkedList still has to walk there</td></tr>
+        <tr><td>for-each traversal</td><td>even</td><td>both are a single pass</td></tr>
+        <tr><td>memory per element</td><td>ArrayList</td><td>LinkedList adds 2 references + object header per node</td></tr>
+      </table>
+      <div class="callout ok">
+        <b>✓ The practical rule</b>
+        <p>Default to <code>ArrayList</code>. Reach for <code>LinkedList</code> only when you are repeatedly adding or removing at the <strong>ends</strong> — and if that is all you need, <code>ArrayDeque</code> beats both. Real-world code uses <code>ArrayList</code> the overwhelming majority of the time, because CPU caches love contiguous memory and hate pointer chasing.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>Why the middle-insert result surprises people</h2>
+      <p>"Linked lists are fast at inserting in the middle" is true only if you <strong>already hold the node</strong>. Through the <code>List</code> API you do not — you pass an index, so the list must walk there first. The relinking is O(1); the walking is O(n).</p>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;where LinkedList genuinely wins</div><div class="codebody" id="code-llwin"></div></div>
+      <p style="margin-top:10px">With a <code>ListIterator</code> you keep the position between operations, so no walking is repeated. That is the case the textbook claim is really about.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ============ TAB 6 : ITERATE & MODIFY ============ -->
+<section class="tab" id="tab-iter">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Iteration</span>
+    <h2>Four ways to walk a list, and one way to crash</h2>
+    <p>Every collection can hand you an <code>Iterator</code> — a cursor with three methods: <code>hasNext()</code>, <code>next()</code>, <code>remove()</code>. The for-each loop is just syntax sugar over it, which is why the two share the same fatal trap.</p>
+    <div class="twocol">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;fourWays.java</div><div class="codebody" id="code-iter4"></div></div>
+      <div>
+        <table>
+          <tr><th>Form</th><th>Good for</th></tr>
+          <tr><td>indexed for</td><td>ArrayList only; you need the index</td></tr>
+          <tr><td>for-each</td><td>the default — clear, works on every collection</td></tr>
+          <tr><td>Iterator</td><td>when you must <strong>remove</strong> while walking</td></tr>
+          <tr><td>ListIterator</td><td>walking backwards, or <code>set</code>/<code>add</code> mid-walk</td></tr>
+          <tr><td>forEach + lambda</td><td>Java 8 style, read-only</td></tr>
+        </table>
+        <div class="callout bug">
+          <b>⛔ ConcurrentModificationException</b>
+          <p>Every list keeps a <code>modCount</code> that ticks on every structural change. An iterator snapshots it and re-checks on each <code>next()</code>. Call <code>list.remove(...)</code> during a for-each and the counts diverge — the iterator throws <strong>immediately</strong>, and the word "Concurrent" is misleading: this happens on a single thread.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Break it, then fix it</h2>
+    <p>Remove every under-18 student from a list while iterating it. Choose the technique and see what happens.</p>
+    <div class="ctrl">
+      <div class="fld"><label for="cmeMode">removal technique</label><select id="cmeMode">
+        <option value="foreach">for-each + list.remove(...)  — the trap</option>
+        <option value="iterator">Iterator + it.remove()  — the fix</option>
+        <option value="removeif">list.removeIf(...)  — Java 8 fix</option>
+        <option value="indexed">indexed loop, forgetting to adjust i</option>
+        <option value="indexedback">indexed loop, walking backwards</option>
+      </select></div>
+      <button class="btn run" id="cmeRun">▶ Run</button>
+    </div>
+    <div class="console" id="cmeOut"></div>
+  </div>
+</section>
+
+<!-- ============ TAB 7 : GSEC ============ -->
+<section class="tab" id="tab-gsec">
+  <div class="card">
+    <span class="tagline" style="color:var(--ink);border-color:var(--line2)">Your code</span>
+    <h2>From one <code>Gsec</code> to a <code>List&lt;Gsec&gt;</code></h2>
+    <p>Your <code>Main</code> holds exactly one student in one variable. A college has thousands. The moment you write <code>Gsec s1, s2, s3…</code> you have outgrown variables and need a <strong>collection</strong> — and every method you wrote (<code>getAge</code>, <code>validator</code>, <code>display</code>) keeps working unchanged on every element.</p>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — your original</div>
+      <div class="codebody" id="code-gsec"></div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ <code>new Gsec()</code> still does not compile</b>
+        <p>The no-arg constructor is commented out and your 4-arg one removed the free default. Handy here: a list is built from <em>data</em>, and the 4-arg constructor is exactly the shape a row of data has.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 What a List changes about your class</b>
+        <ul style="margin:6px 0 0 18px">
+          <li><code>private int age</code> → sorting and filtering must go through <code>getAge()</code>. Encapsulation survives.</li>
+          <li><code>validator()</code> → runs in a loop over every element; one method, whole batch checked.</li>
+          <li><code>display()</code> prints <em>"Hi sreekanth"</em> for everyone — a list makes that hardcoded name impossible to miss.</li>
+          <li>No <code>toString()</code> → printing the list shows <code>Gsec@1b6d3586</code>. Adding one fixes every print at once.</li>
+          <li>No <code>equals()</code> → <code>contains()</code> and <code>remove(Object)</code> compare <strong>references</strong> and silently fail.</li>
+        </ul>
+      </div>
+      <div class="runbar">
+        <button class="btn run" id="gsecRunAll">▶ Run all six programs</button>
+      </div>
+    </div>
+  </div>
+  <div id="gsecHost"></div>
+</section>
+
+<!-- ============ TAB 8 : LAB ============ -->
+<section class="tab" id="tab-lab">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Lab Exercise 12 · Part 1</span>
+    <h2>Collection Framework — List: creation, add, remove, iterate</h2>
+    <p>Five programs covering exactly the syllabus line for Week 15. Each one runs against the real ArrayList / LinkedList models, so the printed sizes, capacities and orders are computed rather than typed.</p>
+    <div class="runbar">
+      <button class="btn primary" id="labRunAll">▶ Run all five</button>
+    </div>
+  </div>
+  <div id="labHost"></div>
+
+  <div class="card">
+    <h2>Syntax toolkit</h2>
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;ArrayList — every operation</div><div class="codebody" id="syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;LinkedList — list + deque</div><div class="codebody" id="syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;iteration &amp; safe removal</div><div class="codebody" id="syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;Collections utility class</div><div class="codebody" id="syn4"></div></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Ten traps that cost marks</h2>
+    <table>
+      <tr><th>#</th><th>Trap</th><th>What happens</th></tr>
+      <tr><td>1</td><td><code>list.remove(1)</code> on a <code>List&lt;Integer&gt;</code></td><td>removes <strong>index</strong> 1, not the value 1. Use <code>remove(Integer.valueOf(1))</code>.</td></tr>
+      <tr><td>2</td><td>Removing inside a for-each</td><td><code>ConcurrentModificationException</code>, on one thread.</td></tr>
+      <tr><td>3</td><td>Indexed removal loop without adjusting <code>i</code></td><td>Skips the element after each removal — no exception, just wrong output.</td></tr>
+      <tr><td>4</td><td>Confusing <code>size()</code> with capacity</td><td>Capacity is invisible; <code>size()</code> is what you have.</td></tr>
+      <tr><td>5</td><td><code>get(size())</code></td><td><code>IndexOutOfBoundsException</code> — valid indices stop at <code>size()-1</code>.</td></tr>
+      <tr><td>6</td><td><code>Arrays.asList(...).add(x)</code></td><td><code>UnsupportedOperationException</code> — fixed-size view over the array.</td></tr>
+      <tr><td>7</td><td><code>List.of(...)</code> then modifying</td><td>Immutable — also <code>UnsupportedOperationException</code>.</td></tr>
+      <tr><td>8</td><td><code>contains()</code> on your own class without <code>equals()</code></td><td>Compares references, so it returns <code>false</code> for an identical object.</td></tr>
+      <tr><td>9</td><td>Printing an object without <code>toString()</code></td><td><code>Gsec@1b6d3586</code> instead of the data.</td></tr>
+      <tr><td>10</td><td>Indexed <code>get(i)</code> loop over a LinkedList</td><td>O(n²). Use for-each.</td></tr>
+    </table>
+  </div>
+</section>
+</main>
+<footer>Java Collections Lab · Part 1 · List, ArrayList &amp; LinkedList · single file · fully offline · real backing array, real node chain</footer>
+<script>
+/* ---------- shared helpers ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(@\w+)|\b(abstract|boolean|break|byte|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false|var)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){let out='',last=0,m;HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){out+=esc(line.slice(last,m.index));
+    const c=m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-s':m[4]?'tok-a':m[5]?'tok-k':m[6]?'tok-t':m[7]?'tok-n':'tok-m';
+    out+='<span class="'+c+'">'+esc(m[0])+'</span>';last=m.index+m[0].length;}
+  return out+esc(line.slice(last));}
+function renderCode(id,lines,opts){opts=opts||{};const b=document.getElementById(id);if(!b)return;b.innerHTML='';
+  lines.forEach((ln,i)=>{const d=document.createElement('div');d.className='cl';d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1))d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';b.appendChild(d);});}
+function L(lines,sub){return lines.findIndex(l=>l.includes(sub))+1;}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}}));
+function mkOut(){const buf=[];
+  const o=(s,c)=>buf.push('<span class="'+(c||'out')+'">'+esc(String(s))+'</span>');
+  o.info=s=>o(s,'info');o.fail=s=>o(s,'fail');o.warn=s=>o(s,'warn');o.dim=s=>o(s,'prompt');
+  o.head=s=>buf.push('<span class="hd">'+esc(String(s))+'</span>');
+  o.raw=s=>buf.push(s);o.text=()=>buf.join('\n');return o;}
+function paint(id,o){const e=document.getElementById(id);if(e)e.innerHTML=o.text();}
+function dsp(v){return (v&&typeof v==='object'&&v.name!==undefined)?v.name:v;}
+function IOOBE(i,n){return{cls:'java.lang.IndexOutOfBoundsException',msg:'Index '+i+' out of bounds for length '+n};}
+
+/* ============================================================
+   a real ArrayList model — same growth formula, same arraycopy
+   ============================================================ */
+function AL(cap){this.e=new Array(cap||0).fill(null);this.cap=cap||0;this.n=0;
+  this.copies=0;this.grows=0;this.work=0;this.modCount=0;this.marks={};this.log=[];}
+AL.prototype.clearMarks=function(){this.marks={};this.log=[];};
+AL.prototype.say=function(t,c){this.log.push('<span class="'+(c||'d')+'">'+esc(t)+'</span>');};
+AL.prototype.ensure=function(min){
+  if(min<=this.cap)return;
+  const old=this.cap;
+  let nc = old===0 ? Math.max(10,min) : old+(old>>1);
+  if(nc<min)nc=min;
+  const arr=new Array(nc).fill(null);
+  for(let i=0;i<this.n;i++){arr[i]=this.e[i];this.copies++;this.work++;}
+  this.e=arr;this.cap=nc;this.grows++;
+  this.say('grow: capacity '+old+' → '+nc+'  (new array allocated, '+this.n+' references copied across)','c');
+};
+AL.prototype.add=function(v){this.clearMarks();
+  this.ensure(this.n+1);
+  this.e[this.n]=v;this.marks[this.n]='added';this.n++;this.modCount++;this.work++;
+  this.say('add("'+dsp(v)+'") → placed at index '+(this.n-1)+', size '+this.n+'/'+this.cap+'  — no shifting','g');
+  return true;};
+AL.prototype.addAt=function(i,v){this.clearMarks();
+  if(i<0||i>this.n)throw IOOBE(i,this.n);
+  this.ensure(this.n+1);
+  let moved=0;
+  for(let j=this.n;j>i;j--){this.e[j]=this.e[j-1];this.marks[j]='moved';this.copies++;this.work++;moved++;}
+  this.e[i]=v;this.marks[i]='added';this.n++;this.modCount++;
+  this.say('add('+i+', "'+dsp(v)+'") → System.arraycopy shifted '+moved+' element(s) RIGHT, then wrote index '+i,moved?'c':'g');
+  return true;};
+AL.prototype.get=function(i){this.clearMarks();
+  if(i<0||i>=this.n)throw IOOBE(i,this.n);
+  this.marks[i]='hit';this.work++;
+  this.say('get('+i+') → "'+dsp(this.e[i])+'"   one address calculation, 1 step regardless of size','b');
+  return this.e[i];};
+AL.prototype.set=function(i,v){this.clearMarks();
+  if(i<0||i>=this.n)throw IOOBE(i,this.n);
+  const old=this.e[i];this.e[i]=v;this.marks[i]='added';this.work++;
+  this.say('set('+i+', "'+dsp(v)+'") → replaced "'+dsp(old)+'", returns the OLD value. size unchanged','b');
+  return old;};
+AL.prototype.removeAt=function(i){this.clearMarks();
+  if(i<0||i>=this.n)throw IOOBE(i,this.n);
+  const old=this.e[i];let moved=0;
+  for(let j=i;j<this.n-1;j++){this.e[j]=this.e[j+1];this.marks[j]='moved';this.copies++;this.work++;moved++;}
+  this.n--;this.e[this.n]=null;this.marks[this.n]='gone';this.modCount++;
+  this.say('remove('+i+') → removed "'+dsp(old)+'", shifted '+moved+' element(s) LEFT, last slot set to null. capacity STILL '+this.cap,'r');
+  return old;};
+AL.prototype.indexOf=function(v){this.clearMarks();
+  for(let j=0;j<this.n;j++){this.work++;
+    if(this.e[j]===v){this.marks[j]='hit';this.say('indexOf("'+dsp(v)+'") → found at '+j+' after '+(j+1)+' equals() call(s)','g');return j;}
+    this.marks[j]='probe';}
+  this.say('indexOf("'+dsp(v)+'") → -1 after scanning all '+this.n+' element(s)','r');
+  return -1;};
+AL.prototype.trim=function(){this.clearMarks();const old=this.cap;
+  this.e=this.e.slice(0,this.n);this.cap=this.n;
+  this.say('trimToSize() → capacity '+old+' → '+this.cap+'  (the only way capacity ever shrinks)','m');};
+AL.prototype.clear=function(){this.clearMarks();const old=this.cap;
+  for(let i=0;i<this.n;i++)this.e[i]=null;this.n=0;this.modCount++;
+  this.say('clear() → size 0, but capacity is STILL '+old+' — the array is not released','r');};
+AL.prototype.toArray=function(){return this.e.slice(0,this.n);};
+AL.prototype.str=function(){return '['+this.toArray().map(dsp).join(', ')+']';};
+
+/* ============================================================
+   a real LinkedList model — doubly linked, walks from the nearer end
+   ============================================================ */
+function LL(){this.first=null;this.last=null;this.n=0;this.hops=0;this.links=0;this.work=0;this.log=[];this.modCount=0;}
+LL.prototype.clearMarks=function(){let c=this.first;while(c){c.mark=null;c=c.next;}this.log=[];};
+LL.prototype.say=function(t,c){this.log.push('<span class="'+(c||'d')+'">'+esc(t)+'</span>');};
+LL.prototype.node=function(i,quiet){
+  let c,dir;
+  if(i<(this.n>>1)){c=this.first;dir='forward from first';
+    for(let k=0;k<i;k++){c.mark=c.mark||'walk';c=c.next;this.hops++;this.work++;}}
+  else{c=this.last;dir='backward from last';
+    for(let k=this.n-1;k>i;k--){c.mark=c.mark||'walk';c=c.prev;this.hops++;this.work++;}}
+  if(!quiet)this.say('node('+i+') walked '+dir+' — '+(i<(this.n>>1)?i:this.n-1-i)+' pointer hop(s)','m');
+  return c;};
+LL.prototype.linkLast=function(v){const nd={v:v,prev:this.last,next:null,mark:'added'};
+  if(this.last)this.last.next=nd;else this.first=nd;
+  this.last=nd;this.n++;this.links+=2;this.work+=3;this.modCount++;return nd;};
+LL.prototype.linkFirst=function(v){const nd={v:v,prev:null,next:this.first,mark:'added'};
+  if(this.first)this.first.prev=nd;else this.last=nd;
+  this.first=nd;this.n++;this.links+=2;this.work+=3;this.modCount++;return nd;};
+LL.prototype.addLast=function(v){this.clearMarks();this.linkLast(v);
+  this.say('addLast("'+dsp(v)+'") → new Node, last.next = it, last = it. 2 pointer writes, NO walking, NO copying','g');};
+LL.prototype.addFirst=function(v){this.clearMarks();this.linkFirst(v);
+  this.say('addFirst("'+dsp(v)+'") → 2 pointer writes. Compare: ArrayList.add(0,e) shifts EVERY element','g');};
+LL.prototype.addAt=function(i,v){this.clearMarks();
+  if(i<0||i>this.n)throw IOOBE(i,this.n);
+  if(i===this.n){this.linkLast(v);this.say('add('+i+') at the tail → 2 pointer writes','g');return;}
+  const succ=this.node(i);
+  const nd={v:v,prev:succ.prev,next:succ,mark:'added'};
+  if(succ.prev)succ.prev.next=nd;else this.first=nd;
+  succ.prev=nd;this.n++;this.links+=4;this.work+=4;this.modCount++;
+  this.say('add('+i+', "'+dsp(v)+'") → relinked 4 pointers. The relink is O(1); the WALK above is what costs','c');};
+LL.prototype.get=function(i){this.clearMarks();
+  if(i<0||i>=this.n)throw IOOBE(i,this.n);
+  const nd=this.node(i);nd.mark='hit';
+  this.say('get('+i+') → "'+dsp(nd.v)+'"  after those hops. An ArrayList would have done this in 1 step','b');
+  return nd.v;};
+LL.prototype.removeAt=function(i){this.clearMarks();
+  if(i<0||i>=this.n)throw IOOBE(i,this.n);
+  const nd=this.node(i);
+  if(nd.prev)nd.prev.next=nd.next;else this.first=nd.next;
+  if(nd.next)nd.next.prev=nd.prev;else this.last=nd.prev;
+  this.n--;this.links+=2;this.work+=2;this.modCount++;
+  this.say('remove('+i+') → unlinked "'+dsp(nd.v)+'": 2 pointer writes, nothing shifted, node left for the GC','r');
+  return nd.v;};
+LL.prototype.pollFirst=function(){this.clearMarks();
+  if(!this.first){this.say('poll() → null (empty list — removeFirst() would throw NoSuchElementException)','r');return null;}
+  const nd=this.first;this.first=nd.next;
+  if(this.first)this.first.prev=null;else this.last=null;
+  this.n--;this.links+=1;this.work+=1;this.modCount++;
+  this.say('poll() → "'+dsp(nd.v)+'" removed from the head in O(1). This is what LinkedList is genuinely for','g');
+  return nd.v;};
+LL.prototype.clear=function(){this.clearMarks();this.first=this.last=null;this.n=0;this.modCount++;
+  this.say('clear() → first = last = null. Every node is now garbage; no array is retained','r');};
+LL.prototype.toArray=function(){const a=[];let c=this.first;while(c){a.push(c.v);c=c.next;}return a;};
+LL.prototype.str=function(){return '['+this.toArray().map(dsp).join(', ')+']';};
+</script>
+<script>
+/* ============ TAB 1 · framework hierarchy ============ */
+renderCode('code-basics',[
+'// generics: the <String> is checked at COMPILE time',
+'List<String> names = new ArrayList<>();   // interface on the left, class on the right',
+'names.add("Sreekanth");',
+'// names.add(42);          // compile error — good',
+'',
+'// primitives are autoboxed into wrappers',
+'List<Integer> ages = new ArrayList<>();',
+'ages.add(17);              // int 17  ->  Integer.valueOf(17)',
+'int first = ages.get(0);   // unboxed back',
+'',
+'// program to the INTERFACE, so the implementation can change',
+'List<String> l = new ArrayList<>();',
+'l = new LinkedList<>();    // same variable, different data structure'
+]);
+const FW={
+ iterable:{x:520,y:34,w:150,c:'#63cfc0',t:'Iterable<E>',
+   d:'The root of the whole framework. It promises exactly one thing — <code>iterator()</code> — and that is what makes the enhanced for-each loop work on every collection.',
+   e:'for (String s : anyCollection) { ... }'},
+ collection:{x:400,y:110,w:170,c:'#63cfc0',t:'Collection<E>',
+   d:'The common contract: <code>add</code>, <code>remove</code>, <code>contains</code>, <code>size</code>, <code>isEmpty</code>, <code>clear</code>, <code>iterator</code>. Every List, Set and Queue honours it. <strong>Map does not extend this</strong>.',
+   e:'Collection<String> c = new ArrayList<>();\nc.add("x");  c.size();  c.contains("x");'},
+ list:{x:180,y:200,w:120,c:'#63cfc0',t:'List<E>',
+   d:'Ordered, indexed, duplicates allowed. Adds the index-based methods: <code>get(i)</code>, <code>set(i,e)</code>, <code>add(i,e)</code>, <code>remove(i)</code>, <code>indexOf</code>.',
+   e:'List<String> l = new ArrayList<>();\nl.add("a"); l.add("a");   // both kept'},
+ set:{x:430,y:200,w:120,c:'#63cfc0',t:'Set<E>',
+   d:'No duplicates. Adds nothing to the Collection API — it only tightens the <em>rules</em>: <code>add</code> returns <code>false</code> if the element is already present. Covered in Part 2.',
+   e:'Set<String> s = new HashSet<>();\ns.add("a"); s.add("a");   // second returns false'},
+ queue:{x:660,y:200,w:130,c:'#63cfc0',t:'Queue<E>',
+   d:'Elements held for processing, normally FIFO. Adds <code>offer</code>, <code>poll</code>, <code>peek</code> — the safe versions that return <code>null</code> instead of throwing. <code>Deque</code> extends it for both ends.',
+   e:'Queue<String> q = new LinkedList<>();\nq.offer("a");  q.poll();'},
+ map:{x:930,y:110,w:170,c:'#63cfc0',t:'Map<K,V>',
+   d:'<strong>Deliberately outside Collection.</strong> A Map stores key→value <em>pairs</em>, not single elements, so <code>add(E)</code> makes no sense for it. It offers views instead: <code>keySet()</code>, <code>values()</code>, <code>entrySet()</code> — and those <em>are</em> Collections. Covered in Part 2.',
+   e:'Map<Integer,String> m = new HashMap<>();\nm.put(101, "Sreekanth");\nfor (Map.Entry<Integer,String> e : m.entrySet()) ...'},
+ arraylist:{x:110,y:300,w:130,c:'#f0b45f',t:'ArrayList',
+   d:'A resizable array. O(1) indexed access, O(n) insert/remove in the middle. <strong>The default choice</strong> for a list.',
+   e:'List<Gsec> batch = new ArrayList<>();'},
+ vector:{x:110,y:370,w:130,c:'#b79cf0',t:'Vector (legacy)',
+   d:'ArrayList\'s synchronized ancestor from Java 1.0. Every method is <code>synchronized</code>, which costs speed even in single-threaded code. Doubles its capacity instead of growing by half. Use <code>ArrayList</code>, or <code>Collections.synchronizedList</code> if you truly need locking.',
+   e:'// avoid in new code\nVector<String> v = new Vector<>();'},
+ linkedlist:{x:270,y:300,w:130,c:'#f0b45f',t:'LinkedList',
+   d:'A doubly linked chain of nodes. O(1) at the ends, O(n) by index. Implements <code>List</code>, <code>Queue</code> AND <code>Deque</code>.',
+   e:'LinkedList<Gsec> queue = new LinkedList<>();\nqueue.addFirst(g);  queue.poll();'},
+ hashset:{x:400,y:300,w:120,c:'#f0b45f',t:'HashSet',
+   d:'Backed by a HashMap. O(1) add/contains, no ordering guarantee at all.',
+   e:'Set<Integer> regs = new HashSet<>();'},
+ linkedhashset:{x:400,y:370,w:150,c:'#f0b45f',t:'LinkedHashSet',
+   d:'HashSet plus a linked list through the entries, so iteration follows <strong>insertion order</strong>.',
+   e:'Set<String> s = new LinkedHashSet<>();'},
+ treeset:{x:570,y:300,w:110,c:'#f0b45f',t:'TreeSet',
+   d:'A red-black tree: always <strong>sorted</strong>, O(log n). Needs elements to be <code>Comparable</code> or a <code>Comparator</code>.',
+   e:'Set<Integer> sorted = new TreeSet<>();'},
+ arraydeque:{x:700,y:300,w:140,c:'#f0b45f',t:'ArrayDeque',
+   d:'A growable circular array. The fastest stack and queue in Java — beats both <code>Stack</code> and <code>LinkedList</code>.',
+   e:'Deque<Gsec> d = new ArrayDeque<>();\nd.push(g);  d.pop();'},
+ hashmap:{x:880,y:300,w:120,c:'#f0b45f',t:'HashMap',
+   d:'Array of buckets plus hashing. O(1) <code>get</code> by key — the workhorse of the whole framework.',
+   e:'Map<Integer,Gsec> byReg = new HashMap<>();'},
+ treemap:{x:1020,y:300,w:110,c:'#f0b45f',t:'TreeMap',
+   d:'A sorted map on a red-black tree, O(log n), keys always in order.',
+   e:'Map<String,Gsec> byName = new TreeMap<>();'}
+};
+const FW_EDGES=[
+ ['iterable','collection'],['collection','list'],['collection','set'],['collection','queue'],
+ ['list','arraylist',1],['list','linkedlist',1],['list','vector',1],
+ ['set','hashset',1],['hashset','linkedhashset'],['set','treeset',1],
+ ['queue','linkedlist',1],['queue','arraydeque',1],
+ ['map','hashmap',1],['map','treemap',1]
+];
+(function(){
+  const svg=document.getElementById('fwSvg'),NS='http://www.w3.org/2000/svg';
+  const defs=document.createElementNS(NS,'defs');
+  defs.innerHTML='<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#5a628f"/></marker>';
+  svg.appendChild(defs);
+  function txt(x,y,s,c,sz,anchor){const e=document.createElementNS(NS,'text');
+    e.setAttribute('x',x);e.setAttribute('y',y);e.setAttribute('fill',c);e.setAttribute('font-size',sz||11);
+    if(anchor)e.setAttribute('text-anchor',anchor);e.textContent=s;svg.appendChild(e);return e;}
+  FW_EDGES.forEach(([a,b,dash])=>{
+    const A=FW[a],B=FW[b];
+    const p=document.createElementNS(NS,'polyline');
+    const ay=A.y+18,by=B.y-18;
+    const mid=(ay+by)/2;
+    p.setAttribute('points',A.x+','+ay+' '+A.x+','+mid+' '+B.x+','+mid+' '+B.x+','+by);
+    p.setAttribute('fill','none');p.setAttribute('stroke','#5a628f');p.setAttribute('stroke-width','1.3');
+    p.setAttribute('stroke-opacity','.7');p.setAttribute('marker-end','url(#ah)');
+    if(dash)p.setAttribute('stroke-dasharray','5 4');
+    svg.appendChild(p);
+  });
+  Object.keys(FW).forEach(k=>{
+    const n=FW[k];
+    const g=document.createElementNS(NS,'g');g.setAttribute('class','node');g.setAttribute('tabindex','0');
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',n.x-n.w/2);r.setAttribute('y',n.y-18);r.setAttribute('width',n.w);r.setAttribute('height',36);
+    r.setAttribute('rx',9);r.setAttribute('fill',n.c);r.setAttribute('fill-opacity','.11');
+    r.setAttribute('stroke',n.c);r.setAttribute('stroke-width','1.4');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',n.x);t.setAttribute('y',n.y+4);t.setAttribute('fill',n.c);
+    t.setAttribute('font-size','11.5');t.setAttribute('text-anchor','middle');t.setAttribute('font-weight','700');
+    t.textContent=n.t;
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);
+    const show=()=>{svg.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));g.classList.add('sel');
+      document.getElementById('fwDetail').innerHTML='<h3 style="color:'+n.c+'">'+esc(n.t)+'</h3>'+
+        '<p style="color:var(--mut);font-size:14.5px">'+n.d+'</p>'+
+        '<div class="console" style="min-height:0">'+esc(n.e)+'</div>';};
+    g.addEventListener('click',show);
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});
+    if(k==='collection')show();
+  });
+  txt(930,60,'Map is NOT a Collection','#e8798a',11,'middle');
+  txt(560,470,'▸ solid = extends · dashed = implements · orange boxes are the classes you actually instantiate','#6d76a0',11,'middle');
+})();
+
+/* ============ TAB 2 · List interface ============ */
+renderCode('code-listapi',[
+'public interface List<E> extends Collection<E> {',
+'',
+'    boolean add(E e);            // append, always true for a List',
+'    void    add(int i, E e);     // insert, shifts right',
+'    E       get(int i);',
+'    E       set(int i, E e);     // returns the OLD element',
+'    E       remove(int i);       // by INDEX  -> returns what was removed',
+'    boolean remove(Object o);    // by VALUE  -> returns whether it was there',
+'    int     indexOf(Object o);   // -1 if absent',
+'    boolean contains(Object o);',
+'    int     size();',
+'    boolean isEmpty();',
+'    void    clear();',
+'    Iterator<E>     iterator();',
+'    ListIterator<E> listIterator();',
+'    List<E> subList(int from, int to);   // a VIEW, not a copy',
+'}'
+]);
+renderCode('code-create',[
+'// 1 · the normal one — growable, fully modifiable',
+'List<String> a = new ArrayList<>();',
+'a.add("Sreekanth");',
+'',
+'// 2 · a fixed-size VIEW over an array',
+'List<String> b = Arrays.asList("Divya", "Arun");',
+'b.set(0, "Kavya");     // allowed — writes through to the array',
+'b.add("Meena");        // UnsupportedOperationException',
+'',
+'// 3 · truly immutable (Java 9+)',
+'List<String> c = List.of("Divya", "Arun");',
+'c.set(0, "Kavya");     // UnsupportedOperationException',
+'',
+'// 4 · a modifiable copy of a fixed one — the usual fix',
+'List<String> d = new ArrayList<>(Arrays.asList("Divya", "Arun"));',
+'d.add("Meena");        // fine'
+]);
+document.getElementById('runCreate').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java ListCreation');
+  o('a = [Sreekanth]        size 1   modifiable');
+  o('b = [Kavya, Arun]      size 2   set() worked — it writes into the backing array');
+  o.fail('Exception in thread "main" java.lang.UnsupportedOperationException');
+  o.fail('\tat java.base/java.util.AbstractList.add(AbstractList.java:153)');
+  o.info('...caught, continuing');
+  o.fail('List.of  → UnsupportedOperationException on set() as well (immutable, not just fixed-size)');
+  o('d = [Divya, Arun, Meena]   size 3   the copy is a real ArrayList');
+  paint('outCreate',o);
+});
+renderCode('code-removetrap',[
+'List<Integer> nums = new ArrayList<>(Arrays.asList(10, 20, 30));',
+'',
+'nums.remove(1);                    // int  -> remove(int index)',
+'System.out.println(nums);          // [10, 30]   20 is gone!',
+'',
+'nums.remove(Integer.valueOf(10));  // Object -> remove(Object o)',
+'System.out.println(nums);          // [30]',
+'',
+'// with a List<String> there is no ambiguity —',
+'// only remove(Object) applies, so remove("a") removes the value.'
+]);
+document.getElementById('runTrap').addEventListener('click',()=>{
+  const o=mkOut();o.dim('$ java RemoveTrap');
+  o('start                          : [10, 20, 30]');
+  o.warn('remove(1)                      : [10, 30]     ← removed INDEX 1, the value 20');
+  o('remove(Integer.valueOf(10))    : [30]        ← removed the VALUE 10');
+  o.info('Java chose the overload by the argument TYPE: int → index, Object → value.');
+  paint('outTrap',o);
+});
+</script>
+<script>
+/* ============ TAB 3 · ArrayList playground ============ */
+const alist=new AL();
+function alRender(){
+  const host=document.getElementById('alSlots');host.innerHTML='';
+  if(alist.cap===0){host.innerHTML='<div class="slot empty" style="min-width:220px"><span class="ix">elementData</span><span class="vl">{} shared empty array</span></div>';}
+  for(let i=0;i<alist.cap;i++){
+    const d=document.createElement('div');
+    const filled=i<alist.n;
+    d.className='slot'+(filled?'':' empty')+(alist.marks[i]?' '+alist.marks[i]:'');
+    d.innerHTML='<span class="ix">'+i+'</span><span class="vl">'+esc(filled?alist.e[i]:'null')+'</span>';
+    host.appendChild(d);
+  }
+  document.getElementById('alMetrics').innerHTML=
+    '<span class="metric">size <b>'+alist.n+'</b></span>'+
+    '<span class="metric">capacity <b>'+alist.cap+'</b></span>'+
+    '<span class="metric">spare slots <b>'+(alist.cap-alist.n)+'</b></span>'+
+    '<span class="metric">element copies so far <b>'+alist.copies+'</b></span>'+
+    '<span class="metric">grow events <b>'+alist.grows+'</b></span>'+
+    '<span class="metric">modCount <b>'+alist.modCount+'</b></span>';
+  document.getElementById('alLog').innerHTML=alist.log.join('\n')+
+    '\n<span class="b">list  → '+esc(alist.str())+'</span>';
+}
+function alDo(fn){
+  try{fn();}catch(e){alist.log=['<span class="r">'+esc(e.cls+': '+e.msg)+'</span>'];}
+  alRender();
+}
+const alV=()=>document.getElementById('alVal').value||'x';
+const alI=()=>parseInt(document.getElementById('alIdx').value,10)||0;
+document.getElementById('alAdd').addEventListener('click',()=>alDo(()=>alist.add(alV())));
+document.getElementById('alAddAt').addEventListener('click',()=>alDo(()=>alist.addAt(alI(),alV())));
+document.getElementById('alGet').addEventListener('click',()=>alDo(()=>alist.get(alI())));
+document.getElementById('alSet').addEventListener('click',()=>alDo(()=>alist.set(alI(),alV())));
+document.getElementById('alRemove').addEventListener('click',()=>alDo(()=>alist.removeAt(alI())));
+document.getElementById('alIndexOf').addEventListener('click',()=>alDo(()=>alist.indexOf(alV())));
+document.getElementById('alTrim').addEventListener('click',()=>alDo(()=>alist.trim()));
+document.getElementById('alClear').addEventListener('click',()=>alDo(()=>alist.clear()));
+document.getElementById('alFill').addEventListener('click',()=>alDo(()=>{
+  const names=['Sreekanth','Divya','Arun','Kavya','Meena','Ravi','Anu','Bala','Chitra','Deepa','Esha','Farhan'];
+  const grows=[];const before=alist.copies;
+  names.forEach(nm=>{alist.add(nm);alist.log.forEach(l=>{if(/grow/.test(l))grows.push(l);});});
+  alist.log=['<span class="d">added 12 names, one add() at a time</span>'].concat(grows);
+  alist.log.push('<span class="c">'+(alist.copies-before)+' element copies were caused purely by growth — all of it avoidable with new ArrayList&lt;&gt;('+alist.n+')</span>');
+}));
+alDo(()=>{['Sreekanth','Divya','Arun'].forEach(n=>alist.add(n));alist.log=['<span class="d">three names added — capacity jumped straight to 10 on the first add</span>'];});
+
+renderCode('code-algrow',[
+'// java.util.ArrayList — the real fields',
+'transient Object[] elementData;      // the backing array',
+'private   int      size;             // how many are USED',
+'',
+'public boolean add(E e) {',
+'    modCount++;                      // iterators watch this',
+'    if (size == elementData.length)  // full?',
+'        elementData = grow();',
+'    elementData[size] = e;',
+'    size = size + 1;',
+'    return true;',
+'}',
+'',
+'private Object[] grow() {',
+'    int oldCapacity = elementData.length;',
+'    int newCapacity = oldCapacity + (oldCapacity >> 1);   // +50%',
+'    return elementData = Arrays.copyOf(elementData, newCapacity);',
+'}',
+'',
+'public void add(int index, E element) {',
+'    rangeCheckForAdd(index);',
+'    if (size == elementData.length) elementData = grow();',
+'    System.arraycopy(elementData, index,        // shift RIGHT',
+'                     elementData, index + 1,',
+'                     size - index);',
+'    elementData[index] = element;',
+'    size++;',
+'}',
+'',
+'public E remove(int index) {',
+'    Objects.checkIndex(index, size);',
+'    E old = (E) elementData[index];',
+'    int numMoved = size - index - 1;',
+'    if (numMoved > 0)',
+'        System.arraycopy(elementData, index + 1,  // shift LEFT',
+'                         elementData, index, numMoved);',
+'    elementData[--size] = null;      // let the GC have it',
+'    return old;',
+'}'
+]);
+
+/* ============ TAB 4 · LinkedList playground ============ */
+const llist=new LL();
+function llRender(){
+  const host=document.getElementById('llChain');host.innerHTML='';
+  if(!llist.first){host.innerHTML='<span class="endcap">first = null&nbsp;&nbsp;·&nbsp;&nbsp;last = null&nbsp;&nbsp;(empty)</span>';}
+  else{
+    const cap=document.createElement('span');cap.className='endcap';cap.textContent='first →';host.appendChild(cap);
+    let c=llist.first,i=0;
+    while(c){
+      const d=document.createElement('div');
+      d.className='lnode'+(c.mark?' '+c.mark:'');
+      d.innerHTML='<span class="p">'+(c.prev?'prev':'null')+'</span><span class="it">'+esc(c.v)+'</span><span class="n">'+(c.next?'next':'null')+'</span>';
+      d.title='index '+i;
+      host.appendChild(d);
+      if(c.next){const a=document.createElement('span');a.className='link';a.textContent='⇄';host.appendChild(a);}
+      c=c.next;i++;
+    }
+    const cap2=document.createElement('span');cap2.className='endcap';cap2.textContent='← last';host.appendChild(cap2);
+  }
+  document.getElementById('llMetrics').innerHTML=
+    '<span class="metric">size <b>'+llist.n+'</b></span>'+
+    '<span class="metric">capacity <b>n/a</b></span>'+
+    '<span class="metric">pointer hops so far <b>'+llist.hops+'</b></span>'+
+    '<span class="metric">pointer writes <b>'+llist.links+'</b></span>'+
+    '<span class="metric">element copies <b>0</b></span>'+
+    '<span class="metric">modCount <b>'+llist.modCount+'</b></span>';
+  document.getElementById('llLog').innerHTML=llist.log.join('\n')+
+    '\n<span class="b">list  → '+esc(llist.str())+'</span>';
+}
+function llDo(fn){try{fn();}catch(e){llist.log=['<span class="r">'+esc(e.cls+': '+e.msg)+'</span>'];}llRender();}
+const llV=()=>document.getElementById('llVal').value||'x';
+const llI=()=>parseInt(document.getElementById('llIdx').value,10)||0;
+document.getElementById('llAddLast').addEventListener('click',()=>llDo(()=>llist.addLast(llV())));
+document.getElementById('llAddFirst').addEventListener('click',()=>llDo(()=>llist.addFirst(llV())));
+document.getElementById('llAddAt').addEventListener('click',()=>llDo(()=>llist.addAt(llI(),llV())));
+document.getElementById('llGet').addEventListener('click',()=>llDo(()=>llist.get(llI())));
+document.getElementById('llRemove').addEventListener('click',()=>llDo(()=>llist.removeAt(llI())));
+document.getElementById('llPoll').addEventListener('click',()=>llDo(()=>llist.pollFirst()));
+document.getElementById('llClear').addEventListener('click',()=>llDo(()=>llist.clear()));
+document.getElementById('llFill').addEventListener('click',()=>llDo(()=>{
+  ['Sreekanth','Divya','Arun','Kavya','Meena','Ravi','Anu','Bala'].forEach(n=>llist.linkLast(n));
+  llist.log=['<span class="g">8 nodes appended — 16 pointer writes, zero copying, no capacity anywhere</span>'];
+}));
+llDo(()=>{['Sreekanth','Divya','Arun'].forEach(n=>llist.linkLast(n));
+  llist.log=['<span class="d">three nodes linked — no array, no capacity, no spare slots</span>'];});
+
+renderCode('code-llnode',[
+'// java.util.LinkedList — the real fields',
+'transient int  size = 0;',
+'transient Node<E> first;',
+'transient Node<E> last;',
+'',
+'private static class Node<E> {',
+'    E       item;',
+'    Node<E> next;',
+'    Node<E> prev;          // doubly linked',
+'}',
+'',
+'// this is why get(i) is O(n) — and why it is only n/2 on average',
+'Node<E> node(int index) {',
+'    if (index < (size >> 1)) {        // nearer the head?',
+'        Node<E> x = first;',
+'        for (int i = 0; i < index; i++) x = x.next;',
+'        return x;',
+'    } else {                          // nearer the tail',
+'        Node<E> x = last;',
+'        for (int i = size - 1; i > index; i--) x = x.prev;',
+'        return x;',
+'    }',
+'}',
+'',
+'void linkLast(E e) {',
+'    final Node<E> l = last;',
+'    final Node<E> newNode = new Node<>(l, e, null);',
+'    last = newNode;',
+'    if (l == null) first = newNode;',
+'    else           l.next = newNode;',
+'    size++;',
+'    modCount++;                      // no copying, ever',
+'}'
+]);
+
+/* ============ TAB 5 · head to head ============ */
+renderCode('code-llwin',[
+'// through the List API — LinkedList must WALK to the index first',
+'for (int i = 0; i < 1000; i++)',
+'    linked.add(500, "x");        // walk 500 nodes EVERY time',
+'',
+'// with a ListIterator — the position is remembered, no walking',
+'ListIterator<String> it = linked.listIterator(500);',
+'for (int i = 0; i < 1000; i++)',
+'    it.add("x");                 // O(1) each — THIS is the real advantage',
+'',
+'// and the case LinkedList was built for: the ends',
+'linked.addFirst(g);   linked.removeFirst();',
+'linked.addLast(g);    linked.removeLast();',
+'// ArrayList.add(0, g) shifts every single element right.'
+]);
+function bench(N,op){
+  const a=new AL(),l=new LL();
+  const names=[];for(let i=0;i<N;i++)names.push('S'+i);
+  function fill(){names.forEach(n=>{a.ensure(a.n+1);a.e[a.n]=n;a.n++;l.linkLast(n);});
+    a.work=0;a.copies=0;a.grows=0;l.work=0;l.hops=0;l.links=0;}   // reset: measure the workload only
+  if(op==='addEnd'){names.forEach(n=>{a.add(n);l.addLast(n);});}
+  else if(op==='addFront'){names.forEach(n=>{a.addAt(0,n);l.addFirst(n);});}
+  else if(op==='getAll'){fill();for(let i=0;i<N;i++){a.work++;l.node(i,true);}}
+  else if(op==='foreach'){fill();for(let i=0;i<N;i++)a.work++;let c=l.first;while(c){l.work++;c=c.next;}}
+  else if(op==='removeFront'){fill();while(a.n>0)a.removeAt(0);while(l.n>0)l.pollFirst();}
+  else if(op==='removeMid'){fill();while(a.n>0)a.removeAt(a.n>>1);while(l.n>0)l.removeAt(l.n>>1);}
+  else if(op==='contains'){fill();for(let k=0;k<20;k++){const t='S'+((k*7919)%N);
+    for(let i=0;i<a.n;i++){a.work++;if(a.e[i]===t)break;}
+    let c=l.first;while(c){l.work++;if(c.v===t)break;c=c.next;}}}
+  return {a:a,l:l};
+}
+const OPDESC={
+ addEnd:['add(e) — append n times','Closer than the textbook suggests. ArrayList pays for its grow-and-copy cycles, and by pure reference count LinkedList can even come out ahead. But this metric cannot see the two things that dominate in reality: allocating a Node object for every element, and CPU cache locality on a contiguous array. On a real stopwatch ArrayList still wins. Counting steps is a model, not a benchmark — a distinction worth stating in your record.'],
+ addFront:['add(0, e) — insert at the front n times','LinkedList wins enormously. ArrayList must shift every existing element one slot right on every single insert — that is n²/2 copies.'],
+ getAll:['get(i) for every i — the indexed for-loop','ArrayList wins enormously. Each get is one address calculation; LinkedList walks from the nearer end every time, which is the O(n²) trap.'],
+ foreach:['for-each over every element','A tie. Both make exactly one pass. This is why you should never use an indexed loop on a LinkedList — the for-each version costs the same as ArrayList.'],
+ removeFront:['remove(0) until empty','LinkedList wins enormously — unlinking the head is 1 pointer write. ArrayList shifts the entire remaining array left every time.'],
+ removeMid:['remove from the middle until empty','Closer than people expect. ArrayList shifts half the array; LinkedList still has to walk half the chain to find the node. Neither is good at this.'],
+ contains:['contains() for 20 values','Roughly a tie — both are linear scans. If you do this often you want a HashSet, which is Part 2 of this unit.']
+};
+function vsRun(){
+  const N=parseInt(document.getElementById('vsN').value,10);
+  const op=document.getElementById('vsOp').value;
+  const r=bench(N,op);
+  const aw=r.a.work,lw=r.l.work;
+  const svg=document.getElementById('vsChart'),NS='http://www.w3.org/2000/svg';
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const max=Math.max(aw,lw,1),W=700,X=210;
+  [['ArrayList',aw,'#f0b45f',50],['LinkedList',lw,'#8fd6a3',120]].forEach(([nm,v,c,y])=>{
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',196);t.setAttribute('y',y+22);t.setAttribute('fill',c);
+    t.setAttribute('font-size','13');t.setAttribute('text-anchor','end');t.setAttribute('font-weight','700');
+    t.textContent=nm;svg.appendChild(t);
+    const bg=document.createElementNS(NS,'rect');
+    bg.setAttribute('x',X);bg.setAttribute('y',y);bg.setAttribute('width',W);bg.setAttribute('height',32);
+    bg.setAttribute('rx',6);bg.setAttribute('fill','#131730');svg.appendChild(bg);
+    const r2=document.createElementNS(NS,'rect');
+    r2.setAttribute('x',X);r2.setAttribute('y',y);r2.setAttribute('width',Math.max(3,(v/max)*W));r2.setAttribute('height',32);
+    r2.setAttribute('rx',6);r2.setAttribute('fill',c);r2.setAttribute('fill-opacity','.75');svg.appendChild(r2);
+    const vt=document.createElementNS(NS,'text');
+    vt.setAttribute('x',X+Math.max(3,(v/max)*W)+10);vt.setAttribute('y',y+22);vt.setAttribute('fill',c);
+    vt.setAttribute('font-size','12.5');vt.textContent=v.toLocaleString()+' steps';svg.appendChild(vt);
+  });
+  const hd=document.createElementNS(NS,'text');
+  hd.setAttribute('x',20);hd.setAttribute('y',24);hd.setAttribute('fill','#9aa3c7');hd.setAttribute('font-size','12');
+  hd.textContent='reference reads + writes performed · n = '+N+' · '+OPDESC[op][0];
+  svg.appendChild(hd);
+  const ft=document.createElementNS(NS,'text');
+  ft.setAttribute('x',20);ft.setAttribute('y',190);ft.setAttribute('fill','#6d76a0');ft.setAttribute('font-size','11');
+  ft.textContent='shorter bar = less work';svg.appendChild(ft);
+  const o=mkOut();
+  o.dim('n = '+N+'   workload: '+OPDESC[op][0]);
+  o('ArrayList  : '+aw.toLocaleString()+' steps   ('+r.a.copies.toLocaleString()+' element copies, '+r.a.grows+' grow events)');
+  o('LinkedList : '+lw.toLocaleString()+' steps   ('+r.l.hops.toLocaleString()+' pointer hops, '+r.l.links.toLocaleString()+' pointer writes)');
+  const ratio=(Math.max(aw,lw)/Math.max(1,Math.min(aw,lw))).toFixed(1);
+  if(aw===lw)o.info('Dead even.');
+  else if(aw<lw)o.warn('ArrayList did '+ratio+'× less work.');
+  else o.warn('LinkedList did '+ratio+'× less work.');
+  o.info(OPDESC[op][1]);
+  paint('vsOut',o);
+}
+document.getElementById('vsN').addEventListener('input',()=>{document.getElementById('vsNv').textContent=document.getElementById('vsN').value;});
+document.getElementById('vsRun').addEventListener('click',vsRun);
+vsRun();
+
+/* ============ TAB 6 · iterate & modify ============ */
+renderCode('code-iter4',[
+'List<String> names = new ArrayList<>(List.of("Sreekanth","Divya","Arun"));',
+'',
+'// 1 · indexed for — you need i, and it is O(n^2) on a LinkedList',
+'for (int i = 0; i < names.size(); i++)',
+'    System.out.println(i + " : " + names.get(i));',
+'',
+'// 2 · for-each — the default. Sugar over iterator()',
+'for (String n : names)',
+'    System.out.println(n);',
+'',
+'// 3 · Iterator — the ONLY safe way to remove while walking',
+'Iterator<String> it = names.iterator();',
+'while (it.hasNext()) {',
+'    String n = it.next();',
+'    if (n.startsWith("A")) it.remove();     // safe',
+'}',
+'',
+'// 4 · ListIterator — backwards, and set/add mid-walk',
+'ListIterator<String> li = names.listIterator(names.size());',
+'while (li.hasPrevious())',
+'    System.out.println(li.previous());',
+'',
+'// 5 · Java 8',
+'names.forEach(System.out::println);',
+'names.removeIf(n -> n.startsWith("A"));'
+]);
+const CME_BATCH=[['Sreekanth',17],['Divya',19],['Arun',18],['Kavya',16],['Meena',20]];
+function cmeRun(){
+  const mode=document.getElementById('cmeMode').value;
+  const o=mkOut();
+  const list=CME_BATCH.map(x=>({n:x[0],a:x[1]}));
+  o.dim('start : '+list.map(g=>g.n+'('+g.a+')').join(', '));
+  if(mode==='foreach'){
+    o.dim('for (Gsec g : list) if (g.getAge() < 18) list.remove(g);');
+    let modCount=0,expected=0,i=0,removed=[];
+    for(;i<list.length;i++){
+      if(i>0&&modCount!==expected){
+        o.fail('Exception in thread "main" java.util.ConcurrentModificationException');
+        o.fail('\tat java.base/java.util.ArrayList$Itr.checkForComodification(ArrayList.java:1013)');
+        o.fail('\tat java.base/java.util.ArrayList$Itr.next(ArrayList.java:967)');
+        o.warn('The iterator had snapshotted modCount='+expected+' but the list is now at modCount='+modCount+'.');
+        o.info('It removed '+removed.join(', ')+' and then died. The list is left half-processed.');
+        paint('cmeOut',o);return;
+      }
+      const g=list[i];
+      o('  visiting '+g.n+' ('+g.a+')');
+      if(g.a<18){list.splice(i,1);modCount++;removed.push(g.n);o.warn('    list.remove('+g.n+') → modCount is now '+modCount);}
+    }
+    o.info('finished without an exception — this can happen when the removed element is the second-to-last, because hasNext() then returns false early. That accident is exactly why the bug is so hard to trust.');
+  }else if(mode==='iterator'){
+    o.dim('Iterator<Gsec> it = list.iterator();  while (it.hasNext()) { ... it.remove(); }');
+    const out=[];let i=0;
+    while(i<list.length){
+      const g=list[i];
+      o('  visiting '+g.n+' ('+g.a+')');
+      if(g.a<18){o.warn('    it.remove() → the iterator updates its own expectedModCount, so no exception');list.splice(i,1);out.push(g.n);}
+      else i++;
+    }
+    o.info('removed : '+out.join(', '));
+  }else if(mode==='removeif'){
+    o.dim('list.removeIf(g -> g.getAge() < 18);');
+    const before=list.length;
+    const gone=list.filter(g=>g.a<18).map(g=>g.n);
+    for(let i=list.length-1;i>=0;i--)if(list[i].a<18)list.splice(i,1);
+    o('  one call, '+(before-list.length)+' element(s) removed : '+gone.join(', '));
+    o.info('removeIf does the whole pass internally with an iterator — shortest and safest.');
+  }else if(mode==='indexed'){
+    o.dim('for (int i = 0; i < list.size(); i++) if (list.get(i).getAge() < 18) list.remove(i);');
+    const gone=[];
+    for(let i=0;i<list.length;i++){
+      o('  i='+i+' → '+list[i].n+' ('+list[i].a+')');
+      if(list[i].a<18){gone.push(list[i].n);list.splice(i,1);
+        o.warn('    removed — everything shifted LEFT, so index '+i+' now holds '+(list[i]?list[i].n:'nothing')+' and the loop skips it');}
+    }
+    o.fail('removed : '+gone.join(', ')+'   — no exception, but the result is WRONG');
+    o.fail('left behind : '+list.map(g=>g.n+'('+g.a+')').join(', '));
+    o.info('Fix: decrement i after removing, or walk backwards.');
+  }else{
+    o.dim('for (int i = list.size() - 1; i >= 0; i--) if (list.get(i).getAge() < 18) list.remove(i);');
+    const gone=[];
+    for(let i=list.length-1;i>=0;i--){
+      o('  i='+i+' → '+list[i].n+' ('+list[i].a+')');
+      if(list[i].a<18){gone.push(list[i].n);list.splice(i,1);o.warn('    removed — the shift only affects indices ABOVE i, which we already passed');}
+    }
+    o('removed : '+gone.reverse().join(', '));
+    o.info('Correct, because walking backwards means the shifting never disturbs the part of the list still to come.');
+  }
+  o('final : '+list.map(g=>g.n+'('+g.a+')').join(', '));
+  paint('cmeOut',o);
+}
+document.getElementById('cmeRun').addEventListener('click',cmeRun);
+cmeRun();
+</script>
+<script>
+/* ============ TAB 7 · Gsec ============ */
+const SRC_GSEC=['class Gsec{','    ','    //class  variables','    ','    String name;','    String laptop;','  private int age;','    int registerNumber;','    ','    // setter for age','    // public , void ','    public void setAge(int age){','        this.age=age;','    }','    ','    // getter for age','    public int getAge(){','        return age;','    }','    ','    void validator(){','        if(age<18){','            System.out.println("This guy is not eleigible for studying college");','        }','    }','    ','    // methods','    void display(){','        System.out.println("Hi sreekanth");','        System.out.println(getAge());','    }','    ','    String displayString(){','        return "hello";','    }','    ','    // String helloMethod(){','        ','    // }','    //No-arg constructor','//   public Gsec(){','        ','//     }','  public Gsec(    String namenew,String laptop,int age,int registerNumber){','        name=namenew;','        this.laptop=laptop;','        this.age=age;','        this.registerNumber=registerNumber;','    }','}','class Main{','    ','    public static void main(String[] args){','        ','        Gsec scoldavinas=new Gsec();','        scoldavinas.setAge(17);','        scoldavinas.validator();','        scoldavinas.display();','    }','}'];
+renderCode('code-gsec',SRC_GSEC,{err:[L(SRC_GSEC,'Gsec scoldavinas=new Gsec();')]});
+function Gsec(namenew,laptop,age,registerNumber){
+  let _age=age;
+  this.name=namenew;this.laptop=laptop;this.registerNumber=registerNumber;
+  this.setAge=a=>{_age=a;};this.getAge=()=>_age;
+  this.validator=o=>{if(_age<18)o('This guy is not eleigible for studying college');};
+  this.display=o=>{o('Hi sreekanth');o(String(_age));};
+  this.hashish='Gsec@'+(0x1b6d3586+registerNumber*977).toString(16);
+}
+const BATCH=()=>[new Gsec('Sreekanth','Dell',17,101),new Gsec('Divya','HP',19,102),
+                 new Gsec('Arun','Lenovo',18,103),new Gsec('Kavya','Asus',16,104)];
+const GP=[
+{id:'p1',cls:'GsecListBasics',n:'1',title:'From one variable to a List<Gsec>',tag:'creation · add · size · iterate',
+ desc:'Your Main holds one student. This holds a batch — and every method you wrote runs over all of them in three lines.',
+ code:[
+'import java.util.*;',
+'',
+'public class GsecListBasics {',
+'    public static void main(String[] args) {',
+'',
+'        List<Gsec> batch = new ArrayList<>();          // interface on the left',
+'',
+'        batch.add(new Gsec("Sreekanth", "Dell",   17, 101));',
+'        batch.add(new Gsec("Divya",     "HP",     19, 102));',
+'        batch.add(new Gsec("Arun",      "Lenovo", 18, 103));',
+'        batch.add(new Gsec("Kavya",     "Asus",   16, 104));',
+'',
+'        System.out.println("size : " + batch.size());',
+'',
+'        for (Gsec g : batch) {          // one loop, whole batch validated',
+'            System.out.print(g.registerNumber + " " + g.name + " -> ");',
+'            g.validator();',
+'            System.out.println();',
+'        }',
+'    }',
+'}'],
+ run(o){const b=BATCH();o('size : '+b.length);
+   b.forEach(g=>{let msg='';g.validator(m=>msg=m);o(g.registerNumber+' '+g.name+' -> '+(msg||'(validator printed nothing — age is 18 or over)'));});
+   o.info('validator() only speaks when age < 18. Silence is a pass — which is why a batch print needs the else branch your class does not have.');},
+ note:'This is the moment a collection earns its keep: <code>Gsec s1, s2, s3, s4</code> does not scale past about three students, and cannot be looped over at all.'},
+
+{id:'p2',cls:'GsecListEdit',n:'2',title:'add at an index, set, remove — and what shifts',
+ tag:'add(i,e) · set · remove(i) · remove(Object)',
+ desc:'The index operations on a List of your objects, with the internal movement spelled out.',
+ code:[
+'List<Gsec> batch = new ArrayList<>(...);          // 4 students',
+'',
+'batch.add(1, new Gsec("Meena","Acer",21,105));    // insert at index 1',
+'// everything from index 1 onward shifts RIGHT',
+'',
+'Gsec old = batch.set(0, new Gsec("Ravi","MSI",22,106));',
+'System.out.println("set() returned the OLD element: " + old.name);',
+'',
+'Gsec dropped = batch.remove(2);                   // by INDEX',
+'System.out.println("removed " + dropped.name);',
+'// everything after index 2 shifts LEFT',
+'',
+'boolean gone = batch.remove(new Gsec("Kavya","Asus",16,104));',
+'System.out.println("remove(Object) : " + gone);   // false! see note'],
+ run(o){
+   const a=new AL();BATCH().forEach(g=>a.add(g));
+   o('start        : '+a.toArray().map(g=>g.name).join(', '));
+   a.addAt(1,new Gsec('Meena','Acer',21,105));
+   o.warn('add(1, Meena) : '+a.toArray().map(g=>g.name).join(', '));
+   o.dim('              → '+a.log.join(' ').replace(/<[^>]+>/g,''));
+   const old=a.set(0,new Gsec('Ravi','MSI',22,106));
+   o('set(0, Ravi)  : returned the OLD element, '+old.name);
+   const d=a.removeAt(2);
+   o.warn('remove(2)     : dropped '+d.name+' → '+a.toArray().map(g=>g.name).join(', '));
+   o.dim('              → '+a.log.join(' ').replace(/<[^>]+>/g,''));
+   o.fail('remove(new Gsec("Kavya","Asus",16,104)) : false');
+   o.info('false, even though Kavya is right there — remove(Object) uses equals(), and your Gsec does not override it, so Java compares object ADDRESSES. A brand-new Gsec is a different address.');},
+ note:'Every index operation on an ArrayList of objects moves <strong>references</strong>, never the objects themselves. Your <code>Gsec</code> instances never move in memory; only the 8-byte pointers in the backing array shift.'},
+
+{id:'p3',cls:'GsecToStringEquals',n:'3',title:'Why printing the list gives you gibberish',
+ tag:'toString · equals · hashCode',
+ desc:'Two methods your class does not have, and the exact damage each one causes inside a collection.',
+ code:[
+'System.out.println(batch);',
+'// [Gsec@1b6d3586, Gsec@4554617c, Gsec@74a14482, Gsec@1540e19d]',
+'',
+'batch.contains(new Gsec("Kavya","Asus",16,104));   // false',
+'batch.indexOf (new Gsec("Kavya","Asus",16,104));   // -1',
+'',
+'// the fix — add these to Gsec:',
+'@Override',
+'public String toString() {',
+'    return registerNumber + " " + name + " (" + age + ", " + laptop + ")";',
+'}',
+'',
+'@Override',
+'public boolean equals(Object o) {',
+'    if (this == o) return true;',
+'    if (!(o instanceof Gsec)) return false;',
+'    return registerNumber == ((Gsec) o).registerNumber;   // identity = reg no',
+'}',
+'',
+'@Override',
+'public int hashCode() { return Integer.hashCode(registerNumber); }'],
+ run(o){
+   const b=BATCH();
+   o.fail('println(batch)  → ['+b.map(g=>g.hashish).join(', ')+']');
+   o.fail('batch.contains(new Gsec("Kavya","Asus",16,104))  → false');
+   o.fail('batch.indexOf (new Gsec("Kavya","Asus",16,104))  → -1');
+   o.info('Object.equals() is reference equality: two Gsec objects with identical data are still "different".');
+   o.raw('');
+   o.dim('--- after adding toString(), equals() and hashCode() ---');
+   o('println(batch)  → ['+b.map(g=>g.registerNumber+' '+g.name+' ('+g.getAge()+', '+g.laptop+')').join(', ')+']');
+   o('batch.contains(new Gsec("Kavya","Asus",16,104))  → true');
+   o('batch.indexOf (new Gsec("Kavya","Asus",16,104))  → 3');
+   o.warn('Always override equals() and hashCode() TOGETHER — Part 2 of this unit shows what happens in a HashSet when you do not.');},
+ note:'<code>registerNumber</code> is the natural identity for a student: two objects with the same register number are the same person, whatever else differs. Basing <code>equals</code> on <code>name</code> would break the moment two students share a name.'},
+
+{id:'p4',cls:'GsecSort',n:'4',title:'Sorting the batch — by age, by name, by register number',
+ tag:'Collections.sort · Comparator',
+ desc:'Sorting must go through getAge(), because age is private. Comparator is where your getter finally pays for itself.',
+ code:[
+'// by age, ascending — note getAge(), not g.age',
+'Collections.sort(batch, Comparator.comparingInt(Gsec::getAge));',
+'',
+'// by name',
+'batch.sort(Comparator.comparing(g -> g.name));',
+'',
+'// by age descending, then name as a tie-breaker',
+'batch.sort(Comparator.comparingInt(Gsec::getAge).reversed()',
+'                     .thenComparing(g -> g.name));',
+'',
+'// the older style — make Gsec implement Comparable',
+'class Gsec implements Comparable<Gsec> {',
+'    public int compareTo(Gsec other) {',
+'        return Integer.compare(registerNumber, other.registerNumber);',
+'    }',
+'}',
+'Collections.sort(batch);        // now works with no Comparator'],
+ run(o){
+   const b=BATCH();
+   const show=(t,arr)=>o(t.padEnd(22,' ')+arr.map(g=>g.name+'('+g.getAge()+')').join(', '));
+   show('original',b);
+   show('by age',b.slice().sort((x,y)=>x.getAge()-y.getAge()));
+   show('by name',b.slice().sort((x,y)=>x.name<y.name?-1:1));
+   show('by age desc',b.slice().sort((x,y)=>y.getAge()-x.getAge()));
+   show('by registerNumber',b.slice().sort((x,y)=>x.registerNumber-y.registerNumber));
+   o.info('Collections.sort is a stable merge sort (TimSort): equal elements keep their original relative order, which is what makes thenComparing() chains predictable.');},
+ note:'<code>Comparator.comparingInt(Gsec::getAge)</code> would not compile against a private field — it needs the public getter. This is encapsulation being useful rather than ceremonial.'},
+
+{id:'p5',cls:'GsecFilter',n:'5',title:'Filtering the under-18 students out safely',
+ tag:'Iterator.remove · removeIf',
+ desc:'The realistic version of your validator(): split the batch into eligible and ineligible without hitting ConcurrentModificationException.',
+ code:[
+'List<Gsec> batch     = new ArrayList<>(...);',
+'List<Gsec> rejected  = new ArrayList<>();',
+'',
+'Iterator<Gsec> it = batch.iterator();',
+'while (it.hasNext()) {',
+'    Gsec g = it.next();',
+'    if (g.getAge() < 18) {',
+'        g.validator();        // prints the message',
+'        rejected.add(g);',
+'        it.remove();          // safe: the iterator stays in sync',
+'    }',
+'}',
+'',
+'System.out.println("eligible : " + batch.size());',
+'System.out.println("rejected : " + rejected.size());',
+'',
+'// same thing in one line (Java 8)',
+'// batch.removeIf(g -> g.getAge() < 18);'],
+ run(o){
+   const batch=BATCH(),rejected=[];
+   let i=0;
+   while(i<batch.length){
+     const g=batch[i];
+     if(g.getAge()<18){g.validator(m=>o.fail(g.name+' -> '+m));rejected.push(g);batch.splice(i,1);}
+     else i++;
+   }
+   o('eligible : '+batch.length+'   ('+batch.map(g=>g.name).join(', ')+')');
+   o('rejected : '+rejected.length+'   ('+rejected.map(g=>g.name).join(', ')+')');
+   o.info('Doing the same with a for-each and batch.remove(g) throws ConcurrentModificationException — tab ⑥ runs that version.');},
+ note:'Note the order: <code>validator()</code> is called <em>before</em> <code>it.remove()</code>. Once removed, the object is still alive (rejected holds a reference), so nothing is lost — collections hold references, not copies.'},
+
+{id:'p6',cls:'GsecAdmissionQueue',n:'6',title:'When your batch wants a LinkedList instead',
+ tag:'Queue · addLast · poll',
+ desc:'Students arriving at an admission counter: joins at the back, served from the front. That is a queue, and it is the one job LinkedList does better than ArrayList.',
+ code:[
+'// students queue up at the counter',
+'LinkedList<Gsec> counter = new LinkedList<>();',
+'',
+'counter.addLast(new Gsec("Sreekanth","Dell",17,101));',
+'counter.addLast(new Gsec("Divya","HP",19,102));',
+'counter.addLast(new Gsec("Arun","Lenovo",18,103));',
+'',
+'// a VIP is pushed to the front',
+'counter.addFirst(new Gsec("Kavya","Asus",16,104));',
+'',
+'while (!counter.isEmpty()) {',
+'    Gsec g = counter.poll();          // removes the head, O(1)',
+'    System.out.print("serving " + g.name + " -> ");',
+'    g.validator();',
+'    System.out.println();',
+'}'],
+ run(o){
+   const l=new LL();
+   [new Gsec('Sreekanth','Dell',17,101),new Gsec('Divya','HP',19,102),new Gsec('Arun','Lenovo',18,103)]
+     .forEach(g=>l.linkLast(g));
+   l.linkFirst(new Gsec('Kavya','Asus',16,104));
+   o('queue : '+l.toArray().map(g=>g.name).join(' → '));
+   o.dim('addFirst cost 2 pointer writes. On an ArrayList, add(0,g) would have shifted all 3 existing references.');
+   while(l.n>0){
+     const g=l.pollFirst();let msg='';g.validator(m=>msg=m);
+     o('serving '+g.name.padEnd(10,' ')+' -> '+(msg||'eligible'));
+   }
+   o.info('total pointer hops for the whole queue : '+l.hops+' — the head is always one step away.');},
+ note:'If this queue is <em>all</em> you need, <code>ArrayDeque</code> is faster still: same O(1) at both ends, but contiguous memory and no per-node object. <code>LinkedList</code> is the right answer only when you also need <code>List</code> behaviour.'}
+];
+(function(){
+  const host=document.getElementById('gsecHost');
+  GP.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-blue">Program '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div class="runbar"><button class="btn run" id="run-'+x.id+'">▶ Run</button><span class="note">'+x.tag+'</span></div>'+
+      '<div class="console" id="con-'+x.id+'"></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(c);
+    renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();
+  });
+  document.getElementById('gsecRunAll').addEventListener('click',()=>GP.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+/* ============ TAB 8 · Lab 12 P1 ============ */
+const LAB=[
+{id:'L1',cls:'Lab12_1',n:'12.1',title:'ArrayList — creation, add, get, set, iterate',tag:'ArrayList basics',
+ code:[
+'import java.util.*;',
+'',
+'public class Lab12_1 {',
+'    public static void main(String[] args) {',
+'',
+'        ArrayList<String> subjects = new ArrayList<>();',
+'        System.out.println("empty? " + subjects.isEmpty() + "  size " + subjects.size());',
+'',
+'        subjects.add("Java");',
+'        subjects.add("DBMS");',
+'        subjects.add("OS");',
+'        subjects.add("Java");          // duplicates ARE allowed in a List',
+'',
+'        System.out.println(subjects);',
+'        System.out.println("get(2)      : " + subjects.get(2));',
+'        System.out.println("set(1,\\"CN\\") returns : " + subjects.set(1, "CN"));',
+'        System.out.println("after set   : " + subjects);',
+'        System.out.println("indexOf Java: " + subjects.indexOf("Java"));',
+'        System.out.println("lastIndexOf : " + subjects.lastIndexOf("Java"));',
+'',
+'        for (int i = 0; i < subjects.size(); i++)',
+'            System.out.println(i + " -> " + subjects.get(i));',
+'    }',
+'}'],
+ run(o){
+   const a=new AL();
+   o('empty? true  size 0');
+   ['Java','DBMS','OS','Java'].forEach(s=>a.add(s));
+   o(a.str());
+   o('get(2)      : '+a.e[2]);
+   const old=a.set(1,'CN');
+   o('set(1,"CN") returns : '+old);
+   o('after set   : '+a.str());
+   o('indexOf Java: '+a.toArray().indexOf('Java'));
+   o('lastIndexOf : '+a.toArray().lastIndexOf('Java'));
+   a.toArray().forEach((s,i)=>o(i+' -> '+s));
+   o.info('capacity is now '+a.cap+' for a size of '+a.n+' — 4 elements in a 10-slot array.');}},
+
+{id:'L2',cls:'Lab12_2',n:'12.2',title:'ArrayList — remove, contains, clear',tag:'removal + the overload trap',
+ code:[
+'ArrayList<String> s = new ArrayList<>(Arrays.asList("Java","DBMS","OS","Java"));',
+'',
+'System.out.println("remove(1) returns : " + s.remove(1));   // by INDEX',
+'System.out.println(s);',
+'',
+'System.out.println("remove(\\"Java\\")   : " + s.remove("Java"));  // by VALUE, first match',
+'System.out.println(s);',
+'',
+'System.out.println("contains OS  : " + s.contains("OS"));',
+'System.out.println("contains DBMS: " + s.contains("DBMS"));',
+'',
+'s.clear();',
+'System.out.println("after clear  : " + s + "  size " + s.size());'],
+ run(o){
+   const a=new AL();['Java','DBMS','OS','Java'].forEach(x=>a.add(x));
+   o('start             : '+a.str());
+   o('remove(1) returns : '+a.removeAt(1));
+   o('                  : '+a.str());
+   const i=a.toArray().indexOf('Java');a.removeAt(i);
+   o('remove("Java")    : true   (first match only)');
+   o('                  : '+a.str());
+   o('contains OS  : '+(a.toArray().indexOf('OS')>=0));
+   o('contains DBMS: '+(a.toArray().indexOf('DBMS')>=0));
+   const cap=a.cap;a.clear();
+   o('after clear  : '+a.str()+'  size '+a.n);
+   o.warn('capacity is still '+cap+' — clear() empties the array but does not release it.');}},
+
+{id:'L3',cls:'Lab12_3',n:'12.3',title:'LinkedList — creation, add, remove, iterate',tag:'LinkedList + Deque',
+ code:[
+'LinkedList<String> q = new LinkedList<>();',
+'',
+'q.add("Divya");           // same as addLast',
+'q.addLast("Arun");',
+'q.addFirst("Sreekanth");  // O(1) at the head',
+'q.add(1, "Kavya");        // walks to index 1 first',
+'',
+'System.out.println(q);',
+'System.out.println("getFirst : " + q.getFirst());',
+'System.out.println("getLast  : " + q.getLast());',
+'',
+'System.out.println("removeFirst : " + q.removeFirst());',
+'System.out.println("removeLast  : " + q.removeLast());',
+'System.out.println(q);',
+'',
+'for (String s : q) System.out.println("  " + s);   // for-each, ONE pass'],
+ run(o){
+   const l=new LL();
+   l.linkLast('Divya');l.linkLast('Arun');l.linkFirst('Sreekanth');
+   l.addAt(1,'Kavya');
+   o(l.str());
+   o('getFirst : '+l.first.v);
+   o('getLast  : '+l.last.v);
+   o('removeFirst : '+l.pollFirst());
+   const last=l.last.v;l.removeAt(l.n-1);
+   o('removeLast  : '+last);
+   o(l.str());
+   l.toArray().forEach(s=>o('  '+s));
+   o.info('pointer hops used across the whole program : '+l.hops+'. An indexed for-loop instead of the for-each would have added many more.');}},
+
+{id:'L4',cls:'Lab12_4',n:'12.4',title:'Iterating four ways, and removing safely',tag:'Iterator · ListIterator · removeIf',
+ code:[
+'List<Integer> marks = new ArrayList<>(Arrays.asList(78, 45, 91, 32, 66));',
+'',
+'// 1 · for-each',
+'for (int m : marks) System.out.print(m + " ");',
+'',
+'// 2 · Iterator, removing fails below 50',
+'Iterator<Integer> it = marks.iterator();',
+'while (it.hasNext()) if (it.next() < 50) it.remove();',
+'System.out.println("\\npasses : " + marks);',
+'',
+'// 3 · ListIterator backwards',
+'ListIterator<Integer> li = marks.listIterator(marks.size());',
+'while (li.hasPrevious()) System.out.print(li.previous() + " ");',
+'',
+'// 4 · Java 8',
+'marks.forEach(m -> System.out.print(m + " "));',
+'marks.removeIf(m -> m < 70);',
+'System.out.println("\\ndistinctions : " + marks);'],
+ run(o){
+   let marks=[78,45,91,32,66];
+   o('for-each     : '+marks.join(' '));
+   marks=marks.filter(m=>m>=50);
+   o('passes       : ['+marks.join(', ')+']   (Iterator.remove — no exception)');
+   o('backwards    : '+marks.slice().reverse().join(' '));
+   marks=marks.filter(m=>m>=70);
+   o('distinctions : ['+marks.join(', ')+']   (removeIf)');
+   o.warn('Replacing step 2 with  for (int m : marks) if (m < 50) marks.remove(...)  throws ConcurrentModificationException.');}},
+
+{id:'L5',cls:'Lab12_5',n:'12.5',title:'ArrayList vs LinkedList on the same Gsec batch',tag:'measured comparison',
+ code:[
+'List<Gsec> arr  = new ArrayList<>();',
+'List<Gsec> link = new LinkedList<>();',
+'',
+'// 1 · build a batch of 500 students at the FRONT',
+'for (int i = 0; i < 500; i++) {',
+'    Gsec g = new Gsec("S" + i, "Dell", 15 + (i % 10), 100 + i);',
+'    arr .add(0, g);        // shifts everything right, every time',
+'    link.add(0, g);        // 2 pointer writes',
+'}',
+'',
+'// 2 · then read every element by index',
+'for (int i = 0; i < 500; i++) { arr.get(i);  }',
+'for (int i = 0; i < 500; i++) { link.get(i); }   // walks each time',
+'',
+'// 3 · finally, validate everyone with a for-each',
+'for (Gsec g : arr)  g.validator();',
+'for (Gsec g : link) g.validator();'],
+ run(o){
+   const N=500;
+   const f=bench(N,'addFront'),g2=bench(N,'getAll'),f3=bench(N,'foreach');
+   o.head('1 · add(0, g) 500 times');
+   o('   ArrayList  : '+f.a.work.toLocaleString()+' steps   ('+f.a.copies.toLocaleString()+' element copies)');
+   o('   LinkedList : '+f.l.work.toLocaleString()+' steps   (pointer writes only)');
+   o.head('2 · get(i) for every i');
+   o('   ArrayList  : '+g2.a.work.toLocaleString()+' steps');
+   o('   LinkedList : '+g2.l.work.toLocaleString()+' steps   ('+g2.l.hops.toLocaleString()+' pointer hops)');
+   o.head('3 · for-each over all 500');
+   o('   ArrayList  : '+f3.a.work.toLocaleString()+' steps');
+   o('   LinkedList : '+f3.l.work.toLocaleString()+' steps');
+   o.info('Conclusion for the record: LinkedList wins step 1 by a wide margin, loses step 2 by a wider one, and ties step 3. Choose by how the list will be USED, not by which name sounds faster.');}}
+];
+(function(){
+  const host=document.getElementById('labHost');
+  LAB.forEach(x=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-mauve">Ex '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2>'+
+      '<div class="twocol"><div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--pink)"></span>&nbsp;'+x.cls+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div>'+
+      '<div><div class="runbar" style="margin-top:0"><button class="btn run" id="run-'+x.id+'">▶ Run Ex '+x.n+'</button></div>'+
+      '<div class="console" id="con-'+x.id+'"></div></div></div>';
+    host.appendChild(c);
+    renderCode('code-'+x.id,x.code);
+    document.getElementById('run-'+x.id).addEventListener('click',()=>{
+      const o=mkOut();o.dim('$ java '+x.cls);
+      try{x.run(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+      paint('con-'+x.id,o);});
+    document.getElementById('run-'+x.id).click();
+  });
+  document.getElementById('labRunAll').addEventListener('click',()=>LAB.forEach(x=>document.getElementById('run-'+x.id).click()));
+})();
+
+renderCode('syn1',[
+'import java.util.*;',
+'',
+'List<String> l = new ArrayList<>();          // empty, capacity 10 on first add',
+'List<String> p = new ArrayList<>(1000);      // pre-sized — no growth copies',
+'List<String> c = new ArrayList<>(other);     // copy of another collection',
+'',
+'l.add("a");            l.add(0, "b");        // append / insert',
+'l.get(0);              l.set(0, "c");        // read / replace',
+'l.remove(0);           l.remove("a");        // by index / by value',
+'l.contains("a");       l.indexOf("a");       l.lastIndexOf("a");',
+'l.size();              l.isEmpty();          l.clear();',
+'l.addAll(other);       l.removeAll(other);   l.retainAll(other);',
+'l.subList(1, 3);       // a VIEW — changes write through',
+'l.toArray(new String[0]);'
+]);
+renderCode('syn2',[
+'LinkedList<String> q = new LinkedList<>();',
+'',
+'// as a List',
+'q.add("a");  q.add(1, "b");  q.get(0);  q.remove(0);',
+'',
+'// as a Deque / Queue — this is what it is FOR',
+'q.addFirst("x");   q.addLast("y");',
+'q.getFirst();      q.getLast();',
+'q.removeFirst();   q.removeLast();',
+'',
+'q.offer("z");      // addLast,  returns boolean',
+'q.poll();          // removeFirst, returns null if empty',
+'q.peek();          // getFirst,    returns null if empty',
+'',
+'q.push("s");       // addFirst — stack style',
+'q.pop();           // removeFirst',
+'// removeFirst() THROWS NoSuchElementException when empty; poll() returns null.'
+]);
+renderCode('syn3',[
+'// for-each — read only',
+'for (Gsec g : batch) g.validator();',
+'',
+'// Iterator — the only safe removal while walking',
+'Iterator<Gsec> it = batch.iterator();',
+'while (it.hasNext()) {',
+'    Gsec g = it.next();',
+'    if (g.getAge() < 18) it.remove();',
+'}',
+'',
+'// ListIterator — backwards, and set/add mid-walk',
+'ListIterator<Gsec> li = batch.listIterator();',
+'while (li.hasNext()) {',
+'    Gsec g = li.next();',
+'    if (g.getAge() < 18) li.set(replacement);',
+'}',
+'',
+'// Java 8',
+'batch.forEach(Gsec::validator);',
+'batch.removeIf(g -> g.getAge() < 18);'
+]);
+renderCode('syn4',[
+'Collections.sort(list);                       // natural order (Comparable)',
+'Collections.sort(list, comparator);           // custom order',
+'list.sort(Comparator.comparingInt(Gsec::getAge));',
+'',
+'Collections.reverse(list);',
+'Collections.shuffle(list);',
+'Collections.max(list);      Collections.min(list);',
+'Collections.frequency(list, "Java");',
+'Collections.swap(list, 0, 2);',
+'Collections.emptyList();',
+'',
+'List<String> ro = Collections.unmodifiableList(list);   // read-only VIEW',
+'List<String> sy = Collections.synchronizedList(list);   // locked wrapper',
+'',
+'int i = Collections.binarySearch(sortedList, key);      // list MUST be sorted'
+]);
+</script>
+</body>
+</html>

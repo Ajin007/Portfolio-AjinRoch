@@ -1,0 +1,2356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Multithreading — Thread Models, Life Cycle & Scheduler Simulator (Unit 5)</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(25px,3.3vw,38px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:900px;font-size:15px}
+
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="concept"]{background:var(--teal)}
+.tab-btn.active[data-tab="byte"]{background:var(--amber)}
+.tab-btn.active[data-tab="char"]{background:var(--blue)}
+.tab-btn.active[data-tab="file"]{background:var(--green)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+code{font-family:var(--mono);font-size:12.8px;color:var(--teal)}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:12.6px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}
+.tok-t{color:#7fd1c7}
+.tok-s{color:#a8d98b}
+.tok-c{color:#5b6390;font-style:italic}
+.tok-n{color:#f0b45f}
+.tok-m{color:#86a8f2}
+.tok-a{color:#e8a2c8}
+
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:130px}
+.stepbody code{background:var(--panel3);padding:1px 6px;border-radius:5px}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.run{background:var(--green);color:#0f1220;border-color:transparent}
+.btn.small{padding:6px 12px;font-size:12.5px}
+.btn.primary:hover:not(:disabled),.btn.run:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-teal{color:var(--teal);border-color:rgba(99,207,192,.4);background:rgba(99,207,192,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout.warn{background:rgba(240,180,95,.08);border-color:rgba(240,180,95,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)} .callout.warn b{color:var(--amber)}
+.callout p{color:var(--mut)}
+
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:13.5px}
+.demo select{cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:12.8px;margin-top:12px;min-height:70px;line-height:1.75;white-space:pre-wrap;overflow-x:auto}
+.console .prompt{color:var(--dim)} .console .out{color:var(--green)} .console .warn{color:var(--amber)}
+.console .fail{color:var(--red)} .console .info{color:var(--blue)} .console .hd{color:var(--pink);font-weight:700}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+.runbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin:12px 0 0}
+.runbar .note{font-family:var(--mono);font-size:11.5px;color:var(--dim)}
+
+/* byte / char strip */
+.strip{display:flex;flex-wrap:wrap;gap:5px;margin:12px 0 4px}
+.cell{min-width:44px;text-align:center;border:1px solid var(--line2);border-radius:8px;padding:5px 4px;
+  font-family:var(--mono);font-size:10.5px;background:var(--panel2);transition:all .18s}
+.cell .v{display:block;color:var(--amber);font-size:12.5px;font-weight:700}
+.cell .c{display:block;color:var(--mut)}
+.cell.done{opacity:.32}
+.cell.cur{border-color:var(--teal);background:rgba(99,207,192,.14);box-shadow:0 0 0 2px rgba(99,207,192,.22)}
+.cell.eofcell{border-style:dashed;border-color:var(--red)}
+.cell.eofcell .v{color:var(--red)}
+.cell.multi .v{color:var(--pink)}
+.striplabel{font-family:var(--mono);font-size:11.5px;color:var(--dim);letter-spacing:.1em;text-transform:uppercase}
+
+/* workflow pipeline */
+.pipe{display:flex;gap:0;flex-wrap:wrap;align-items:stretch;margin:6px 0 10px}
+.stage{flex:1 1 130px;min-width:130px;background:var(--panel2);border:1px solid var(--line2);border-radius:11px;
+  padding:11px 12px;cursor:pointer;transition:all .16s;text-align:left}
+.stage:hover{border-color:var(--teal);background:var(--panel3)}
+.stage.sel{border-color:var(--teal);background:rgba(99,207,192,.1);box-shadow:0 0 0 2px rgba(99,207,192,.2)}
+.stage .n{font-family:var(--mono);font-size:10.5px;color:var(--teal);letter-spacing:.14em}
+.stage .t{font-size:13.5px;font-weight:700;margin:3px 0 2px}
+.stage .m{font-family:var(--mono);font-size:10.8px;color:var(--dim);white-space:normal;word-break:break-word}
+.arrow{display:flex;align-items:center;color:var(--line2);font-size:18px;padding:0 6px}
+@media(max-width:760px){.arrow{display:none}.pipe{gap:8px}}
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:150px}
+.detail h3{font-family:var(--mono);font-size:16.5px;margin-bottom:8px}
+
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.3)}
+.node.sel rect{stroke-width:2.6}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--pink);color:#0f1220;border-color:transparent}
+.subtab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+td code{font-size:12.4px}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+
+/* ---------- multithreading additions ---------- */
+.tab-btn.active[data-tab="intro"]{background:var(--teal)}
+.tab-btn.active[data-tab="create"]{background:var(--amber)}
+.tab-btn.active[data-tab="life"]{background:var(--blue)}
+.tab-btn.active[data-tab="methods"]{background:var(--green)}
+.tab-btn.active[data-tab="sync"]{background:var(--red)}
+.tab-btn.active[data-tab="lab"]{background:var(--mauve)}
+.tab-btn.active[data-tab="out"]{background:var(--pink)}
+.tab-btn.active[data-tab="gsec"]{background:var(--ink)}
+
+.ctrl{display:flex;gap:16px;flex-wrap:wrap;align-items:flex-end;margin-bottom:6px}
+.ctrl .fld{display:flex;flex-direction:column;gap:4px}
+.ctrl label{font-size:12px;color:var(--dim);font-family:var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.ctrl input[type=range]{width:150px;accent-color:var(--teal)}
+.ctrl .val{font-family:var(--mono);font-size:12.5px;color:var(--teal)}
+.ctrl select,.ctrl input[type=number]{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:7px 10px;font-family:var(--mono);font-size:13px}
+.ctrl select:focus,.ctrl input:focus{outline:2px solid var(--teal);outline-offset:1px}
+
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0}
+.chip{display:flex;align-items:center;gap:7px;background:var(--panel2);border:1px solid var(--line2);
+  border-radius:999px;padding:5px 12px;font-family:var(--mono);font-size:11.5px;color:var(--mut)}
+.chip i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.chip b{color:var(--ink);font-weight:600}
+
+.ganttwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px 4px;overflow-x:auto}
+.gseg{transition:opacity .15s}
+.gseg:hover{opacity:.8}
+
+.tracetbl{width:100%;border-collapse:collapse;font-family:var(--mono);font-size:12px}
+.tracetbl th{padding:6px 8px;font-size:10.5px}
+.tracetbl td{padding:4px 8px;border-bottom:1px solid var(--line);white-space:nowrap;font-family:var(--mono)}
+.tracetbl td.t{color:var(--dim);width:56px}
+.tracetbl tr.lost td{background:rgba(232,121,138,.13)}
+.tracetbl tr.ok td{background:rgba(143,214,163,.09)}
+.scroller{max-height:340px;overflow-y:auto;border:1px solid var(--line);border-radius:10px}
+
+.statebox{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:10px 0}
+.sbox{background:var(--panel2);border:1px solid var(--line2);border-radius:11px;padding:10px 12px}
+.sbox .nm{font-family:var(--mono);font-size:12px;color:var(--ink);font-weight:700}
+.sbox .st{font-family:var(--mono);font-size:11px;margin-top:3px}
+.sbox .mt{font-family:var(--mono);font-size:10.5px;color:var(--dim);margin-top:4px}
+
+.twocol{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.twocol{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Unit 5 · Multithreading · Week 14 (25–31 Aug 2026) · CO5 · 4 hrs · 26 Aug is the Milad holiday</div>
+  <h1><span class="k">class</span> <span class="c">Thread</span> — models, life cycle &amp; a scheduler you can actually watch</h1>
+  <p class="sub">Multithreading is hard to teach because the interesting part — <strong>the interleaving</strong> — is invisible and different on every run. So this page carries a working <strong>thread scheduler</strong>: real generators, a virtual clock, real locks. Change the time slice, change the seed, and watch the same program produce different output. The race condition in tab ⑤ is not described to you; it happens.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="intro">① Introduction</button>
+  <button class="tab-btn" data-tab="create">② Creating Threads</button>
+  <button class="tab-btn" data-tab="life">③ Life Cycle</button>
+  <button class="tab-btn" data-tab="methods">④ Thread Methods</button>
+  <button class="tab-btn" data-tab="sync">⑤ Synchronization</button>
+  <button class="tab-btn" data-tab="lab">⑥ Lab Ex.11</button>
+  <button class="tab-btn" data-tab="gsec">⑦ Your Gsec Code</button>
+  <button class="tab-btn" data-tab="out">⑧ Output &amp; Cheatsheet</button>
+</nav>
+
+<main>
+<!-- ================= TAB 1 : INTRODUCTION ================= -->
+<section class="tab active" id="tab-intro">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Concept</span>
+    <h2>One program, several things happening at once</h2>
+    <p>A <strong>thread</strong> is a single path of execution inside a program. Every Java program already has one — the <code>main</code> thread — and multithreading simply means starting more of them so that independent work does not have to queue up behind a slow task.</p>
+    <div class="grid2">
+      <div>
+        <h3>Why bother</h3>
+        <ul>
+          <li><strong>Responsiveness.</strong> A file download no longer freezes the interface, because the download runs on its own thread.</li>
+          <li><strong>Utilisation.</strong> While one thread waits on disk or network, another gets the CPU instead of it sitting idle.</li>
+          <li><strong>Parallelism.</strong> On a multi-core machine, genuinely separate threads run at the same instant on different cores.</li>
+          <li><strong>Cheap.</strong> Threads share one memory space, so creating one costs far less than starting another process.</li>
+        </ul>
+      </div>
+      <div>
+        <h3>And the price you pay</h3>
+        <ul>
+          <li><strong>Shared memory is shared trouble.</strong> Two threads updating one variable can lose updates — tab ⑤ makes this happen for real.</li>
+          <li><strong>The order is not yours to choose.</strong> The JVM scheduler decides. The same program prints different output on different runs.</li>
+          <li><strong>New failure modes.</strong> Deadlock, starvation, and bugs that appear once in a thousand runs.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Process vs thread</h2>
+      <table>
+        <tr><th></th><th>Process</th><th>Thread</th></tr>
+        <tr><td>Memory</td><td>its own address space</td><td>shares the parent's heap</td></tr>
+        <tr><td>Creation cost</td><td>heavy</td><td>light</td></tr>
+        <tr><td>Communication</td><td>IPC — pipes, sockets, files</td><td>plain shared variables</td></tr>
+        <tr><td>A crash</td><td>does not touch other processes</td><td>can take the whole program down</td></tr>
+        <tr><td>Switching</td><td>slow — full context swap</td><td>fast — same address space</td></tr>
+        <tr><td>Also called</td><td>heavyweight</td><td>lightweight process</td></tr>
+      </table>
+      <div class="callout tip">
+        <b>Concurrency ≠ parallelism</b>
+        <p><strong>Concurrency</strong> is dealing with many tasks by interleaving them — one core, rapid switching. <strong>Parallelism</strong> is doing many tasks at the same instant on several cores. Java gives you threads; the JVM and the OS decide which of the two you actually get.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>The main thread already exists</h2>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;MainThread.java</div><div class="codebody" id="code-mainth"></div></div>
+      <div class="console" style="min-height:0;margin-top:12px"><span class="prompt">$ java MainThread</span>
+<span class="out">name     : main</span>
+<span class="out">priority : 5</span>
+<span class="out">group    : main</span>
+<span class="out">alive    : true</span>
+<span class="out">renamed  : GSEC-main</span></div>
+      <p style="margin-top:10px">Every thread you create is a child of this one. <code>Thread.currentThread()</code> works anywhere and always returns whichever thread is executing that line — a useful trick for printing who is doing what.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Sequential vs threaded — the same three tasks</h2>
+    <p>Three tasks that each spend most of their time waiting. Run both models and compare the finishing time on the timeline.</p>
+    <div id="panel-intro"></div>
+  </div>
+</section>
+
+<!-- ================= TAB 2 : CREATING THREADS ================= -->
+<section class="tab" id="tab-create">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">Creating threads</span>
+    <h2>Two routes to the same thread</h2>
+    <p>Java gives you a class to <strong>extend</strong> and an interface to <strong>implement</strong>. Both end up calling <code>Thread.start()</code>, which asks the JVM for a new call stack and then invokes your <code>run()</code> on it.</p>
+  </div>
+
+  <div class="grid2">
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;Way 1 — extends Thread</div><div class="codebody" id="code-extend"></div></div>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;Way 2 — implements Runnable</div><div class="codebody" id="code-runnable"></div></div>
+  </div>
+
+  <div class="lab" style="margin-top:18px">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;ThreadCreation.java — the full picture</div>
+      <div class="codebody" id="code-create"></div>
+    </div>
+    <div class="steppanel" id="step-create"></div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>Run it — and run it again</h2>
+    <p>Three threads counting to three. Change the seed and the output order changes, exactly as it does on a real JVM. Change the time slice and watch the interleaving get coarser.</p>
+    <div id="panel-create"></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2><code>start()</code> vs <code>run()</code> — the question that ends most vivas</h2>
+      <p>Calling <code>run()</code> directly is legal Java. It just is not multithreading: it is an ordinary method call on the current thread.</p>
+      <div id="panel-startrun"></div>
+    </div>
+    <div class="card">
+      <h2>Which one should you use?</h2>
+      <table>
+        <tr><th></th><th>extends Thread</th><th>implements Runnable</th></tr>
+        <tr><td>Inheritance slot</td><td><span class="pill p-red">used up</span> — you cannot extend anything else</td><td><span class="pill p-green">free</span> — extend whatever you like</td></tr>
+        <tr><td>Design</td><td>the task <em>is</em> a thread</td><td>the task is <em>given to</em> a thread</td></tr>
+        <tr><td>Sharing one task object</td><td>awkward</td><td>natural — pass one Runnable to many Threads</td></tr>
+        <tr><td>Thread pools / executors</td><td>not accepted</td><td>accepted directly</td></tr>
+        <tr><td>Lambda form</td><td>impossible</td><td><code>new Thread(() -&gt; ...)</code></td></tr>
+      </table>
+      <div class="callout ok">
+        <b>✓ Prefer Runnable</b>
+        <p>Extend <code>Thread</code> only when you genuinely need to override thread behaviour itself. Otherwise <code>Runnable</code> keeps <em>what to do</em> separate from <em>who does it</em> — and it is the form every modern API expects.</p>
+      </div>
+      <h3>Two more things the compiler will not let you do</h3>
+      <ul>
+        <li><strong><code>start()</code> twice on one object</strong> → <code>IllegalThreadStateException</code> at runtime. A dead thread cannot be restarted; create a new one.</li>
+        <li><strong><code>run()</code> cannot declare checked exceptions</strong> — the interface method does not, so an override cannot widen it. Catch inside, or wrap in a RuntimeException.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 3 : LIFE CYCLE ================= -->
+<section class="tab" id="tab-life">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">Life cycle</span>
+    <h2>Five states, and the exact method that moves you between them</h2>
+    <p>Java's <code>Thread.State</code> enum has six constants. Click any state below for what it means, how you get in, and how you get out. The dashed arrow is the one you do not control — <strong>the scheduler alone</strong> decides when a RUNNABLE thread actually gets the CPU.</p>
+    <div class="svgwrap"><svg id="lifeSvg" viewBox="0 0 1080 470" width="1080" height="470" role="img" aria-label="thread life cycle state diagram"></svg></div>
+    <div class="legend">
+      <span><i style="background:#6d76a0"></i>NEW</span>
+      <span><i style="background:#86a8f2"></i>RUNNABLE</span>
+      <span><i style="background:#8fd6a3"></i>RUNNING (inside RUNNABLE for getState)</span>
+      <span><i style="background:#f0b45f"></i>TIMED_WAITING</span>
+      <span><i style="background:#b79cf0"></i>WAITING</span>
+      <span><i style="background:#e8798a"></i>BLOCKED</span>
+      <span><i style="background:#3a4170"></i>TERMINATED</span>
+    </div>
+    <div class="detail" id="lifeDetail" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>Watch three threads move through the states</h2>
+    <p>This program starts three threads that sleep, compete for one lock, and finish. Drag the scrubber to move through virtual time and see every thread's state at that instant, mapped onto the diagram above.</p>
+    <div id="panel-life"></div>
+  </div>
+
+  <div class="card">
+    <h2>What <code>getState()</code> actually returns</h2>
+    <table>
+      <tr><th>Constant</th><th>Meaning</th><th>Entered by</th><th>Left by</th></tr>
+      <tr><td>NEW</td><td>object created, <code>start()</code> not yet called</td><td><code>new MyThread()</code></td><td><code>start()</code></td></tr>
+      <tr><td>RUNNABLE</td><td>eligible to run — either running now or waiting for a core</td><td><code>start()</code>, waking up, lock acquired</td><td>run() returns, or a blocking call</td></tr>
+      <tr><td>BLOCKED</td><td>waiting to enter a <code>synchronized</code> region someone else holds</td><td>hitting a held monitor</td><td>the owner releases the monitor</td></tr>
+      <tr><td>WAITING</td><td>waiting indefinitely for another thread</td><td><code>wait()</code>, <code>join()</code></td><td><code>notify()</code>, <code>notifyAll()</code>, target dies</td></tr>
+      <tr><td>TIMED_WAITING</td><td>waiting with a deadline</td><td><code>sleep(n)</code>, <code>join(n)</code>, <code>wait(n)</code></td><td>timeout expires, or interrupt</td></tr>
+      <tr><td>TERMINATED</td><td>run() finished or threw</td><td>normal return / uncaught exception</td><td>nothing — this state is final</td></tr>
+    </table>
+    <div class="callout warn">
+      <b>There is no RUNNING constant</b>
+      <p>Textbooks draw RUNNING as a separate state, and it is useful for teaching. The JVM does not expose it: a thread that is executing right now still reports <code>RUNNABLE</code>. Draw it in your diagram, but say in the viva that <code>getState()</code> never returns it.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 4 : THREAD METHODS ================= -->
+<section class="tab" id="tab-methods">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">Thread methods</span>
+    <h2>The five you will be asked about, and the four worth knowing</h2>
+    <table>
+      <tr><th>Method</th><th>Belongs to</th><th>What it does</th></tr>
+      <tr><td>start()</td><td>instance</td><td>asks the JVM for a new stack, then calls <code>run()</code> on it. Once per object.</td></tr>
+      <tr><td>run()</td><td>instance</td><td>the body of the task. Calling it yourself does <strong>not</strong> create a thread.</td></tr>
+      <tr><td>sleep(ms)</td><td><strong>static</strong></td><td>pauses the <em>current</em> thread for at least that long. <strong>Keeps any lock it holds.</strong> Throws InterruptedException.</td></tr>
+      <tr><td>join()</td><td>instance</td><td>the caller waits until that thread dies. <code>join(ms)</code> waits at most that long.</td></tr>
+      <tr><td>setPriority(n)</td><td>instance</td><td>a <strong>hint</strong> from 1 to 10. MIN_PRIORITY 1, NORM_PRIORITY 5, MAX_PRIORITY 10.</td></tr>
+      <tr><td>yield()</td><td><strong>static</strong></td><td>suggests the scheduler give someone else a turn. Just a hint — may do nothing.</td></tr>
+      <tr><td>isAlive()</td><td>instance</td><td>true after start() and before the thread dies.</td></tr>
+      <tr><td>interrupt()</td><td>instance</td><td>sets a flag; a sleeping or waiting thread wakes with <code>InterruptedException</code>.</td></tr>
+      <tr><td>setDaemon(true)</td><td>instance</td><td>marks a background thread — the JVM exits without waiting for it. Must be set before start().</td></tr>
+      <tr><td>currentThread()</td><td><strong>static</strong></td><td>the thread executing this line, whichever it is.</td></tr>
+    </table>
+    <div class="callout bug">
+      <b>⛔ sleep() does not release the lock</b>
+      <p>This is the single most-asked comparison. <code>Thread.sleep()</code> pauses the thread but <strong>keeps every monitor it holds</strong>, so anyone waiting on that lock stays BLOCKED. <code>wait()</code> is the opposite: it <strong>releases</strong> the monitor so another thread can make progress. Sleeping inside a <code>synchronized</code> block is therefore an easy way to strangle your own program.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>sleep() — staggering the output</h2>
+    <p>Three threads with different sleep intervals. The interleaving is no longer up to the scheduler alone; the sleep durations shape it.</p>
+    <div id="panel-sleep"></div>
+  </div>
+
+  <div class="card">
+    <h2>join() — the only way to guarantee an order</h2>
+    <p>Without <code>join()</code> the main thread races ahead and prints its summary before the workers finish. With it, main waits. Toggle the checkbox and compare.</p>
+    <div id="panel-join"></div>
+  </div>
+
+  <div class="card">
+    <h2>setPriority() — a hint, not a promise</h2>
+    <p>Three threads with priorities 1, 5 and 10, doing identical work. The panel counts how many CPU slices each one actually received.</p>
+    <div id="panel-prio"></div>
+    <div class="callout warn">
+      <b>Do not build logic on priority</b>
+      <p>The JVM maps Java priorities onto whatever the host OS offers, and some platforms collapse them entirely. A priority-10 thread may still finish last. Priority tunes performance; it never establishes correctness. If you need an order, use <code>join()</code> or a lock.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 5 : SYNCHRONIZATION ================= -->
+<section class="tab" id="tab-sync">
+  <div class="card">
+    <span class="tagline" style="color:var(--red);border-color:rgba(232,121,138,.4)">Synchronization</span>
+    <h2><code>count++</code> is three operations, and that is the whole problem</h2>
+    <p>What looks like one statement compiles to <strong>read the value → add one → write it back</strong>. If a second thread reads between your read and your write, both threads write the same number and one increment vanishes. This is a <strong>race condition</strong>, and the region of code where it can happen is the <strong>critical section</strong>.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;why count++ is not atomic</div><div class="codebody" id="code-atomic"></div></div>
+  </div>
+
+  <div class="card">
+    <h2>The race, actually happening</h2>
+    <p>Two threads, five increments each, so the correct answer is 10. Run it. The trace marks every <span style="color:var(--red)">lost update</span> — a write that stored a value another thread had already stored.</p>
+    <div id="panel-race"></div>
+  </div>
+
+  <div class="card">
+    <h2>The fix — one monitor, one thread at a time</h2>
+    <p>Every Java object owns a hidden <strong>monitor</strong>. <code>synchronized</code> makes a thread acquire it before entering and release it on the way out — including when an exception is thrown. Anyone else arriving meanwhile goes <span style="color:var(--red)">BLOCKED</span>.</p>
+    <div id="panel-fixed"></div>
+    <div class="grid2" style="margin-top:16px">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;three ways to synchronize</div><div class="codebody" id="code-sync3"></div></div>
+      <div>
+        <table>
+          <tr><th>Form</th><th>Lock taken</th></tr>
+          <tr><td>synchronized method</td><td><code>this</code> — the whole object</td></tr>
+          <tr><td>synchronized static method</td><td><code>ClassName.class</code> — one lock for all instances</td></tr>
+          <tr><td>synchronized(obj) { }</td><td>whatever object you name — the finest control</td></tr>
+        </table>
+        <div class="callout tip">
+          <b>Prefer the narrowest block</b>
+          <p>A <code>synchronized</code> method locks for its entire duration. If only three lines touch shared state, wrap only those three in a block — everything else keeps running in parallel. Locking too much turns a multithreaded program back into a sequential one.</p>
+        </div>
+        <div class="callout warn">
+          <b>Two objects, two locks</b>
+          <p>A <code>synchronized</code> instance method protects <em>that instance</em>. Two threads working on two different objects never contend — which is correct, and also why a shared counter must live in <strong>one</strong> shared object.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Deadlock — both polite, both stuck</h2>
+      <p>T1 takes lock A then wants B. T2 takes B then wants A. Neither will let go. The simulator detects the moment every thread is BLOCKED and nothing can ever proceed.</p>
+      <div id="panel-deadlock"></div>
+      <div class="callout ok">
+        <b>✓ The standard cure: lock ordering</b>
+        <p>Make every thread acquire locks in the <strong>same global order</strong> — always A before B. Then a cycle cannot form. Other options: a single coarser lock, or <code>tryLock()</code> with a timeout from <code>java.util.concurrent.locks</code>.</p>
+      </div>
+    </div>
+    <div class="card">
+      <h2>wait() / notify() — the producer &amp; consumer</h2>
+      <p>Locks stop threads colliding; they do not let threads <em>wait for a condition</em>. That is what <code>wait()</code> and <code>notify()</code> add. A buffer holding one item forces strict alternation.</p>
+      <div id="panel-pc"></div>
+      <div class="callout bug">
+        <b>⛔ Three rules that are always tested</b>
+        <p>1 · <code>wait()</code>, <code>notify()</code>, <code>notifyAll()</code> belong to <strong>Object</strong>, not Thread. 2 · They may only be called while <strong>holding that object's monitor</strong> — otherwise <code>IllegalMonitorStateException</code>. 3 · Always wait in a <code>while</code> loop, never an <code>if</code>: a woken thread must re-check the condition, because another thread may have consumed it first.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 6 : LAB EX 11 ================= -->
+<section class="tab" id="tab-lab">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Lab Exercise 11</span>
+    <h2>Multithreading — five programs, each with a real scheduler run</h2>
+    <p>Every exercise below is complete and compilable. Press <strong>Run</strong> and the scheduler executes it; press it again with a different seed and the interleaved ones genuinely change, exactly as they would on a lab machine.</p>
+    <div class="runbar">
+      <button class="btn primary" id="labRunAll">▶ Run all five</button>
+      <span class="note">Ex 11.4 will differ run to run — that is the point of it</span>
+    </div>
+  </div>
+  <div id="labHost"></div>
+</section>
+
+<!-- ================= TAB : YOUR GSEC CODE × THREADS ================= -->
+<section class="tab" id="tab-gsec">
+  <div class="card">
+    <span class="tagline" style="color:var(--ink);border-color:var(--line2)">Your code</span>
+    <h2>Your <code>Gsec</code> class is not thread-safe — here is the proof</h2>
+    <p>Single-threaded, <code>setAge(17)</code> then <code>validator()</code> is obviously correct. Share one <code>Gsec</code> object between threads and those two lines become <strong>a write and a read with a gap in between</strong> — and another thread can change <code>age</code> inside that gap. Your <code>private</code> field and your getter do not help: encapsulation protects against <em>bad callers</em>, never against <em>bad timing</em>.</p>
+  </div>
+
+  <div class="twocol">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — your original</div>
+      <div class="codebody" id="code-gsec"></div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ The unsafe pair</b>
+        <p><code>setAge(age)</code> writes the field. <code>validator()</code> reads it back. Between those two calls the scheduler can suspend your thread and let another one run <code>setAge()</code> on the <strong>same object</strong>. Your thread then validates somebody else's age — and either misses a real under-18 case or accuses an adult.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 Three fixes, in order of preference</b>
+        <ul style="margin:6px 0 0 18px">
+          <li><strong>Do not share.</strong> One <code>Gsec</code> per thread — no lock, no contention, no bug.</li>
+          <li><strong>Make the pair atomic.</strong> A <code>synchronized</code> block around set-then-validate.</li>
+          <li><strong>Make the object immutable.</strong> Set age in the constructor only, drop <code>setAge</code>, and the race cannot exist.</li>
+        </ul>
+      </div>
+      <div class="callout warn">
+        <b>Note on the Main bug</b>
+        <p><code>new Gsec()</code> still does not compile — the no-arg constructor is commented out and your 4-arg one removed the default. Every program below uses <code>new Gsec("Sreekanth","Dell",17,101)</code>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:18px">
+    <h2>① Three threads, one shared <code>scoldavinas</code></h2>
+    <p>Each thread sets its own age on the shared object and then calls <code>validator()</code>. Run it and read the last column: <strong>saw</strong> is what <code>validator()</code> actually read.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;GsecRace.java</div><div class="codebody" id="code-gr1"></div></div>
+    <div id="panel-gsec-race" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>② The same program with the pair made atomic</h2>
+    <p>One <code>synchronized</code> block around set-then-validate. Every thread now validates the age it set, for every seed.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;GsecSynchronized.java</div><div class="codebody" id="code-gr2"></div></div>
+    <div id="panel-gsec-sync" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>③ The better fix — stop sharing the object</h2>
+    <p>Give each thread its own <code>Gsec</code>, built with your 4-arg constructor. No shared field, so no lock is needed and nothing ever blocks.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;GsecPerThread.java</div><div class="codebody" id="code-gr3"></div></div>
+    <div id="panel-gsec-own" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>④ Validating a batch in parallel, then counting the results</h2>
+    <p>Four students, one thread each — safe, because each thread owns its object. But they all increment <strong>one shared counter</strong> of under-18 students, and that counter is <code>count++</code> all over again. <code>main</code> uses <code>join()</code> before reading the total.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;GsecBatchValidator.java</div><div class="codebody" id="code-gr4"></div></div>
+    <div id="panel-gsec-batch" style="margin-top:14px"></div>
+  </div>
+
+  <div class="card">
+    <h2>⑤ Unit 4 meets Unit 5 — loading <code>gsec.txt</code> on a background thread</h2>
+    <p>Reading a file is slow, so it goes on its own thread while <code>main</code> stays responsive. Then <code>join()</code> makes main wait for the records before validating them. Scrub the timeline: the loader sits in <code>TIMED_WAITING</code> during the read and <code>main</code> sits in <code>WAITING</code> inside <code>join()</code>.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;GsecLoader.java</div><div class="codebody" id="code-gr5"></div></div>
+    <div id="panel-gsec-loader" style="margin-top:14px"></div>
+  </div>
+</section>
+
+<!-- ================= TAB 8 : OUTPUT & CHEATSHEET ================= -->
+<section class="tab" id="tab-out">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Simulated output</span>
+    <h2>Each topic's program and its output, separately</h2>
+    <p>Run every topic in order with one seed, then change the seed and run again — the deterministic programs stay identical and the racy ones move. Telling those two groups apart is the real skill this unit teaches.</p>
+    <div class="ctrl" style="margin-top:12px">
+      <div class="fld"><label for="allSeed">seed</label><input type="number" id="allSeed" value="11" min="1" max="999" style="width:90px"></div>
+      <button class="btn primary" id="outRunAll">↻ Run every topic</button>
+      <span class="note" id="outStamp"></span>
+    </div>
+  </div>
+  <div class="subtabs">
+    <button class="subtab-btn active" data-sub="bytopic">🖥 Output by topic</button>
+    <button class="subtab-btn" data-sub="syntax">📐 Syntax toolkit</button>
+    <button class="subtab-btn" data-sub="traps">⚠ Traps &amp; viva points</button>
+  </div>
+
+  <div class="subview active" id="sub-bytopic"><div id="outHost"></div></div>
+
+  <div class="subview" id="sub-syntax">
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;creating threads — every form</div><div class="codebody" id="syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;sleep · join · priority · daemon</div><div class="codebody" id="syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;synchronization — all three forms</div><div class="codebody" id="syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;wait / notify — the safe skeleton</div><div class="codebody" id="syn4"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;modern alternatives — mention these for the extra mark</div><div class="codebody" id="syn5"></div></div>
+      <div class="card" style="margin:0">
+        <h2>Quick answers</h2>
+        <ul>
+          <li><strong>sleep vs wait</strong> — sleep is static and <em>keeps</em> the lock; wait is on Object and <em>releases</em> it.</li>
+          <li><strong>start vs run</strong> — start creates a new stack; run is an ordinary call on the current thread.</li>
+          <li><strong>notify vs notifyAll</strong> — one arbitrary waiter vs every waiter; prefer notifyAll unless you can prove one is enough.</li>
+          <li><strong>synchronized vs volatile</strong> — volatile guarantees <em>visibility</em> of a variable, not <em>atomicity</em> of an update; <code>count++</code> stays broken with volatile alone.</li>
+          <li><strong>Why is Runnable preferred?</strong> It leaves the inheritance slot free and works with thread pools.</li>
+          <li><strong>Can a thread be restarted?</strong> No — a second <code>start()</code> throws <code>IllegalThreadStateException</code>.</li>
+          <li><strong>What is a daemon thread?</strong> A background thread the JVM will not wait for on exit.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="subview" id="sub-traps">
+    <div class="card">
+      <h2>The ten things that actually cost marks</h2>
+      <table>
+        <tr><th>#</th><th>Trap</th><th>What happens</th></tr>
+        <tr><td>1</td><td>Calling <code>t.run()</code> instead of <code>t.start()</code></td><td>Compiles, runs, prints in perfect order — and creates no thread at all. Output shows <code>main</code> doing the work.</td></tr>
+        <tr><td>2</td><td><code>start()</code> called twice</td><td><code>IllegalThreadStateException</code> at runtime.</td></tr>
+        <tr><td>3</td><td>Expecting a fixed output order</td><td>There isn't one. Any answer that claims a guaranteed order without <code>join()</code> is wrong.</td></tr>
+        <tr><td>4</td><td>Assuming <code>count++</code> is atomic</td><td>Three bytecodes. Lost updates, and the total is short.</td></tr>
+        <tr><td>5</td><td><code>volatile</code> used to fix a counter</td><td>Fixes visibility, not atomicity. Still loses updates.</td></tr>
+        <tr><td>6</td><td>Sleeping inside a synchronized block</td><td>The lock is held throughout — everyone else stays BLOCKED for the whole nap.</td></tr>
+        <tr><td>7</td><td><code>wait()</code> outside synchronized</td><td><code>IllegalMonitorStateException</code>.</td></tr>
+        <tr><td>8</td><td><code>if</code> instead of <code>while</code> around <code>wait()</code></td><td>Spurious wakeups and stolen conditions slip through.</td></tr>
+        <tr><td>9</td><td>Locks acquired in different orders</td><td>Deadlock — everything stops, no exception, no message.</td></tr>
+        <tr><td>10</td><td><code>setDaemon(true)</code> after <code>start()</code></td><td><code>IllegalThreadStateException</code>. It must be set first.</td></tr>
+      </table>
+    </div>
+  </div>
+</section>
+</main>
+<footer>Java Multithreading Lab · single file · fully offline · real scheduler, real locks, seeded interleaving</footer>
+<script>
+/* ============================================================
+   the scheduler — a tiny, deterministic-per-seed JVM thread model
+   ============================================================ */
+function mulberry32(a){return function(){a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);
+  t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const S_NEW='NEW',S_RUNNABLE='RUNNABLE',S_RUNNING='RUNNING',S_TIMED='TIMED_WAITING',
+      S_BLOCKED='BLOCKED',S_WAIT='WAITING',S_DEAD='TERMINATED';
+const STATE_COLOR={NEW:'#6d76a0',RUNNABLE:'#86a8f2',RUNNING:'#8fd6a3',TIMED_WAITING:'#f0b45f',
+                  BLOCKED:'#e8798a',WAITING:'#b79cf0',TERMINATED:'#3a4170'};
+const TH_COLORS=['#63cfc0','#f0b45f','#86a8f2','#e8a2c8','#8fd6a3','#b79cf0'];
+
+function Sim(cfg){
+  cfg=cfg||{};
+  this.seedVal=cfg.seed===undefined?7:cfg.seed;
+  this.rng=mulberry32(this.seedVal*2654435761%2147483647||1);
+  this.quantum=cfg.quantum||1;
+  this.policy=cfg.policy||'random';
+  this.time=0; this.threads=[]; this.byName={}; this.locks={}; this.waitsets={};
+  this.vars={}; this.out=[]; this.trace=[]; this.segs=[]; this.rr=0;
+  this.deadlock=false; this.steps=0; this.switches=0; this.last=null;
+}
+Sim.prototype.spawn=function(name,genFn,opts){
+  opts=opts||{};
+  const th={id:this.threads.length,name:name,prio:opts.prio||5,gen:null,genFn:genFn,
+    state:S_NEW,wake:0,pending:undefined,inbox:undefined,joinOn:null,lockWant:null,
+    daemon:!!opts.daemon,color:opts.color||TH_COLORS[this.threads.length%TH_COLORS.length],
+    segFrom:0,slices:0,interrupted:false};
+  th.gen=genFn(this,th);
+  this.threads.push(th); this.byName[name]=th;
+  if(opts.auto)this.setState(th,S_RUNNABLE);
+  return th;
+};
+Sim.prototype.setState=function(th,s){
+  if(th.state===s)return;
+  this.segs.push({name:th.name,state:th.state,from:th.segFrom,to:this.time,color:th.color});
+  th.segFrom=this.time; th.state=s;
+};
+Sim.prototype.log=function(th,text,kind){
+  this.out.push({t:this.time,name:th?th.name:'—',text:text,kind:kind||'out',color:th?th.color:'#9aa3c7'});
+};
+Sim.prototype.ev=function(th,text){this.trace.push({t:this.time,name:th?th.name:'—',text:text,color:th?th.color:'#9aa3c7'});};
+Sim.prototype.runnable=function(){return this.threads.filter(t=>t.state===S_RUNNABLE);};
+Sim.prototype.pick=function(c){
+  if(this.policy==='round-robin'){
+    c.sort((a,b)=>a.id-b.id);
+    for(let k=0;k<c.length;k++){const t=c[(this.rr+k)%c.length];if(t){this.rr=(this.rr+k+1)%Math.max(1,c.length);return t;}}
+    return c[0];
+  }
+  if(this.policy==='priority'){
+    const max=Math.max(...c.map(t=>t.prio));
+    const top=c.filter(t=>t.prio===max);
+    return top[Math.floor(this.rng()*top.length)%top.length];
+  }
+  const w=c.map(t=>1+ (this.policy==='priority-hint'?t.prio*0.6:0));
+  const sum=w.reduce((a,b)=>a+b,0); let r=this.rng()*sum;
+  for(let i=0;i<c.length;i++){r-=w[i];if(r<=0)return c[i];}
+  return c[c.length-1];
+};
+Sim.prototype.wakeJoiners=function(dead){
+  this.threads.forEach(t=>{if(t.state===S_WAIT&&t.joinOn===dead.name){t.joinOn=null;this.setState(t,S_RUNNABLE);}});
+};
+Sim.prototype.releaseLock=function(name){
+  delete this.locks[name];
+  this.threads.forEach(t=>{if(t.state===S_BLOCKED&&t.lockWant===name)this.setState(t,S_RUNNABLE);});
+};
+Sim.prototype.step=function(th){
+  let op=th.pending;
+  if(op===undefined){
+    let r;
+    try{r=th.gen.next(th.inbox);}catch(e){this.log(th,'Exception: '+e.message,'fail');this.setState(th,S_DEAD);this.wakeJoiners(th);return false;}
+    th.inbox=undefined;
+    if(r.done){this.setState(th,S_DEAD);this.ev(th,'run() returned → TERMINATED');this.wakeJoiners(th);return false;}
+    op=r.value;
+  }
+  th.pending=undefined;
+  if(op.print!==undefined){this.log(th,op.print,op.kind);return true;}
+  if(op.note!==undefined){this.ev(th,op.note);return true;}
+  if(op.work!==undefined){return true;}
+  if(op.sleep!==undefined){
+    th.wake=this.time+op.sleep;this.setState(th,S_TIMED);
+    this.ev(th,'sleep('+op.sleep+') → TIMED_WAITING until t='+th.wake);return false;
+  }
+  if(op.yield){this.setState(th,S_RUNNABLE);this.ev(th,'yield() → back to RUNNABLE');return false;}
+  if(op.start!==undefined){
+    const t=this.byName[op.start];
+    if(t&&t.state===S_NEW){this.setState(t,S_RUNNABLE);this.ev(t,'start() called → NEW becomes RUNNABLE');}
+    return true;
+  }
+  if(op.prio!==undefined){
+    const t=this.byName[op.prio[0]];if(t){t.prio=op.prio[1];this.ev(t,'setPriority('+op.prio[1]+')');}
+    return true;
+  }
+  if(op.join!==undefined){
+    const t=this.byName[op.join];
+    if(!t||t.state===S_DEAD){this.ev(th,'join('+op.join+') returned — target already TERMINATED');return true;}
+    th.pending=op;th.joinOn=op.join;this.setState(th,S_WAIT);
+    this.ev(th,'join() on '+op.join+' → WAITING');return false;
+  }
+  if(op.lock!==undefined){
+    const owner=this.locks[op.lock];
+    if(owner===undefined||owner===th.name){
+      this.locks[op.lock]=th.name;th.lockWant=null;
+      if(!op.silent)this.ev(th,'acquired monitor on '+op.lock);
+      return true;
+    }
+    th.pending=op;th.lockWant=op.lock;this.setState(th,S_BLOCKED);
+    this.ev(th,'monitor '+op.lock+' held by '+owner+' → BLOCKED');return false;
+  }
+  if(op.unlock!==undefined){
+    this.releaseLock(op.unlock);this.ev(th,'released monitor on '+op.unlock);return true;
+  }
+  if(op.read!==undefined){
+    th.inbox=this.vars[op.read];
+    this.ev(th,'read '+op.read+' → '+th.inbox);
+    if(op.tag)this.trace[this.trace.length-1].tag=op.tag;
+    return true;
+  }
+  if(op.write!==undefined){
+    this.vars[op.write[0]]=op.write[1];
+    this.ev(th,'write '+op.write[0]+' = '+op.write[1]);
+    if(op.tag)this.trace[this.trace.length-1].tag=op.tag;
+    return true;
+  }
+  if(op.wait!==undefined){
+    (this.waitsets[op.wait]=this.waitsets[op.wait]||[]).push(th.name);
+    this.releaseLock(op.wait);
+    this.setState(th,S_WAIT);
+    this.ev(th,'wait() → releases '+op.wait+', enters WAITING');
+    th.pending={lock:op.wait,silent:true};
+    return false;
+  }
+  if(op.notify!==undefined){
+    const ws=this.waitsets[op.notify]||[];
+    if(ws.length){
+      const nm=op.all?ws.splice(0,ws.length):[ws.shift()];
+      nm.forEach(n=>{const t=this.byName[n];if(t&&t.state===S_WAIT){this.setState(t,S_RUNNABLE);}});
+      this.ev(th,(op.all?'notifyAll()':'notify()')+' → woke '+nm.join(', '));
+    }else this.ev(th,(op.all?'notifyAll()':'notify()')+' → nobody waiting');
+    return true;
+  }
+  if(op.interrupt!==undefined){
+    const t=this.byName[op.interrupt];
+    if(t){t.interrupted=true;
+      if(t.state===S_TIMED||t.state===S_WAIT){this.setState(t,S_RUNNABLE);t.pending=undefined;t.inbox='INTERRUPTED';
+        this.ev(t,'interrupted while sleeping → InterruptedException');}
+      else this.ev(t,'interrupt flag set');}
+    return true;
+  }
+  return true;
+};
+Sim.prototype.run=function(maxSteps){
+  maxSteps=maxSteps||6000;
+  let guard=0;
+  while(this.steps<maxSteps&&guard++<60000){
+    let c=this.runnable();
+    if(!c.length){
+      const timed=this.threads.filter(t=>t.state===S_TIMED);
+      if(timed.length){
+        const w=Math.min.apply(null,timed.map(t=>t.wake));
+        if(w>this.time)this.time=w;
+        timed.forEach(t=>{if(t.wake<=this.time)this.setState(t,S_RUNNABLE);});
+        continue;
+      }
+      const stuck=this.threads.filter(t=>t.state===S_BLOCKED||t.state===S_WAIT);
+      const live=this.threads.filter(t=>t.state!==S_DEAD&&!t.daemon);
+      if(stuck.length&&stuck.length===live.length)this.deadlock=true;
+      break;
+    }
+    const th=this.pick(c);
+    if(this.last&&this.last!==th.name)this.switches++;
+    this.last=th.name;
+    this.setState(th,S_RUNNING); th.slices++;
+    for(let q=0;q<this.quantum;q++){
+      if(th.state!==S_RUNNING)break;
+      const cont=this.step(th);
+      this.steps++; this.time++;
+      if(!cont)break;
+    }
+    if(th.state===S_RUNNING)this.setState(th,S_RUNNABLE);
+  }
+  this.threads.forEach(t=>{this.segs.push({name:t.name,state:t.state,from:t.segFrom,to:this.time,color:t.color});});
+  return this;
+};
+Sim.prototype.text=function(){return this.out.map(o=>o.text).join('\n');};
+
+
+/* ---------- shared UI helpers ---------- */
+function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE=/(\/\/.*$)|("(?:[^"\\]|\\.)*")|('(?:[^'\\]|\\.)*')|(@\w+)|\b(abstract|boolean|break|byte|case|catch|char|class|continue|default|do|double|else|enum|extends|final|finally|float|for|if|implements|import|instanceof|int|interface|long|native|new|package|private|protected|public|return|short|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){
+  let out='',last=0,m; HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){
+    out+=esc(line.slice(last,m.index));
+    const cls=m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-s':m[4]?'tok-a':m[5]?'tok-k':m[6]?'tok-t':m[7]?'tok-n':'tok-m';
+    out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+    last=m.index+m[0].length;
+  }
+  return out+esc(line.slice(last));
+}
+function renderCode(id,lines,opts){
+  opts=opts||{}; const box=document.getElementById(id); if(!box)return;
+  box.innerHTML='';
+  lines.forEach((ln,i)=>{
+    const d=document.createElement('div'); d.className='cl'; d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1))d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';
+    box.appendChild(d);
+  });
+}
+function L(lines,sub){const i=lines.findIndex(l=>l.includes(sub));return i+1;}
+function R(lines,a,b){const s=L(lines,a),e=L(lines,b),r=[];for(let i=s;i<=e;i++)r.push(i);return r;}
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}
+}));
+document.querySelectorAll('.subtab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.subtab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.subview').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('sub-'+b.dataset.sub).classList.add('active');
+}));
+function makeStepper(codeId,panelId,steps){
+  const panel=document.getElementById(panelId); if(!panel)return;
+  let i=0;
+  function paint(){
+    const st=steps[i];
+    panel.innerHTML='<div class="stephead"><span class="stepcount">STEP '+(i+1)+' / '+steps.length+'</span></div>'+
+      '<div class="steptitle">'+st.t+'</div><div class="stepbody">'+st.d+'</div>'+
+      '<div class="stepnav"><button class="btn" id="'+panelId+'-prev">← Prev</button>'+
+      '<button class="btn primary" id="'+panelId+'-next">Next →</button></div>'+
+      '<div class="progress"><i style="width:'+((i+1)/steps.length*100)+'%"></i></div>';
+    const code=document.getElementById(codeId);
+    code.querySelectorAll('.cl').forEach(c=>{c.classList.remove('hl');c.classList.remove('err');});
+    (st.hl||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('hl');});
+    (st.err||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('err');});
+    const first=code.querySelector('.cl.hl')||code.querySelector('.cl.err');
+    if(first&&first.scrollIntoView)first.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const pv=document.getElementById(panelId+'-prev'),nx=document.getElementById(panelId+'-next');
+    pv.disabled=(i===0); nx.disabled=(i===steps.length-1);
+    pv.onclick=()=>{if(i>0){i--;paint();}};
+    nx.onclick=()=>{if(i<steps.length-1){i++;paint();}};
+  }
+  paint();
+}
+
+/* ============================================================
+   the reusable simulator panel
+   ============================================================ */
+function gantt(sim,svgId){
+  const svg=document.getElementById(svgId); if(!svg)return;
+  const NS='http://www.w3.org/2000/svg';
+  while(svg.firstChild)svg.removeChild(svg.firstChild);
+  const names=sim.threads.map(t=>t.name);
+  const rowH=28, padT=26, labelW=118, plotW=930;
+  const maxT=Math.max(1,sim.time);
+  const H=padT+names.length*rowH+30;
+  svg.setAttribute('viewBox','0 0 '+(labelW+plotW+16)+' '+H);
+  svg.setAttribute('height',H);
+  const x=t=>labelW+(t/maxT)*plotW;
+  function txt(X,Y,s,c,size,anchor,bold){
+    const e=document.createElementNS(NS,'text');
+    e.setAttribute('x',X);e.setAttribute('y',Y);e.setAttribute('fill',c);
+    e.setAttribute('font-size',size||11);if(anchor)e.setAttribute('text-anchor',anchor);
+    if(bold)e.setAttribute('font-weight','700');
+    e.textContent=s;svg.appendChild(e);return e;
+  }
+  const ticks=6;
+  for(let i=0;i<=ticks;i++){
+    const t=Math.round(maxT*i/ticks);
+    const l=document.createElementNS(NS,'line');
+    l.setAttribute('x1',x(t));l.setAttribute('y1',padT-8);l.setAttribute('x2',x(t));l.setAttribute('y2',H-24);
+    l.setAttribute('stroke','#2b3157');l.setAttribute('stroke-width','1');svg.appendChild(l);
+    txt(x(t),H-8,'t='+t,'#6d76a0',10,'middle');
+  }
+  names.forEach((n,i)=>{
+    const y=padT+i*rowH;
+    const th=sim.byName[n];
+    txt(8,y+16,n.length>15?n.slice(0,15)+'…':n,th.color,11,null,true);
+    const bg=document.createElementNS(NS,'rect');
+    bg.setAttribute('x',labelW);bg.setAttribute('y',y+3);bg.setAttribute('width',plotW);bg.setAttribute('height',20);
+    bg.setAttribute('fill','#131730');bg.setAttribute('rx',4);svg.appendChild(bg);
+  });
+  sim.segs.filter(s=>s.to>s.from).forEach(s=>{
+    const i=names.indexOf(s.name); if(i<0)return;
+    const y=padT+i*rowH;
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',x(s.from));r.setAttribute('y',y+3);
+    r.setAttribute('width',Math.max(1.5,x(s.to)-x(s.from)));r.setAttribute('height',20);
+    r.setAttribute('fill',STATE_COLOR[s.state]||'#3a4170');
+    r.setAttribute('fill-opacity',s.state==='RUNNING'?'0.95':'0.55');
+    r.setAttribute('rx',3);r.setAttribute('class','gseg');
+    const ti=document.createElementNS(NS,'title');
+    ti.textContent=s.name+' · '+s.state+' · t='+s.from+'→'+s.to;
+    r.appendChild(ti);svg.appendChild(r);
+  });
+  txt(8,14,'virtual time →','#6d76a0',10.5);
+}
+let PANEL_ID=0;
+function mkPanel(hostId,cfg){
+  const host=document.getElementById(hostId); if(!host)return null;
+  const uid='p'+(++PANEL_ID);
+  const ctrls=cfg.controls||['seed','quantum','policy'];
+  let ctrlHtml='<div class="ctrl">';
+  if(ctrls.includes('seed'))ctrlHtml+='<div class="fld"><label for="'+uid+'-seed">seed</label><input type="number" id="'+uid+'-seed" value="'+(cfg.seed||11)+'" min="1" max="999" style="width:84px"></div>';
+  if(ctrls.includes('quantum'))ctrlHtml+='<div class="fld"><label for="'+uid+'-q">time slice <span class="val" id="'+uid+'-qv">'+(cfg.quantum||1)+'</span></label><input type="range" id="'+uid+'-q" min="1" max="8" value="'+(cfg.quantum||1)+'"></div>';
+  if(ctrls.includes('policy'))ctrlHtml+='<div class="fld"><label for="'+uid+'-pol">scheduler</label><select id="'+uid+'-pol">'+
+    '<option value="random">unspecified (JVM-like)</option><option value="round-robin">strict round-robin</option>'+
+    '<option value="priority">strict priority</option></select></div>';
+  (cfg.extra||[]).forEach(x=>{
+    ctrlHtml+='<div class="fld"><label for="'+uid+'-'+x.id+'">'+x.label+'</label>'+
+      '<select id="'+uid+'-'+x.id+'">'+x.options.map(o=>'<option value="'+o[0]+'">'+o[1]+'</option>').join('')+'</select></div>';
+  });
+  ctrlHtml+='<button class="btn run" id="'+uid+'-run">▶ Run</button></div>';
+  host.innerHTML=ctrlHtml+
+    '<div class="chips" id="'+uid+'-chips"></div>'+
+    '<div class="console" id="'+uid+'-con"></div>'+
+    (cfg.showGantt===false?'':'<div class="striplabel" style="margin-top:14px">thread timeline — hover any block</div><div class="ganttwrap"><svg id="'+uid+'-g"></svg></div>'+
+      '<div class="legend"><span><i style="background:#8fd6a3"></i>RUNNING</span><span><i style="background:#86a8f2"></i>RUNNABLE</span>'+
+      '<span><i style="background:#f0b45f"></i>TIMED_WAITING</span><span><i style="background:#b79cf0"></i>WAITING</span>'+
+      '<span><i style="background:#e8798a"></i>BLOCKED</span><span><i style="background:#6d76a0"></i>NEW</span></div>')+
+    (cfg.showTrace?'<div class="striplabel" style="margin-top:14px" id="'+uid+'-tl">scheduler trace</div><div class="scroller"><table class="tracetbl" id="'+uid+'-tr"></table></div>':'')+
+    '<div id="'+uid+'-extra"></div>';
+  function get(id,d){const e=document.getElementById(uid+'-'+id);return e?e.value:d;}
+  function run(){
+    const sim=new Sim({seed:parseInt(get('seed',cfg.seed||11),10)||11,
+      quantum:parseInt(get('q',cfg.quantum||1),10)||1,
+      policy:get('pol',cfg.policy||'random')});
+    const opts={};(cfg.extra||[]).forEach(x=>{opts[x.id]=get(x.id,x.options[0][0]);});
+    cfg.build(sim,opts);
+    sim.run(cfg.maxSteps||6000);
+    const con=document.getElementById(uid+'-con');
+    let html='<span class="prompt">$ java '+(cfg.cls||'Demo')+'</span>\n';
+    html+=sim.out.map(o=>'<span style="color:'+(o.kind==='fail'?'#e8798a':o.kind==='info'?'#86a8f2':o.color)+'">'+esc(o.text)+'</span>').join('\n');
+    if(sim.deadlock)html+='\n<span class="fail">⛔ every thread is BLOCKED and none can proceed — DEADLOCK. The JVM would hang here forever, with no exception and no message.</span>';
+    if(cfg.after)html+='\n'+cfg.after(sim,opts);
+    con.innerHTML=html;
+    const chips=document.getElementById(uid+'-chips');
+    chips.innerHTML=sim.threads.map(t=>'<span class="chip"><i style="background:'+t.color+'"></i><b>'+esc(t.name)+'</b> prio '+t.prio+' · '+t.slices+' slices</span>').join('')+
+      '<span class="chip"><i style="background:#9aa3c7"></i>'+sim.steps+' instructions · '+sim.switches+' context switches · finished at t='+sim.time+'</span>';
+    if(cfg.showGantt!==false)gantt(sim,uid+'-g');
+    if(cfg.showTrace){
+      const tb=document.getElementById(uid+'-tr');
+      let rows='<tr><th>t</th><th>thread</th><th>event</th></tr>';
+      const marks=cfg.mark?cfg.mark(sim):{};
+      sim.trace.forEach((e,i)=>{
+        rows+='<tr class="'+(marks[i]||'')+'"><td class="t">'+e.t+'</td><td style="color:'+e.color+'">'+esc(e.name)+
+          '</td><td>'+esc(e.text)+(marks[i]==='lost'?'  ← lost update':'')+'</td></tr>';
+      });
+      tb.innerHTML=rows;
+    }
+    if(cfg.extraRender)document.getElementById(uid+'-extra').innerHTML=cfg.extraRender(sim,opts);
+    if(cfg.onRun)cfg.onRun(sim,uid,opts);
+    return sim;
+  }
+  const qs=document.getElementById(uid+'-q');
+  if(qs)qs.addEventListener('input',()=>{document.getElementById(uid+'-qv').textContent=qs.value;});
+  document.getElementById(uid+'-run').addEventListener('click',run);
+  run();
+  return {run:run,uid:uid};
+}
+</script>
+<script>
+/* ============================================================
+   TAB 1 · introduction
+   ============================================================ */
+renderCode('code-mainth',[
+'public class MainThread {',
+'    public static void main(String[] args) {',
+'        Thread t = Thread.currentThread();   // the thread running this line',
+'',
+'        System.out.println("name     : " + t.getName());',
+'        System.out.println("priority : " + t.getPriority());',
+'        System.out.println("group    : " + t.getThreadGroup().getName());',
+'        System.out.println("alive    : " + t.isAlive());',
+'',
+'        t.setName("GSEC-main");',
+'        System.out.println("renamed  : " + t.getName());',
+'    }',
+'}'
+]);
+function taskGen(label,ms){
+  return function*(sim,th){
+    yield{print:label+' started'};
+    yield{sleep:ms};
+    yield{print:label+' finished ('+ms+'ms of waiting)'};
+  };
+}
+mkPanel('panel-intro',{
+  cls:'DownloadDemo', seed:11, quantum:1, controls:['seed'],
+  extra:[{id:'mode',label:'model',options:[['threads','multithreaded — one thread per task'],['seq','single-threaded — one after another']]}],
+  build(sim,opts){
+    const jobs=[['Download report.pdf',6],['Download photo.jpg',4],['Download data.csv',5]];
+    if(opts.mode==='seq'){
+      sim.spawn('main',function*(sim,th){
+        yield{print:'main: doing all three in order'};
+        for(const[j,ms]of jobs){yield{print:j+' started'};yield{sleep:ms};yield{print:j+' finished ('+ms+'ms of waiting)'};}
+        yield{print:'main: all done'};
+      },{auto:true});
+    }else{
+      jobs.forEach((j,i)=>sim.spawn('worker-'+i,taskGen(j[0],j[1]),{auto:true}));
+      sim.spawn('main',function*(sim,th){yield{print:'main: three workers started, main is free'};},{auto:true});
+    }
+  },
+  after(sim,opts){
+    return '<span class="info">total elapsed : t='+sim.time+' '+(opts.mode==='seq'
+      ? '— every wait was served one after the other'
+      : '— the three waits overlapped, so the slowest task set the total')+'</span>';
+  }
+});
+
+/* ============================================================
+   TAB 2 · creating threads
+   ============================================================ */
+renderCode('code-extend',[
+'class Counter extends Thread {',
+'',
+'    Counter(String name) { super(name); }',
+'',
+'    @Override',
+'    public void run() {              // the body of the new thread',
+'        for (int i = 1; i <= 3; i++)',
+'            System.out.println(getName() + " : count " + i);',
+'    }',
+'}',
+'',
+'// starting it',
+'Counter c = new Counter("Thread-0");',
+'c.start();                           // NEW -> RUNNABLE'
+]);
+renderCode('code-runnable',[
+'class CounterTask implements Runnable {',
+'',
+'    @Override',
+'    public void run() {              // just a task — no thread here yet',
+'        String me = Thread.currentThread().getName();',
+'        for (int i = 1; i <= 3; i++)',
+'            System.out.println(me + " : count " + i);',
+'    }',
+'}',
+'',
+'// hand the task to a thread',
+'Thread t = new Thread(new CounterTask(), "Thread-0");',
+'t.start();',
+'',
+'// or, since Java 8, skip the class entirely',
+'new Thread(() -> System.out.println("from a lambda"), "Thread-9").start();'
+]);
+const SRC_CREATE=[
+'public class ThreadCreation {',
+'',
+'    static class Counter extends Thread {',
+'        Counter(String name) { super(name); }',
+'',
+'        @Override',
+'        public void run() {',
+'            for (int i = 1; i <= 3; i++) {',
+'                System.out.println(getName() + " : count " + i);',
+'            }',
+'        }',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'',
+'        Counter a = new Counter("Thread-0");',
+'        Counter b = new Counter("Thread-1");',
+'        Counter c = new Counter("Thread-2");',
+'',
+'        System.out.println("state before start : " + a.getState());',
+'',
+'        a.start();          // NEW -> RUNNABLE, a new call stack exists',
+'        b.start();',
+'        c.start();',
+'',
+'        System.out.println("state after start  : " + a.getState());',
+'        System.out.println("main is still running, it did not wait");',
+'',
+'        // a.start();       // second call -> IllegalThreadStateException',
+'        // a.run();         // legal, but runs on MAIN — no new thread',
+'    }',
+'}'
+];
+renderCode('code-create',SRC_CREATE);
+makeStepper('code-create','step-create',[
+ {t:'A thread class is just a class',hl:R(SRC_CREATE,'static class Counter','    }'),
+  d:'Extending <code>Thread</code> gives your class the whole thread machinery, and you override <strong>one</strong> method: <code>run()</code>. Everything inside <code>run()</code> is what the new thread will execute. Nothing here starts anything — this is a definition.'},
+ {t:'Constructing gives you NEW, not a running thread',hl:R(SRC_CREATE,'Counter a = new Counter','Counter c = new Counter'),
+  d:'Three objects now exist, each in state <code>NEW</code>. No stack has been allocated, no code is executing. A thread object in NEW is as inert as any other object — you could put it in a list and never start it.'},
+ {t:'start() is what asks the JVM for a thread',hl:R(SRC_CREATE,'a.start();','c.start();'),
+  d:'<code>start()</code> allocates a fresh call stack, registers the thread with the scheduler, moves it to <code>RUNNABLE</code>, and returns <strong>immediately</strong>. It does not wait for <code>run()</code> to finish — that is the entire point.'},
+ {t:'main does not wait',hl:R(SRC_CREATE,'state after start','main is still running'),
+  d:'These two lines can print <em>before, between or after</em> the counting output. There are now four threads competing: main plus three counters. If your answer sheet claims a fixed order here, it is wrong — unless you add <code>join()</code>.'},
+ {t:'start() twice is a runtime error',err:[L(SRC_CREATE,'// a.start();')],
+  d:'A thread that has already been started — even one that has already died — cannot be started again. The second call throws <code>IllegalThreadStateException</code>. Threads are not reusable objects; if you need the work done twice, create a second thread (or use a thread pool).'},
+ {t:'run() is the trap',err:[L(SRC_CREATE,'// a.run();')],
+  d:'Calling <code>a.run()</code> compiles and executes the body — <strong>on the main thread</strong>, as an ordinary method call. No new stack, no concurrency, and the output comes out in perfect order with <code>main</code> as the thread name. Examiners love this one; the panel below runs both versions side by side.'}
+]);
+function counterGen(label){
+  return function*(sim,th){for(let i=1;i<=3;i++){yield{print:label+' : count '+i};}};
+}
+mkPanel('panel-create',{
+  cls:'ThreadCreation', seed:11, quantum:1,
+  build(sim){
+    ['Thread-0','Thread-1','Thread-2'].forEach(n=>sim.spawn(n,counterGen(n)));
+    sim.spawn('main',function*(sim,th){
+      yield{print:'state before start : NEW'};
+      yield{start:'Thread-0'};yield{start:'Thread-1'};yield{start:'Thread-2'};
+      yield{print:'state after start  : RUNNABLE'};
+      yield{print:'main is still running, it did not wait'};
+    },{auto:true});
+  },
+  showTrace:true
+});
+mkPanel('panel-startrun',{
+  cls:'StartVsRun', seed:11, quantum:1, controls:['seed'], showGantt:false,
+  extra:[{id:'how',label:'call',options:[['start','t.start() — three real threads'],['run','t.run() — plain method call']]}],
+  build(sim,opts){
+    if(opts.how==='run'){
+      sim.spawn('main',function*(sim,th){
+        yield{print:'main: calling run() directly'};
+        for(const n of ['Thread-0','Thread-1','Thread-2'])
+          for(let i=1;i<=3;i++)yield{print:'main : count '+i+'   (was meant to be '+n+')'};
+        yield{print:'main: finished — one thread did everything'};
+      },{auto:true});
+    }else{
+      ['Thread-0','Thread-1','Thread-2'].forEach(n=>sim.spawn(n,counterGen(n),{auto:true}));
+      sim.spawn('main',function*(sim,th){yield{print:'main: three threads started'};},{auto:true});
+    }
+  },
+  after(sim,opts){
+    return opts.how==='run'
+      ? '<span class="fail">Perfectly ordered, and every line says main. No thread was created — run() is just a method.</span>'
+      : '<span class="out">'+sim.switches+' context switches. Change the seed and this order changes.</span>';
+  }
+});
+
+/* ============================================================
+   TAB 3 · life cycle
+   ============================================================ */
+const LIFE={
+ NEW:{x:90,y:80,w:104,c:'#6d76a0',title:'NEW',
+  d:'The object exists, <code>start()</code> has not been called. No call stack, no execution. <code>getState()</code> returns <code>NEW</code> and <code>isAlive()</code> is <code>false</code>.',
+  io:'in  : new MyThread()\nout : start()  → RUNNABLE'},
+ RUNNABLE:{x:330,y:80,w:150,c:'#86a8f2',title:'RUNNABLE',
+  d:'Ready to run and waiting for a core. <strong>This is the only state the JVM reports for a thread that is actually executing too</strong> — Java does not distinguish "ready" from "running". Which RUNNABLE thread gets the CPU next is entirely the scheduler\'s choice.',
+  io:'in  : start(), timeout expires, notify(),\n      monitor released, yield()\nout : run() returns, or any blocking call'},
+ RUNNING:{x:330,y:230,w:150,c:'#8fd6a3',title:'RUNNING',
+  d:'The thread is executing on a core right now. Textbooks draw it as a separate state and it is genuinely useful for reasoning — but <code>getState()</code> will still say <code>RUNNABLE</code>. The thread leaves when its time slice ends, it yields, it blocks, or <code>run()</code> returns.',
+  io:'in  : the scheduler dispatches it\nout : slice ends, yield(), sleep(), wait(),\n      a held monitor, or run() returning'},
+ TIMED_WAITING:{x:760,y:70,w:200,c:'#f0b45f',title:'TIMED_WAITING',
+  d:'Waiting, but with a deadline. Entered by <code>sleep(ms)</code>, <code>join(ms)</code> or <code>wait(ms)</code>. Crucially, <code>sleep()</code> <strong>keeps every lock the thread holds</strong> — nobody else can enter those synchronized regions while it naps.',
+  io:'in  : sleep(n), join(n), wait(n)\nout : the timeout expires, or interrupt()\n      → InterruptedException'},
+ WAITING:{x:760,y:200,w:150,c:'#b79cf0',title:'WAITING',
+  d:'Waiting indefinitely for another thread to act. Entered by <code>wait()</code> with no timeout, or by <code>join()</code>. Unlike sleep, <code>wait()</code> <strong>releases the monitor</strong>, which is exactly what lets the other thread make progress and eventually notify.',
+  io:'in  : wait(), join()\nout : notify(), notifyAll(), or the\n      joined thread terminating'},
+ BLOCKED:{x:760,y:350,w:150,c:'#e8798a',title:'BLOCKED',
+  d:'Waiting to enter a <code>synchronized</code> region whose monitor another thread holds. The thread is not sleeping and not waiting for a signal — it is queued at a door. It moves back to RUNNABLE the instant the owner releases the lock.',
+  io:'in  : hitting a monitor held by someone else\nout : the owner exits the synchronized region'},
+ TERMINATED:{x:330,y:410,w:180,c:'#3a4170',title:'TERMINATED',
+  d:'<code>run()</code> has returned, or an uncaught exception killed the thread. This state is final: <code>isAlive()</code> is <code>false</code> and calling <code>start()</code> again throws <code>IllegalThreadStateException</code>. To repeat the work, create a new thread.',
+  io:'in  : run() returns or throws\nout : nothing — this is the end'}
+};
+const LIFE_NODES={};
+(function(){
+  const svg=document.getElementById('lifeSvg'),NS='http://www.w3.org/2000/svg';
+  function line(pts,col,dash){
+    const p=document.createElementNS(NS,'polyline');
+    p.setAttribute('points',pts.map(a=>a.join(',')).join(' '));
+    p.setAttribute('fill','none');p.setAttribute('stroke',col);p.setAttribute('stroke-width','1.5');
+    p.setAttribute('stroke-opacity','.75');
+    if(dash)p.setAttribute('stroke-dasharray','6 4');
+    p.setAttribute('marker-end','url(#ah)');
+    svg.appendChild(p);
+  }
+  function txt(x,y,s,c,size,anchor){
+    const e=document.createElementNS(NS,'text');
+    e.setAttribute('x',x);e.setAttribute('y',y);e.setAttribute('fill',c);
+    e.setAttribute('font-size',size||10.5);if(anchor)e.setAttribute('text-anchor',anchor);
+    e.textContent=s;svg.appendChild(e);
+  }
+  const defs=document.createElementNS(NS,'defs');
+  defs.innerHTML='<marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6" markerHeight="6" orient="auto">'+
+    '<path d="M0,0 L10,5 L0,10 z" fill="#5a628f"/></marker>';
+  svg.appendChild(defs);
+  const C='#5a628f';
+  line([[142,80],[253,80]],C);                                   txt(198,70,'start()','#8fd6a3',11,'middle');
+  line([[318,104],[318,204]],C,true);                            txt(312,158,'scheduler dispatches','#6d76a0',10,'end');
+  line([[348,204],[348,104]],C);                                 txt(356,158,'yield() / slice ends','#6d76a0',10);
+  line([[330,256],[330,384]],C);                                 txt(338,326,'run() returns','#e8a2c8',10.5);
+  line([[406,222],[656,86]],C);                                  txt(510,146,'sleep(n) · join(n) · wait(n)','#f0b45f',10.5,'middle');
+  line([[406,234],[684,208]],C);                                 txt(520,232,'wait() · join()','#b79cf0',10.5,'middle');
+  line([[406,248],[684,346]],C);                                 txt(520,314,'hits a held monitor','#e8798a',10.5,'middle');
+  line([[760,46],[760,26],[336,26],[336,56]],C);                 txt(566,20,'timeout expires / interrupt()','#f0b45f',10,'middle');
+  line([[836,200],[900,200],[900,14],[352,14],[352,56]],C);      txt(690,196,'notify() / notifyAll()','#b79cf0',10);
+  line([[836,350],[950,350],[950,44],[368,44],[368,56]],C);      txt(700,346,'monitor released','#e8798a',10);
+  Object.keys(LIFE).forEach(k=>{
+    const n=LIFE[k];
+    const g=document.createElementNS(NS,'g');g.setAttribute('class','node');g.setAttribute('tabindex','0');
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',n.x-n.w/2);r.setAttribute('y',n.y-24);r.setAttribute('width',n.w);r.setAttribute('height',48);
+    r.setAttribute('rx',11);r.setAttribute('fill',n.c);r.setAttribute('fill-opacity','.12');
+    r.setAttribute('stroke',n.c);r.setAttribute('stroke-width','1.6');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',n.x);t.setAttribute('y',n.y+4);t.setAttribute('fill',n.c);
+    t.setAttribute('font-size','12');t.setAttribute('text-anchor','middle');t.setAttribute('font-weight','700');
+    t.textContent=n.title;
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);
+    LIFE_NODES[k]={g:g,rect:r,node:n};
+    const show=()=>{
+      svg.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));
+      g.classList.add('sel');
+      document.getElementById('lifeDetail').innerHTML=
+        '<h3 style="color:'+n.c+'">'+n.title+'</h3><p style="color:var(--mut);font-size:14.5px">'+n.d+'</p>'+
+        '<div class="console" style="min-height:0">'+esc(n.io)+'</div>';
+    };
+    g.addEventListener('click',show);
+    g.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();show();}});
+    if(k==='NEW')show();
+  });
+  txt(14,462,'▸ dashed = the transition you do not control · getState() never returns RUNNING, it reports RUNNABLE','#6d76a0',11);
+})();
+function stateAt(sim,name,t){
+  let s='NEW';
+  sim.segs.forEach(g=>{if(g.name===name&&g.from<=t&&t<g.to)s=g.state;});
+  const last=sim.segs.filter(g=>g.name===name).sort((a,b)=>b.to-a.to)[0];
+  if(last&&t>=last.to)s=last.state;
+  return s;
+}
+mkPanel('panel-life',{
+  cls:'LifeCycleDemo', seed:11, quantum:2, showGantt:true,
+  build(sim){
+    sim.spawn('Sleeper',function*(sim,th){
+      yield{print:'Sleeper : going to sleep for 8'};
+      yield{sleep:8};
+      yield{print:'Sleeper : awake'};
+    });
+    sim.spawn('Holder',function*(sim,th){
+      yield{lock:'db'};
+      yield{print:'Holder  : holding the lock'};
+      yield{sleep:6};
+      yield{print:'Holder  : releasing'};
+      yield{unlock:'db'};
+    });
+    sim.spawn('Waiter',function*(sim,th){
+      yield{print:'Waiter  : want the lock'};
+      yield{lock:'db'};
+      yield{print:'Waiter  : got it at last'};
+      yield{unlock:'db'};
+    });
+    sim.spawn('main',function*(sim,th){
+      yield{start:'Sleeper'};yield{start:'Holder'};yield{sleep:1};yield{start:'Waiter'};
+      yield{join:'Waiter'};
+      yield{print:'main    : everyone finished'};
+    },{auto:true});
+  },
+  onRun(sim,uid){
+    const host=document.getElementById(uid+'-extra');
+    host.innerHTML='<div class="ctrl" style="margin-top:16px"><div class="fld">'+
+      '<label for="'+uid+'-scrub">virtual time  <span class="val" id="'+uid+'-tv">0</span> / '+sim.time+'</label>'+
+      '<input type="range" id="'+uid+'-scrub" min="0" max="'+sim.time+'" value="0" style="width:340px"></div>'+
+      '<button class="btn small" id="'+uid+'-play">▶ play</button></div>'+
+      '<div class="statebox" id="'+uid+'-sb"></div>';
+    const sb=document.getElementById(uid+'-sb');
+    function paint(t){
+      document.getElementById(uid+'-tv').textContent=t;
+      const live={};
+      sb.innerHTML=sim.threads.map(th=>{
+        const s=stateAt(sim,th.name,t); live[s]=true;
+        return '<div class="sbox" style="border-color:'+STATE_COLOR[s]+'55"><div class="nm" style="color:'+th.color+'">'+esc(th.name)+
+          '</div><div class="st" style="color:'+STATE_COLOR[s]+'">'+s+'</div>'+
+          '<div class="mt">getState() → '+(s==='RUNNING'?'RUNNABLE':s)+'</div></div>';
+      }).join('');
+      Object.keys(LIFE_NODES).forEach(k=>{
+        LIFE_NODES[k].g.classList.toggle('sel',!!live[k]);
+        LIFE_NODES[k].rect.setAttribute('fill-opacity',live[k]?'.30':'.12');
+      });
+    }
+    const sc=document.getElementById(uid+'-scrub');
+    sc.addEventListener('input',()=>paint(+sc.value));
+    let timer=null;
+    document.getElementById(uid+'-play').addEventListener('click',()=>{
+      if(timer){clearInterval(timer);timer=null;return;}
+      sc.value=0;paint(0);
+      timer=setInterval(()=>{
+        if(+sc.value>=sim.time){clearInterval(timer);timer=null;return;}
+        sc.value=+sc.value+1;paint(+sc.value);
+      },160);
+    });
+    paint(0);
+  }
+});
+</script>
+<script>
+/* ============================================================
+   TAB 4 · thread methods
+   ============================================================ */
+mkPanel('panel-sleep',{
+  cls:'SleepDemo', seed:11, quantum:1, controls:['seed'],
+  build(sim){
+    [['Fast',2],['Medium',4],['Slow',7]].forEach(([n,ms])=>{
+      sim.spawn(n,function*(sim,th){
+        for(let i=1;i<=3;i++){
+          yield{print:n+' tick '+i+'  (sleeps '+ms+')'};
+          yield{sleep:ms};
+        }
+        yield{print:n+' done'};
+      },{auto:true});
+    });
+  },
+  after(sim){return '<span class="info">Fast prints most often because it sleeps least — sleep(n) guarantees a <em>minimum</em> pause, never an exact one.</span>';}
+});
+mkPanel('panel-join',{
+  cls:'JoinDemo', seed:11, quantum:1, controls:['seed'],
+  extra:[{id:'use',label:'main behaviour',options:[['join','with join() — main waits'],['nojoin','without join() — main races ahead']]}],
+  build(sim,opts){
+    let total=0;
+    ['W1','W2'].forEach((n,i)=>{
+      sim.spawn(n,function*(sim,th){
+        for(let k=1;k<=3;k++){yield{print:n+' processing item '+k};yield{sleep:2};}
+        const v=yield{read:'total'};
+        yield{write:['total',(v||0)+3]};
+        yield{print:n+' finished'};
+      });
+    });
+    sim.vars.total=0;
+    sim.spawn('main',function*(sim,th){
+      yield{print:'main   : starting workers'};
+      yield{start:'W1'};yield{start:'W2'};
+      if(opts.use==='join'){yield{join:'W1'};yield{join:'W2'};}
+      const v=yield{read:'total'};
+      yield{print:'main   : total processed = '+v};
+    },{auto:true});
+  },
+  after(sim,opts){
+    return opts.use==='join'
+      ? '<span class="out">total = '+sim.vars.total+' — correct, because join() made main wait for both workers to die.</span>'
+      : '<span class="fail">total = printed too early. main read the counter while the workers were still working, so the number is wrong — and it changes with the seed.</span>';
+  }
+});
+mkPanel('panel-prio',{
+  cls:'PriorityDemo', seed:11, quantum:1, policy:'priority',
+  build(sim){
+    [['MIN-prio-1',1],['NORM-prio-5',5],['MAX-prio-10',10]].forEach(([n,p])=>{
+      sim.spawn(n,function*(sim,th){
+        for(let i=1;i<=6;i++){yield{work:1};}
+        yield{print:n+' finished its 6 units of work'};
+      },{auto:true,prio:p});
+    });
+  },
+  after(sim){
+    const rows=sim.threads.map(t=>t.name+' → '+t.slices+' CPU slices').join('\n');
+    return '<span class="info">'+esc(rows)+'</span>\n<span class="warn">Switch the scheduler dropdown to "unspecified (JVM-like)" and the advantage largely disappears — which is exactly what happens on a real JVM.</span>';
+  }
+});
+
+/* ============================================================
+   TAB 5 · synchronization
+   ============================================================ */
+renderCode('code-atomic',[
+'count++;            // one line of Java …',
+'',
+'//  … three JVM operations:',
+'//    1  getfield   count      -> push the current value on the stack',
+'//    2  iadd                  -> add 1 to that copy',
+'//    3  putfield   count      -> store the copy back',
+'',
+'// Thread A does 1, gets interrupted after 2,',
+'// Thread B does 1, 2, 3  (count is now 6),',
+'// Thread A resumes and does 3  (count is 6 again).',
+'// Two increments happened. The counter moved by one.'
+]);
+function raceMark(sim){
+  const m={};let last=-1;
+  sim.trace.forEach((e,i)=>{
+    const w=/^write counter = (\d+)/.exec(e.text);
+    if(w){const v=+w[1];if(v<=last)m[i]='lost';else{m[i]='ok';last=v;}}
+  });
+  return m;
+}
+function* racer(sim,th){
+  for(let i=0;i<5;i++){
+    const v=yield{read:'counter'};
+    yield{work:1};
+    yield{write:['counter',v+1]};
+  }
+  yield{print:th.name+' finished its 5 increments'};
+}
+function* syncRacer(sim,th){
+  for(let i=0;i<5;i++){
+    yield{lock:'lock'};
+    const v=yield{read:'counter'};
+    yield{work:1};
+    yield{write:['counter',v+1]};
+    yield{unlock:'lock'};
+  }
+  yield{print:th.name+' finished its 5 increments'};
+}
+mkPanel('panel-race',{
+  cls:'RaceCondition', seed:11, quantum:1, showTrace:true, mark:raceMark,
+  build(sim){sim.vars.counter=0;sim.spawn('T1',racer,{auto:true});sim.spawn('T2',racer,{auto:true});},
+  after(sim){
+    const got=sim.vars.counter,lost=10-got;
+    return got===10
+      ? '<span class="out">final counter = 10 — this seed happened not to interleave badly. Try seed 5, 8 or 23; the bug is still there, it just did not fire.</span>'
+      : '<span class="fail">final counter = '+got+'   (expected 10 — '+lost+' increment'+(lost>1?'s':'')+' silently lost)</span>\n<span class="warn">Nothing threw. Nothing warned. The program simply produced the wrong number — and a different wrong number next run.</span>';
+  }
+});
+mkPanel('panel-fixed',{
+  cls:'SynchronizedCounter', seed:11, quantum:1, showTrace:true, mark:raceMark,
+  build(sim){sim.vars.counter=0;sim.spawn('T1',syncRacer,{auto:true});sim.spawn('T2',syncRacer,{auto:true});},
+  after(sim){
+    return '<span class="out">final counter = '+sim.vars.counter+' — and it is 10 for every seed you try.</span>\n'+
+      '<span class="info">Notice the cost in the timeline: red BLOCKED bars. One thread waits while the other holds the monitor. Correctness bought with parallelism.</span>';
+  }
+});
+renderCode('code-sync3',[
+'class Counter {',
+'    private int count = 0;',
+'    private final Object lock = new Object();',
+'',
+'    // 1 · synchronized METHOD — locks "this"',
+'    public synchronized void increment() {',
+'        count++;',
+'    }',
+'',
+'    // 2 · synchronized BLOCK — locks only what you name,',
+'    //      and only for the lines that need it',
+'    public void incrementNarrow() {',
+'        log("about to increment");     // runs in parallel',
+'        synchronized (lock) {',
+'            count++;                   // critical section only',
+'        }',
+'        log("done");                   // runs in parallel',
+'    }',
+'',
+'    // 3 · static synchronized — locks Counter.class,',
+'    //      one lock shared by every instance',
+'    public static synchronized void resetAll() { total = 0; }',
+'}'
+]);
+mkPanel('panel-deadlock',{
+  cls:'DeadlockDemo', seed:11, quantum:1, controls:['seed'], showGantt:true,
+  extra:[{id:'order',label:'lock order',options:[['bad','T1: A→B   T2: B→A  (crossed)'],['good','T1: A→B   T2: A→B  (same order)']]}],
+  build(sim,opts){
+    const mk=(name,first,second)=>function*(sim,th){
+      yield{print:name+' : acquiring '+first};
+      yield{lock:first};
+      yield{sleep:2};
+      yield{print:name+' : now wants '+second};
+      yield{lock:second};
+      yield{print:name+' : got both — doing the transfer'};
+      yield{unlock:second};yield{unlock:first};
+      yield{print:name+' : released both'};
+    };
+    sim.spawn('T1',mk('T1','A','B'),{auto:true});
+    sim.spawn('T2',opts.order==='bad'?mk('T2','B','A'):mk('T2','A','B'),{auto:true});
+  },
+  after(sim,opts){
+    return opts.order==='bad'
+      ? '<span class="warn">T1 holds A and waits for B. T2 holds B and waits for A. Neither can release what the other needs. On a real JVM the program simply stops responding.</span>'
+      : '<span class="out">Both threads take A first, so one always finishes before the other starts. No cycle can form — a total order on locks is the standard cure.</span>';
+  }
+});
+mkPanel('panel-pc',{
+  cls:'ProducerConsumer', seed:11, quantum:1, controls:['seed'], showGantt:true,
+  build(sim){
+    sim.vars.full=false;sim.vars.item=0;
+    sim.spawn('Producer',function*(sim,th){
+      for(let i=1;i<=4;i++){
+        yield{lock:'buf'};
+        while(sim.vars.full){yield{wait:'buf'};}
+        sim.vars.item=i;sim.vars.full=true;
+        yield{print:'Produced : item '+i};
+        yield{notify:'buf',all:true};
+        yield{unlock:'buf'};
+      }
+    },{auto:true});
+    sim.spawn('Consumer',function*(sim,th){
+      for(let i=1;i<=4;i++){
+        yield{lock:'buf'};
+        while(!sim.vars.full){yield{wait:'buf'};}
+        yield{print:'Consumed : item '+sim.vars.item};
+        sim.vars.full=false;
+        yield{notify:'buf',all:true};
+        yield{unlock:'buf'};
+      }
+    },{auto:true});
+  },
+  after(sim){return '<span class="info">Strict alternation, every seed — the buffer holds one item, so neither thread can run ahead. The purple WAITING bars are threads that released the lock voluntarily.</span>';}
+});
+</script>
+<script>
+/* ============================================================
+   TAB 7 · the student's own Gsec class under concurrency
+   ============================================================ */
+const SRC_GSEC=[
+'class Gsec{',
+'    ',
+'    //class  variables',
+'    ',
+'    String name;',
+'    String laptop;',
+'  private int age;',
+'    int registerNumber;',
+'    ',
+'    // setter for age',
+'    // public , void ',
+'    public void setAge(int age){',
+'        this.age=age;',
+'    }',
+'    ',
+'    // getter for age',
+'    public int getAge(){',
+'        return age;',
+'    }',
+'    ',
+'    void validator(){',
+'        if(age<18){',
+'            System.out.println("This guy is not eleigible for studying college");',
+'        }',
+'    }',
+'    ',
+'    // methods',
+'    void display(){',
+'        System.out.println("Hi sreekanth");',
+'        System.out.println(getAge());',
+'    }',
+'    ',
+'    String displayString(){',
+'        return "hello";',
+'    }',
+'    ',
+'    // String helloMethod(){',
+'        ',
+'    // }',
+'    //No-arg constructor',
+'//   public Gsec(){',
+'        ',
+'//     }',
+'  public Gsec(    String namenew,String laptop,int age,int registerNumber){',
+'        name=namenew;',
+'        this.laptop=laptop;',
+'        this.age=age;',
+'        this.registerNumber=registerNumber;',
+'    }',
+'}',
+'class Main{',
+'    ',
+'    public static void main(String[] args){',
+'        ',
+'        Gsec scoldavinas=new Gsec();',
+'        scoldavinas.setAge(17);',
+'        scoldavinas.validator();',
+'        scoldavinas.display();',
+'    }',
+'}'
+];
+renderCode('code-gsec',SRC_GSEC,{err:[L(SRC_GSEC,'Gsec scoldavinas=new Gsec();')]});
+
+renderCode('code-gr1',[
+'class GsecWorker extends Thread {',
+'    private final Gsec shared;      // ONE object, shared by every thread',
+'    private final int  myAge;',
+'',
+'    GsecWorker(String n, Gsec shared, int myAge) {',
+'        super(n); this.shared = shared; this.myAge = myAge;',
+'    }',
+'',
+'    public void run() {',
+'        shared.setAge(myAge);                    // 1 · write',
+'        //  <-- the scheduler can suspend us HERE',
+'        shared.validator();                      // 2 · read',
+'        System.out.println(getName() + " set " + myAge',
+'                         + " but validator() saw " + shared.getAge());',
+'    }',
+'}',
+'',
+'public class GsecRace {',
+'    public static void main(String[] args) {',
+'        Gsec scoldavinas = new Gsec("Sreekanth", "Dell", 17, 101);',
+'        new GsecWorker("T-17", scoldavinas, 17).start();',
+'        new GsecWorker("T-19", scoldavinas, 19).start();',
+'        new GsecWorker("T-21", scoldavinas, 21).start();',
+'    }',
+'}'
+]);
+renderCode('code-gr2',[
+'public void run() {',
+'    synchronized (shared) {          // take the monitor of the shared Gsec',
+'        shared.setAge(myAge);',
+'        shared.validator();',
+'        System.out.println(getName() + " set " + myAge',
+'                         + " but validator() saw " + shared.getAge());',
+'    }                                // released here, even on exception',
+'}',
+'',
+'// equivalent: mark the pair as one synchronized method ON Gsec',
+'//',
+'//     public synchronized void setAndValidate(int a) {',
+'//         setAge(a);',
+'//         validator();',
+'//     }',
+'//',
+'// making setAge() alone synchronized does NOT fix this —',
+'// each call would be atomic, but the gap BETWEEN the two calls remains.'
+]);
+renderCode('code-gr3',[
+'public class GsecPerThread {',
+'    public static void main(String[] args) {',
+'',
+'        int[] ages = { 17, 19, 21 };',
+'',
+'        for (int a : ages) {',
+'            Gsec mine = new Gsec("Student-" + a, "Dell", a, 100 + a);',
+'            new Thread(() -> {                  // each lambda owns its own object',
+'                mine.validator();',
+'                System.out.println(Thread.currentThread().getName()',
+'                                 + " validated age " + mine.getAge());',
+'            }, "T-" + a).start();',
+'        }',
+'    }',
+'}',
+'',
+'// no shared mutable state  ->  no race  ->  no synchronized  ->  no BLOCKED time.',
+'// This is the fix to reach for first. Locks are what you use when you',
+'// genuinely cannot avoid sharing.'
+]);
+renderCode('code-gr4',[
+'public class GsecBatchValidator {',
+'',
+'    static int underAge = 0;                     // shared across all threads',
+'',
+'    //  add "synchronized" to make the counter safe',
+'    static void countIfUnder(Gsec g) {',
+'        if (g.getAge() < 18) {',
+'            int temp = underAge;                 // 1 read',
+'            underAge = temp + 1;                 // 2 write   <- lost updates live here',
+'        }',
+'    }',
+'',
+'    public static void main(String[] args) throws InterruptedException {',
+'        Gsec[] batch = {',
+'            new Gsec("Sreekanth","Dell",  17, 101),',
+'            new Gsec("Kavya",    "Asus",  16, 104),',
+'            new Gsec("Divya",    "HP",    19, 102),',
+'            new Gsec("Arun",     "Lenovo",18, 103) };',
+'',
+'        Thread[] ts = new Thread[batch.length];',
+'        for (int i = 0; i < batch.length; i++) {',
+'            Gsec g = batch[i];',
+'            ts[i] = new Thread(() -> { g.validator(); countIfUnder(g); }, g.name);',
+'            ts[i].start();',
+'        }',
+'        for (Thread t : ts) t.join();            // wait for ALL before reading',
+'',
+'        System.out.println("under 18 : " + underAge + " of " + batch.length);',
+'    }',
+'}'
+]);
+renderCode('code-gr5',[
+'public class GsecLoader {',
+'    static java.util.List<Gsec> loaded = new java.util.ArrayList<>();',
+'',
+'    public static void main(String[] args) throws Exception {',
+'',
+'        Thread loader = new Thread(() -> {',
+'            System.out.println("loader : opening gsec.txt");',
+'            try (BufferedReader br = new BufferedReader(new FileReader("gsec.txt"))) {',
+'                String line;',
+'                while ((line = br.readLine()) != null) {      // slow I/O',
+'                    String[] f = line.split(",");',
+'                    loaded.add(new Gsec(f[1], f[2],',
+'                               Integer.parseInt(f[3]), Integer.parseInt(f[0])));',
+'                }',
+'            } catch (IOException e) { System.out.println("loader : " + e); }',
+'            System.out.println("loader : " + loaded.size() + " records ready");',
+'        }, "loader");',
+'',
+'        loader.start();',
+'        System.out.println("main   : UI stays responsive while the file loads");',
+'',
+'        loader.join();                     // main WAITS - state becomes WAITING',
+'        System.out.println("main   : validating " + loaded.size() + " records");',
+'        for (Gsec g : loaded) g.validator();',
+'    }',
+'}'
+]);
+
+/* ---- the shared-object race ---- */
+function gsecWorker(name,myAge,useLock){
+  return function*(s,th){
+    if(useLock)yield{lock:'scoldavinas'};
+    yield{write:['age',myAge]};
+    yield{work:1};
+    const seen=yield{read:'age'};
+    if(seen<18)yield{print:name+' : This guy is not eleigible for studying college'};
+    yield{print:name+' : set '+myAge+' but validator() saw '+seen+(seen!==myAge?'   <-- WRONG OBJECT STATE':'')};
+    if(useLock)yield{unlock:'scoldavinas'};
+  };
+}
+function raceSummary(sim,ages){
+  const bad=sim.out.filter(o=>/WRONG OBJECT STATE/.test(o.text)).length;
+  const falseAlarm=sim.out.filter(o=>/not eleigible/.test(o.text)).length;
+  return {bad:bad,alarms:falseAlarm};
+}
+mkPanel('panel-gsec-race',{
+  cls:'GsecRace', seed:11, quantum:1, showTrace:true,
+  build(sim){
+    sim.vars.age=17;
+    [['T-17',17],['T-19',19],['T-21',21]].forEach(([n,a])=>sim.spawn(n,gsecWorker(n,a,false),{auto:true}));
+  },
+  after(sim){
+    const r=raceSummary(sim);
+    let h='';
+    h+='<span class="'+(r.bad?'fail':'warn')+'">'+r.bad+' of 3 threads validated an age they did not set.</span>\n';
+    h+='<span class="'+(r.alarms===1?'warn':'fail')+'">validator() fired '+r.alarms+' time(s) — it should fire exactly once, for T-17.</span>\n';
+    h+='<span class="info">final age on the shared object : '+sim.vars.age+'. Change the seed and both numbers move. Nothing throws; the object is simply wrong.</span>';
+    return h;
+  }
+});
+mkPanel('panel-gsec-sync',{
+  cls:'GsecSynchronized', seed:11, quantum:1, showTrace:true,
+  build(sim){
+    sim.vars.age=17;
+    [['T-17',17],['T-19',19],['T-21',21]].forEach(([n,a])=>sim.spawn(n,gsecWorker(n,a,true),{auto:true}));
+  },
+  after(sim){
+    const r=raceSummary(sim);
+    return '<span class="out">'+r.bad+' threads saw the wrong age, and validator() fired '+r.alarms+' time — correct, for every seed.</span>\n'+
+      '<span class="info">The cost is visible in the timeline: red BLOCKED bars while one thread holds the monitor of scoldavinas.</span>';
+  }
+});
+mkPanel('panel-gsec-own',{
+  cls:'GsecPerThread', seed:11, quantum:1, showTrace:false,
+  build(sim){
+    [17,19,21].forEach(a=>{
+      sim.spawn('T-'+a,function*(s,th){
+        let mine=a;                                   // this thread's own object
+        yield{work:1};
+        if(mine<18)yield{print:'T-'+a+' : This guy is not eleigible for studying college'};
+        yield{print:'T-'+a+' validated age '+mine};
+      },{auto:true});
+    });
+  },
+  after(sim){
+    return '<span class="out">Correct for every seed and every time slice, with no lock at all — look at the timeline: not one BLOCKED bar.</span>\n'+
+      '<span class="info">Each thread constructs its own Gsec with your 4-arg constructor, so there is no shared field for the scheduler to interleave.</span>';
+  }
+});
+mkPanel('panel-gsec-batch',{
+  cls:'GsecBatchValidator', seed:11, quantum:1,
+  extra:[{id:'mode',label:'countIfUnder()',options:[['plain','without synchronized'],['sync','with synchronized']]}],
+  build(sim,opts){
+    const batch=[['Sreekanth',17],['Kavya',16],['Divya',19],['Arun',18]];
+    sim.vars.underAge=0;
+    batch.forEach(([n,a])=>{
+      sim.spawn(n,function*(s,th){
+        if(a<18)yield{print:n+' : This guy is not eleigible for studying college'};
+        if(a<18){
+          if(opts.mode==='sync')yield{lock:'counter'};
+          const t=yield{read:'underAge'};
+          yield{work:1};
+          yield{write:['underAge',t+1]};
+          if(opts.mode==='sync')yield{unlock:'counter'};
+        }
+      });
+    });
+    sim.spawn('main',function*(s,th){
+      for(const[n]of batch)yield{start:n};
+      for(const[n]of batch)yield{join:n};
+      yield{print:'under 18 : '+s.vars.underAge+' of '+batch.length};
+    },{auto:true});
+  },
+  after(sim,opts){
+    const v=sim.vars.underAge;
+    if(opts.mode==='sync')return '<span class="out">2 of 4 — correct for every seed, because the read-modify-write pair is now indivisible.</span>';
+    return v===2
+      ? '<span class="warn">2 of 4 this time — but only because the two under-18 threads happened not to overlap. Try another seed.</span>'
+      : '<span class="fail">'+v+' of 4 — one of the two under-18 students was counted but then overwritten. validator() printed twice; the counter says '+v+'.</span>';
+  }
+});
+mkPanel('panel-gsec-loader',{
+  cls:'GsecLoader', seed:11, quantum:1,
+  build(sim){
+    sim.spawn('loader',function*(s,th){
+      yield{print:'loader : opening gsec.txt'};
+      yield{sleep:7};                                     // slow disk read
+      s.vars.records=4;
+      yield{print:'loader : 4 records ready'};
+    });
+    sim.spawn('main',function*(s,th){
+      yield{start:'loader'};
+      yield{print:'main   : UI stays responsive while the file loads'};
+      yield{join:'loader'};
+      yield{print:'main   : validating '+s.vars.records+' records'};
+      yield{print:'Sreekanth -> This guy is not eleigible for studying college'};
+      yield{print:'Kavya     -> This guy is not eleigible for studying college'};
+      yield{print:'main   : done'};
+    },{auto:true});
+  },
+  after(sim){
+    return '<span class="info">Remove the join() and main prints "validating 0 records" — the list is still empty because the loader has not finished. This is the file-streams tab and the threads tab colliding, and it is the most common real-world version of the bug.</span>';
+  }
+});
+</script>
+
+<script>
+/* ============================================================
+   TAB 6 · Lab Exercise 11
+   ============================================================ */
+function gs(sim,n){const s=sim.byName[n].state;return s==='RUNNING'?'RUNNABLE':s;}
+function alive(sim,n){const s=sim.byName[n].state;return s!=='NEW'&&s!=='TERMINATED';}
+const LAB=[
+{id:'x1',n:'11.1',title:'Create threads both ways',tag:'extends Thread · implements Runnable',
+ desc:'Two threads built from a subclass, two built from a Runnable — all four started from main. The output order is different every time you change the seed, and that is the correct answer to "what does this print".',
+ code:[
+'public class Lab11_1 {',
+'',
+'    static class Sub extends Thread {',
+'        Sub(String n) { super(n); }',
+'        public void run() {',
+'            for (int i = 1; i <= 2; i++)',
+'                System.out.println(getName() + " (extends Thread) step " + i);',
+'        }',
+'    }',
+'',
+'    static class Task implements Runnable {',
+'        public void run() {',
+'            String me = Thread.currentThread().getName();',
+'            for (int i = 1; i <= 2; i++)',
+'                System.out.println(me + " (Runnable) step " + i);',
+'        }',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        new Sub("Sub-1").start();',
+'        new Sub("Sub-2").start();',
+'',
+'        Task shared = new Task();          // ONE task object …',
+'        new Thread(shared, "Run-1").start();   // … two threads run it',
+'        new Thread(shared, "Run-2").start();',
+'',
+'        System.out.println("main : all four started");',
+'    }',
+'}'],
+ build(sim){
+   ['Sub-1','Sub-2'].forEach(n=>sim.spawn(n,function*(s,th){
+     for(let i=1;i<=2;i++)yield{print:n+' (extends Thread) step '+i};},{auto:true}));
+   ['Run-1','Run-2'].forEach(n=>sim.spawn(n,function*(s,th){
+     for(let i=1;i<=2;i++)yield{print:n+' (Runnable) step '+i};},{auto:true}));
+   sim.spawn('main',function*(s,th){yield{print:'main : all four started'};},{auto:true});
+ },
+ note:'One <code>Runnable</code> object handed to two threads is perfectly normal — and it is also the moment shared state becomes dangerous, because both threads now touch the same fields.'},
+
+{id:'x2',n:'11.2',title:'Observe the life cycle with getState()',tag:'getState · isAlive · join',
+ desc:'main prints the worker\'s state at four moments: before start, right after start, while it is sleeping, and after join(). This is the exercise that makes the state diagram concrete.',
+ code:[
+'public class Lab11_2 {',
+'',
+'    public static void main(String[] args) throws InterruptedException {',
+'',
+'        Thread t = new Thread(() -> {',
+'            System.out.println("worker : started, now sleeping");',
+'            try { Thread.sleep(800); } catch (InterruptedException e) { }',
+'            System.out.println("worker : awake, finishing");',
+'        }, "worker");',
+'',
+'        System.out.println("before start : " + t.getState() + "  alive=" + t.isAlive());',
+'',
+'        t.start();',
+'        System.out.println("after start  : " + t.getState() + "  alive=" + t.isAlive());',
+'',
+'        Thread.sleep(300);',
+'        System.out.println("while asleep : " + t.getState());',
+'',
+'        t.join();                     // main WAITS here',
+'        System.out.println("after join   : " + t.getState() + "  alive=" + t.isAlive());',
+'    }',
+'}'],
+ build(sim){
+   sim.spawn('worker',function*(s,th){
+     yield{print:'worker : started, now sleeping'};
+     yield{sleep:8};
+     yield{print:'worker : awake, finishing'};
+   });
+   sim.spawn('main',function*(s,th){
+     yield{print:'before start : '+gs(s,'worker')+'  alive='+alive(s,'worker')};
+     yield{start:'worker'};
+     yield{print:'after start  : '+gs(s,'worker')+'  alive='+alive(s,'worker')};
+     yield{sleep:3};
+     yield{print:'while asleep : '+gs(s,'worker')};
+     yield{join:'worker'};
+     yield{print:'after join   : '+gs(s,'worker')+'  alive='+alive(s,'worker')};
+   },{auto:true});
+ },
+ note:'"while asleep" prints <code>TIMED_WAITING</code> — the state that proves <code>sleep()</code> is a timed wait, not a block. Remove the <code>join()</code> and the last line prints <code>TIMED_WAITING</code> instead of <code>TERMINATED</code>.'},
+
+{id:'x3',n:'11.3',title:'sleep() and setPriority()',tag:'Thread.sleep · setPriority',
+ desc:'Three threads with different priorities doing identical work, each pausing between steps. Watch the slice counts in the chips above the timeline.',
+ code:[
+'public class Lab11_3 {',
+'',
+'    static class Worker extends Thread {',
+'        Worker(String n, int p) { super(n); setPriority(p); }',
+'',
+'        public void run() {',
+'            for (int i = 1; i <= 3; i++) {',
+'                System.out.println(getName() + " [prio " + getPriority() + "] step " + i);',
+'                try { Thread.sleep(200); }',
+'                catch (InterruptedException e) { System.out.println(getName() + " interrupted"); }',
+'            }',
+'        }',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        new Worker("low",  Thread.MIN_PRIORITY).start();   // 1',
+'        new Worker("norm", Thread.NORM_PRIORITY).start();  // 5',
+'        new Worker("high", Thread.MAX_PRIORITY).start();   // 10',
+'    }',
+'}'],
+ build(sim){
+   [['low',1],['norm',5],['high',10]].forEach(([n,p])=>{
+     sim.spawn(n,function*(s,th){
+       for(let i=1;i<=3;i++){yield{print:n+' [prio '+p+'] step '+i};yield{sleep:2};}
+     },{auto:true,prio:p});
+   });
+ },
+ policy:'priority',
+ note:'Priority changes <em>who gets picked first</em> among threads that are ready. It never changes <em>how long</em> a sleep lasts, and it is only a hint — set the scheduler dropdown to "unspecified" to see the ordering scramble.'},
+
+{id:'x4',n:'11.4',title:'Bank account — the race and the fix',tag:'synchronized',
+ desc:'Two threads deposit ₹100 five times each into one account. The correct balance is ₹1000. Flip the dropdown between the unsynchronized and synchronized versions.',
+ code:[
+'public class Lab11_4 {',
+'',
+'    static class Account {',
+'        private int balance = 0;',
+'',
+'        //  add "synchronized" here to fix it',
+'        void deposit(int amt) {',
+'            int temp = balance;      // 1 read',
+'            temp = temp + amt;       // 2 modify',
+'            balance = temp;          // 3 write   <- another thread may cut in',
+'        }',
+'        int get() { return balance; }',
+'    }',
+'',
+'    public static void main(String[] args) throws InterruptedException {',
+'        Account acc = new Account();',
+'',
+'        Runnable job = () -> { for (int i = 0; i < 5; i++) acc.deposit(100); };',
+'',
+'        Thread t1 = new Thread(job, "T1");',
+'        Thread t2 = new Thread(job, "T2");',
+'        t1.start(); t2.start();',
+'        t1.join();  t2.join();       // wait for BOTH before reading',
+'',
+'        System.out.println("expected : 1000");',
+'        System.out.println("actual   : " + acc.get());',
+'    }',
+'}'],
+ extra:[{id:'mode',label:'deposit()',options:[['plain','without synchronized'],['sync','with synchronized']]}],
+ build(sim,opts){
+   const body=function*(s,th){
+     for(let i=0;i<5;i++){
+       if(opts.mode==='sync')yield{lock:'account'};
+       const v=yield{read:'balance'};
+       yield{work:1};
+       yield{write:['balance',v+100]};
+       if(opts.mode==='sync')yield{unlock:'account'};
+     }
+   };
+   sim.vars.balance=0;
+   sim.spawn('T1',body);sim.spawn('T2',body);
+   sim.spawn('main',function*(s,th){
+     yield{start:'T1'};yield{start:'T2'};
+     yield{join:'T1'};yield{join:'T2'};
+     yield{print:'expected : 1000'};
+     yield{print:'actual   : '+s.vars.balance};
+   },{auto:true});
+ },
+ after(sim,opts){
+   const b=sim.vars.balance;
+   if(opts.mode==='sync')return '<span class="out">₹'+b+' every single time, for every seed. The monitor makes read-modify-write indivisible.</span>';
+   return b===1000
+     ? '<span class="warn">₹1000 this time — but only by luck. Change the seed; the bug has not gone anywhere.</span>'
+     : '<span class="fail">₹'+b+' instead of ₹1000. '+((1000-b)/100)+' deposit(s) vanished, and no exception was thrown.</span>';
+ },
+ note:'The <code>join()</code> calls are doing real work here too: without them main would print the balance while deposits were still in flight, and you would get a wrong answer even <em>with</em> synchronized.'},
+
+{id:'x5',n:'11.5',title:'Producer & Consumer with wait/notify',tag:'wait · notify · synchronized',
+ desc:'A buffer that holds exactly one item. The producer must wait when it is full, the consumer must wait when it is empty. Output alternates strictly — for every seed.',
+ code:[
+'public class Lab11_5 {',
+'',
+'    static class Buffer {',
+'        private int item;',
+'        private boolean full = false;',
+'',
+'        synchronized void put(int x) throws InterruptedException {',
+'            while (full) wait();          // while, never if',
+'            item = x; full = true;',
+'            System.out.println("Produced : item " + x);',
+'            notifyAll();',
+'        }',
+'',
+'        synchronized int take() throws InterruptedException {',
+'            while (!full) wait();',
+'            full = false;',
+'            System.out.println("Consumed : item " + item);',
+'            notifyAll();',
+'            return item;',
+'        }',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        Buffer b = new Buffer();',
+'        new Thread(() -> { try { for (int i=1;i<=4;i++) b.put(i); }',
+'                           catch (InterruptedException e) {} }, "Producer").start();',
+'        new Thread(() -> { try { for (int i=1;i<=4;i++) b.take(); }',
+'                           catch (InterruptedException e) {} }, "Consumer").start();',
+'    }',
+'}'],
+ build(sim){
+   sim.vars.full=false;sim.vars.item=0;
+   sim.spawn('Producer',function*(s,th){
+     for(let i=1;i<=4;i++){
+       yield{lock:'buf'};
+       while(s.vars.full){yield{wait:'buf'};}
+       s.vars.item=i;s.vars.full=true;
+       yield{print:'Produced : item '+i};
+       yield{notify:'buf',all:true};
+       yield{unlock:'buf'};
+     }
+   },{auto:true});
+   sim.spawn('Consumer',function*(s,th){
+     for(let i=1;i<=4;i++){
+       yield{lock:'buf'};
+       while(!s.vars.full){yield{wait:'buf'};}
+       yield{print:'Consumed : item '+s.vars.item};
+       s.vars.full=false;
+       yield{notify:'buf',all:true};
+       yield{unlock:'buf'};
+     }
+   },{auto:true});
+ },
+ note:'Replace <code>while (full)</code> with <code>if (full)</code> and the program becomes subtly wrong: a woken thread carries on without re-checking, and with three or more threads it will overwrite an unconsumed item.'}
+];
+const LAB_PANELS={};
+(function(){
+  const host=document.getElementById('labHost');
+  LAB.forEach(x=>{
+    const c=document.createElement('div');
+    c.className='card';
+    c.innerHTML='<span class="pill p-mauve">Ex '+x.n+'</span> <span class="pill p-teal">'+x.tag+'</span>'+
+      '<h2 style="margin-top:8px">'+x.title+'</h2><p>'+x.desc+'</p>'+
+      '<div class="twocol"><div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;Lab11_'+x.n.split('.')[1]+'.java</div>'+
+      '<div class="codebody" id="code-'+x.id+'"></div></div><div id="panel-'+x.id+'"></div></div>'+
+      '<div class="callout tip" style="margin-bottom:0"><b>Note</b><p>'+x.note+'</p></div>';
+    host.appendChild(c);
+    renderCode('code-'+x.id,x.code);
+    LAB_PANELS[x.id]=mkPanel('panel-'+x.id,{
+      cls:'Lab11_'+x.n.split('.')[1],seed:11,quantum:1,policy:x.policy||'random',
+      controls:x.policy?['seed','policy']:['seed','quantum'],
+      extra:x.extra,build:x.build,after:x.after,showGantt:true
+    });
+  });
+  document.getElementById('labRunAll').addEventListener('click',()=>{
+    Object.keys(LAB_PANELS).forEach(k=>{if(LAB_PANELS[k])LAB_PANELS[k].run();});
+  });
+})();
+
+/* ============================================================
+   TAB 7 · output by topic + syntax
+   ============================================================ */
+const TOPICS=[
+ {id:'t1',n:'①',title:'Introduction — threaded vs sequential',cls:'DownloadDemo',
+  blurb:'Three waiting tasks. Run as one thread, then as three, and compare the finishing time.',
+  build(sim){[['Download report.pdf',6],['Download photo.jpg',4],['Download data.csv',5]]
+    .forEach((j,i)=>sim.spawn('worker-'+i,taskGen(j[0],j[1]),{auto:true}));},
+  after:function(sim){
+    const seq=new Sim({seed:1,quantum:1});
+    seq.spawn('main',function*(s,th){
+      for(const[j,ms]of [['Download report.pdf',6],['Download photo.jpg',4],['Download data.csv',5]]){
+        yield{print:j+' started'};yield{sleep:ms};yield{print:j+' finished'};}
+    },{auto:true});
+    seq.run();
+    return 'three threads finished at t='+sim.time+' · the same work done sequentially takes t='+seq.time;
+  }},
+ {id:'t2',n:'②',title:'Creating threads — three counters',cls:'ThreadCreation',
+  blurb:'Deterministic per seed, unpredictable in real life. This is the output that "varies between runs".',
+  build(sim){['Thread-0','Thread-1','Thread-2'].forEach(n=>sim.spawn(n,counterGen(n),{auto:true}));},
+  after:sim=>sim.switches+' context switches'},
+ {id:'t3',n:'③',title:'Life cycle — every state visited',cls:'LifeCycleDemo',
+  blurb:'A sleeper, a lock holder and a blocked waiter, so NEW, RUNNABLE, TIMED_WAITING, BLOCKED, WAITING and TERMINATED all appear.',
+  build(sim){
+    sim.spawn('worker',function*(s,th){yield{print:'worker : started, now sleeping'};yield{sleep:8};yield{print:'worker : awake, finishing'};});
+    sim.spawn('main',function*(s,th){
+      yield{print:'before start : '+gs(s,'worker')};
+      yield{start:'worker'};
+      yield{print:'after start  : '+gs(s,'worker')};
+      yield{sleep:3};
+      yield{print:'while asleep : '+gs(s,'worker')};
+      yield{join:'worker'};
+      yield{print:'after join   : '+gs(s,'worker')};
+    },{auto:true});},
+  after:sim=>'main spent time WAITING inside join()'},
+ {id:'t4',n:'④',title:'Thread methods — join() decides the order',cls:'JoinDemo',
+  blurb:'Two workers and a main thread that waits for both before reading the shared total.',
+  build(sim){
+    sim.vars.total=0;
+    ['W1','W2'].forEach(n=>sim.spawn(n,function*(s,th){
+      for(let k=1;k<=3;k++){yield{print:n+' processing item '+k};yield{sleep:2};}
+      const v=yield{read:'total'};yield{write:['total',(v||0)+3]};yield{print:n+' finished'};}));
+    sim.spawn('main',function*(s,th){
+      yield{print:'main   : starting workers'};
+      yield{start:'W1'};yield{start:'W2'};yield{join:'W1'};yield{join:'W2'};
+      const v=yield{read:'total'};yield{print:'main   : total processed = '+v};},{auto:true});},
+  after:sim=>'total = '+sim.vars.total+' — correct because of join()'},
+ {id:'t5',n:'⑤',title:'Synchronization — the race, then the fix',cls:'RaceCondition + SynchronizedCounter',
+  blurb:'The same program twice: without a monitor, then with one. Only the second is trustworthy.',
+  build(sim){sim.vars.counter=0;sim.spawn('T1',racer,{auto:true});sim.spawn('T2',racer,{auto:true});},
+  twin(sim){sim.vars.counter=0;sim.spawn('T1',syncRacer,{auto:true});sim.spawn('T2',syncRacer,{auto:true});},
+  after:sim=>'unsynchronized counter = '+sim.vars.counter+' (expected 10)',
+  afterTwin:sim=>'synchronized counter   = '+sim.vars.counter+' (expected 10)'},
+ {id:'t6',n:'⑥',title:'Your Gsec class — one shared object, three threads',cls:'GsecRace / GsecSynchronized',
+  blurb:'setAge() then validator() on a shared Gsec, unsynchronized and then synchronized. The unsafe version validates ages it never set.',
+  build(sim){sim.vars.age=17;[['T-17',17],['T-19',19],['T-21',21]].forEach(([n,a])=>sim.spawn(n,gsecWorker(n,a,false),{auto:true}));},
+  twinCls:'GsecSynchronized',
+  twin(sim){sim.vars.age=17;[['T-17',17],['T-19',19],['T-21',21]].forEach(([n,a])=>sim.spawn(n,gsecWorker(n,a,true),{auto:true}));},
+  after:sim=>'unsynchronized — '+sim.out.filter(o=>/WRONG/.test(o.text)).length+' thread(s) read an age they did not set',
+  afterTwin:sim=>'synchronized   — '+sim.out.filter(o=>/WRONG/.test(o.text)).length+' thread(s) read an age they did not set'},
+ {id:'t7',n:'⑦',title:'Lab Ex.11 — all five exercises',cls:'Lab11_1 … Lab11_5',
+  blurb:'Every lab program run back to back with the same seed.',multi:true}
+];
+(function(){
+  const host=document.getElementById('outHost');
+  TOPICS.forEach(t=>{
+    const c=document.createElement('div');c.className='card';
+    c.innerHTML='<span class="pill p-mauve" style="color:var(--pink);border-color:rgba(232,162,200,.4);background:rgba(232,162,200,.08)">Topic '+t.n+'</span>'+
+      '<h2 style="margin-top:8px">'+t.title+'</h2><p>'+t.blurb+'</p>'+
+      '<div class="runbar"><button class="btn small" id="tr-'+t.id+'">▶ Run just this topic</button><span class="note">'+t.cls+'</span></div>'+
+      '<div class="console" id="tc-'+t.id+'"></div>';
+    host.appendChild(c);
+    document.getElementById('tr-'+t.id).addEventListener('click',()=>runTopic(t,seedNow()));
+  });
+})();
+function seedNow(){const e=document.getElementById('allSeed');return parseInt(e?e.value:11,10)||11;}
+function runOne(build,seed,cls){
+  const sim=new Sim({seed:seed,quantum:1,policy:'random'});
+  build(sim); sim.run();
+  return sim;
+}
+function fmt(sim,cls){
+  let h='<span class="prompt">$ java '+cls+'</span>\n';
+  h+=sim.out.map(o=>'<span style="color:'+o.color+'">'+esc(o.text)+'</span>').join('\n');
+  if(sim.deadlock)h+='\n<span class="fail">⛔ DEADLOCK — the JVM would hang here</span>';
+  return h;
+}
+function runTopic(t,seed){
+  let html='';
+  if(t.multi){
+    LAB.forEach(x=>{
+      const sim=runOne(s=>x.build(s,{mode:x.id==='x4'?'plain':undefined}),seed,'Lab11_'+x.n.split('.')[1]);
+      html+=fmt(sim,'Lab11_'+x.n.split('.')[1]);
+      if(x.after)html+='\n'+x.after(sim,{mode:'plain'});
+      html+='\n\n';
+    });
+  }else{
+    const sim=runOne(t.build,seed,t.cls);
+    html=fmt(sim,t.cls.split(' ')[0]);
+    if(t.after)html+='\n<span class="info">'+esc(t.after(sim))+'</span>';
+    if(t.twin){
+      const tc=t.twinCls||'SynchronizedCounter';
+      const s2=runOne(t.twin,seed,tc);
+      html+='\n\n'+fmt(s2,tc);
+      if(t.afterTwin)html+='\n<span class="out">'+esc(t.afterTwin(s2))+'</span>';
+    }
+  }
+  document.getElementById('tc-'+t.id).innerHTML=html;
+}
+function runAllTopics(){
+  const seed=seedNow();
+  TOPICS.forEach(t=>runTopic(t,seed));
+  const s=document.getElementById('outStamp');
+  if(s)s.textContent='seed '+seed+' · '+TOPICS.length+' topics executed';
+}
+document.getElementById('outRunAll').addEventListener('click',runAllTopics);
+
+renderCode('syn1',[
+'// 1 · extend Thread',
+'class A extends Thread { public void run() { ... } }',
+'new A().start();',
+'',
+'// 2 · implement Runnable',
+'class B implements Runnable { public void run() { ... } }',
+'new Thread(new B(), "worker").start();',
+'',
+'// 3 · lambda (Java 8+)',
+'new Thread(() -> System.out.println("hi"), "lambda").start();',
+'',
+'// 4 · thread pool — what real code uses',
+'ExecutorService pool = Executors.newFixedThreadPool(4);',
+'pool.submit(() -> doWork());',
+'pool.shutdown();'
+]);
+renderCode('syn2',[
+'Thread.sleep(1000);              // static — pauses THIS thread, keeps its locks',
+'',
+'t.join();                        // wait until t dies',
+'t.join(500);                     // wait at most 500 ms',
+'',
+'t.setPriority(Thread.MAX_PRIORITY);   // 10  (MIN 1, NORM 5)',
+'t.setName("loader");',
+'',
+'Thread.yield();                  // a hint: "someone else may go"',
+'t.interrupt();                   // wakes a sleeping/waiting thread',
+'',
+'t.setDaemon(true);               // BEFORE start() — JVM will not wait for it',
+'t.start();',
+'',
+'System.out.println(Thread.currentThread().getName());',
+'System.out.println(t.isAlive() + " " + t.getState());'
+]);
+renderCode('syn3',[
+'// method-level — locks this',
+'public synchronized void deposit(int amt) { balance += amt; }',
+'',
+'// block-level — locks only what you name, only where needed',
+'public void deposit(int amt) {',
+'    audit(amt);                       // stays parallel',
+'    synchronized (this) { balance += amt; }',
+'    notifyUi();                       // stays parallel',
+'}',
+'',
+'// class-level — one lock for every instance',
+'public static synchronized void resetTotals() { total = 0; }',
+'',
+'// a dedicated lock object — the cleanest of all',
+'private final Object lock = new Object();',
+'synchronized (lock) { balance += amt; }'
+]);
+renderCode('syn4',[
+'synchronized (buffer) {',
+'',
+'    while (!condition) {      // WHILE, never IF',
+'        buffer.wait();        // releases the monitor, enters WAITING',
+'    }',
+'',
+'    doTheWork();',
+'',
+'    buffer.notifyAll();       // wake everyone waiting on THIS object',
+'}',
+'',
+'// wait/notify/notifyAll are declared on Object, not Thread,',
+'// and calling one without holding the monitor throws',
+'//     IllegalMonitorStateException'
+]);
+renderCode('syn5',[
+'import java.util.concurrent.*;',
+'import java.util.concurrent.atomic.*;',
+'',
+'AtomicInteger count = new AtomicInteger();',
+'count.incrementAndGet();                 // atomic, no synchronized needed',
+'',
+'ExecutorService pool = Executors.newFixedThreadPool(4);',
+'Future<Integer> f = pool.submit(() -> compute());',
+'int result = f.get();                    // blocks until ready',
+'',
+'BlockingQueue<Integer> q = new ArrayBlockingQueue<>(1);',
+'q.put(5);        // blocks when full  — producer/consumer, already written',
+'q.take();        // blocks when empty',
+'',
+'ReentrantLock lock = new ReentrantLock();',
+'if (lock.tryLock(1, TimeUnit.SECONDS)) { ... }   // deadlock escape hatch'
+]);
+runAllTopics();
+</script>
+</body>
+</html>

@@ -1,0 +1,1124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gsec Lab — OOP Pillars & Throwable Visualizer</title>
+<style>
+:root{
+  --bg:#0f1220; --bg2:#131730; --panel:#181d33; --panel2:#1f2440; --panel3:#262c4d;
+  --line:#2b3157; --line2:#3a4170;
+  --ink:#eaeefb; --mut:#9aa3c7; --dim:#6d76a0;
+  --amber:#f0b45f; --blue:#86a8f2; --red:#e8798a; --green:#8fd6a3; --mauve:#b79cf0; --teal:#63cfc0; --pink:#e8a2c8;
+  --mono:ui-monospace,'Cascadia Code','JetBrains Mono',Consolas,'Courier New',monospace;
+  --sans:'Segoe UI',system-ui,-apple-system,Roboto,'Helvetica Neue',sans-serif;
+  --r:14px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  background-image:radial-gradient(1200px 500px at 80% -10%, #1c2247 0%, transparent 60%),
+                   radial-gradient(900px 420px at -10% 20%, #171c3a 0%, transparent 55%);}
+::selection{background:#3a4170;color:#fff}
+
+/* ---------- header ---------- */
+header{padding:34px 26px 20px;max-width:1280px;margin:0 auto}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.22em;text-transform:uppercase;color:var(--teal)}
+h1{font-size:clamp(26px,3.4vw,40px);font-weight:800;letter-spacing:-.02em;margin:6px 0 8px}
+h1 .k{color:var(--amber)} h1 .c{color:var(--blue)}
+.sub{color:var(--mut);max-width:860px;font-size:15px}
+
+/* ---------- tabs ---------- */
+nav.tabs{position:sticky;top:0;z-index:50;background:rgba(15,18,32,.92);backdrop-filter:blur(8px);
+  border-bottom:1px solid var(--line);padding:10px 26px;display:flex;gap:8px;flex-wrap:wrap;max-width:100%;justify-content:center}
+.tab-btn{background:var(--panel);border:1px solid var(--line);color:var(--mut);padding:9px 16px;border-radius:999px;
+  cursor:pointer;font-size:13.5px;font-weight:600;font-family:var(--sans);transition:all .18s}
+.tab-btn:hover{color:var(--ink);border-color:var(--line2)}
+.tab-btn.active{color:#0f1220;border-color:transparent}
+.tab-btn.active[data-tab="code"]{background:var(--ink)}
+.tab-btn.active[data-tab="encap"]{background:var(--green)}
+.tab-btn.active[data-tab="poly"]{background:var(--mauve)}
+.tab-btn.active[data-tab="inherit"]{background:var(--blue)}
+.tab-btn.active[data-tab="abstract"]{background:var(--pink)}
+.tab-btn.active[data-tab="throwable"]{background:var(--amber)}
+.tab-btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+
+main{max-width:1280px;margin:0 auto;padding:26px}
+section.tab{display:none;animation:fade .25s ease}
+section.tab.active{display:block}
+@keyframes fade{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+
+/* ---------- generic cards ---------- */
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:20px 22px;margin-bottom:18px}
+.card h2{font-size:21px;letter-spacing:-.01em;margin-bottom:6px}
+.card h3{font-size:16px;margin:14px 0 6px}
+.card p{color:var(--mut);font-size:14.5px;margin-bottom:8px}
+.card p strong,.card li strong{color:var(--ink)}
+.card ul{margin:6px 0 10px 20px;color:var(--mut);font-size:14.5px}
+.card li{margin:4px 0}
+.tagline{display:inline-block;font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 10px;border-radius:6px;margin-bottom:10px;border:1px solid}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+@media(max-width:960px){.grid2,.grid3{grid-template-columns:1fr}}
+
+/* ---------- code blocks ---------- */
+.codewrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);overflow:hidden}
+.codebar{display:flex;align-items:center;gap:8px;padding:9px 14px;background:var(--panel2);border-bottom:1px solid var(--line);
+  font-family:var(--mono);font-size:12px;color:var(--mut)}
+.dot{width:10px;height:10px;border-radius:50%}
+.codebody{padding:12px 0;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.7}
+.cl{display:flex;white-space:pre;padding:0 16px;transition:background .25s,box-shadow .25s}
+.cl .ln{width:34px;flex:0 0 34px;text-align:right;margin-right:16px;color:#3d4570;user-select:none}
+.cl.hl{background:linear-gradient(90deg,rgba(240,180,95,.16),rgba(240,180,95,.03));box-shadow:inset 3px 0 0 var(--amber)}
+.cl.hl .ln{color:var(--amber)}
+.cl.err{background:linear-gradient(90deg,rgba(232,121,138,.18),transparent);box-shadow:inset 3px 0 0 var(--red)}
+.cl.err .ln{color:var(--red)}
+.tok-k{color:#c78df0;font-weight:600}      /* keyword */
+.tok-t{color:#7fd1c7}                      /* type */
+.tok-s{color:#a8d98b}                      /* string */
+.tok-c{color:#5b6390;font-style:italic}    /* comment */
+.tok-n{color:#f0b45f}                      /* number */
+.tok-m{color:#86a8f2}                      /* method call */
+.tok-a{color:#e8a2c8}                      /* annotation */
+
+/* ---------- stepper lab ---------- */
+.lab{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px;align-items:start}
+@media(max-width:960px){.lab{grid-template-columns:1fr}}
+.steppanel{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:18px 20px;position:sticky;top:70px}
+@media(max-width:960px){.steppanel{position:static}}
+.stephead{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.stepcount{font-family:var(--mono);font-size:12px;color:var(--dim)}
+.steptitle{font-size:17px;font-weight:700;margin-bottom:6px}
+.stepbody{color:var(--mut);font-size:14.5px;min-height:120px}
+.stepbody code{font-family:var(--mono);font-size:12.5px;background:var(--panel3);padding:1px 6px;border-radius:5px;color:var(--teal)}
+.stepnav{display:flex;gap:10px;margin-top:14px}
+.btn{background:var(--panel3);color:var(--ink);border:1px solid var(--line2);border-radius:9px;padding:9px 18px;
+  font-size:13.5px;font-weight:600;cursor:pointer;font-family:var(--sans);transition:all .15s}
+.btn:hover:not(:disabled){background:var(--line2)}
+.btn:disabled{opacity:.35;cursor:default}
+.btn.primary{background:var(--blue);color:#0f1220;border-color:transparent}
+.btn.primary:hover:not(:disabled){filter:brightness(1.1)}
+.btn:focus-visible{outline:2px solid var(--teal);outline-offset:2px}
+.progress{height:4px;background:var(--panel3);border-radius:99px;margin-top:14px;overflow:hidden}
+.progress i{display:block;height:100%;border-radius:99px;transition:width .3s ease;background:var(--teal)}
+
+/* ---------- pills / badges ---------- */
+.pill{display:inline-block;font-family:var(--mono);font-size:11px;padding:3px 9px;border-radius:99px;border:1px solid;margin:2px 4px 2px 0}
+.p-green{color:var(--green);border-color:rgba(143,214,163,.4);background:rgba(143,214,163,.08)}
+.p-red{color:var(--red);border-color:rgba(232,121,138,.4);background:rgba(232,121,138,.08)}
+.p-amber{color:var(--amber);border-color:rgba(240,180,95,.4);background:rgba(240,180,95,.08)}
+.p-blue{color:var(--blue);border-color:rgba(134,168,242,.4);background:rgba(134,168,242,.08)}
+.p-mauve{color:var(--mauve);border-color:rgba(183,156,240,.4);background:rgba(183,156,240,.08)}
+
+.callout{border-radius:12px;padding:14px 16px;margin:12px 0;font-size:14px;border:1px solid}
+.callout.bug{background:rgba(232,121,138,.08);border-color:rgba(232,121,138,.35)}
+.callout.ok{background:rgba(143,214,163,.08);border-color:rgba(143,214,163,.35)}
+.callout.tip{background:rgba(134,168,242,.08);border-color:rgba(134,168,242,.35)}
+.callout b{display:block;margin-bottom:4px}
+.callout.bug b{color:var(--red)} .callout.ok b{color:var(--green)} .callout.tip b{color:var(--blue)}
+.callout p{color:var(--mut)}
+
+/* ---------- interactive demos ---------- */
+.demo{background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:16px}
+.demo label{font-size:13px;color:var(--mut);display:block;margin-bottom:6px;font-weight:600}
+.demo input[type=number],.demo input[type=text],.demo select{background:#0c0f1d;border:1px solid var(--line2);color:var(--ink);
+  border-radius:8px;padding:9px 12px;font-family:var(--mono);font-size:14px;width:130px}
+.demo select{width:auto;min-width:200px;cursor:pointer}
+.demo input:focus,.demo select:focus{outline:2px solid var(--teal);outline-offset:1px}
+.console{background:#090b16;border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-family:var(--mono);
+  font-size:13px;margin-top:12px;min-height:90px;line-height:1.8}
+.console .prompt{color:var(--dim)}
+.console .out{color:var(--green)} .console .warn{color:var(--amber)} .console .fail{color:var(--red)} .console .info{color:var(--blue)}
+.row{display:flex;gap:12px;flex-wrap:wrap;align-items:flex-end}
+
+/* ---------- SVG diagrams ---------- */
+.svgwrap{background:#0c0f1d;border:1px solid var(--line);border-radius:var(--r);padding:10px;overflow-x:auto}
+svg text{font-family:var(--mono)}
+.node{cursor:pointer;transition:filter .15s}
+.node:hover{filter:brightness(1.25)}
+.node.sel rect{stroke-width:2.5}
+.edge{stroke:#3a4170;stroke-width:1.6;fill:none}
+.legend{display:flex;gap:16px;flex-wrap:wrap;padding:10px 6px 4px;font-size:12.5px;color:var(--mut);font-family:var(--mono)}
+.legend i{display:inline-block;width:11px;height:11px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+
+/* ---------- throwable detail ---------- */
+.detail{background:var(--panel);border:1px solid var(--line2);border-radius:var(--r);padding:18px 20px;min-height:180px}
+.detail h3{font-family:var(--mono);font-size:17px;margin-bottom:8px}
+.subtabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:18px}
+.subtab-btn{background:transparent;border:1px solid var(--line);color:var(--mut);padding:7px 14px;border-radius:8px;
+  cursor:pointer;font-size:13px;font-weight:600;font-family:var(--sans)}
+.subtab-btn.active{background:var(--amber);color:#0f1220;border-color:transparent}
+.subview{display:none}.subview.active{display:block;animation:fade .2s ease}
+
+table{width:100%;border-collapse:collapse;font-size:13.5px;margin:10px 0}
+th{text-align:left;font-family:var(--mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--dim);
+  padding:8px 10px;border-bottom:1px solid var(--line2)}
+td{padding:9px 10px;border-bottom:1px solid var(--line);color:var(--mut);vertical-align:top}
+td:first-child{font-family:var(--mono);color:var(--ink);white-space:nowrap}
+
+footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);font-size:12.5px;font-family:var(--mono);
+  border-top:1px solid var(--line);text-align:center}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="eyebrow">Interactive Java Lab · built from your own code</div>
+  <h1><span class="k">class</span> <span class="c">Gsec</span> — OOP Pillars & the Throwable Family</h1>
+  <p class="sub">Every concept below is anchored to the exact <code style="font-family:var(--mono);color:var(--teal)">Gsec</code> / <code style="font-family:var(--mono);color:var(--teal)">Main</code> code you wrote — highlighted line by line — then extended just enough to show what the code <em>doesn't</em> demonstrate yet. Finish with a full clickable map of <code style="font-family:var(--mono);color:var(--amber)">java.lang.Throwable</code>.</p>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button class="tab-btn active" data-tab="code">① Your Code</button>
+  <button class="tab-btn" data-tab="encap">② Encapsulation</button>
+  <button class="tab-btn" data-tab="poly">③ Polymorphism</button>
+  <button class="tab-btn" data-tab="inherit">④ Inheritance</button>
+  <button class="tab-btn" data-tab="abstract">⑤ Abstraction</button>
+  <button class="tab-btn" data-tab="throwable">⑥ Throwable & Exceptions</button>
+</nav>
+
+<main>
+<!-- ================= TAB 1 : YOUR CODE ================= -->
+<section class="tab active" id="tab-code">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Ground truth</span>
+    <h2>The code everything else is built from</h2>
+    <p>Read it once with fresh eyes. The colored markers on the right margin of each concept tab will point back to these exact lines. One line in <code style="font-family:var(--mono)">Main</code> actually <strong>does not compile</strong> — see the red highlight and the callout below.</p>
+  </div>
+  <div class="grid2">
+    <div>
+      <div class="codewrap">
+        <div class="codebar"><span class="dot" style="background:var(--red)"></span><span class="dot" style="background:var(--amber)"></span><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java</div>
+        <div class="codebody" id="code-main"></div>
+      </div>
+    </div>
+    <div>
+      <div class="callout bug">
+        <b>⛔ Compile error hiding in Main (line 46)</b>
+        <p><code style="font-family:var(--mono)">new Gsec()</code> calls a <strong>no-arg constructor</strong> — but you commented it out. The moment you wrote your own 4-arg constructor, Java <strong>stopped giving you the free default constructor</strong>. Result: <em>"constructor Gsec() is undefined"</em>. Fix: uncomment the no-arg constructor, <em>or</em> call <code style="font-family:var(--mono)">new Gsec("Sreekanth","Dell",17,101)</code>.</p>
+      </div>
+      <div class="callout tip">
+        <b>💡 Why this bug is actually a lesson</b>
+        <p>Two constructors with different parameter lists living in one class = <strong>constructor overloading</strong> = compile-time polymorphism. Your commented-out code was one uncomment away from demonstrating it. Tab ③ builds on exactly this.</p>
+      </div>
+      <div class="card">
+        <h3>Where each pillar lives in this file</h3>
+        <ul>
+          <li><span class="pill p-green">Encapsulation</span> <code style="font-family:var(--mono)">private int age</code> + <code style="font-family:var(--mono)">setAge / getAge</code> — already ✅ present</li>
+          <li><span class="pill p-mauve">Polymorphism</span> constructor overloading — ⚠️ one uncomment away</li>
+          <li><span class="pill p-blue">Inheritance</span> — ❌ not yet; tab ④ extends Gsec</li>
+          <li><span class="pill p-blue" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Abstraction</span> — ❌ not yet; tab ⑤ abstracts Gsec</li>
+        </ul>
+        <p style="margin-top:8px">Also note: <code style="font-family:var(--mono)">name</code>, <code style="font-family:var(--mono)">laptop</code>, <code style="font-family:var(--mono)">registerNumber</code> are <strong>default (package-private)</strong> — any class in the same package can corrupt them. Only <code style="font-family:var(--mono)">age</code> is protected. That asymmetry is the whole story of tab ②.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 2 : ENCAPSULATION ================= -->
+<section class="tab" id="tab-encap">
+  <div class="card">
+    <span class="tagline" style="color:var(--green);border-color:rgba(143,214,163,.4)">Pillar 1</span>
+    <h2>Encapsulation — data + methods sealed in one capsule, access on your terms</h2>
+    <p><strong>Definition:</strong> bundle the state (fields) and the behavior that guards it (methods) inside one class, make the state <code style="font-family:var(--mono)">private</code>, and expose it only through controlled <strong>getters/setters</strong>. Your class already does this — <em>for exactly one field</em>. Step through to see why <code style="font-family:var(--mono)">age</code> is safe and <code style="font-family:var(--mono)">name</code> is not.</p>
+  </div>
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;Gsec.java — encapsulation lens</div>
+      <div class="codebody" id="code-encap"></div>
+    </div>
+    <div>
+      <div class="steppanel" id="step-encap"></div>
+    </div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="demo">
+      <h3 style="margin-bottom:10px">🔬 Live capsule — poke the object like Main does</h3>
+      <div class="row">
+        <div><label for="ageIn">age to pass into setAge(int age)</label>
+        <input type="number" id="ageIn" value="17"></div>
+        <button class="btn primary" id="btnSetAge">scoldavinas.setAge(...)</button>
+        <button class="btn" id="btnValidate">scoldavinas.validator()</button>
+        <button class="btn" id="btnDirect">try scoldavinas.age = -5</button>
+      </div>
+      <div class="console" id="encapConsole"><span class="prompt">// console — press a button</span></div>
+    </div>
+    <div class="card">
+      <h3>Why this counts as encapsulation (the checklist)</h3>
+      <ul>
+        <li><strong>State hidden:</strong> <code style="font-family:var(--mono)">private int age</code> → invisible outside Gsec. The compiler physically blocks <code style="font-family:var(--mono)">scoldavinas.age = -5</code>.</li>
+        <li><strong>Single gateway in:</strong> <code style="font-family:var(--mono)">setAge()</code> is the only door. Today it just assigns; tomorrow you can add <code style="font-family:var(--mono)">if(age &lt; 0) throw new IllegalArgumentException()</code> — <em>without touching any caller</em>.</li>
+        <li><strong>Single gateway out:</strong> <code style="font-family:var(--mono)">getAge()</code> lets you read without letting you write.</li>
+        <li><strong>Behavior lives with data:</strong> <code style="font-family:var(--mono)">validator()</code> checks <code style="font-family:var(--mono)">age</code> from the <em>inside</em> — no getter needed within the class.</li>
+      </ul>
+      <div class="callout bug"><b>The gap in your class</b><p><code style="font-family:var(--mono)">name</code>, <code style="font-family:var(--mono)">laptop</code>, <code style="font-family:var(--mono)">registerNumber</code> have no modifier → package-private → any same-package class can write <code style="font-family:var(--mono)">scoldavinas.registerNumber = 999999</code> and nothing stops it. Full encapsulation = make all three <code style="font-family:var(--mono)">private</code> + add getters/setters.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 3 : POLYMORPHISM ================= -->
+<section class="tab" id="tab-poly">
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">Pillar 2</span>
+    <h2>Polymorphism — one name, many forms</h2>
+    <p>Java gives you two flavors. <strong>Compile-time (static)</strong>: the <em>compiler</em> picks which method by looking at the parameter list → <strong>overloading</strong>. <strong>Runtime (dynamic)</strong>: the <em>JVM</em> picks which method by looking at the actual object → <strong>overriding</strong>. Your commented-out no-arg constructor is the overloading half; we add a <code style="font-family:var(--mono)">Student</code> subclass for the overriding half.</p>
+  </div>
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;Gsec.java + Student.java — polymorphism lens</div>
+      <div class="codebody" id="code-poly"></div>
+    </div>
+    <div><div class="steppanel" id="step-poly"></div></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="demo">
+      <h3 style="margin-bottom:10px">🔬 Dynamic dispatch simulator</h3>
+      <div class="row">
+        <div><label for="refType">Reference type (what the compiler sees)</label>
+          <select id="refType"><option>Gsec</option><option>Student</option></select></div>
+        <div><label for="objType">Object type (what the JVM sees at runtime)</label>
+          <select id="objType"><option>Gsec</option><option selected>Student</option></select></div>
+        <button class="btn primary" id="btnDispatch">ref.display()</button>
+      </div>
+      <div class="console" id="polyConsole"><span class="prompt">// pick a combination and dispatch</span></div>
+    </div>
+    <div class="card">
+      <h3>Why each mechanism is polymorphism</h3>
+      <ul>
+        <li><strong>Overloading (compile-time):</strong> <code style="font-family:var(--mono)">Gsec()</code> and <code style="font-family:var(--mono)">Gsec(String,String,int,int)</code> share one name; the argument list you write selects the winner <em>before the program ever runs</em>. Same for methods: <code style="font-family:var(--mono)">setAge(int)</code> vs a hypothetical <code style="font-family:var(--mono)">setAge(String)</code>.</li>
+        <li><strong>Overriding (runtime):</strong> <code style="font-family:var(--mono)">Gsec ref = new Student();</code> → the reference says Gsec, the heap object says Student → <code style="font-family:var(--mono)">ref.display()</code> runs <strong>Student's</strong> version. That decision is made at runtime by the JVM's virtual-method table.</li>
+        <li><strong>Rule of thumb:</strong> reference type decides <em>what you may call</em>; object type decides <em>which body runs</em>.</li>
+      </ul>
+      <div class="callout tip"><b>@Override matters</b><p>Always annotate overrides with <code style="font-family:var(--mono)">@Override</code>. If you typo the signature (e.g. <code style="font-family:var(--mono)">Display()</code>), the compiler screams instead of silently creating an unrelated method.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 4 : INHERITANCE ================= -->
+<section class="tab" id="tab-inherit">
+  <div class="card">
+    <span class="tagline" style="color:var(--blue);border-color:rgba(134,168,242,.4)">Pillar 3</span>
+    <h2>Inheritance — reuse a parent, specialize in a child</h2>
+    <p>A child class acquires the fields and methods of its parent with <code style="font-family:var(--mono)">extends</code>. Java allows <strong>single</strong> and <strong>multilevel</strong> inheritance with classes, but bans <strong>multiple</strong> class inheritance (the diamond problem) — and that's exactly the hole that <strong>interfaces</strong> fill. Click each diagram node.</p>
+  </div>
+  <div class="grid2">
+    <div class="svgwrap">
+      <div class="legend"><span><i style="background:var(--blue)"></i>class</span><span><i style="background:var(--teal)"></i>interface</span><span><i style="background:var(--red)"></i>illegal in Java</span></div>
+      <svg id="inhSvg" viewBox="0 0 980 560" role="img" aria-label="Inheritance diagrams"></svg>
+    </div>
+    <div class="detail" id="inhDetail">
+      <h3 style="color:var(--blue)">Click any node ↖</h3>
+      <p style="color:var(--mut)">Three diagrams share this canvas: <strong>(A)</strong> multilevel class inheritance built on your Gsec, <strong>(B)</strong> the forbidden multiple-class diamond, and <strong>(C)</strong> the interface chain that legally achieves the multilevel + multiple effect.</p>
+    </div>
+  </div>
+  <div class="lab" style="margin-top:18px">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;Multilevel via classes AND via interfaces</div>
+      <div class="codebody" id="code-inherit"></div>
+    </div>
+    <div><div class="steppanel" id="step-inherit"></div></div>
+  </div>
+  <div class="card">
+    <h3>How "multilevel inheritance using an interface" actually works</h3>
+    <ul>
+      <li><strong>Level chain with interfaces:</strong> <code style="font-family:var(--mono)">interface Person</code> → <code style="font-family:var(--mono)">interface Learner extends Person</code> → <code style="font-family:var(--mono)">class Gsec implements Learner</code>. Gsec must satisfy <em>the whole chain</em> — both <code style="font-family:var(--mono)">breathe()</code> and <code style="font-family:var(--mono)">study()</code>. That is multilevel inheritance of <em>type &amp; contract</em>.</li>
+      <li><strong>An interface may extend MANY interfaces</strong> (<code style="font-family:var(--mono)">interface Learner extends Person, Coder</code>) — legal, because interfaces carry no state to collide.</li>
+      <li><strong>A class may implement MANY interfaces</strong> while still extending one class: <code style="font-family:var(--mono)">class Student extends Gsec implements Sports, Placement</code> — Java's answer to multiple inheritance.</li>
+      <li><strong>Diamond with default methods?</strong> If two interfaces give the same <code style="font-family:var(--mono)">default</code> method, the class is <em>forced to override</em> and may pick one via <code style="font-family:var(--mono)">Person.super.intro()</code> — ambiguity resolved explicitly, never silently.</li>
+    </ul>
+  </div>
+</section>
+
+<!-- ================= TAB 5 : ABSTRACTION ================= -->
+<section class="tab" id="tab-abstract">
+  <div class="card">
+    <span class="tagline" style="color:var(--pink);border-color:rgba(232,162,200,.4)">Pillar 4</span>
+    <h2>Abstraction — expose the <em>what</em>, hide the <em>how</em></h2>
+    <p>Encapsulation hides <strong>data</strong>; abstraction hides <strong>implementation</strong>. Callers of <code style="font-family:var(--mono)">validator()</code> shouldn't care whether eligibility is "age ≥ 18" or a database rule — they just call it. Java gives two tools: <strong>abstract classes</strong> (0–100% abstract, can hold state) and <strong>interfaces</strong> (pure contract, 100% abstract*). Step through the abstracted redesign of your Gsec.</p>
+  </div>
+  <div class="lab">
+    <div class="codewrap">
+      <div class="codebar"><span class="dot" style="background:var(--pink)"></span>&nbsp;CollegePerson.java — Gsec, abstracted</div>
+      <div class="codebody" id="code-abstract"></div>
+    </div>
+    <div><div class="steppanel" id="step-abstract"></div></div>
+  </div>
+  <div class="grid2" style="margin-top:18px">
+    <div class="card">
+      <h3>Abstract class vs Interface — decision table</h3>
+      <table>
+        <tr><th>Question</th><th>abstract class</th><th>interface</th></tr>
+        <tr><td>Fields with state?</td><td>✅ any fields</td><td>only <code style="font-family:var(--mono)">public static final</code> constants</td></tr>
+        <tr><td>Constructors?</td><td>✅ yes (called via super)</td><td>❌ never</td></tr>
+        <tr><td>Method bodies?</td><td>✅ mix abstract + concrete</td><td>only <code style="font-family:var(--mono)">default</code> / <code style="font-family:var(--mono)">static</code> / <code style="font-family:var(--mono)">private</code> (Java 8+)</td></tr>
+        <tr><td>How many can a class take?</td><td>extends <strong>one</strong></td><td>implements <strong>many</strong></td></tr>
+        <tr><td>Can you do <code style="font-family:var(--mono)">new</code> on it?</td><td>❌ never</td><td>❌ never (only anonymous/lambda)</td></tr>
+        <tr><td>Pick it when…</td><td>"is-a" + shared code/state</td><td>"can-do" capability contract</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>Why the redesign is abstraction (checklist)</h3>
+      <ul>
+        <li><code style="font-family:var(--mono)">abstract class CollegePerson</code> <strong>cannot be instantiated</strong> — it exists only as an idea, like "Shape" or "Vehicle".</li>
+        <li><code style="font-family:var(--mono)">abstract boolean isEligible();</code> declares <strong>what</strong> must exist with zero opinion on <strong>how</strong>.</li>
+        <li><code style="font-family:var(--mono)">Gsec extends CollegePerson</code> supplies the hidden <em>how</em>: <code style="font-family:var(--mono)">return getAge() &gt;= 18;</code>.</li>
+        <li><code style="font-family:var(--mono)">validator()</code> stays concrete in the parent and calls the abstract method → the <strong>Template Method pattern</strong>: fixed skeleton, pluggable detail.</li>
+        <li>Swap the rule tomorrow (18 → 21, or check documents) — <strong>no caller changes</strong>. That immunity is the point of abstraction.</li>
+      </ul>
+      <div class="callout tip"><b>*Footnote for interviews</b><p>Since Java 8, interfaces can carry <code style="font-family:var(--mono)">default</code> method bodies, so "interface = 100% abstraction" is only strictly true pre-Java 8. Say that out loud in a viva and watch the examiner smile.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TAB 6 : THROWABLE ================= -->
+<section class="tab" id="tab-throwable">
+  <div class="card">
+    <span class="tagline" style="color:var(--amber);border-color:rgba(240,180,95,.4)">The safety net</span>
+    <h2>Throwable — the family tree of everything that can go wrong</h2>
+    <p>Every crash, every <code style="font-family:var(--mono)">catch</code>, every red stack trace starts at one root class: <code style="font-family:var(--mono)">java.lang.Throwable</code>. It splits into <strong style="color:var(--red)">Error</strong> (JVM-level, don't catch) and <strong style="color:var(--blue)">Exception</strong> (application-level, handle it) — and Exception splits again into <strong style="color:var(--amber)">checked</strong> (compiler forces you) and <strong style="color:var(--teal)">unchecked</strong> (RuntimeException, your bug). Click every node in the tree.</p>
+  </div>
+  <div class="subtabs" role="tablist">
+    <button class="subtab-btn active" data-sub="hier">🌳 Hierarchy Map</button>
+    <button class="subtab-btn" data-sub="checked">✅ Checked Exceptions</button>
+    <button class="subtab-btn" data-sub="unchecked">⚡ Unchecked Exceptions</button>
+    <button class="subtab-btn" data-sub="errors">💀 Errors</button>
+    <button class="subtab-btn" data-sub="syntax">📐 Syntax Toolkit</button>
+  </div>
+
+  <div class="subview active" id="sub-hier">
+    <div class="grid2" style="grid-template-columns:1.5fr 1fr">
+      <div class="svgwrap">
+        <div class="legend">
+          <span><i style="background:#b79cf0"></i>root</span>
+          <span><i style="background:#e8798a"></i>Error branch (unchecked)</span>
+          <span><i style="background:#f0b45f"></i>checked Exception</span>
+          <span><i style="background:#63cfc0"></i>unchecked (RuntimeException)</span>
+        </div>
+        <svg id="throwSvg" viewBox="0 0 1240 620" role="img" aria-label="Throwable hierarchy"></svg>
+      </div>
+      <div class="detail" id="throwDetail">
+        <h3 style="color:var(--amber)">Click any node ↖</h3>
+        <p style="color:var(--mut)">Each node shows: what it is, checked vs unchecked, when the JVM/you throws it, and a one-line trigger example — including the exceptions <em>your own Gsec code</em> is one step away from throwing.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="subview" id="sub-checked">
+    <div class="card">
+      <h3 style="color:var(--amber)">Checked exceptions — "the compiler is your co-signer"</h3>
+      <p><strong>Definition:</strong> subclasses of <code style="font-family:var(--mono)">Exception</code> that are <em>not</em> under <code style="font-family:var(--mono)">RuntimeException</code>. They model failures in the <strong>outside world</strong> (files, networks, databases, threads) that can happen even in perfect code — so the compiler <strong>refuses to compile</strong> unless you either <code style="font-family:var(--mono)">catch</code> them or declare <code style="font-family:var(--mono)">throws</code>. Checked = checked <em>at compile time</em>.</p>
+      <table>
+        <tr><th>Type</th><th>Thrown when…</th><th>Classic trigger</th></tr>
+        <tr><td>IOException</td><td>any input/output pipe breaks</td><td>reading a stream that closes mid-way</td></tr>
+        <tr><td>FileNotFoundException</td><td>path doesn't exist (child of IOException)</td><td><code style="font-family:var(--mono)">new FileReader("ghost.txt")</code></td></tr>
+        <tr><td>SQLException</td><td>database access / query fails</td><td>bad SQL, dead connection</td></tr>
+        <tr><td>ClassNotFoundException</td><td>class name not found at load time</td><td><code style="font-family:var(--mono)">Class.forName("com.x.Ghost")</code></td></tr>
+        <tr><td>InterruptedException</td><td>a sleeping/waiting thread is interrupted</td><td><code style="font-family:var(--mono)">Thread.sleep(1000)</code></td></tr>
+        <tr><td>CloneNotSupportedException</td><td>clone() without implementing Cloneable</td><td><code style="font-family:var(--mono)">obj.clone()</code></td></tr>
+        <tr><td>ParseException</td><td>text doesn't match the expected format</td><td><code style="font-family:var(--mono)">dateFormat.parse("31-31-2026")</code></td></tr>
+      </table>
+    </div>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;Checked in action — Gsec loads students from a file</div><div class="codebody" id="code-checked"></div></div>
+  </div>
+
+  <div class="subview" id="sub-unchecked">
+    <div class="card">
+      <h3 style="color:var(--teal)">Unchecked exceptions — "your bug, your 3 AM stack trace"</h3>
+      <p><strong>Definition:</strong> <code style="font-family:var(--mono)">RuntimeException</code> and all its children. They signal <strong>programming mistakes</strong> — broken assumptions that better code would prevent. The compiler stays silent (unchecked <em>at compile time</em>); they detonate at runtime. Best practice: don't catch them — <strong>fix the code</strong> or validate inputs early (like <code style="font-family:var(--mono)">setAge</code> should).</p>
+      <table>
+        <tr><th>Type</th><th>Thrown when…</th><th>Trigger in/near YOUR code</th></tr>
+        <tr><td>NullPointerException</td><td>calling members on a null reference</td><td><code style="font-family:var(--mono)">Gsec g = null; g.display();</code></td></tr>
+        <tr><td>ArithmeticException</td><td>illegal math — integer ÷ 0</td><td><code style="font-family:var(--mono)">int avg = total / 0;</code></td></tr>
+        <tr><td>ArrayIndexOutOfBoundsException</td><td>index &lt; 0 or ≥ length</td><td><code style="font-family:var(--mono)">args[5]</code> when no args passed to main</td></tr>
+        <tr><td>StringIndexOutOfBoundsException</td><td>bad index into a String</td><td><code style="font-family:var(--mono)">name.charAt(99)</code></td></tr>
+        <tr><td>NumberFormatException</td><td>parsing non-numeric text</td><td><code style="font-family:var(--mono)">Integer.parseInt("seventeen")</code></td></tr>
+        <tr><td>IllegalArgumentException</td><td>caller passed a nonsense value</td><td><code style="font-family:var(--mono)">setAge(-5)</code> after you add validation ✔</td></tr>
+        <tr><td>IllegalStateException</td><td>method called at the wrong time</td><td>validator() before setAge() was ever called</td></tr>
+        <tr><td>ClassCastException</td><td>invalid downcast at runtime</td><td><code style="font-family:var(--mono)">(Student) new Gsec(...)</code></td></tr>
+      </table>
+    </div>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;Unchecked in action — hardening setAge()</div><div class="codebody" id="code-unchecked"></div></div>
+  </div>
+
+  <div class="subview" id="sub-errors">
+    <div class="card">
+      <h3 style="color:var(--red)">Errors — "the building is on fire, stop reorganizing your desk"</h3>
+      <p><strong>Definition:</strong> subclasses of <code style="font-family:var(--mono)">java.lang.Error</code> — serious failures in the <strong>JVM or environment itself</strong>. They are unchecked, and by convention you <strong>never catch them</strong>: there's no meaningful recovery when the JVM has no memory or the class files are broken. Let the process die, read the log, fix the cause.</p>
+      <table>
+        <tr><th>Type</th><th>Meaning</th><th>Classic cause</th></tr>
+        <tr><td>StackOverflowError</td><td>call stack exhausted</td><td>recursion with no base case — <code style="font-family:var(--mono)">validator()</code> calling itself</td></tr>
+        <tr><td>OutOfMemoryError</td><td>heap full, GC gave up</td><td>creating Gsec objects in an infinite loop into a List</td></tr>
+        <tr><td>NoClassDefFoundError</td><td>class existed at compile time, missing at runtime</td><td>deleted .class / broken classpath</td></tr>
+        <tr><td>ExceptionInInitializerError</td><td>static initializer block blew up</td><td><code style="font-family:var(--mono)">static { int x = 1/0; }</code></td></tr>
+        <tr><td>AssertionError</td><td>an <code style="font-family:var(--mono)">assert</code> statement failed</td><td><code style="font-family:var(--mono)">assert age >= 0;</code> with -ea enabled</td></tr>
+        <tr><td>VirtualMachineError</td><td>abstract parent: JVM broken/out of resources</td><td>parent of the two above</td></tr>
+        <tr><td>LinkageError</td><td>class incompatibility after compilation</td><td>library upgraded, binary-incompatible</td></tr>
+      </table>
+    </div>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;Watching Errors happen (never do this in prod)</div><div class="codebody" id="code-errors"></div></div>
+  </div>
+
+  <div class="subview" id="sub-syntax">
+    <div class="grid2">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;1 · try / catch / finally — the full skeleton</div><div class="codebody" id="code-syn1"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;2 · throw vs throws + custom exception</div><div class="codebody" id="code-syn2"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;3 · multi-catch & ordering rule</div><div class="codebody" id="code-syn3"></div></div>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;4 · try-with-resources (auto-close)</div><div class="codebody" id="code-syn4"></div></div>
+    </div>
+    <div class="card">
+      <h3>Six rules to never forget</h3>
+      <ul>
+        <li><strong>throw</strong> = the action (throws one object, inside a method). <strong>throws</strong> = the warning label (on the method signature, lists classes).</li>
+        <li>Catch <strong>child before parent</strong> — <code style="font-family:var(--mono)">catch(Exception e)</code> above <code style="font-family:var(--mono)">catch(ArithmeticException e)</code> is a compile error ("already caught").</li>
+        <li><strong>finally always runs</strong> — even after return; skipped only by <code style="font-family:var(--mono)">System.exit()</code> or JVM death.</li>
+        <li>Multi-catch types must be <strong>unrelated</strong> (no parent|child pairs) and the variable is implicitly final.</li>
+        <li>Custom checked → <code style="font-family:var(--mono)">extends Exception</code>. Custom unchecked → <code style="font-family:var(--mono)">extends RuntimeException</code>.</li>
+        <li><code style="font-family:var(--mono)">e.getMessage()</code> prints just the message; <code style="font-family:var(--mono)">e.toString()</code> = class name + message; <code style="font-family:var(--mono)">printStackTrace()</code> = the full trail. Output-format questions love this trio.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</main>
+<footer>Gsec Interactive Lab · single-file · works offline · click, step, break things safely</footer>
+<script>
+/* ================= syntax highlighter ================= */
+function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+const HI_RE = /(\/\/.*$)|("(?:[^"\\]|\\.)*")|(@\w+)|\b(abstract|assert|break|case|catch|class|continue|default|do|else|enum|extends|final|finally|for|if|implements|import|instanceof|interface|native|new|package|private|protected|public|return|static|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|null|true|false|int|long|double|float|boolean|char|byte|short)\b|\b([A-Z]\w*)\b|\b(\d[\d_]*(?:\.\d+)?)\b|([a-z_]\w*)(?=\s*\()/g;
+function hi(line){
+  let out='', last=0, m;
+  HI_RE.lastIndex=0;
+  while((m=HI_RE.exec(line))!==null){
+    out+=esc(line.slice(last,m.index));
+    const cls = m[1]?'tok-c':m[2]?'tok-s':m[3]?'tok-a':m[4]?'tok-k':m[5]?'tok-t':m[6]?'tok-n':'tok-m';
+    out+='<span class="'+cls+'">'+esc(m[0])+'</span>';
+    last=m.index+m[0].length;
+  }
+  return out+esc(line.slice(last));
+}
+function renderCode(id, lines, opts){
+  opts=opts||{};
+  const box=document.getElementById(id); box.innerHTML='';
+  lines.forEach((ln,i)=>{
+    const d=document.createElement('div'); d.className='cl'; d.dataset.n=i+1;
+    if((opts.err||[]).includes(i+1)) d.classList.add('err');
+    d.innerHTML='<span class="ln">'+(i+1)+'</span><span class="src">'+hi(ln)+'</span>';
+    box.appendChild(d);
+  });
+}
+/* find 1-based line number containing a substring */
+function L(lines,sub){const i=lines.findIndex(l=>l.includes(sub));return i+1;}
+function R(lines,a,b){const s=L(lines,a),e=L(lines,b);const r=[];for(let i=s;i<=e;i++)r.push(i);return r;}
+
+/* ================= tabs ================= */
+document.querySelectorAll('.tab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.tab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('section.tab').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('tab-'+b.dataset.tab).classList.add('active');
+  if(window.scrollTo)try{window.scrollTo({top:0});}catch(e){}
+}));
+document.querySelectorAll('.subtab-btn').forEach(b=>b.addEventListener('click',()=>{
+  document.querySelectorAll('.subtab-btn').forEach(x=>x.classList.remove('active'));
+  document.querySelectorAll('.subview').forEach(x=>x.classList.remove('active'));
+  b.classList.add('active');
+  document.getElementById('sub-'+b.dataset.sub).classList.add('active');
+}));
+
+/* ================= stepper factory ================= */
+function makeStepper(codeId,panelId,steps){
+  const panel=document.getElementById(panelId);
+  let i=0;
+  function paint(){
+    const st=steps[i];
+    panel.innerHTML=
+      '<div class="stephead"><span class="stepcount">STEP '+(i+1)+' / '+steps.length+'</span></div>'+
+      '<div class="steptitle">'+st.t+'</div>'+
+      '<div class="stepbody">'+st.d+'</div>'+
+      '<div class="stepnav"><button class="btn" id="'+panelId+'-prev">← Prev</button>'+
+      '<button class="btn primary" id="'+panelId+'-next">Next →</button></div>'+
+      '<div class="progress"><i style="width:'+((i+1)/steps.length*100)+'%"></i></div>';
+    const code=document.getElementById(codeId);
+    code.querySelectorAll('.cl').forEach(c=>{c.classList.remove('hl');c.classList.remove('err');});
+    (st.hl||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('hl');});
+    (st.err||[]).forEach(n=>{const c=code.querySelector('.cl[data-n="'+n+'"]');if(c)c.classList.add('err');});
+    const first=code.querySelector('.cl.hl')||code.querySelector('.cl.err');
+    if(first&&first.scrollIntoView)first.scrollIntoView({block:'nearest',behavior:'smooth'});
+    const pv=document.getElementById(panelId+'-prev'),nx=document.getElementById(panelId+'-next');
+    pv.disabled=(i===0); nx.disabled=(i===steps.length-1);
+    pv.onclick=()=>{if(i>0){i--;paint();}};
+    nx.onclick=()=>{if(i<steps.length-1){i++;paint();}};
+  }
+  paint();
+}
+
+/* ================= TAB 1 · original code ================= */
+const SRC=[
+'class Gsec{',
+'',
+'    //class  variables',
+'    String name;',
+'    String laptop;',
+'    private int age;',
+'    int registerNumber;',
+'',
+'    // setter for age',
+'    public void setAge(int age){',
+'        this.age = age;',
+'    }',
+'',
+'    // getter for age',
+'    public int getAge(){',
+'        return age;',
+'    }',
+'',
+'    void validator(){',
+'        if(age < 18){',
+'            System.out.println("This guy is not eleigible for studying college");',
+'        }',
+'    }',
+'',
+'    // methods',
+'    void display(){',
+'        System.out.println("Hi sreekanth");',
+'        System.out.println(getAge());',
+'    }',
+'',
+'    String displayString(){',
+'        return "hello";',
+'    }',
+'',
+'    //No-arg constructor',
+'    // public Gsec(){',
+'    // }',
+'',
+'    public Gsec(String namenew, String laptop, int age, int registerNumber){',
+'        name = namenew;',
+'        this.laptop = laptop;',
+'        this.age = age;',
+'        this.registerNumber = registerNumber;',
+'    }',
+'}',
+'',
+'class Main{',
+'    public static void main(String[] args){',
+'        Gsec scoldavinas = new Gsec();   // <-- DOES NOT COMPILE',
+'        scoldavinas.setAge(17);',
+'        scoldavinas.validator();',
+'        scoldavinas.display();',
+'    }',
+'}'
+];
+renderCode('code-main',SRC,{err:[L(SRC,'DOES NOT COMPILE')]});
+
+/* ================= TAB 2 · encapsulation ================= */
+const ENC=[
+'class Gsec {',
+'',
+'    // exposed state — package-private (the weak spot)',
+'    String name;',
+'    String laptop;',
+'    int registerNumber;',
+'',
+'    // hidden state — the encapsulated field',
+'    private int age;',
+'',
+'    // WRITE gateway — the only door into age',
+'    public void setAge(int age) {',
+'        this.age = age;   // this.age = field, age = parameter',
+'    }',
+'',
+'    // READ gateway — look, but do not touch',
+'    public int getAge() {',
+'        return age;',
+'    }',
+'',
+'    // behavior guarding its own data',
+'    void validator() {',
+'        if (age < 18) {',
+'            System.out.println("Not eligible for studying college");',
+'        }',
+'    }',
+'}',
+'',
+'class Main {',
+'    public static void main(String[] args) {',
+'        Gsec scoldavinas = new Gsec();',
+'        scoldavinas.setAge(17);        // through the gate',
+'        // scoldavinas.age = -5;       // compile error: age is private',
+'        scoldavinas.validator();',
+'    }',
+'}'
+];
+renderCode('code-encap',ENC);
+makeStepper('code-encap','step-encap',[
+ {t:'The capsule itself',d:'A <code>class</code> is the capsule: state (fields) and behavior (methods) travel together as one unit. That bundling is the first half of encapsulation — but bundling alone is not enough. The second half is <strong>access control</strong>.',hl:[1]},
+ {t:'private = a compiler-enforced wall',d:'<code>private int age</code> makes <code>age</code> invisible to every class except Gsec. This is not a convention — the <strong>compiler physically rejects</strong> any outside line that touches it. Compare with the three fields above it, which have no modifier and are wide open to the package.',hl:[L(ENC,'private int age')],err:R(ENC,'String name','int registerNumber')},
+ {t:'The write gateway: setAge()',d:'The ONLY way in. Note <code>this.age = age</code>: the parameter <code>age</code> shadows the field, so <code>this.</code> disambiguates. Because every write funnels through here, you can later add validation (reject negatives, throw <code>IllegalArgumentException</code>) and <strong>no caller ever changes</strong>.',hl:R(ENC,'public void setAge','this.age = age')},
+ {t:'The read gateway: getAge()',d:'Callers may read the value but receive a <em>copy</em> of the int — they cannot use the getter to modify the field. Want a read-only field? Give it a getter and simply never write a setter.',hl:R(ENC,'public int getAge','return age')},
+ {t:'Behavior lives beside its data',d:'<code>validator()</code> reads <code>age</code> directly — no getter needed, because it is <em>inside the capsule</em>. The rule "is this person eligible?" lives in the same class as the data it judges. That locality is why encapsulated code is easy to reason about.',hl:R(ENC,'void validator','Not eligible')},
+ {t:'Proof at the call site',d:'Main can call <code>setAge(17)</code> and <code>validator()</code>, but the commented line <code>scoldavinas.age = -5</code> would fail with <em>"age has private access in Gsec"</em>. Try it in the live capsule below — then try the same attack on <code>registerNumber</code> and notice nothing stops you.',hl:[L(ENC,'setAge(17)'),L(ENC,'scoldavinas.validator')],err:[L(ENC,'age = -5')]}
+]);
+
+/* encapsulation live demo */
+let capAge=null;
+const encCon=document.getElementById('encapConsole');
+function encPrint(html){encCon.innerHTML+= '<br>'+html;encCon.scrollTop=encCon.scrollHeight;}
+document.getElementById('btnSetAge').onclick=()=>{
+  const v=parseInt(document.getElementById('ageIn').value,10);
+  if(Number.isNaN(v)){encPrint('<span class="fail">enter a number first</span>');return;}
+  capAge=v;
+  encPrint('<span class="info">setAge('+v+')</span> <span class="out">✔ field age = '+v+' — write went through the gateway</span>');
+};
+document.getElementById('btnValidate').onclick=()=>{
+  const a=(capAge===null?0:capAge);
+  if(capAge===null)encPrint('<span class="warn">age never set → int defaults to 0</span>');
+  if(a<18)encPrint('<span class="out">This guy is not eligible for studying college</span> <span class="prompt">// age '+a+' &lt; 18</span>');
+  else encPrint('<span class="prompt">(no output — validator() only speaks when age &lt; 18; silence = eligible. Age '+a+' passes.)</span>');
+};
+document.getElementById('btnDirect').onclick=()=>{
+  encPrint('<span class="fail">error: age has private access in Gsec</span> <span class="prompt">// compiler blocked it — encapsulation working</span>');
+};
+
+/* ================= TAB 3 · polymorphism ================= */
+const POL=[
+'class Gsec {',
+'    private int age;',
+'    String name;',
+'',
+'    // —— OVERLOADING · compile-time polymorphism ——',
+'    public Gsec() {                        // form 1: no-arg',
+'        this("Unknown", 0);',
+'    }',
+'    public Gsec(String name, int age) {    // form 2: 2-arg',
+'        this.name = name;',
+'        this.age  = age;',
+'    }',
+'',
+'    // same method name, different parameter lists',
+'    public void setAge(int age)    { this.age = age; }',
+'    public void setAge(String age) { this.age = Integer.parseInt(age); }',
+'',
+'    public int getAge() { return age; }',
+'',
+'    void display() {',
+'        System.out.println("Gsec.display -> Hi " + name);',
+'    }',
+'}',
+'',
+'// —— OVERRIDING · runtime polymorphism ——',
+'class Student extends Gsec {',
+'    public Student(String name, int age) { super(name, age); }',
+'',
+'    @Override',
+'    void display() {   // same signature, new body',
+'        System.out.println("Student.display -> child version");',
+'    }',
+'}',
+'',
+'class Main {',
+'    public static void main(String[] args) {',
+'        new Gsec();                        // compiler picks form 1',
+'        new Gsec("Adi", 18);               // compiler picks form 2',
+'',
+'        Gsec ref = new Student("Sree", 17); // parent ref, child object',
+'        ref.display();  // JVM runs STUDENT version at runtime',
+'    }',
+'}'
+];
+renderCode('code-poly',POL);
+makeStepper('code-poly','step-poly',[
+ {t:'Your bug was half a concept',d:'Your original file had the no-arg constructor <em>commented out</em>, which broke <code>new Gsec()</code>. Uncomment it next to the 4-arg one and suddenly TWO constructors share the name Gsec — that coexistence <strong>is</strong> constructor overloading.',hl:R(POL,'form 1','form 2')},
+ {t:'Overloading = same name, different parameter list',d:'The signature difference can be in <strong>count</strong> or <strong>type</strong> of parameters (return type alone is NOT enough). Here <code>setAge(int)</code> and <code>setAge(String)</code> are legal neighbors.',hl:R(POL,'setAge(int age)','setAge(String age)')},
+ {t:'Who decides? The COMPILER, before the program runs',d:'At each call site the compiler inspects the arguments you wrote — <code>new Gsec()</code> binds to form 1, <code>new Gsec("Adi",18)</code> to form 2 — and hard-wires that choice into the bytecode. Nothing is decided at runtime, hence <em>static / compile-time</em> polymorphism.',hl:[L(POL,'picks form 1'),L(POL,'picks form 2')]},
+ {t:'Overriding = same signature, new body in a child',d:'<code>Student</code> re-declares <code>display()</code> with the <em>identical</em> signature and replaces the behavior. <code>@Override</code> asks the compiler to verify the match — a typo like <code>Display()</code> becomes an error instead of a silent new method.',hl:R(POL,'@Override','child version')},
+ {t:'The upcast: parent reference, child object',d:'<code>Gsec ref = new Student(...)</code> is legal because a Student <em>is-a</em> Gsec. The reference type (Gsec) limits what you may <em>call</em>; the object type (Student) decides what actually <em>runs</em>.',hl:[L(POL,'parent ref, child object')]},
+ {t:'Who decides? The JVM, at runtime',d:'When <code>ref.display()</code> executes, the JVM looks at the real object on the heap (a Student) and dispatches to <strong>Student.display()</strong> via the virtual method table. Same call site, different behavior depending on the object — <em>dynamic / runtime</em> polymorphism. Try every combination in the simulator below.',hl:[L(POL,'STUDENT version at runtime')]}
+]);
+
+/* dispatch demo */
+document.getElementById('btnDispatch').onclick=()=>{
+  const r=document.getElementById('refType').value, o=document.getElementById('objType').value;
+  const c=document.getElementById('polyConsole');
+  let html='<span class="info">'+r+' ref = new '+o+'(...); ref.display();</span><br>';
+  if(r==='Student'&&o==='Gsec'){
+    html+='<span class="fail">error: incompatible types: Gsec cannot be converted to Student</span><br><span class="prompt">// a parent object is NOT a child — downward assignment needs an actual child object</span>';
+  }else if(o==='Student'){
+    html+='<span class="out">Student.display -> child version</span><br><span class="prompt">// object is Student ⇒ JVM dispatches to the OVERRIDE'+(r==='Gsec'?' (even through a Gsec reference!)':'')+'</span>';
+  }else{
+    html+='<span class="out">Gsec.display -> Hi sreekanth</span><br><span class="prompt">// object is Gsec ⇒ parent body runs; no override in sight</span>';
+  }
+  c.innerHTML=html;
+};
+
+/* ================= TAB 4 · inheritance ================= */
+const INH=[
+'// —— ROUTE 1 · multilevel with classes ——',
+'class Gsec {                              // level 1 (grand-parent)',
+'    private int age;',
+'    public void setAge(int a) { this.age = a; }',
+'    public int  getAge()      { return age;   }',
+'}',
+'',
+'class Student extends Gsec {              // level 2 (parent)',
+'    String branch = "CSE";',
+'}',
+'',
+'class PlacementStudent extends Student {  // level 3 (child)',
+'    String company = "Zoho";',
+'    void summary() {',
+'        // inherits from BOTH ancestors up the chain:',
+'        System.out.println(getAge() + " | " + branch + " | " + company);',
+'    }',
+'}',
+'',
+'// —— ROUTE 2 · multilevel + multiple via INTERFACES ——',
+'interface Person {                        // level 1 contract',
+'    void breathe();',
+'}',
+'interface Coder {                         // a second, unrelated contract',
+'    void code();',
+'}',
+'interface Learner extends Person, Coder { // level 2: ONE interface, TWO parents',
+'    void study();',
+'}',
+'',
+'class GsecV2 implements Learner {         // level 3: must satisfy the WHOLE chain',
+'    public void breathe() { System.out.println("breathing (from Person)");  }',
+'    public void code()    { System.out.println("coding    (from Coder)");   }',
+'    public void study()   { System.out.println("studying  (from Learner)"); }',
+'}',
+'',
+'// —— ILLEGAL · multiple CLASS inheritance ——',
+'// class Hybrid extends Gsec, Student { }   // compile error: diamond problem'
+];
+renderCode('code-inherit',INH,{err:[L(INH,'class Hybrid')]});
+makeStepper('code-inherit','step-inherit',[
+ {t:'Level 1: your Gsec becomes the root',d:'Gsec owns the encapsulated <code>age</code> with its gateways. Everything below will inherit these <em>without rewriting a single line</em> — that reuse is the economic argument for inheritance.',hl:R(INH,'level 1','return age')},
+ {t:'Level 2: Student extends Gsec',d:'<code>extends</code> pulls in every accessible member. Student adds only what is new (<code>branch</code>). Note: it does NOT see <code>private age</code> directly — even children go through <code>setAge/getAge</code>. Inheritance respects encapsulation.',hl:R(INH,'level 2 (parent)','String branch')},
+ {t:'Level 3: the multilevel chain',d:'<code>PlacementStudent → Student → Gsec</code>. In <code>summary()</code>, <code>getAge()</code> travels TWO levels up and <code>branch</code> ONE level up. A chain of any depth is legal in Java — that is <strong>multilevel inheritance</strong>.',hl:R(INH,'level 3 (child)','getAge() + " | " + branch')},
+ {t:'The forbidden move: two class parents',d:'<code>class Hybrid extends Gsec, Student</code> will not compile. If both parents carried state or the same method body, Java could not decide whose copy wins — the <strong>diamond problem</strong>. C++ allows it and suffers; Java bans it outright.',err:[L(INH,'class Hybrid')],hl:[L(INH,'ILLEGAL')]},
+ {t:'Interfaces: multilevel, rebuilt legally',d:'<code>Person → Learner → GsecV2</code> is a 3-level chain built with interfaces. And <code>Learner extends Person, Coder</code> — an interface may extend <strong>many</strong> interfaces, because interfaces have no instance state to collide. This is how Java achieves the multilevel + multiple effect.',hl:R(INH,'level 1 contract','void study')},
+ {t:'The class at the end must pay the whole bill',d:'<code>GsecV2 implements Learner</code> — just Learner! — yet must implement <code>breathe()</code>, <code>code()</code> AND <code>study()</code>. The contract accumulates down the chain. Implementing the leaf interface means inheriting obligations from every ancestor interface: multilevel inheritance of <em>type and contract</em>.',hl:R(INH,'satisfy the WHOLE chain','studying')}
+]);
+
+/* inheritance SVG */
+const COLORS={class:'#86a8f2',iface:'#63cfc0',bad:'#e8798a'};
+function drawGraph(svgId,detailId,nodes,edges,labels){
+  const svg=document.getElementById(svgId),NS='http://www.w3.org/2000/svg';
+  const byId={};nodes.forEach(n=>byId[n.id]=n);
+  edges.forEach(e=>{
+    const a=byId[e.from],b=byId[e.to];
+    const p=document.createElementNS(NS,'line');
+    p.setAttribute('x1',a.x);p.setAttribute('y1',a.y+16);
+    p.setAttribute('x2',b.x);p.setAttribute('y2',b.y-16);
+    p.setAttribute('class','edge');
+    if(e.bad){p.setAttribute('stroke','#e8798a');p.setAttribute('stroke-dasharray','5 4');}
+    if(e.dash)p.setAttribute('stroke-dasharray','5 4');
+    svg.appendChild(p);
+  });
+  (labels||[]).forEach(t=>{
+    const tx=document.createElementNS(NS,'text');
+    tx.setAttribute('x',t.x);tx.setAttribute('y',t.y);tx.setAttribute('fill',t.fill||'#6d76a0');
+    tx.setAttribute('font-size',t.size||13);tx.setAttribute('text-anchor','middle');
+    if(t.bold)tx.setAttribute('font-weight','700');
+    tx.textContent=t.text;svg.appendChild(tx);
+  });
+  nodes.forEach(n=>{
+    const col=n.color||COLORS[n.type];
+    const w=n.label.length*6.9+20;
+    const g=document.createElementNS(NS,'g');g.setAttribute('class','node');g.setAttribute('tabindex','0');
+    const r=document.createElementNS(NS,'rect');
+    r.setAttribute('x',n.x-w/2);r.setAttribute('y',n.y-16);r.setAttribute('width',w);r.setAttribute('height',32);
+    r.setAttribute('rx',9);r.setAttribute('fill',col);r.setAttribute('fill-opacity','0.10');
+    r.setAttribute('stroke',col);r.setAttribute('stroke-width','1.4');
+    const t=document.createElementNS(NS,'text');
+    t.setAttribute('x',n.x);t.setAttribute('y',n.y+4);t.setAttribute('fill',col);
+    t.setAttribute('font-size','11.5');t.setAttribute('text-anchor','middle');
+    t.textContent=n.label;
+    g.appendChild(r);g.appendChild(t);svg.appendChild(g);
+    const show=()=>{
+      svg.querySelectorAll('.node').forEach(x=>x.classList.remove('sel'));g.classList.add('sel');
+      document.getElementById(detailId).innerHTML=
+        '<h3 style="color:'+col+'">'+n.label+'</h3>'+(n.pill?'<div style="margin-bottom:8px">'+n.pill+'</div>':'')+
+        '<p style="color:var(--mut);font-size:14px">'+n.desc+'</p>'+
+        (n.ex?'<div class="console" style="min-height:0;margin-top:10px">'+n.ex+'</div>':'');
+    };
+    g.addEventListener('click',show);
+    g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();show();}});
+  });
+}
+drawGraph('inhSvg','inhDetail',
+ [
+  {id:'g1',label:'class Gsec',type:'class',x:150,y:100,pill:'<span class="pill p-blue">level 1</span>',desc:'The root. Owns private age + setAge/getAge. Every descendant reuses these for free.',ex:'<span class="prompt">class Gsec { private int age; ... }</span>'},
+  {id:'g2',label:'class Student',type:'class',x:150,y:200,pill:'<span class="pill p-blue">level 2</span>',desc:'extends Gsec → inherits setAge/getAge, adds branch. Cannot touch private age directly; must use the gateways — inheritance respects encapsulation.',ex:'<span class="prompt">class Student extends Gsec { String branch; }</span>'},
+  {id:'g3',label:'class PlacementStudent',type:'class',x:150,y:300,pill:'<span class="pill p-blue">level 3 · multilevel ✅</span>',desc:'extends Student → the chain is now 3 deep. getAge() resolves 2 levels up, branch 1 level up. Any depth of single-parent chaining is legal Java.',ex:'<span class="out">17 | CSE | Zoho</span>'},
+  {id:'f',label:'class Father',type:'bad',x:420,y:100,pill:'<span class="pill p-red">parent A</span>',desc:'Fine on its own — the crime is below.'},
+  {id:'m',label:'class Mother',type:'bad',x:580,y:100,pill:'<span class="pill p-red">parent B</span>',desc:'Fine on its own — the crime is below.'},
+  {id:'c',label:'class Child ⛔',type:'bad',x:500,y:220,pill:'<span class="pill p-red">multiple class inheritance — ILLEGAL</span>',desc:'class Child extends Father, Mother → compile error. If both parents define show(), Java cannot decide which body Child inherits (the diamond problem), so multiple CLASS inheritance is banned entirely.',ex:'<span class="fail">error: \'{\' expected — a class cannot extend two classes</span>'},
+  {id:'p',label:'interface Person',type:'iface',x:740,y:100,pill:'<span class="pill p-blue" style="color:var(--teal);border-color:rgba(99,207,192,.4)">level 1 contract</span>',desc:'Pure contract: void breathe(); No state, no bodies (here) — which is exactly why multiple inheritance of interfaces is safe.'},
+  {id:'cd',label:'interface Coder',type:'iface',x:900,y:100,pill:'<span class="pill p-blue" style="color:var(--teal);border-color:rgba(99,207,192,.4)">second parent</span>',desc:'An unrelated capability: void code(); Learner will absorb this too.'},
+  {id:'l',label:'interface Learner',type:'iface',x:820,y:220,pill:'<span class="pill p-blue" style="color:var(--teal);border-color:rgba(99,207,192,.4)">level 2 · extends Person, Coder ✅</span>',desc:'ONE interface extending TWO interfaces — completely legal. Learner now carries breathe() + code() + its own study(). Contracts accumulate down the chain.'},
+  {id:'gv2',label:'class GsecV2',type:'class',x:820,y:330,pill:'<span class="pill p-blue">level 3 · implements Learner</span>',desc:'Implements only Learner, yet must provide breathe(), code() AND study() — obligations inherited through the whole interface chain. This is multilevel inheritance achieved via interfaces.',ex:'<span class="out">breathing (from Person)<br>coding&nbsp;&nbsp;&nbsp; (from Coder)<br>studying&nbsp; (from Learner)</span>'}
+ ],
+ [
+  {from:'g1',to:'g2'},{from:'g2',to:'g3'},
+  {from:'f',to:'c',bad:true},{from:'m',to:'c',bad:true},
+  {from:'p',to:'l',dash:false},{from:'cd',to:'l'},{from:'l',to:'gv2'}
+ ],
+ [
+  {x:150,y:40,text:'A · MULTILEVEL (classes) ✅',fill:'#86a8f2',bold:true},
+  {x:500,y:40,text:'B · MULTIPLE (classes) ⛔',fill:'#e8798a',bold:true},
+  {x:820,y:40,text:'C · VIA INTERFACES ✅',fill:'#63cfc0',bold:true},
+  {x:500,y:168,text:'✗',fill:'#e8798a',size:30,bold:true},
+  {x:150,y:370,text:'each child inherits the entire chain',fill:'#6d76a0',size:11.5},
+  {x:500,y:280,text:'two class parents → whose method wins?',fill:'#6d76a0',size:11.5},
+  {x:500,y:298,text:'ambiguous → Java refuses to compile',fill:'#6d76a0',size:11.5},
+  {x:820,y:390,text:'interfaces carry no state → nothing can collide →',fill:'#6d76a0',size:11.5},
+  {x:820,y:408,text:'multilevel AND multiple inheritance become safe',fill:'#6d76a0',size:11.5}
+ ]);
+
+/* ================= TAB 5 · abstraction ================= */
+const ABS=[
+'// The IDEA of a college person — cannot exist on its own',
+'abstract class CollegePerson {',
+'    private int age;',
+'',
+'    public void setAge(int age) { this.age = age; }',
+'    public int  getAge()        { return age;     }',
+'',
+'    // WHAT must exist — zero opinion on HOW',
+'    abstract boolean isEligible();',
+'',
+'    // Template Method: concrete skeleton calls the abstract detail',
+'    void validator() {',
+'        if (!isEligible()) {',
+'            System.out.println("Not eligible for studying college");',
+'        } else {',
+'            System.out.println("Welcome to college!");',
+'        }',
+'    }',
+'}',
+'',
+'// Gsec supplies the hidden HOW',
+'class Gsec extends CollegePerson {',
+'    @Override',
+'    boolean isEligible() {',
+'        return getAge() >= 18;   // the rule lives HERE — swappable anytime',
+'    }',
+'}',
+'',
+'class Main {',
+'    public static void main(String[] args) {',
+'        // CollegePerson p = new CollegePerson(); // cannot instantiate!',
+'        CollegePerson p = new Gsec();  // abstract reference, concrete object',
+'        p.setAge(17);',
+'        p.validator();   // prints: Not eligible for studying college',
+'    }',
+'}'
+];
+renderCode('code-abstract',ABS,{err:[L(ABS,'cannot instantiate')]});
+makeStepper('code-abstract','step-abstract',[
+ {t:'abstract class = an idea, not a thing',d:'Marking the class <code>abstract</code> tells Java: this describes a <em>concept</em> (like Shape, Vehicle, CollegePerson) that is incomplete on its own. The compiler will forbid <code>new CollegePerson()</code> forever. Only complete children may be instantiated.',hl:[L(ABS,'abstract class CollegePerson')]},
+ {t:'It can still hold state and full methods',d:'Unlike an interface, an abstract class keeps fields (<code>private int age</code>) and fully implemented methods (the gateways). That is its superpower: shared code + shared state live once, in the parent.',hl:R(ABS,'private int age','return age;     }')},
+ {t:'The abstract method: pure WHAT',d:'<code>abstract boolean isEligible();</code> — a signature ending in a semicolon, no body. It is a contract slot: "every real CollegePerson must answer this question; I refuse to say how." Any non-abstract child MUST fill it or the compiler rejects the child.',hl:[L(ABS,'abstract boolean isEligible')]},
+ {t:'Template Method: the payoff pattern',d:'<code>validator()</code> is concrete and calls the abstract <code>isEligible()</code>. The <em>skeleton</em> of the check (if → print) is fixed in the parent; the <em>judgment</em> is plugged in by children. Callers see a stable public behavior while the implementation stays hidden and swappable — the essence of abstraction.',hl:R(ABS,'void validator','Welcome to college')},
+ {t:'Gsec supplies the hidden HOW',d:'One line: <code>return getAge() &gt;= 18;</code>. Tomorrow the rule becomes 21, or checks documents, or queries a database — <strong>no caller changes</strong>, because callers only ever knew the WHAT. Change is contained to one class: that immunity is why abstraction exists.',hl:R(ABS,'class Gsec extends CollegePerson','swappable anytime')},
+ {t:'Abstraction meets polymorphism',d:'<code>CollegePerson p = new Gsec()</code> — you program against the abstraction and the JVM dispatches to the concrete override. The commented line shows the guarantee: the idea itself can never be <code>new</code>-ed. Abstraction (this tab) hides implementation; encapsulation (tab ②) hides data. Say both sentences in a viva and you are done.',hl:R(ABS,'CollegePerson p = new Gsec','Not eligible for studying'),err:[L(ABS,'cannot instantiate')]}
+]);
+
+/* ================= TAB 6 · exception code panels ================= */
+const CHK=[
+'import java.io.BufferedReader;',
+'import java.io.FileReader;',
+'import java.io.IOException;',
+'',
+'class StudentLoader {',
+'',
+'    // Option A — DECLARE: pass responsibility up with throws',
+'    static String loadFirstStudent() throws IOException {',
+'        BufferedReader br = new BufferedReader(new FileReader("students.txt"));',
+'        //                     ^ FileNotFoundException (checked) can fly here',
+'        String line = br.readLine();   // IOException (checked) can fly here',
+'        br.close();',
+'        return line;',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        // Option B — HANDLE: catch it right here',
+'        try {',
+'            System.out.println(loadFirstStudent());',
+'        } catch (IOException e) {',
+'            System.out.println("File problem: " + e.getMessage());',
+'        }',
+'        // Remove BOTH the try/catch and the throws  →  COMPILE ERROR:',
+'        // "unreported exception IOException; must be caught or declared"',
+'    }',
+'}'
+];
+renderCode('code-checked',CHK,{err:[L(CHK,'unreported exception')]});
+const UNC=[
+'class Gsec {',
+'    private int age;',
+'',
+'    public void setAge(int age) {',
+'        if (age < 0 || age > 120) {',
+'            // WE throw an unchecked exception — no throws clause needed',
+'            throw new IllegalArgumentException("age must be 0..120, got " + age);',
+'        }',
+'        this.age = age;',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        Gsec g = new Gsec();',
+'        g.setAge(-5);       // BOOM: IllegalArgumentException at RUNTIME',
+'                            // the compiler never warned us — that is "unchecked"',
+'        Gsec ghost = null;',
+'        ghost.setAge(18);   // BOOM: NullPointerException',
+'        int x = 10 / 0;     // BOOM: ArithmeticException: / by zero',
+'        System.out.println("never reached");',
+'    }',
+'}'
+];
+renderCode('code-unchecked',UNC,{err:[L(UNC,'g.setAge(-5)'),L(UNC,'ghost.setAge'),L(UNC,'10 / 0')]});
+const ERRS=[
+'class ErrorZoo {',
+'',
+'    // 1 · StackOverflowError — recursion with no exit',
+'    static void validator() {',
+'        validator();     // calls itself forever → call stack fills → dead',
+'    }',
+'',
+'    public static void main(String[] args) {',
+'        // validator();  // Exception in thread "main" java.lang.StackOverflowError',
+'',
+'        // 2 · OutOfMemoryError — heap exhaustion',
+'        // java.util.List<int[]> hog = new java.util.ArrayList<>();',
+'        // while (true) hog.add(new int[1_000_000]);  // OutOfMemoryError: heap space',
+'',
+'        // 3 · AssertionError — run with:  java -ea ErrorZoo',
+'        int age = -1;',
+'        assert age >= 0 : "age went negative";   // AssertionError (with -ea)',
+'',
+'        // Rule: Errors are NOT meant to be caught.',
+'        // catch (OutOfMemoryError e) { }   <- legal syntax, terrible idea',
+'    }',
+'}'
+];
+renderCode('code-errors',ERRS);
+renderCode('code-syn1',[
+'try {',
+'    int result = 10 / divisor;      // risky code lives here',
+'    System.out.println(result);',
+'}',
+'catch (ArithmeticException e) {     // runs ONLY if that type is thrown',
+'    System.out.println("Math error: " + e.getMessage()); // -> / by zero',
+'}',
+'catch (Exception e) {               // parent LAST — the safety net',
+'    System.out.println("Something else: " + e);          // e.toString()',
+'}',
+'finally {                           // ALWAYS runs — cleanup zone',
+'    System.out.println("closing resources...");',
+'}'
+]);
+renderCode('code-syn2',[
+'// custom CHECKED exception -> extends Exception',
+'class InvalidAgeException extends Exception {',
+'    public InvalidAgeException(String msg) { super(msg); }',
+'}',
+'',
+'class Gsec {',
+'    private int age;',
+'',
+'    //          "throws" = warning label on the signature',
+'    public void setAge(int age) throws InvalidAgeException {',
+'        if (age < 18) {',
+'            // "throw" = the actual action (one object, no s)',
+'            throw new InvalidAgeException("Not eligible: age " + age);',
+'        }',
+'        this.age = age;',
+'    }',
+'}',
+'// custom UNCHECKED instead? -> extends RuntimeException (no throws needed)'
+]);
+renderCode('code-syn3',[
+'try {',
+'    int n = Integer.parseInt(args[0]);  // NumberFormatException?',
+'    System.out.println(100 / n);        // ArithmeticException?',
+'}',
+'// multi-catch: unrelated siblings share one handler, | separated',
+'catch (NumberFormatException | ArithmeticException e) {',
+'    System.out.println("Bad input: " + e.getMessage()); // e is implicitly final',
+'}',
+'',
+'// ORDER RULE with separate catch blocks: child FIRST, parent LAST',
+'// catch (Exception e)           <- putting this first makes the',
+'// catch (ArithmeticException e) <- second one "already been caught"'
+]);
+renderCode('code-syn4',[
+'// resources declared inside ( ) are AUTO-closed — even on exception',
+'try (BufferedReader br = new BufferedReader(new FileReader("students.txt"))) {',
+'    System.out.println(br.readLine());',
+'}',
+'catch (IOException e) {',
+'    System.out.println("I/O failed: " + e.getMessage());',
+'}',
+'// no finally needed: br.close() happens automatically,',
+'// in REVERSE order when multiple resources are declared.',
+'// works for anything implementing AutoCloseable.'
+]);
+
+/* ================= Throwable tree ================= */
+const TC={root:'#b79cf0',error:'#e8798a',checked:'#f0b45f',unchecked:'#63cfc0'};
+const TPILL={root:'<span class="pill p-mauve">root of everything throwable</span>',
+ error:'<span class="pill p-red">Error · unchecked · do not catch</span>',
+ checked:'<span class="pill p-amber">checked · compiler-enforced</span>',
+ unchecked:'<span class="pill p-blue" style="color:var(--teal);border-color:rgba(99,207,192,.4)">unchecked · runtime</span>'};
+const TN=[
+ {id:'thr',label:'Throwable',cat:'root',x:620,y:30,desc:'The single root class in java.lang. Only Throwable objects (and subclasses) can be thrown by <code>throw</code> and caught by <code>catch</code>. Supplies the machinery everything inherits: <code>getMessage()</code>, <code>toString()</code>, <code>printStackTrace()</code>, <code>getCause()</code>.',ex:'<span class="prompt">try { ... } catch (Throwable t)  // legal but almost never wise</span>'},
+ {id:'err',label:'Error',cat:'error',x:250,y:120,desc:'Serious failures of the JVM or environment — not your application logic. Unchecked. Convention: never catch; there is no sane recovery when the machine itself is broken. Let it crash, read the log, fix the cause.',ex:'<span class="fail">java.lang.OutOfMemoryError: Java heap space</span>'},
+ {id:'exc',label:'Exception',cat:'checked',x:880,y:120,desc:'Recoverable, application-level problems. Everything under Exception EXCEPT the RuntimeException branch is CHECKED — the compiler forces catch-or-declare. This is the class your custom checked exceptions extend.',ex:'<span class="prompt">class InvalidAgeException extends Exception { ... }</span>'},
+ {id:'vme',label:'VirtualMachineError',cat:'error',x:125,y:210,desc:'Abstract parent for "the JVM is broken or out of resources". You never construct it; the JVM throws its children below.',ex:''},
+ {id:'lke',label:'LinkageError',cat:'error',x:315,y:210,desc:'A class changed incompatibly after another class was compiled against it — the bytecode no longer links. Classic after upgrading a library jar without recompiling.',ex:''},
+ {id:'ase',label:'AssertionError',cat:'error',x:475,y:210,desc:'Thrown when an <code>assert</code> statement fails (JVM run with <code>-ea</code>). Signals "a truth I relied on is false" — a developer-time tripwire, not user-input validation.',ex:'<span class="prompt">assert age >= 0 : "age went negative";</span>'},
+ {id:'soe',label:'StackOverflowError',cat:'error',x:100,y:300,desc:'The call stack is full — almost always runaway recursion with no base case. If validator() called itself, this is your reward.',ex:'<span class="fail">at Gsec.validator(Gsec.java:19)  ×11,432 frames</span>'},
+ {id:'oom',label:'OutOfMemoryError',cat:'error',x:280,y:300,desc:'Heap exhausted and the garbage collector surrendered. Caused by leaks or unbounded growth (an ever-growing List of objects). Catching it is pointless — there is no memory left to handle it with.',ex:'<span class="prompt">while(true) list.add(new int[1_000_000]);</span>'},
+ {id:'ncd',label:'NoClassDefFoundError',cat:'error',x:462,y:300,desc:'The class existed at COMPILE time but is missing at RUNTIME (deleted .class, broken classpath). Contrast with ClassNotFoundException, which is a checked Exception thrown by reflective loading.',ex:''},
+ {id:'eii',label:'ExceptionInInitializerError',cat:'error',x:290,y:390,desc:'A static initializer block or static field initialization threw. The class fails to load at all.',ex:'<span class="prompt">static { int x = 1 / 0; }</span>'},
+ {id:'ioe',label:'IOException',cat:'checked',x:645,y:210,desc:'Any input/output failure: streams, files, sockets. The poster child of checked exceptions — the outside world can fail even when your code is perfect, so the compiler makes you plan for it.',ex:'<span class="prompt">String line = reader.readLine(); // throws IOException</span>'},
+ {id:'sqe',label:'SQLException',cat:'checked',x:782,y:210,desc:'Database access failed: bad SQL, dead connection, constraint violation. Checked, because databases live outside your process and fail independently of your logic.',ex:''},
+ {id:'cnf',label:'ClassNotFoundException',cat:'checked',x:955,y:210,desc:'Reflective loading by NAME failed: <code>Class.forName("com.x.Ghost")</code>. Checked. The Error twin (NoClassDefFoundError) is about compiled references; this one is about runtime string lookups.',ex:'<span class="prompt">Class.forName("com.mysql.cj.jdbc.Driver");</span>'},
+ {id:'ite',label:'InterruptedException',cat:'checked',x:1130,y:210,desc:'A thread sleeping/waiting was interrupted by another thread. Checked, so every Thread.sleep() forces a try/catch — your first meeting with checked exceptions.',ex:'<span class="prompt">Thread.sleep(1000); // must catch or declare</span>'},
+ {id:'fnf',label:'FileNotFoundException',cat:'checked',x:645,y:300,desc:'Child of IOException: the path does not exist or cannot be opened. Because it is a subclass, <code>catch (IOException e)</code> also catches this one.',ex:'<span class="prompt">new FileReader("students.txt")</span>'},
+ {id:'pae',label:'ParseException',cat:'checked',x:800,y:300,desc:'Text did not match the expected format while parsing (classically dates via SimpleDateFormat). Checked — user-supplied text is outside-world input.',ex:'<span class="prompt">df.parse("31-31-2026")</span>'},
+ {id:'rte',label:'RuntimeException',cat:'unchecked',x:1010,y:300,desc:'THE dividing line. Everything from here down is UNCHECKED: programming bugs the compiler stays silent about. Best practice: do not catch them — validate early and fix the code. Custom unchecked exceptions extend this class.',ex:'<span class="prompt">class InvalidAgeException extends RuntimeException { ... }</span>'},
+ {id:'npe',label:'NullPointerException',cat:'unchecked',x:660,y:390,desc:'You called a member on a reference holding null. The most famous exception in Java. <code>Gsec g = null; g.display();</code> — boom. Since Java 14 the message even names the exact null variable.',ex:'<span class="fail">Cannot invoke "Gsec.display()" because "g" is null</span>'},
+ {id:'ari',label:'ArithmeticException',cat:'unchecked',x:850,y:390,desc:'Illegal math — for integers, division or modulo by zero. (Doubles do NOT throw: 10.0/0 gives Infinity.)',ex:'<span class="fail">java.lang.ArithmeticException: / by zero</span>'},
+ {id:'iob',label:'IndexOutOfBoundsException',cat:'unchecked',x:1070,y:390,desc:'Parent for "index outside the valid range". You usually meet its children (array / String flavors) rather than this class directly.',ex:''},
+ {id:'cce',label:'ClassCastException',cat:'unchecked',x:645,y:480,desc:'A downcast lied: the object is not actually that type. <code>(Student) new Gsec(...)</code> compiles (the compiler trusts you) but explodes at runtime. Guard with <code>instanceof</code>.',ex:'<span class="fail">class Gsec cannot be cast to class Student</span>'},
+ {id:'iae',label:'IllegalArgumentException',cat:'unchecked',x:840,y:480,desc:'The caller passed a nonsense value. This is what a hardened setAge(-5) should throw — turning silent bad state into a loud, early failure at the exact guilty line.',ex:'<span class="prompt">throw new IllegalArgumentException("age must be 0..120");</span>'},
+ {id:'aio',label:'ArrayIndexOutOfBoundsException',cat:'unchecked',x:1082,y:480,desc:'Array index &lt; 0 or ≥ length. Classic: reading args[0] in main when the user passed no arguments.',ex:'<span class="fail">Index 5 out of bounds for length 0</span>'},
+ {id:'ise',label:'IllegalStateException',cat:'unchecked',x:645,y:565,desc:'Right method, wrong MOMENT — the object is not in a valid state for this call. Example: running validator() on a Gsec whose age was never initialized by design.',ex:''},
+ {id:'nfe',label:'NumberFormatException',cat:'unchecked',x:840,y:565,desc:'Child of IllegalArgumentException: the string is not a valid number. <code>Integer.parseInt("seventeen")</code>. Note the family tie: catching IllegalArgumentException also nets this one.',ex:'<span class="fail">For input string: "seventeen"</span>'}
+];
+TN.forEach(n=>{n.color=TC[n.cat];n.type='class';n.pill=TPILL[n.cat];});
+drawGraph('throwSvg','throwDetail',TN,
+ [
+  {from:'thr',to:'err'},{from:'thr',to:'exc'},
+  {from:'err',to:'vme'},{from:'err',to:'lke'},{from:'err',to:'ase'},
+  {from:'vme',to:'soe'},{from:'vme',to:'oom'},{from:'lke',to:'ncd'},{from:'lke',to:'eii'},
+  {from:'exc',to:'ioe'},{from:'exc',to:'sqe'},{from:'exc',to:'cnf'},{from:'exc',to:'ite'},
+  {from:'ioe',to:'fnf'},{from:'exc',to:'pae'},{from:'exc',to:'rte'},
+  {from:'rte',to:'npe'},{from:'rte',to:'ari'},{from:'rte',to:'iob'},
+  {from:'rte',to:'cce'},{from:'rte',to:'iae'},{from:'iob',to:'aio'},
+  {from:'rte',to:'ise'},{from:'iae',to:'nfe'}
+ ],
+ [
+  {x:250,y:75,text:'UNCHECKED · JVM-level',fill:'#e8798a',size:11},
+  {x:880,y:75,text:'application-level',fill:'#f0b45f',size:11},
+  {x:1010,y:345,text:'— everything below is UNCHECKED —',fill:'#63cfc0',size:10.5}
+ ]);
+</script>
+</body>
+</html>
