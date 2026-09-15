@@ -1,0 +1,1410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Java Arrays — Interactive Concept Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;600;700;800&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0d18; --bg-soft:#0d1220; --panel:#131a2e; --panel-2:#161f3a; --panel-3:#1b2547;
+    --border:#26305a; --border-soft:#1e2749;
+    --text:#e8ecf7; --text-dim:#9aa6c9; --text-faint:#6d7899;
+    --indigo:#7274f7; --indigo-soft:#4d4fc4; --indigo-glow:rgba(114,116,247,.35);
+    --teal:#33d9c4; --teal-soft:rgba(51,217,196,.16);
+    --amber:#f5ab2f; --amber-soft:rgba(245,171,47,.16);
+    --rose:#f4507a; --rose-soft:rgba(244,80,122,.18);
+    --violet:#b48cf7; --violet-soft:rgba(180,140,247,.18);
+    --code-bg:#0a0e1c;
+    --radius:16px; --radius-sm:10px;
+    --font-head:'Sora',sans-serif; --font-body:'Inter',sans-serif; --font-mono:'IBM Plex Mono',monospace;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0; background:
+      radial-gradient(1200px 600px at 15% -10%, rgba(114,116,247,.10), transparent 60%),
+      radial-gradient(900px 500px at 100% 0%, rgba(51,217,196,.07), transparent 55%),
+      var(--bg);
+    color:var(--text); font-family:var(--font-body); line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  @media (prefers-reduced-motion: reduce){ *{animation-duration:0.001ms !important; transition-duration:0.001ms !important;} }
+
+  header.top{ padding:38px 20px 22px; text-align:center; }
+  header.top .kicker{ font-family:var(--font-mono); font-size:.78rem; letter-spacing:.04em; color:var(--teal); }
+  header.top h1{ font-family:var(--font-head); font-weight:800; font-size:2.1rem; margin:.35em 0 .2em;
+    background:linear-gradient(90deg,#f2f4ff,#b9c2f0 55%,#9fe8de); -webkit-background-clip:text; background-clip:text; color:transparent; }
+  header.top p{ color:var(--text-dim); max-width:640px; margin:0 auto; font-size:.98rem; }
+
+  nav.tabs{ position:sticky; top:0; z-index:50; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;
+    padding:12px 16px; background:rgba(10,13,24,.86); backdrop-filter:blur(10px); border-bottom:1px solid var(--border-soft); }
+  nav.tabs button{ font-family:var(--font-head); font-weight:600; font-size:.82rem; color:var(--text-dim);
+    background:var(--panel); border:1px solid var(--border); padding:8px 15px; border-radius:999px; cursor:pointer;
+    transition:.15s ease; white-space:nowrap; }
+  nav.tabs button:hover{ color:var(--text); border-color:var(--indigo-soft); }
+  nav.tabs button.active{ color:#fff; background:linear-gradient(135deg,var(--indigo),#5457d6); border-color:transparent;
+    box-shadow:0 4px 18px var(--indigo-glow); }
+
+  main{ max-width:980px; margin:0 auto; padding:28px 18px 80px; }
+  section.panel{ display:none; animation:fade .25s ease; }
+  section.panel.active{ display:block; }
+  @keyframes fade{ from{opacity:0; transform:translateY(6px);} to{opacity:1; transform:none;} }
+
+  h2.section-title{ font-family:var(--font-head); font-size:1.5rem; margin:0 0 6px; }
+  p.section-sub{ color:var(--text-dim); margin:0 0 22px; max-width:680px; }
+
+  .card{ background:var(--panel); border:1px solid var(--border); border-radius:var(--radius); padding:20px 22px; margin-bottom:20px; }
+  .card h3{ font-family:var(--font-head); font-size:1.05rem; margin:0 0 10px; display:flex; align-items:center; gap:8px; }
+  .card h3 .tag{ font-family:var(--font-mono); font-size:.68rem; font-weight:500; color:var(--indigo); background:rgba(114,116,247,.14);
+    border:1px solid rgba(114,116,247,.3); padding:2px 8px; border-radius:6px; }
+  .card p{ margin:0 0 10px; color:#cfd6ee; font-size:.94rem; }
+  .card p:last-child{ margin-bottom:0; }
+
+  pre.code-mini{ background:var(--code-bg); border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+    padding:14px 16px; overflow-x:auto; font-family:var(--font-mono); font-size:.82rem; line-height:1.55; color:#c6cfec; margin:0 0 12px; }
+  pre.code-mini .kw{ color:#8fa3ff; } pre.code-mini .ty{ color:#6fd8c9; } pre.code-mini .cm{ color:#6d7899; font-style:italic; }
+  pre.code-mini .lit{ color:#f5ab2f; } pre.code-mini .str{ color:#9fe8a0; }
+
+  .callout{ border-radius:var(--radius-sm); padding:12px 15px; font-size:.88rem; margin:10px 0; border:1px solid; display:flex; gap:10px; }
+  .callout .ic{ font-family:var(--font-mono); font-weight:700; flex-shrink:0; }
+  .callout.bug{ background:var(--rose-soft); border-color:rgba(244,80,122,.4); }
+  .callout.bug .ic{ color:var(--rose); }
+  .callout.note{ background:var(--amber-soft); border-color:rgba(245,171,47,.4); }
+  .callout.note .ic{ color:var(--amber); }
+  .callout.tip{ background:var(--teal-soft); border-color:rgba(51,217,196,.4); }
+  .callout.tip .ic{ color:var(--teal); }
+
+  /* memory diagram */
+  .mem-diagram{ display:flex; justify-content:center; margin:16px 0; }
+
+  /* array visualizer */
+  .demo-stage{ display:flex; justify-content:center; padding:22px 6px; overflow-x:auto; }
+  .arr-row{ display:flex; gap:8px; }
+  .arr-cell{ min-width:52px; height:52px; border-radius:9px; background:var(--panel-2); border:1.5px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-mono); position:relative;
+    transition:.25s ease; flex-shrink:0; }
+  .arr-val{ font-size:1.02rem; font-weight:600; }
+  .arr-idx{ font-size:.6rem; color:var(--text-faint); position:absolute; bottom:3px; }
+  .arr-cell.state-active{ border-color:var(--indigo); background:rgba(114,116,247,.18); box-shadow:0 0 0 3px var(--indigo-glow); transform:translateY(-3px); }
+  .arr-cell.state-cmp{ border-color:var(--amber); background:var(--amber-soft); }
+  .arr-cell.state-swap{ border-color:var(--rose); background:var(--rose-soft); }
+  .arr-cell.state-match{ border-color:var(--teal); background:rgba(51,217,196,.22); }
+  .arr-cell.state-sorted{ border-color:rgba(51,217,196,.5); background:rgba(51,217,196,.09); }
+  .arr-cell.state-dead{ opacity:.35; }
+  .arr-cell.state-dup{ border-color:var(--rose); background:rgba(244,80,122,.26); }
+  .arr-cell.state-range{ border-color:var(--violet); background:var(--violet-soft); }
+
+  .mat-grid{ display:flex; flex-direction:column; gap:8px; }
+  .mat-row{ display:flex; gap:8px; }
+  .mat-cell{ width:58px; height:52px; border-radius:9px; background:var(--panel-2); border:1.5px solid var(--border);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; font-family:var(--font-mono); position:relative; transition:.25s ease; }
+  .mat-val{ font-size:.95rem; font-weight:600; }
+  .mat-idx{ font-size:.55rem; color:var(--text-faint); position:absolute; bottom:3px; }
+  .mat-cell.state-active{ border-color:var(--indigo); background:rgba(114,116,247,.18); box-shadow:0 0 0 3px var(--indigo-glow); }
+  .mat-cell.state-diag{ border-color:var(--violet); background:var(--violet-soft); }
+  .mat-cell.state-sorted{ border-color:rgba(51,217,196,.5); background:rgba(51,217,196,.09); }
+  .mat-cell.state-dup{ border-color:var(--rose); background:rgba(244,80,122,.26); }
+  .mat-cell.state-cmp{ border-color:var(--amber); background:var(--amber-soft); }
+
+  .demo-narration{ font-family:var(--font-mono); font-size:.85rem; text-align:center; color:var(--text); background:var(--panel-2);
+    border:1px solid var(--border-soft); border-radius:var(--radius-sm); padding:11px 14px; min-height:20px; }
+  .demo-controls{ display:flex; align-items:center; justify-content:center; gap:10px; margin:6px 0 14px; flex-wrap:wrap; }
+  .demo-controls button{ font-family:var(--font-head); font-weight:600; font-size:.82rem; color:var(--text); background:var(--panel-3);
+    border:1px solid var(--border); padding:7px 14px; border-radius:8px; cursor:pointer; transition:.15s; }
+  .demo-controls button:hover:not(:disabled){ border-color:var(--indigo); color:#fff; }
+  .demo-controls button:disabled{ opacity:.35; cursor:default; }
+  .demo-controls .step-counter{ font-family:var(--font-mono); font-size:.76rem; color:var(--text-faint); min-width:96px; text-align:center; }
+
+  .editor-row{ display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
+  .editor-row label{ font-size:.82rem; color:var(--text-dim); }
+  .editor-row input{ font-family:var(--font-mono); background:var(--code-bg); border:1px solid var(--border); color:var(--text);
+    border-radius:8px; padding:7px 10px; font-size:.85rem; width:190px; }
+  .editor-row input.num{ width:70px; }
+  .editor-row button{ font-family:var(--font-head); font-weight:600; font-size:.8rem; color:#fff; background:linear-gradient(135deg,var(--indigo),#5457d6);
+    border:none; padding:8px 15px; border-radius:8px; cursor:pointer; }
+  .editor-row button:hover{ filter:brightness(1.08); }
+  .editor-row .err{ color:var(--rose); font-size:.78rem; }
+
+  .grid2{ display:grid; grid-template-columns:1fr 1fr; gap:18px; }
+  @media (max-width:760px){ .grid2{ grid-template-columns:1fr; } }
+
+  .terminal{ background:var(--code-bg); border:1px solid var(--border-soft); border-radius:var(--radius-sm);
+    padding:16px 18px; font-family:var(--font-mono); font-size:.83rem; color:#9fe8a0; white-space:pre-wrap; word-break:break-word; }
+  .terminal .lineno{ color:var(--text-faint); }
+
+  details.src-toggle{ margin-top:8px; }
+  details.src-toggle summary{ cursor:pointer; font-family:var(--font-head); font-size:.82rem; color:var(--teal); }
+
+  table.quiz-legend{ font-size:.8rem; color:var(--text-dim); }
+
+  .quiz-q{ border-top:1px solid var(--border-soft); padding:16px 0; }
+  .quiz-q:first-child{ border-top:none; padding-top:0; }
+  .quiz-q p.q-text{ font-weight:600; color:var(--text); margin-bottom:10px; }
+  .quiz-opts label{ display:flex; align-items:flex-start; gap:8px; padding:7px 10px; border-radius:8px; cursor:pointer; font-size:.9rem; color:#cfd6ee; }
+  .quiz-opts label:hover{ background:var(--panel-2); }
+  .quiz-opts input{ margin-top:3px; }
+  .quiz-feedback{ font-size:.85rem; margin-top:8px; padding:9px 12px; border-radius:8px; display:none; }
+  .quiz-feedback.show{ display:block; }
+  .quiz-feedback.correct{ background:var(--teal-soft); color:#bdf5ec; }
+  .quiz-feedback.wrong{ background:var(--rose-soft); color:#ffd3de; }
+  #quiz-score{ font-family:var(--font-head); font-weight:700; text-align:center; padding:14px; }
+
+  .legend-strip{ display:flex; flex-wrap:wrap; gap:14px; font-size:.76rem; color:var(--text-dim); justify-content:center; margin-top:10px; }
+  .legend-strip span{ display:inline-flex; align-items:center; gap:5px; }
+  .legend-strip i{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+
+  footer.foot{ text-align:center; color:var(--text-faint); font-size:.78rem; padding:30px 20px 50px; }
+  footer.foot code{ font-family:var(--font-mono); }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="kicker">JAVA · ARRAYCLASS · UNIT REFERENCE CODE</div>
+  <h1>Java Arrays, Visualized</h1>
+  <p>Every diagram below runs the same logic that's in <code style="font-family:'IBM Plex Mono',monospace">ArrayClass.java</code> — step through search, sort, rotation, 2D traversal, and the two real bugs hiding in the source.</p>
+</header>
+
+<nav class="tabs" id="tabNav">
+  <button data-tab="overview" class="active">Overview</button>
+  <button data-tab="traverse">Traverse · Search · Sum</button>
+  <button data-tab="reversesort">Reverse · Sort</button>
+  <button data-tab="palrotate">Palindrome · Subarray · Rotate</button>
+  <button data-tab="twod">2D Arrays</button>
+  <button data-tab="dups">Duplicates</button>
+  <button data-tab="review">Code Review</button>
+  <button data-tab="practice">Practice</button>
+  <button data-tab="output">Program Output</button>
+</nav>
+
+<main>
+
+<!-- ============ OVERVIEW ============ -->
+<section class="panel active" id="overview">
+  <h2 class="section-title">What an array actually is</h2>
+  <p class="section-sub">A fixed-size, indexed block of same-type storage. Once created with <code style="font-family:'IBM Plex Mono',monospace">new int[6]</code>, the size never changes — <code style="font-family:'IBM Plex Mono',monospace">arr.length</code> is fixed for that object's lifetime.</p>
+
+  <div class="card">
+    <h3>Memory layout <span class="tag">int[] arr = {1,2,3,55,5,6}</span></h3>
+    <div class="mem-diagram" id="memSvgHolder"></div>
+    <p>Indexing starts at <b>0</b>, not 1. The last valid index is always <code style="font-family:'IBM Plex Mono',monospace">arr.length - 1</code> — that's why every loop in <code style="font-family:'IBM Plex Mono',monospace">ArrayClass</code> runs <code style="font-family:'IBM Plex Mono',monospace">for(int i=0; i&lt;arr.length; i++)</code> rather than <code style="font-family:'IBM Plex Mono',monospace">i&lt;=arr.length</code>. Using <code style="font-family:'IBM Plex Mono',monospace">&lt;=</code> is the single most common cause of <code style="font-family:'IBM Plex Mono',monospace">ArrayIndexOutOfBoundsException</code> for beginners.</p>
+  </div>
+
+  <div class="card">
+    <h3>Two arrays live inside <code style="font-family:'IBM Plex Mono',monospace">ArrayClass</code></h3>
+    <p><b>1. <code style="font-family:'IBM Plex Mono',monospace">int[] arr</code></b> — a 1D array, passed into the constructor. Every method in the first half of the class (<code style="font-family:'IBM Plex Mono',monospace">displayArray, searchArray, sumArray, reverseArray, sorting, isPalindrome, rotateRight, printSubArray</code>) operates on this one field.</p>
+    <p><b>2. <code style="font-family:'IBM Plex Mono',monospace">int[][] arraytwod</code></b> — a hardcoded 3×3 grid, initialized directly in the field declaration. <code style="font-family:'IBM Plex Mono',monospace">displayDoubleArray, sumOfArray, sumOfDiagonal</code>, and the second <code style="font-family:'IBM Plex Mono',monospace">findDuplicates()</code> all work on this grid instead.</p>
+    <div class="callout tip"><span class="ic">TIP</span><span>Use the tabs above in order — each one visualizes a group of methods from the source, then the <b>Code Review</b> tab shows you the exact lines, including two real bugs.</span></div>
+  </div>
+</section>
+
+<!-- ============ TRAVERSE / SEARCH / SUM ============ -->
+<section class="panel" id="traverse">
+  <h2 class="section-title">Traverse, Search &amp; Sum</h2>
+  <p class="section-sub">Three of the simplest array methods — but they establish the pattern every other method reuses: walk the index from <code style="font-family:'IBM Plex Mono',monospace">0</code> to <code style="font-family:'IBM Plex Mono',monospace">arr.length-1</code>.</p>
+
+  <div class="editor-row">
+    <label>Working array:</label>
+    <input type="text" id="t2-arr-input" value="1,2,3,55,5,6">
+    <button id="t2-apply">Apply to all 3 demos below</button>
+    <span class="err" id="t2-err"></span>
+  </div>
+
+  <div class="card">
+    <h3>displayArray() <span class="tag">prints every element</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> displayArray(){
+    <span class="kw">for</span>(<span class="ty">int</span> i=0;i&lt;arr.length;i++){
+        System.out.print(arr[i]+<span class="str">" "</span>);
+        System.out.println();
+    }
+}</pre>
+    <div id="d-traverse" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>searchArray(int) <span class="tag">linear search</span></h3>
+    <pre class="code-mini"><span class="kw">public int</span> searchArray(<span class="ty">int</span> integer){
+    <span class="kw">for</span>(<span class="ty">int</span> i=0;i&lt;arr.length;i++){
+        <span class="kw">if</span>(arr[i]==integer){
+            System.out.println(<span class="str">"the expceted data is received..."</span>);
+            <span class="kw">return</span> arr[i];
+        }
+    }
+    System.out.println(<span class="str">"Data is not available during the search operation"</span>);
+    <span class="kw">return</span> -1;
+}</pre>
+    <div class="editor-row">
+      <label>Search for:</label>
+      <input type="text" class="num" id="t2-search-val" value="5">
+      <button id="t2-search-run">Run search</button>
+    </div>
+    <div id="d-search" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>sumArray() <span class="tag">running accumulator</span></h3>
+    <pre class="code-mini"><span class="kw">int</span> sumArray() {
+    <span class="ty">int</span> sum = 0;
+    <span class="kw">for</span>(<span class="ty">int</span> i = 0; i &lt; arr.length; i++) {
+        sum = sum + arr[i];
+    }
+    <span class="kw">return</span> sum;
+}</pre>
+    <div id="d-sum" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ REVERSE / SORT ============ -->
+<section class="panel" id="reversesort">
+  <h2 class="section-title">Reverse &amp; Sort</h2>
+  <p class="section-sub">Both methods mutate <code style="font-family:'IBM Plex Mono',monospace">arr</code> in place using swaps — no extra array is allocated.</p>
+
+  <div class="editor-row">
+    <label>Working array:</label>
+    <input type="text" id="t3-arr-input" value="1,2,3,55,5,6">
+    <button id="t3-apply">Reset both demos to this array</button>
+    <span class="err" id="t3-err"></span>
+  </div>
+
+  <div class="card">
+    <h3>reverseArray() <span class="tag">two-pointer swap</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> reverseArray(){
+    <span class="ty">int</span> start=0;
+    <span class="ty">int</span> end=arr.length-1;
+    <span class="kw">while</span>(start&lt;end){
+        <span class="ty">int</span> temp= arr[start];
+        arr[start]=arr[end];
+        arr[end]=temp;
+        start ++;
+        end --;
+    }
+    displayArray();
+}</pre>
+    <div id="d-reverse" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>sorting() <span class="tag">compare-and-swap</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> sorting(){
+    <span class="kw">for</span>(<span class="ty">int</span>  i=0;i&lt;arr.length;i++){
+        <span class="kw">for</span>(<span class="ty">int</span> j=i+1;j&lt;arr.length;j++){
+            <span class="kw">if</span>(arr[i]&lt;arr[j]){
+                <span class="ty">int</span> temp=arr[i];
+                arr[i]=arr[j];
+                arr[j]=temp;
+            }
+        }
+    }
+    displayArray();
+}</pre>
+    <div class="callout note"><span class="ic">NOTE</span><span>Read the condition carefully: <code style="font-family:'IBM Plex Mono',monospace">if(arr[i] &lt; arr[j])</code> swaps the <i>larger</i> value forward. That sorts the array in <b>descending</b> order, not ascending — a common surprise for students who assume "sorting" always means smallest-first.</span></div>
+    <div id="d-sort" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PALINDROME / SUBARRAY / ROTATE ============ -->
+<section class="panel" id="palrotate">
+  <h2 class="section-title">Palindrome, Subarray &amp; Rotate</h2>
+  <p class="section-sub">Three independent utility methods on <code style="font-family:'IBM Plex Mono',monospace">arr</code>. Try the default array (not a palindrome), or edit it to build one.</p>
+
+  <div class="editor-row">
+    <label>Working array:</label>
+    <input type="text" id="t4-arr-input" value="7,3,9,3,7,2,8">
+    <button id="t4-apply">Apply to all 3 demos</button>
+    <span class="err" id="t4-err"></span>
+  </div>
+
+  <div class="card">
+    <h3>isPalindrome() <span class="tag">mirror check</span></h3>
+    <pre class="code-mini"><span class="kw">public boolean</span> isPalindrome() {
+    <span class="ty">int</span> start = 0;
+    <span class="ty">int</span> end = arr.length - 1;
+    <span class="kw">while</span>(start &lt; end) {
+        <span class="kw">if</span>(arr[start] != arr[end]) {
+            <span class="kw">return false</span>;
+        }
+        start++;
+        end--;
+    }
+    <span class="kw">return true</span>;
+}</pre>
+    <div id="d-pal" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>printSubArray(start, end) <span class="tag">bounded range</span></h3>
+    <pre class="code-mini"> <span class="ty">void</span> printSubArray(<span class="ty">int</span> start, <span class="ty">int</span> end) {
+    System.out.println(<span class="str">"Sub Array:"</span>);
+    <span class="kw">for</span> (<span class="ty">int</span> i = start; i &lt;= end; i++) {
+        System.out.print(arr[i] + <span class="str">" "</span>);
+    }
+    System.out.println();
+}</pre>
+    <div class="editor-row">
+      <label>start</label><input type="text" class="num" id="t4-sub-start" value="1">
+      <label>end</label><input type="text" class="num" id="t4-sub-end" value="4">
+      <button id="t4-sub-run">Print sub-array</button>
+    </div>
+    <div id="d-sub" class="demo-block">
+      <div class="demo-stage"></div>
+      <div class="demo-narration">Enter a start/end and click "Print sub-array".</div>
+    </div>
+    <div class="callout note"><span class="ic">NOTE</span><span>The loop uses <code style="font-family:'IBM Plex Mono',monospace">i &lt;= end</code>, so <code style="font-family:'IBM Plex Mono',monospace">end</code> must always stay within <code style="font-family:'IBM Plex Mono',monospace">0 … arr.length-1</code> or this throws <code style="font-family:'IBM Plex Mono',monospace">ArrayIndexOutOfBoundsException</code>. There's no bounds check in the method itself.</span></div>
+  </div>
+
+  <div class="card">
+    <h3>rotateRight(k) <span class="tag">k single-step shifts</span></h3>
+    <pre class="code-mini"> <span class="ty">void</span> rotateRight(<span class="ty">int</span> k) {
+    k = k % arr.length;
+    <span class="kw">for</span> (<span class="ty">int</span> count = 0; count &lt; k; count++) {
+        <span class="ty">int</span> last = arr[arr.length - 1];
+        <span class="kw">for</span> (<span class="ty">int</span> i = arr.length - 1; i &gt; 0; i--) {
+            arr[i] = arr[i - 1];
+        }
+        arr[0] = last;
+    }
+}</pre>
+    <div class="editor-row">
+      <label>k</label><input type="text" class="num" id="t4-rot-k" value="2">
+      <button id="t4-rot-run">Build rotation steps</button>
+    </div>
+    <div class="callout note"><span class="ic">NOTE</span><span>Each of the <code style="font-family:'IBM Plex Mono',monospace">k</code> passes re-shifts <i>every</i> element — that's O(k×n) time. The same result can be done in O(n) with the reversal trick (reverse whole array, then reverse each of the two segments) — worth raising as a "can we do better?" discussion.</span></div>
+    <div id="d-rotate" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ 2D ARRAYS ============ -->
+<section class="panel" id="twod">
+  <h2 class="section-title">The 2D Array — <code style="font-family:'IBM Plex Mono',monospace">arraytwod</code></h2>
+  <p class="section-sub">A fixed 3×3 grid declared directly on the class. Rows are <code style="font-family:'IBM Plex Mono',monospace">arraytwod[i]</code>, columns are <code style="font-family:'IBM Plex Mono',monospace">arraytwod[i][j]</code>.</p>
+
+  <div class="card">
+    <h3>The grid</h3>
+    <div class="demo-stage" id="twod-static"></div>
+    <pre class="code-mini"><span class="ty">int</span>[][] arraytwod={
+    {10, 20, 30},
+    {40, 50, 60},
+    {70, 80, 90}
+};</pre>
+  </div>
+
+  <div class="card">
+    <h3>displayDoubleArray() <span class="tag">two loops, back to back</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> displayDoubleArray(){
+    <span class="kw">for</span>(<span class="ty">int</span> i=0;i&lt;arraytwod.length;i++){
+       <span class="kw">for</span>(<span class="ty">int</span> j=0;j&lt;arraytwod.length;j++){       <span class="cm">// ← inner bound uses arraytwod.length</span>
+           System.out.print(arraytwod[i][j]+<span class="str">" "</span>);
+       }
+    }
+    <span class="cm">// another method which is right</span>
+    <span class="kw">for</span>(<span class="ty">int</span> i=0;i&lt;arraytwod.length;i++){
+       <span class="kw">for</span>(<span class="ty">int</span> j=0;j&lt;arraytwod[i].length;j++){     <span class="cm">// ← inner bound uses arraytwod[i].length</span>
+           System.out.print(arraytwod[i][j]+<span class="str">" "</span>);
+       }
+    }
+}</pre>
+    <div class="callout bug"><span class="ic">BUG</span><span>The first loop bounds the inner <code style="font-family:'IBM Plex Mono',monospace">j</code> by <code style="font-family:'IBM Plex Mono',monospace">arraytwod.length</code> (the <i>row count</i>, 3) instead of <code style="font-family:'IBM Plex Mono',monospace">arraytwod[i].length</code> (that row's own width). It only produces correct output here because the grid happens to be square (3 rows × 3 columns). Change any row to a different length and this loop throws <code style="font-family:'IBM Plex Mono',monospace">ArrayIndexOutOfBoundsException</code> or silently skips columns. The second loop is the version to actually teach.</span></div>
+    <p>Neither loop calls <code style="font-family:'IBM Plex Mono',monospace">println()</code> — both print space-separated values with no line break, so on a real run their output runs together on a single line. See the <b>Program Output</b> tab for the literal console text.</p>
+    <div id="d-2ddisplay" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h3>sumOfArray() <span class="tag">visit every cell</span></h3>
+      <pre class="code-mini"><span class="kw">public int</span> sumOfArray() {
+    <span class="ty">int</span> sum = 0;
+    <span class="kw">for</span>(<span class="ty">int</span> i = 0; i &lt; arraytwod.length; i++) {
+        <span class="kw">for</span>(<span class="ty">int</span> j = 0; j &lt; arraytwod[i].length; j++) {
+            sum = sum + arraytwod[i][j];
+        }
+    }
+    <span class="kw">return</span> sum;
+}</pre>
+      <div id="d-2dsum" class="demo-block">
+        <div class="demo-controls">
+          <button data-act="prev">‹ Prev</button>
+          <button data-act="play">▶ Play</button>
+          <button data-act="next">Next ›</button>
+          <span class="step-counter"></span>
+        </div>
+        <div class="demo-stage"></div>
+        <div class="demo-narration"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>sumOfDiagonal() <span class="tag">arraytwod[i][i]</span></h3>
+      <pre class="code-mini"><span class="kw">public int</span> sumOfDiagonal() {
+    <span class="ty">int</span> sum = 0;
+    <span class="kw">for</span>(<span class="ty">int</span> i = 0; i &lt; arraytwod.length; i++) {
+        sum = sum + arraytwod[i][i];
+    }
+    <span class="kw">return</span> sum;
+}</pre>
+      <div id="d-2ddiag" class="demo-block">
+        <div class="demo-controls">
+          <button data-act="prev">‹ Prev</button>
+          <button data-act="play">▶ Play</button>
+          <button data-act="next">Next ›</button>
+          <span class="step-counter"></span>
+        </div>
+        <div class="demo-stage"></div>
+        <div class="demo-narration"></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ DUPLICATES ============ -->
+<section class="panel" id="dups">
+  <h2 class="section-title">Finding Duplicates</h2>
+  <p class="section-sub">The source defines <b>two</b> different duplicate-finders — one for the 1D array, one for the 2D grid. Both are named <code style="font-family:'IBM Plex Mono',monospace">findDuplicates()</code>. That's the headline bug, covered fully in <b>Code Review</b>; here we visualize what each one is trying to do.</p>
+
+  <div class="card">
+    <h3>1D findDuplicates() <span class="tag">nested loop, i vs j&gt;i</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> findDuplicates() {
+    <span class="kw">for</span>(<span class="ty">int</span> i = 0; i &lt; arr.length; i++) {
+        <span class="kw">for</span>(<span class="ty">int</span> j = i + 1; j &lt; arr.length; j++) {
+            <span class="kw">if</span>(arr[i] == arr[j]) {
+                System.out.println(<span class="str">"Duplicate: "</span> + arr[i]);
+            }
+        }
+    }
+}</pre>
+    <div class="editor-row">
+      <label>Demo array (with duplicates):</label>
+      <input type="text" id="t6-arr-input" value="4,2,7,2,9,4">
+      <button id="t6-apply">Build steps</button>
+      <span class="err" id="t6-err"></span>
+    </div>
+    <div id="d-dup1d" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3>2D findDuplicates() <span class="tag">every cell vs every later cell</span></h3>
+    <pre class="code-mini"><span class="kw">public void</span> findDuplicates() {
+    <span class="kw">for</span>(<span class="ty">int</span> i = 0; i &lt; arraytwod.length; i++) {
+        <span class="kw">for</span>(<span class="ty">int</span> j = 0; j &lt; arraytwod[i].length; j++) {
+            <span class="kw">for</span>(<span class="ty">int</span> x = i; x &lt; arraytwod.length; x++) {
+                <span class="ty">int</span> startColumn = 0;
+                <span class="kw">if</span>(x == i) { startColumn = j + 1; }
+                <span class="kw">for</span>(<span class="ty">int</span> y = startColumn; y &lt; arraytwod[x].length; y++) {
+                    <span class="kw">if</span>(arraytwod[i][j] == arraytwod[x][y]) {
+                        System.out.println(<span class="str">"Duplicate: "</span> + arraytwod[i][j]);
+                    }
+                }
+            }
+        }
+    }
+}</pre>
+    <p>This is the 2D equivalent of "compare with everything that comes later": for cell <code style="font-family:'IBM Plex Mono',monospace">(i,j)</code>, it scans the rest of row <code style="font-family:'IBM Plex Mono',monospace">i</code> after column <code style="font-family:'IBM Plex Mono',monospace">j</code>, then every cell in all rows below. The real <code style="font-family:'IBM Plex Mono',monospace">arraytwod</code> (10…90) has no duplicates, so this demo uses a modified grid to show a match.</p>
+    <div id="d-dup2d" class="demo-block">
+      <div class="demo-controls">
+        <button data-act="prev">‹ Prev</button>
+        <button data-act="play">▶ Play</button>
+        <button data-act="next">Next ›</button>
+        <span class="step-counter"></span>
+      </div>
+      <div class="demo-stage"></div>
+      <div class="demo-narration"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ CODE REVIEW ============ -->
+<section class="panel" id="review">
+  <h2 class="section-title">Code Review — the original source</h2>
+  <p class="section-sub">Kept verbatim, typos and all. Two callouts below mark real defects; the rest are style notes worth discussing in class.</p>
+
+  <div class="callout bug">
+    <span class="ic">BUG 1</span>
+    <span>There are <b>two methods named <code style="font-family:'IBM Plex Mono',monospace">findDuplicates()</code></b> in the same class, both with an empty parameter list — identical signatures. Java resolves overloads by parameter list, not by what the method does internally, so this is a duplicate method definition and <b>will not compile</b>: <code style="font-family:'IBM Plex Mono',monospace">error: method findDuplicates() is already defined in class ArrayClass</code>. Fixing it means renaming one, e.g. <code style="font-family:'IBM Plex Mono',monospace">findDuplicates1D()</code> and <code style="font-family:'IBM Plex Mono',monospace">findDuplicates2D()</code>.</span>
+  </div>
+  <div class="callout bug">
+    <span class="ic">BUG 2</span>
+    <span>In <code style="font-family:'IBM Plex Mono',monospace">displayDoubleArray()</code>, the first inner loop uses <code style="font-family:'IBM Plex Mono',monospace">j &lt; arraytwod.length</code> instead of <code style="font-family:'IBM Plex Mono',monospace">j &lt; arraytwod[i].length</code>. It happens to work only because this grid is square (3×3). It is not safe for a jagged or non-square 2D array.</span>
+  </div>
+  <div class="callout note">
+    <span class="ic">STYLE</span>
+    <span><code style="font-family:'IBM Plex Mono',monospace">sorting()</code> produces descending order despite the generic name — worth a naming discussion. <code style="font-family:'IBM Plex Mono',monospace">rotateRight(k)</code> is O(k×n); an O(n) version exists. Neither <code style="font-family:'IBM Plex Mono',monospace">printSubArray</code> nor <code style="font-family:'IBM Plex Mono',monospace">searchArray</code> validate their inputs before indexing.</span>
+  </div>
+
+  <div class="card">
+    <h3>Full class, as submitted <span class="tag">verbatim</span></h3>
+    <details class="src-toggle" open>
+      <summary>Show / hide ArrayClass.java + Main.java</summary>
+      <pre class="code-mini" style="margin-top:12px;" id="full-source"></pre>
+    </details>
+  </div>
+</section>
+
+<!-- ============ PRACTICE ============ -->
+<section class="panel" id="practice">
+  <h2 class="section-title">Practice</h2>
+  <p class="section-sub">Quick self-check, graded instantly in your browser. Nothing is sent anywhere.</p>
+  <div class="card" id="quiz-card"></div>
+</section>
+
+<!-- ============ OUTPUT ============ -->
+<section class="panel" id="output">
+  <h2 class="section-title">Program Output</h2>
+  <p class="section-sub">This runs the exact logic of <code style="font-family:'IBM Plex Mono',monospace">Main.main()</code> in JavaScript and prints whatever <code style="font-family:'IBM Plex Mono',monospace">System.out</code> would — nothing here is a hardcoded string.</p>
+  <div class="card">
+    <h3>Main.main() <span class="tag">as submitted</span></h3>
+    <pre class="code-mini">class Main{
+    <span class="kw">public static void</span> main(String[] args){
+        <span class="ty">int</span>[] inputvalue={1,2,3,55,5,6};
+        ArrayClass arrayValue=<span class="kw">new</span> ArrayClass(inputvalue);
+        <span class="cm">// arrayValue.displayArray();</span>
+        <span class="cm">// arrayValue.searchArray(3);</span>
+        <span class="cm">// arrayValue.reverseArray();</span>
+        arrayValue.sorting();
+        arrayValue.displayDoubleArray();
+    }
+}</pre>
+  </div>
+  <div class="card">
+    <h3>Console <span class="tag">computed live</span></h3>
+    <div class="terminal" id="live-console"></div>
+    <div class="callout tip" style="margin-top:14px;"><span class="ic">WHY</span><span><code style="font-family:'IBM Plex Mono',monospace">sorting()</code> calls <code style="font-family:'IBM Plex Mono',monospace">displayArray()</code> internally at the end, which prints one value per line. But <code style="font-family:'IBM Plex Mono',monospace">displayDoubleArray()</code> never calls <code style="font-family:'IBM Plex Mono',monospace">println()</code> — so both of its loops print onto a single continuous line, right after the sorted output ends.</span></div>
+  </div>
+</section>
+
+</main>
+
+<footer class="foot">Built around the submitted <code>ArrayClass</code> / <code>Main</code> source · every value above is computed by JavaScript replicating the Java logic, not typed in by hand.</footer>
+
+<script>
+/* ================= TAB SWITCHING ================= */
+document.getElementById('tabNav').addEventListener('click', e=>{
+  const btn = e.target.closest('button[data-tab]');
+  if(!btn) return;
+  document.querySelectorAll('nav.tabs button').forEach(b=>b.classList.remove('active'));
+  document.querySelectorAll('section.panel').forEach(s=>s.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById(btn.dataset.tab).classList.add('active');
+});
+
+/* ================= RENDER HELPERS ================= */
+function renderArray(container, arr, states){
+  container.innerHTML = '';
+  const row = document.createElement('div'); row.className = 'arr-row';
+  arr.forEach((v,i)=>{
+    const cell = document.createElement('div');
+    cell.className = 'arr-cell state-' + (states[i] || 'none');
+    cell.innerHTML = '<div class="arr-val">'+v+'</div><div class="arr-idx">['+i+']</div>';
+    row.appendChild(cell);
+  });
+  container.appendChild(row);
+}
+function renderMatrix(container, mat, states){
+  container.innerHTML = '';
+  const grid = document.createElement('div'); grid.className = 'mat-grid';
+  mat.forEach((r,i)=>{
+    const rowEl = document.createElement('div'); rowEl.className = 'mat-row';
+    r.forEach((v,j)=>{
+      const cell = document.createElement('div');
+      cell.className = 'mat-cell state-' + ((states[i] && states[i][j]) || 'none');
+      cell.innerHTML = '<div class="mat-val">'+v+'</div><div class="mat-idx">'+i+','+j+'</div>';
+      rowEl.appendChild(cell);
+    });
+    grid.appendChild(rowEl);
+  });
+  container.appendChild(grid);
+}
+
+/* ================= GENERIC STEP PLAYER ================= */
+function mountDemo(id){
+  const root = document.getElementById(id);
+  const stage = root.querySelector('.demo-stage');
+  const narr = root.querySelector('.demo-narration');
+  const counter = root.querySelector('.step-counter');
+  const prevBtn = root.querySelector('[data-act="prev"]');
+  const nextBtn = root.querySelector('[data-act="next"]');
+  const playBtn = root.querySelector('[data-act="play"]');
+  let steps = [], idx = 0, timer = null;
+
+  function renderStep(){
+    const s = steps[idx];
+    if(!s) return;
+    if(s.mat) renderMatrix(stage, s.mat, s.states); else renderArray(stage, s.arr, s.states);
+    narr.textContent = s.narration;
+    if(counter) counter.textContent = 'Step ' + (idx+1) + ' of ' + steps.length;
+    if(prevBtn) prevBtn.disabled = idx === 0;
+    if(nextBtn) nextBtn.disabled = idx === steps.length - 1;
+  }
+  function stop(){ if(timer){ clearInterval(timer); timer=null; if(playBtn) playBtn.textContent='▶ Play'; } }
+  if(prevBtn) prevBtn.addEventListener('click', ()=>{ stop(); if(idx>0){ idx--; renderStep(); } });
+  if(nextBtn) nextBtn.addEventListener('click', ()=>{ stop(); if(idx<steps.length-1){ idx++; renderStep(); } });
+  if(playBtn) playBtn.addEventListener('click', ()=>{
+    if(timer){ stop(); return; }
+    playBtn.textContent = '⏸ Pause';
+    timer = setInterval(()=>{
+      if(idx < steps.length-1){ idx++; renderStep(); } else { stop(); }
+    }, 1050);
+  });
+  return { load(newSteps){ stop(); steps = newSteps; idx = 0; renderStep(); } };
+}
+
+/* ================= STEP GENERATORS (mirror the Java exactly) ================= */
+function genTraverse(arr){
+  const steps = [];
+  for(let i=0;i<arr.length;i++){
+    const states = arr.map((_,k)=> k===i ? 'active' : (k<i ? 'sorted' : 'none'));
+    steps.push({arr:arr.slice(), states, narration:'i='+i+':  System.out.print(arr['+i+']) → prints '+arr[i]+', then println() starts a new line.'});
+  }
+  steps.push({arr:arr.slice(), states:arr.map(()=>'sorted'), narration:'Loop ends — displayArray() has printed every element, one per line.'});
+  return steps;
+}
+function genSearch(arr, target){
+  const steps = [];
+  for(let i=0;i<arr.length;i++){
+    if(arr[i] === target){
+      const states = arr.map((_,k)=> k===i ? 'match' : (k<i ? 'dead' : 'none'));
+      steps.push({arr:arr.slice(), states, narration:'i='+i+':  arr['+i+'] == '+target+' → match found. Returns '+arr[i]+'.'});
+      return steps;
+    } else {
+      const states = arr.map((_,k)=> k===i ? 'active' : (k<i ? 'dead' : 'none'));
+      steps.push({arr:arr.slice(), states, narration:'i='+i+':  arr['+i+']='+arr[i]+'  !=  '+target+' → keep scanning.'});
+    }
+  }
+  steps.push({arr:arr.slice(), states:arr.map(()=>'dead'), narration:'Reached the end with no match → prints "Data is not available..." and returns -1.'});
+  return steps;
+}
+function genSum(arr){
+  let sum = 0; const steps = [];
+  steps.push({arr:arr.slice(), states:arr.map(()=>'none'), narration:'sum = 0  (before the loop starts)'});
+  for(let i=0;i<arr.length;i++){
+    const before = sum; sum += arr[i];
+    const states = arr.map((_,k)=> k===i ? 'active' : (k<i ? 'sorted' : 'none'));
+    steps.push({arr:arr.slice(), states, narration:'i='+i+':  sum = '+before+' + arr['+i+'](' + arr[i] + ') = '+sum});
+  }
+  steps.push({arr:arr.slice(), states:arr.map(()=>'sorted'), narration:'Loop ends → sumArray() returns ' + sum + '.'});
+  return steps;
+}
+function genReverse(arr){
+  const a = arr.slice(); const steps = [];
+  let start = 0, end = a.length - 1;
+  steps.push({arr:a.slice(), states:a.map(()=>'none'), narration:'Initial array, before reverseArray() runs.'});
+  while(start < end){
+    let states = a.map((_,k)=> (k===start||k===end) ? 'active' : 'none');
+    steps.push({arr:a.slice(), states, narration:'start='+start+', end='+end+': about to swap arr['+start+'] and arr['+end+'].'});
+    const t = a[start]; a[start] = a[end]; a[end] = t;
+    states = a.map((_,k)=> (k===start||k===end) ? 'swap' : 'none');
+    steps.push({arr:a.slice(), states, narration:'Swapped → arr['+start+']='+a[start]+', arr['+end+']='+a[end]+'.'});
+    start++; end--;
+  }
+  steps.push({arr:a.slice(), states:a.map(()=>'sorted'), narration:'start >= end → reversal complete. displayArray() now prints this reversed array.'});
+  return steps;
+}
+function genSort(arr){
+  const a = arr.slice(); const steps = [];
+  steps.push({arr:a.slice(), states:a.map(()=>'none'), narration:'Initial array, before sorting() runs.'});
+  for(let i=0;i<a.length;i++){
+    for(let j=i+1;j<a.length;j++){
+      let states = a.map((_,k)=> k===i ? 'active' : (k===j ? 'cmp' : (k<i ? 'sorted' : 'none')));
+      if(a[i] < a[j]){
+        steps.push({arr:a.slice(), states, narration:'i='+i+', j='+j+':  arr['+i+']='+a[i]+' < arr['+j+']='+a[j]+' → swap.'});
+        const t = a[i]; a[i] = a[j]; a[j] = t;
+        states = a.map((_,k)=> (k===i||k===j) ? 'swap' : (k<i ? 'sorted' : 'none'));
+        steps.push({arr:a.slice(), states, narration:'Swapped → arr['+i+']='+a[i]+', arr['+j+']='+a[j]+'.'});
+      } else {
+        steps.push({arr:a.slice(), states, narration:'i='+i+', j='+j+':  arr['+i+']='+a[i]+' ≥ arr['+j+']='+a[j]+' → no swap.'});
+      }
+    }
+  }
+  steps.push({arr:a.slice(), states:a.map(()=>'sorted'), narration:'Outer loop ends → array is now in descending order.'});
+  return steps;
+}
+function genPalindrome(arr){
+  const steps = [];
+  let start = 0, end = arr.length - 1;
+  while(start < end){
+    const states = arr.map((_,k)=> (k===start||k===end) ? 'active' : 'none');
+    if(arr[start] !== arr[end]){
+      const failStates = arr.map((_,k)=> (k===start||k===end) ? 'swap' : 'none');
+      steps.push({arr:arr.slice(), states:failStates, narration:'start='+start+', end='+end+':  arr['+start+']='+arr[start]+'  ≠  arr['+end+']='+arr[end]+' → returns false.'});
+      return steps;
+    }
+    steps.push({arr:arr.slice(), states, narration:'start='+start+', end='+end+':  arr['+start+'] == arr['+end+'] (' + arr[start] + ') → keep checking.'});
+    start++; end--;
+  }
+  steps.push({arr:arr.slice(), states:arr.map(()=>'match'), narration:'start >= end → every mirrored pair matched. isPalindrome() returns true.'});
+  return steps;
+}
+function genRotate(arr, k){
+  const a = arr.slice(); const n = a.length;
+  const kk = ((k % n) + n) % n;
+  const steps = [];
+  steps.push({arr:a.slice(), states:a.map(()=>'none'), narration:'k % arr.length = '+k+' % '+n+' = '+kk+'. Will run '+kk+' single-step right rotations.'});
+  for(let c=0;c<kk;c++){
+    const last = a[n-1];
+    for(let i=n-1;i>0;i--) a[i] = a[i-1];
+    a[0] = last;
+    steps.push({arr:a.slice(), states:a.map((_,i)=> i===0 ? 'active' : 'none'), narration:'Pass '+(c+1)+'/'+kk+': saved last element ('+last+'), shifted every element right by one, placed '+last+' at index 0.'});
+  }
+  steps.push({arr:a.slice(), states:a.map(()=>'sorted'), narration:'rotateRight('+k+') complete.'});
+  return steps;
+}
+function genDup1D(arr){
+  const steps = [];
+  const seen = [];
+  for(let i=0;i<arr.length;i++){
+    for(let j=i+1;j<arr.length;j++){
+      const states = arr.map((_,k)=> k===i ? 'active' : (k===j ? 'cmp' : (seen.includes(k) ? 'dup' : 'none')));
+      if(arr[i] === arr[j]){
+        states[j] = 'dup'; states[i] = 'dup';
+        seen.push(i,j);
+        steps.push({arr:arr.slice(), states, narration:'i='+i+', j='+j+':  arr['+i+'] == arr['+j+'] (' + arr[i] + ') → prints "Duplicate: '+arr[i]+'"'});
+      } else {
+        steps.push({arr:arr.slice(), states, narration:'i='+i+', j='+j+':  arr['+i+']='+arr[i]+'  vs  arr['+j+']='+arr[j]+' → no match.'});
+      }
+    }
+  }
+  steps.push({arr:arr.slice(), states:arr.map((_,k)=> seen.includes(k) ? 'dup' : 'none'), narration:'All i/j pairs checked.'});
+  return steps;
+}
+function genDup2D(mat){
+  const steps = [];
+  const dupCells = new Set();
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat[i].length;j++){
+      for(let x=i;x<mat.length;x++){
+        let startCol = 0;
+        if(x===i) startCol = j+1;
+        for(let y=startCol;y<mat[x].length;y++){
+          const states = mat.map((row,ri)=> row.map((_,rj)=>{
+            if(ri===i && rj===j) return 'active';
+            if(ri===x && rj===y) return 'cmp';
+            const key = ri+','+rj;
+            return dupCells.has(key) ? 'dup' : 'none';
+          }));
+          if(mat[i][j] === mat[x][y]){
+            dupCells.add(i+','+j); dupCells.add(x+','+y);
+            const doneStates = mat.map((row,ri)=> row.map((_,rj)=> dupCells.has(ri+','+rj) ? 'dup' : 'none'));
+            steps.push({mat:mat.map(r=>r.slice()), states:doneStates, narration:'('+i+','+j+') vs ('+x+','+y+'):  ' + mat[i][j] + ' == ' + mat[x][y] + ' → prints "Duplicate: '+mat[i][j]+'"'});
+          } else {
+            steps.push({mat:mat.map(r=>r.slice()), states, narration:'('+i+','+j+') vs ('+x+','+y+'):  ' + mat[i][j] + ' vs ' + mat[x][y] + ' → no match.'});
+          }
+        }
+      }
+    }
+  }
+  steps.push({mat:mat.map(r=>r.slice()), states:mat.map((row,ri)=>row.map((_,rj)=> dupCells.has(ri+','+rj) ? 'dup' : 'none')), narration:'All cell pairs checked.'});
+  return steps;
+}
+function gen2DDisplayFirstLoop(mat){
+  const steps = [];
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat.length;j++){ // the buggy bound, replicated on purpose
+      const states = mat.map((row,ri)=> row.map((_,rj)=> (ri===i&&rj===j) ? 'active' : (ri<i || (ri===i&&rj<j) ? 'sorted' : 'none')));
+      steps.push({mat:mat.map(r=>r.slice()), states, narration:'Loop 1 — i='+i+', j='+j+' (bound: arraytwod.length):  prints '+mat[i][j]});
+    }
+  }
+  return steps;
+}
+function gen2DDisplaySecondLoop(mat){
+  const steps = [];
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat[i].length;j++){
+      const states = mat.map((row,ri)=> row.map((_,rj)=> (ri===i&&rj===j) ? 'active' : (ri<i || (ri===i&&rj<j) ? 'sorted' : 'none')));
+      steps.push({mat:mat.map(r=>r.slice()), states, narration:'Loop 2 — i='+i+', j='+j+' (bound: arraytwod[i].length):  prints '+mat[i][j]});
+    }
+  }
+  return steps;
+}
+function gen2DSum(mat){
+  let sum = 0; const steps = [];
+  steps.push({mat:mat.map(r=>r.slice()), states:mat.map(row=>row.map(()=>'none')), narration:'sum = 0 (before loops)'});
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat[i].length;j++){
+      const before = sum; sum += mat[i][j];
+      const states = mat.map((row,ri)=> row.map((_,rj)=> (ri===i&&rj===j) ? 'active' : (ri<i || (ri===i&&rj<j) ? 'sorted' : 'none')));
+      steps.push({mat:mat.map(r=>r.slice()), states, narration:'i='+i+', j='+j+':  sum = '+before+' + '+mat[i][j]+' = '+sum});
+    }
+  }
+  steps.push({mat:mat.map(r=>r.slice()), states:mat.map(row=>row.map(()=>'sorted')), narration:'sumOfArray() returns ' + sum + '.'});
+  return steps;
+}
+function gen2DDiag(mat){
+  let sum = 0; const steps = [];
+  for(let i=0;i<mat.length;i++){
+    const before = sum; sum += mat[i][i];
+    const states = mat.map((row,ri)=> row.map((_,rj)=> (ri===i && rj===i) ? 'diag' : 'none'));
+    steps.push({mat:mat.map(r=>r.slice()), states, narration:'i='+i+':  sum = '+before+' + arraytwod['+i+']['+i+'](' + mat[i][i] + ') = '+sum});
+  }
+  steps.push({mat:mat.map(r=>r.slice()), states:mat.map((row,ri)=> row.map((_,rj)=> ri===rj ? 'diag' : 'none')), narration:'sumOfDiagonal() returns ' + sum + '.'});
+  return steps;
+}
+
+/* ================= MOUNT ALL DEMOS ================= */
+const BASE_2D = [[10,20,30],[40,50,60],[70,80,90]];
+const DUP_2D_DEMO = [[10,20,30],[40,20,60],[70,80,10]];
+
+const demoTraverse = mountDemo('d-traverse');
+const demoSearch = mountDemo('d-search');
+const demoSum = mountDemo('d-sum');
+const demoReverse = mountDemo('d-reverse');
+const demoSort = mountDemo('d-sort');
+const demoPal = mountDemo('d-pal');
+const demoRotate = mountDemo('d-rotate');
+const demo2DDisplay = mountDemo('d-2ddisplay');
+const demo2DSum = mountDemo('d-2dsum');
+const demo2DDiag = mountDemo('d-2ddiag');
+const demoDup1D = mountDemo('d-dup1d');
+const demoDup2D = mountDemo('d-dup2d');
+
+function parseArr(str){
+  const parts = str.split(',').map(s=>s.trim()).filter(s=>s.length>0);
+  const nums = parts.map(Number);
+  if(nums.length === 0 || nums.some(n=>Number.isNaN(n))) return null;
+  return nums;
+}
+
+/* Tab 2: traverse / search / sum share one array */
+let T2_ARR = [1,2,3,55,5,6];
+function refreshT2(){
+  demoTraverse.load(genTraverse(T2_ARR));
+  demoSum.load(genSum(T2_ARR));
+  const target = Number(document.getElementById('t2-search-val').value);
+  demoSearch.load(genSearch(T2_ARR, Number.isNaN(target) ? T2_ARR[0] : target));
+}
+document.getElementById('t2-apply').addEventListener('click', ()=>{
+  const p = parseArr(document.getElementById('t2-arr-input').value);
+  const err = document.getElementById('t2-err');
+  if(!p){ err.textContent = 'Enter comma-separated integers.'; return; }
+  err.textContent = ''; T2_ARR = p; refreshT2();
+});
+document.getElementById('t2-search-run').addEventListener('click', ()=>{
+  const target = Number(document.getElementById('t2-search-val').value);
+  demoSearch.load(genSearch(T2_ARR, Number.isNaN(target) ? T2_ARR[0] : target));
+});
+refreshT2();
+
+/* Tab 3: reverse / sort each get an independent copy of the array */
+let T3_ARR = [1,2,3,55,5,6];
+function refreshT3(){
+  demoReverse.load(genReverse(T3_ARR));
+  demoSort.load(genSort(T3_ARR));
+}
+document.getElementById('t3-apply').addEventListener('click', ()=>{
+  const p = parseArr(document.getElementById('t3-arr-input').value);
+  const err = document.getElementById('t3-err');
+  if(!p){ err.textContent = 'Enter comma-separated integers.'; return; }
+  err.textContent = ''; T3_ARR = p; refreshT3();
+});
+refreshT3();
+
+/* Tab 4: palindrome / subarray / rotate share one array */
+let T4_ARR = [7,3,9,3,7,2,8];
+function refreshT4(){
+  demoPal.load(genPalindrome(T4_ARR));
+  runSubArray();
+  const k = parseInt(document.getElementById('t4-rot-k').value,10);
+  demoRotate.load(genRotate(T4_ARR, Number.isNaN(k) ? 1 : k));
+}
+function runSubArray(){
+  const s = parseInt(document.getElementById('t4-sub-start').value,10);
+  const e = parseInt(document.getElementById('t4-sub-end').value,10);
+  const stage = document.querySelector('#d-sub .demo-stage');
+  const narr = document.querySelector('#d-sub .demo-narration');
+  if(Number.isNaN(s) || Number.isNaN(e) || s<0 || e>=T4_ARR.length || s>e){
+    narr.textContent = 'Invalid start/end for this array (valid range: 0 to ' + (T4_ARR.length-1) + ').';
+    renderArray(stage, T4_ARR, T4_ARR.map(()=>'none'));
+    return;
+  }
+  const states = T4_ARR.map((_,i)=> (i>=s && i<=e) ? 'range' : 'none');
+  renderArray(stage, T4_ARR, states);
+  const vals = [];
+  for(let i=s;i<=e;i++) vals.push(T4_ARR[i]);
+  narr.textContent = 'Sub Array: ' + vals.join(' ') + ' ';
+}
+document.getElementById('t4-apply').addEventListener('click', ()=>{
+  const p = parseArr(document.getElementById('t4-arr-input').value);
+  const err = document.getElementById('t4-err');
+  if(!p){ err.textContent = 'Enter comma-separated integers.'; return; }
+  err.textContent = ''; T4_ARR = p; refreshT4();
+});
+document.getElementById('t4-sub-run').addEventListener('click', runSubArray);
+document.getElementById('t4-rot-run').addEventListener('click', ()=>{
+  const k = parseInt(document.getElementById('t4-rot-k').value,10);
+  demoRotate.load(genRotate(T4_ARR, Number.isNaN(k) ? 1 : k));
+});
+refreshT4();
+
+/* Tab 5: 2D (static grid + 4 demos) */
+renderMatrix(document.getElementById('twod-static'), BASE_2D, BASE_2D.map(r=>r.map(()=>'none')));
+demo2DDisplay.load(gen2DDisplayFirstLoop(BASE_2D).concat(gen2DDisplaySecondLoop(BASE_2D)));
+demo2DSum.load(gen2DSum(BASE_2D));
+demo2DDiag.load(gen2DDiag(BASE_2D));
+
+/* Tab 6: duplicates */
+let T6_ARR = [4,2,7,2,9,4];
+document.getElementById('t6-apply').addEventListener('click', ()=>{
+  const p = parseArr(document.getElementById('t6-arr-input').value);
+  const err = document.getElementById('t6-err');
+  if(!p){ err.textContent = 'Enter comma-separated integers.'; return; }
+  err.textContent = ''; T6_ARR = p; demoDup1D.load(genDup1D(T6_ARR));
+});
+demoDup1D.load(genDup1D(T6_ARR));
+demoDup2D.load(genDup2D(DUP_2D_DEMO));
+
+/* ================= OVERVIEW MEMORY SVG ================= */
+(function(){
+  const vals = [1,2,3,55,5,6];
+  const cellW = 58, cellH = 54, gap = 6;
+  const totalW = vals.length*(cellW+gap)-gap;
+  let svg = '<svg width="'+totalW+'" height="98" viewBox="0 0 '+totalW+' 98" xmlns="http://www.w3.org/2000/svg">';
+  vals.forEach((v,i)=>{
+    const x = i*(cellW+gap);
+    svg += '<rect x="'+x+'" y="0" width="'+cellW+'" height="'+cellH+'" rx="9" fill="#161f3a" stroke="#33d9c4" stroke-width="1.4"/>';
+    svg += '<text x="'+(x+cellW/2)+'" y="'+(cellH/2+6)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="17" fill="#e8ecf7" font-weight="600">'+v+'</text>';
+    svg += '<text x="'+(x+cellW/2)+'" y="'+(cellH+18)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="11" fill="#9aa6c9">arr['+i+']</text>';
+    svg += '<line x1="'+(x+cellW/2)+'" y1="'+(cellH+22)+'" x2="'+(x+cellW/2)+'" y2="'+(cellH+30)+'" stroke="#3a4576"/>';
+  });
+  svg += '</svg>';
+  document.getElementById('memSvgHolder').innerHTML = svg;
+})();
+
+/* ================= FULL SOURCE (verbatim) ================= */
+document.getElementById('full-source').textContent =
+"// You are using Java\n" +
+"class ArrayClass{\n" +
+"    int[] arr;\n" +
+"    \n" +
+"    int[][] arraytwod={\n" +
+"    {10, 20, 30},\n" +
+"    {40, 50, 60},\n" +
+"    {70, 80, 90}\n" +
+"        \n" +
+"    };\n" +
+"    \n" +
+"    public ArrayClass(int[] arrayData){\n" +
+"        this.arr=arrayData;\n" +
+"    }\n" +
+"    \n" +
+"    public void displayArray(){\n" +
+"        for(int i=0;i<arr.length;i++){\n" +
+"            System.out.print(arr[i]+\" \");\n" +
+"            System.out.println();\n" +
+"            \n" +
+"        }\n" +
+"    }\n" +
+"    \n" +
+"    // search operation using the array\n" +
+"    public int searchArray(int integer){\n" +
+"         \n" +
+"         for(int i=0;i<arr.length;i++){\n" +
+"            \n" +
+"           if(arr[i]==integer){\n" +
+"               System.out.println(\"the expceted data is received from the array during the search  :  \"+arr[i]);\n" +
+"               return arr[i];\n" +
+"               }\n" +
+"        }\n" +
+"        System.out.println(\"Data is not available during the search operation\");\n" +
+"        return -1;\n" +
+"        \n" +
+"    }\n" +
+"    \n" +
+"    int sumArray() {\n" +
+"\n" +
+"    int sum = 0;\n" +
+"\n" +
+"    for(int i = 0; i < arr.length; i++) {\n" +
+"        sum = sum + arr[i];\n" +
+"    }\n" +
+"\n" +
+"    return sum;\n" +
+"}\n" +
+"\n" +
+"    //reverse operation using the array\n" +
+"    \n" +
+"    // reversing \n" +
+"    public void reverseArray(){\n" +
+"        int start=0;\n" +
+"        int end=arr.length-1;\n" +
+"        while(start<end){\n" +
+"            int temp= arr[start];\n" +
+"            arr[start]=arr[end];\n" +
+"            arr[end]=temp;\n" +
+"            start ++;\n" +
+"            end --;\n" +
+"        }\n" +
+"        \n" +
+"        displayArray();\n" +
+"    }\n" +
+"    \n" +
+"    // sorting\n" +
+"    public void sorting(){\n" +
+"        \n" +
+"        for(int  i=0;i<arr.length;i++){\n" +
+"            for(int j=i+1;j<arr.length;j++){\n" +
+"                if(arr[i]<arr[j]){\n" +
+"                    int temp=arr[i];\n" +
+"                    arr[i]=arr[j];\n" +
+"                    arr[j]=temp;\n" +
+"                }\n" +
+"            }\n" +
+"        }\n" +
+"        \n" +
+"         displayArray();\n" +
+"    }\n" +
+"    \n" +
+"    // ********************************Double Array*******************\n" +
+"    \n" +
+"    public void displayDoubleArray(){\n" +
+"        \n" +
+"        for(int i=0;i<arraytwod.length;i++){\n" +
+"            \n" +
+"           for(int j=0;j<arraytwod.length;j++){\n" +
+"               \n" +
+"               System.out.print(arraytwod[i][j]+\" \");\n" +
+"           }\n" +
+"        }\n" +
+"        // another merhod which is right\n" +
+"        for(int i=0;i<arraytwod.length;i++){\n" +
+"            \n" +
+"           for(int j=0;j<arraytwod[i].length;j++){\n" +
+"               \n" +
+"               System.out.print(arraytwod[i][j]+\" \");\n" +
+"           }\n" +
+"        }\n" +
+"        \n" +
+"    }\n" +
+"    \n" +
+"    public int sumOfArray() {\n" +
+"\n" +
+"    int sum = 0;\n" +
+"\n" +
+"    for(int i = 0; i < arraytwod.length; i++) {\n" +
+"\n" +
+"        for(int j = 0; j < arraytwod[i].length; j++) {\n" +
+"\n" +
+"            sum = sum + arraytwod[i][j];\n" +
+"        }\n" +
+"    }\n" +
+"\n" +
+"    return sum;\n" +
+"}\n" +
+"\n" +
+"public int sumOfDiagonal() {\n" +
+"\n" +
+"    int sum = 0;\n" +
+"\n" +
+"    for(int i = 0; i < arraytwod.length; i++) {\n" +
+"\n" +
+"        sum = sum + arraytwod[i][i];\n" +
+"    }\n" +
+"\n" +
+"    return sum;\n" +
+"}\n" +
+"    \n" +
+"    public void findDuplicates() {\n" +
+"\n" +
+"    for(int i = 0; i < arr.length; i++) {\n" +
+"\n" +
+"        for(int j = i + 1; j < arr.length; j++) {\n" +
+"\n" +
+"            if(arr[i] == arr[j]) {\n" +
+"\n" +
+"                System.out.println(\"Duplicate: \" + arr[i]);\n" +
+"            }\n" +
+"        }\n" +
+"    }\n" +
+"}\n" +
+"\n" +
+"public void findDuplicates() {                      // ⚠ duplicate signature — see BUG 1\n" +
+"\n" +
+"    for(int i = 0; i < arraytwod.length; i++) {\n" +
+"\n" +
+"        for(int j = 0; j < arraytwod[i].length; j++) {\n" +
+"\n" +
+"            for(int x = i; x < arraytwod.length; x++) {\n" +
+"\n" +
+"                int startColumn = 0;\n" +
+"\n" +
+"                if(x == i) {\n" +
+"                    startColumn = j + 1;\n" +
+"                }\n" +
+"\n" +
+"                for(int y = startColumn; y < arraytwod[x].length; y++) {\n" +
+"\n" +
+"                    if(arraytwod[i][j] == arraytwod[x][y]) {\n" +
+"\n" +
+"                        System.out.println(\"Duplicate: \" + arraytwod[i][j]);\n" +
+"                    }\n" +
+"                }\n" +
+"            }\n" +
+"        }\n" +
+"    }\n" +
+"}\n" +
+"\n" +
+"public boolean isPalindrome() {\n" +
+"\n" +
+"    int start = 0;\n" +
+"    int end = arr.length - 1;\n" +
+"\n" +
+"    while(start < end) {\n" +
+"\n" +
+"        if(arr[start] != arr[end]) {\n" +
+"            return false;\n" +
+"        }\n" +
+"\n" +
+"        start++;\n" +
+"        end--;\n" +
+"    }\n" +
+"\n" +
+"    return true;\n" +
+"}\n" +
+"\n" +
+" void printSubArray(int start, int end) {\n" +
+"\n" +
+"        System.out.println(\"Sub Array:\");\n" +
+"\n" +
+"        for (int i = start; i <= end; i++) {\n" +
+"            System.out.print(arr[i] + \" \");\n" +
+"        }\n" +
+"\n" +
+"        System.out.println();\n" +
+"    }\n" +
+"    \n" +
+"    void rotateRight(int k) {\n" +
+"\n" +
+"        k = k % arr.length;\n" +
+"\n" +
+"        for (int count = 0; count < k; count++) {\n" +
+"\n" +
+"            int last = arr[arr.length - 1];\n" +
+"\n" +
+"            for (int i = arr.length - 1; i > 0; i--) {\n" +
+"                arr[i] = arr[i - 1];\n" +
+"            }\n" +
+"\n" +
+"            arr[0] = last;\n" +
+"        }\n" +
+"    }\n" +
+"    \n" +
+"}\n" +
+"\n" +
+"class Main{\n" +
+"    public static void main(String[] args){\n" +
+"        int[] inputvalue={1,2,3,55,5,6};\n" +
+"        ArrayClass arrayValue=new ArrayClass(inputvalue);\n" +
+"        // arrayValue.displayArray();\n" +
+"        // arrayValue.searchArray(3);\n" +
+"        // arrayValue.reverseArray();\n" +
+"        arrayValue.sorting();\n" +
+"        arrayValue.displayDoubleArray();\n" +
+"    }\n" +
+"}";
+
+/* ================= LIVE CONSOLE (computed, not hardcoded) ================= */
+(function(){
+  let out = '';
+  const print = (s)=>{ out += s; };
+  const println = (s)=>{ out += (s===undefined?'':s) + '\n'; };
+
+  // Replicate ArrayClass.sorting() -> displayArray()
+  const arr = [1,2,3,55,5,6];
+  for(let i=0;i<arr.length;i++){
+    for(let j=i+1;j<arr.length;j++){
+      if(arr[i] < arr[j]){ const t=arr[i]; arr[i]=arr[j]; arr[j]=t; }
+    }
+  }
+  for(let i=0;i<arr.length;i++){ print(arr[i]+' '); println(); }
+
+  // Replicate ArrayClass.displayDoubleArray() exactly, including the square-grid-only bug
+  const mat = [[10,20,30],[40,50,60],[70,80,90]];
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat.length;j++){ print(mat[i][j]+' '); } // uses mat.length, like the source bug
+  }
+  for(let i=0;i<mat.length;i++){
+    for(let j=0;j<mat[i].length;j++){ print(mat[i][j]+' '); }
+  }
+
+  document.getElementById('live-console').textContent = out;
+})();
+
+/* ================= QUIZ ================= */
+const QUIZ = [
+  {
+    q: 'For int[] arr = {1,2,3,55,5,6}, what is the valid index range?',
+    opts: ['1 to 6', '0 to 5', '0 to 6', '1 to 5'],
+    correct: 1,
+    exp: 'Indexing is zero-based, and the last index is arr.length-1 = 6-1 = 5.'
+  },
+  {
+    q: 'What does ArrayClass.sorting() actually produce for {1,2,3,55,5,6}?',
+    opts: ['Ascending order', 'Descending order', 'No change', 'A compile error'],
+    correct: 1,
+    exp: 'The swap condition is if(arr[i] < arr[j]) — the larger value moves earlier, giving descending order.'
+  },
+  {
+    q: 'Why does the class ArrayClass fail to compile as written?',
+    opts: [
+      'searchArray() has no return type',
+      'Two methods are both named findDuplicates() with identical (empty) parameter lists',
+      'arraytwod is never initialized',
+      'reverseArray() is missing a return statement'
+    ],
+    correct: 1,
+    exp: 'Java treats two methods with the same name and same parameter list as a duplicate definition — overloading requires a different parameter list, not just different internal logic.'
+  },
+  {
+    q: 'In the first loop of displayDoubleArray(), why does j < arraytwod.length happen to work here?',
+    opts: [
+      'Because Java auto-corrects out-of-bounds indices',
+      'Because arraytwod happens to be a square 3×3 grid, so row count equals row width',
+      'Because arraytwod.length actually returns the column count',
+      'It does not work — it throws an exception'
+    ],
+    correct: 1,
+    exp: 'arraytwod.length is the number of rows (3). It only equals the row width by coincidence here since every row also has 3 columns. A non-square grid would break this loop.'
+  },
+  {
+    q: 'Why does displayDoubleArray() print all its output on one continuous line?',
+    opts: [
+      'Because both loops call System.out.println() after every value',
+      'Because neither loop calls println() — only print() — so no newline is ever inserted',
+      'Because arraytwod is one-dimensional',
+      'Because System.out is buffered until the program ends'
+    ],
+    correct: 1,
+    exp: 'print() never adds a line break; only println() does. Since displayDoubleArray() only calls print(), everything it outputs stays on the same line.'
+  },
+  {
+    q: 'What is the time complexity of rotateRight(k) as written, for an array of size n?',
+    opts: ['O(n)', 'O(log n)', 'O(k × n)', 'O(1)'],
+    correct: 2,
+    exp: 'Each of the k passes shifts all n elements by one position, so total work is proportional to k × n.'
+  }
+];
+(function renderQuiz(){
+  const card = document.getElementById('quiz-card');
+  let html = '';
+  QUIZ.forEach((item, qi)=>{
+    html += '<div class="quiz-q" data-qi="'+qi+'">';
+    html += '<p class="q-text">'+(qi+1)+'. '+item.q+'</p>';
+    html += '<div class="quiz-opts">';
+    item.opts.forEach((opt,oi)=>{
+      html += '<label><input type="radio" name="q'+qi+'" value="'+oi+'"> '+opt+'</label>';
+    });
+    html += '</div>';
+    html += '<div class="quiz-feedback" id="fb-'+qi+'"></div>';
+    html += '</div>';
+  });
+  html += '<div class="demo-controls"><button id="quiz-check">Check answers</button></div>';
+  html += '<div id="quiz-score"></div>';
+  card.innerHTML = html;
+
+  document.getElementById('quiz-check').addEventListener('click', ()=>{
+    let score = 0;
+    QUIZ.forEach((item, qi)=>{
+      const chosen = card.querySelector('input[name="q'+qi+'"]:checked');
+      const fb = document.getElementById('fb-'+qi);
+      fb.classList.add('show');
+      if(!chosen){
+        fb.classList.remove('correct'); fb.classList.add('wrong');
+        fb.textContent = 'No answer selected. ' + item.exp;
+        return;
+      }
+      const val = parseInt(chosen.value,10);
+      if(val === item.correct){
+        score++;
+        fb.classList.remove('wrong'); fb.classList.add('correct');
+        fb.textContent = 'Correct — ' + item.exp;
+      } else {
+        fb.classList.remove('correct'); fb.classList.add('wrong');
+        fb.textContent = 'Not quite — ' + item.exp;
+      }
+    });
+    document.getElementById('quiz-score').textContent = 'Score: ' + score + ' / ' + QUIZ.length;
+  });
+})();
+</script>
+</body>
+</html>

@@ -178,48 +178,60 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
       <div class="oracle-meta">
         <div class="num">PROGRAM 04</div>
         <h2>Java Core Learning — Interactive Labs</h2>
-        <p>Six hands-on visualizers covering the core Java syllabus, Units 3 to 5 — strings and packages, file streams, OOP and exceptions, collections, and multithreading. Every lab animates what the code actually does in memory, so you see the behaviour instead of memorising it.</p>
+        <p>Eight hands-on visualizers covering the core Java syllabus, Units 3 to 5 — arrays, strings and packages, StringBuilder/StringBuffer, file streams, OOP and exceptions, collections, and multithreading. Every lab animates what the code actually does in memory, so you see the behaviour instead of memorising it.</p>
       </div>
       <button class="oracle-toggle" id="jcoreToggle" aria-expanded="false" aria-controls="jcoreGrid">
-        <span class="lbl">OPEN THE 6 LABS</span>
+        <span class="lbl">OPEN THE 8 LABS</span>
         <span class="chev">▾</span>
       </button>
     </div>
     <div class="sem-wrap">
       <div class="sem-inner">
         <div class="sem-grid lab3" id="jcoreGrid">
-          <a class="sem live" href="java-core-learning/java-strings-packages-lab.html">
+          <a class="sem live" href="java-core-learning/java-array-concepts-lab.html">
             <div class="s-num">UNIT 3 · LAB 01</div>
+            <div class="s-title">Arrays, Visualized</div>
+            <div class="s-sub">Declaration, indexing, 2D grids and traversal, laid out in memory as you go.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="java-core-learning/java-strings-packages-lab.html">
+            <div class="s-num">UNIT 3 · LAB 02</div>
             <div class="s-title">Strings &amp; Packages</div>
             <div class="s-sub">How text is stored and compared, and how packages organise your classes.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
+          <a class="sem live" href="java-core-learning/java-string-stringbuilder-stringbuffer-lab.html">
+            <div class="s-num">UNIT 3 · LAB 03</div>
+            <div class="s-title">String, StringBuffer &amp; StringBuilder</div>
+            <div class="s-sub">Every method run live — immutability, mutability and thread-safety compared.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
           <a class="sem live" href="java-core-learning/java-streams-file-handling-lab.html">
-            <div class="s-num">UNIT 4 · LAB 02</div>
+            <div class="s-num">UNIT 4 · LAB 04</div>
             <div class="s-title">File Streams &amp; I/O</div>
             <div class="s-sub">Reading and writing files step by step, with a live output simulator.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
           <a class="sem live" href="java-core-learning/java-oop-exceptions-visualizer.html">
-            <div class="s-num">UNIT 4 · LAB 03</div>
+            <div class="s-num">UNIT 4 · LAB 05</div>
             <div class="s-title">OOP Pillars &amp; Exceptions</div>
             <div class="s-sub">Encapsulation, inheritance, polymorphism and the Throwable family, visualised.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
           <a class="sem live" href="java-core-learning/java-collections-list-lab.html">
-            <div class="s-num">UNIT 5 · LAB 04</div>
+            <div class="s-num">UNIT 5 · LAB 06</div>
             <div class="s-title">Lists — ArrayList vs LinkedList</div>
             <div class="s-sub">Watch both grow and shift in memory, and learn when each one is faster.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
           <a class="sem live" href="java-core-learning/java-collections-set-map-lab.html">
-            <div class="s-num">UNIT 5 · LAB 05</div>
+            <div class="s-num">UNIT 5 · LAB 07</div>
             <div class="s-title">Sets &amp; Maps — HashSet, HashMap</div>
             <div class="s-sub">How hashing places keys into buckets, and why Map beats a list for lookups.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
           <a class="sem live" href="java-core-learning/java-multithreading-lab.html">
-            <div class="s-num">UNIT 5 · LAB 06</div>
+            <div class="s-num">UNIT 5 · LAB 08</div>
             <div class="s-title">Multithreading &amp; Scheduler</div>
             <div class="s-sub">Thread life cycle and a scheduler simulator showing threads take turns.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
@@ -295,7 +307,7 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
     });
   }
   wireToggle('oracleCard','oracleToggle','HIDE SEMESTERS','EXPLORE SEMESTERS');
-  wireToggle('jcoreCard','jcoreToggle','HIDE THE LABS','OPEN THE 6 LABS');
+  wireToggle('jcoreCard','jcoreToggle','HIDE THE LABS','OPEN THE 8 LABS');
 
   /* Mode choosers (PL/SQL + Java Foundations) */
   function wireChooser(btnId,modalId,closeId){

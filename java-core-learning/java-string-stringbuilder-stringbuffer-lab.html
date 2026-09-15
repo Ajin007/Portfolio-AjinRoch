@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Java String, StringBuffer & StringBuilder Visualizer</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;background:#f4f7fb;color:#172033}
+header{background:linear-gradient(135deg,#173b7a,#2867c7);color:#fff;text-align:center;padding:22px 14px}
+header h1{margin:0 0 7px;font-size:27px}header p{margin:0}
+nav{position:sticky;top:0;z-index:5;background:#fff;padding:12px;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;box-shadow:0 2px 9px #0001}
+nav button{border:0;padding:10px 15px;border-radius:9px;background:#e8eef8;color:#173b7a;font-weight:bold;cursor:pointer}
+nav button.active{background:#2867c7;color:white}
+main{max-width:1100px;margin:20px auto;padding:0 14px}.panel{background:#fff;padding:20px;border-radius:15px;margin-bottom:18px;box-shadow:0 3px 14px #0001}
+h2{color:#173b7a;margin-top:0}h3{color:#2867c7}
+.controls{display:grid;grid-template-columns:2fr 1fr;gap:10px}
+input,select{padding:11px;border:1px solid #ccd5e5;border-radius:8px;font-size:15px;width:100%}
+.method{border:1px solid #dce4ef;border-radius:10px;margin:10px 0;overflow:hidden}
+.mhead{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:13px;background:#f7f9fc}
+.mhead b{font-family:monospace;color:#7b2cbf;font-size:15px}.small{font-size:13px;color:#5d6879;margin-top:4px}
+.mhead button{border:0;border-radius:7px;padding:8px 12px;background:#2867c7;color:#fff;cursor:pointer}
+.body{display:none;padding:14px}.method.open .body{display:block}
+.sig{font-family:monospace;background:#172033;color:#fff;border-radius:8px;padding:11px;overflow:auto}
+.example{margin-top:10px;background:#f1f5fb;padding:11px;border-radius:8px;font-family:monospace;white-space:pre-wrap}
+.result{margin-top:10px;background:#edf9ef;border-left:4px solid #3a9d5d;padding:11px}
+.tip{background:#fff7df;border-left:4px solid #e0a51a;padding:11px;margin-top:12px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:12px}
+.card{border:1px solid #dce4ef;border-radius:10px;padding:14px}
+.box{background:#172033;color:#fff;border-radius:9px;padding:13px;font-family:monospace;text-align:center;font-size:18px}
+table{width:100%;border-collapse:collapse}th,td{border:1px solid #dce4ef;padding:10px;text-align:left}th{background:#f1f5fb}
+.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#e8f0ff;color:#245ca8;margin:3px;font-size:12px}
+@media(max-width:650px){.controls{grid-template-columns:1fr}.mhead{align-items:flex-start}}
+</style>
+</head>
+<body>
+<header>
+<h1>Java String • StringBuffer • StringBuilder</h1>
+<p>Commonly Used Methods — Interactive Teaching Visualizer</p>
+</header>
+<nav id="nav"></nav>
+<main id="app"></main>
+
+<script>
+const D={
+String:{
+intro:"String is immutable. Methods that appear to change a String return a new String; the original String is unchanged.",
+methods:[
+["length()","int length()","Finds the number of characters.","String s = \"Hello\"; s.length();","5"],
+["charAt()","char charAt(int index)","Returns the character at the given index.","String s = \"Hello\"; s.charAt(1);","e"],
+["substring()","String substring(int beginIndex)","Returns part of the String from beginIndex.","\"Hello\".substring(2);","llo"],
+["substring()","String substring(int beginIndex, int endIndex)","Returns characters from beginIndex (inclusive) to endIndex (exclusive).","\"Hello\".substring(1,4);","ell"],
+["contains()","boolean contains(CharSequence s)","Checks whether a sequence exists in the String.","\"Hello World\".contains(\"World\");","true"],
+["equals()","boolean equals(Object another)","Compares String contents; case-sensitive.","\"Java\".equals(\"Java\");","true"],
+["equalsIgnoreCase()","boolean equalsIgnoreCase(String another)","Compares contents without considering case.","\"Java\".equalsIgnoreCase(\"JAVA\");","true"],
+["compareTo()","int compareTo(String another)","Lexicographically compares two Strings. Returns 0 if equal, negative if first is smaller, positive if first is greater.","\"apple\".compareTo(\"banana\");","negative value"],
+["compareToIgnoreCase()","int compareToIgnoreCase(String another)","Lexicographically compares Strings while ignoring case.","\"Java\".compareToIgnoreCase(\"JAVA\");","0"],
+["indexOf()","int indexOf(String str)","Returns the first position of a character or substring; -1 if not found.","\"banana\".indexOf(\"ana\");","1"],
+["lastIndexOf()","int lastIndexOf(String str)","Returns the last position of a character or substring; -1 if not found.","\"banana\".lastIndexOf(\"ana\");","3"],
+["startsWith()","boolean startsWith(String prefix)","Checks whether the String starts with a given value.","\"Java Programming\".startsWith(\"Java\");","true"],
+["endsWith()","boolean endsWith(String suffix)","Checks whether the String ends with a given value.","\"Hello.java\".endsWith(\"java\");","true"],
+["toUpperCase()","String toUpperCase()","Converts all letters to uppercase.","\"java\".toUpperCase();","JAVA"],
+["toLowerCase()","String toLowerCase()","Converts all letters to lowercase.","\"JAVA\".toLowerCase();","java"],
+["trim()","String trim()","Removes leading and trailing basic whitespace.","\"  Java  \".trim();","Java"],
+["replace()","String replace(char old, char new)","Replaces all occurrences of a character.","\"banana\".replace('a','o');","bonono"],
+["replace()","String replace(CharSequence old, CharSequence new)","Replaces all occurrences of a sequence.","\"one one\".replace(\"one\",\"two\");","two two"],
+["replaceAll()","String replaceAll(String regex, String replacement)","Replaces all matches of a regular expression.","\"a1b2\".replaceAll(\"\\\\d\",\"X\");","aXbX"],
+["split()","String[] split(String regex)","Splits a String into an array.","\"A,B,C\".split(\",\");","[A, B, C]"],
+["concat()","String concat(String str)","Joins another String to the end.","\"Hello \".concat(\"Java\");","Hello Java"],
+["isEmpty()","boolean isEmpty()","Checks whether length is zero.","\"\".isEmpty();","true"],
+["isBlank()","boolean isBlank()","Checks whether the String is empty or contains only whitespace.","\"   \".isBlank();","true"],
+["toCharArray()","char[] toCharArray()","Converts the String into a character array.","\"Java\".toCharArray();","[J, a, v, a]"],
+["join()","static String join(CharSequence delimiter, CharSequence... elements)","Joins multiple Strings using a delimiter.","String.join(\"-\", \"A\", \"B\", \"C\");","A-B-C"],
+["valueOf()","static String valueOf(Object obj)","Converts a value/object into a String representation.","String.valueOf(123);","123"]
+]},
+StringBuffer:{
+intro:"StringBuffer is mutable. append, insert, replace and delete can modify the same StringBuffer object. Its methods are synchronized.",
+methods:[
+["length()","int length()","Returns the current number of characters.","StringBuffer sb = new StringBuffer(\"Hello\"); sb.length();","5"],
+["capacity()","int capacity()","Returns the current storage capacity.","StringBuffer sb = new StringBuffer(\"Hello\"); sb.capacity();","21"],
+["charAt()","char charAt(int index)","Returns the character at an index.","new StringBuffer(\"Hello\").charAt(1);","e"],
+["append()","StringBuffer append(String str)","Adds content to the end.","new StringBuffer(\"Hello\").append(\" Java\");","Hello Java"],
+["append()","StringBuffer append(int value)","Adds a number to the end.","new StringBuffer(\"Age: \").append(20);","Age: 20"],
+["insert()","StringBuffer insert(int offset, String str)","Inserts content at a specified position.","new StringBuffer(\"Hllo\").insert(1,\"e\");","Hello"],
+["replace()","StringBuffer replace(int start, int end, String str)","Replaces characters in a range; end is exclusive.","new StringBuffer(\"Hello\").replace(1,4,\"i\");","Hio"],
+["delete()","StringBuffer delete(int start, int end)","Deletes a range; end is exclusive.","new StringBuffer(\"Hello\").delete(1,3);","Hlo"],
+["deleteCharAt()","StringBuffer deleteCharAt(int index)","Deletes one character.","new StringBuffer(\"Hello\").deleteCharAt(1);","Hllo"],
+["reverse()","StringBuffer reverse()","Reverses the characters.","new StringBuffer(\"Java\").reverse();","avaJ"],
+["setCharAt()","void setCharAt(int index, char ch)","Changes one character directly.","StringBuffer sb=new StringBuffer(\"Hello\"); sb.setCharAt(0,'J');","Jello"],
+["substring()","String substring(int start)","Returns part as a String.","new StringBuffer(\"Hello\").substring(2);","llo"],
+["indexOf()","int indexOf(String str)","Finds the first occurrence.","new StringBuffer(\"banana\").indexOf(\"ana\");","1"],
+["lastIndexOf()","int lastIndexOf(String str)","Finds the last occurrence.","new StringBuffer(\"banana\").lastIndexOf(\"ana\");","3"],
+["setLength()","void setLength(int newLength)","Changes the length of the buffer.","new StringBuffer(\"Hello\").setLength(3);","Hel"],
+["toString()","String toString()","Converts the buffer into a String.","new StringBuffer(\"Hello\").toString();","Hello"]
+]},
+StringBuilder:{
+intro:"StringBuilder is mutable like StringBuffer, but it is not synchronized. It is commonly preferred for repeated String changes in single-threaded programs.",
+methods:[
+["length()","int length()","Returns the current number of characters.","StringBuilder sb = new StringBuilder(\"Hello\"); sb.length();","5"],
+["capacity()","int capacity()","Returns the current storage capacity.","StringBuilder sb = new StringBuilder(\"Hello\"); sb.capacity();","21"],
+["charAt()","char charAt(int index)","Returns the character at an index.","new StringBuilder(\"Hello\").charAt(1);","e"],
+["append()","StringBuilder append(String str)","Adds content to the end.","new StringBuilder(\"Hello\").append(\" Java\");","Hello Java"],
+["append()","StringBuilder append(int value)","Adds a number to the end.","new StringBuilder(\"Age: \").append(20);","Age: 20"],
+["insert()","StringBuilder insert(int offset, String str)","Inserts content at a specified position.","new StringBuilder(\"Hllo\").insert(1,\"e\");","Hello"],
+["replace()","StringBuilder replace(int start, int end, String str)","Replaces characters in a range; end is exclusive.","new StringBuilder(\"Hello\").replace(1,4,\"i\");","Hio"],
+["delete()","StringBuilder delete(int start, int end)","Deletes a range; end is exclusive.","new StringBuilder(\"Hello\").delete(1,3);","Hlo"],
+["deleteCharAt()","StringBuilder deleteCharAt(int index)","Deletes one character.","new StringBuilder(\"Hello\").deleteCharAt(1);","Hllo"],
+["reverse()","StringBuilder reverse()","Reverses the characters.","new StringBuilder(\"Java\").reverse();","avaJ"],
+["setCharAt()","void setCharAt(int index, char ch)","Changes one character directly.","StringBuilder sb=new StringBuilder(\"Hello\"); sb.setCharAt(0,'J');","Jello"],
+["substring()","String substring(int start)","Returns part as a String.","new StringBuilder(\"Hello\").substring(2);","llo"],
+["indexOf()","int indexOf(String str)","Finds the first occurrence.","new StringBuilder(\"banana\").indexOf(\"ana\");","1"],
+["lastIndexOf()","int lastIndexOf(String str)","Finds the last occurrence.","new StringBuilder(\"banana\").lastIndexOf(\"ana\");","3"],
+["setLength()","void setLength(int newLength)","Changes the length of the builder.","new StringBuilder(\"Hello\").setLength(3);","Hel"],
+["toString()","String toString()","Converts the builder into a String.","new StringBuilder(\"Hello\").toString();","Hello"]
+]}};
+
+let current="String";
+const navEl=document.getElementById("nav"),app=document.getElementById("app");
+function nav(){navEl.innerHTML=Object.keys(D).map(k=>`<button class="${k==current?'active':''}" onclick="show('${k}')">${k}</button>`).join("")+`<button onclick="comparison()">Comparison</button>`}
+function show(k){current=k;nav();app.innerHTML=`<section class="panel"><h2>${k}</h2><p>${D[k].intro}</p><span class="badge">${D[k].methods.length} commonly used entries</span><span class="badge">${k==='String'?'Immutable':'Mutable'}</span>${k==='String'?'<div class="tip"><b>Important:</b> String methods do not modify the original String.</div>':'<div class="tip"><b>Important:</b> append(), insert(), replace(), delete() and reverse() modify the same mutable object.</div>'}</section>
+<section class="panel"><h2>Method Explorer</h2><div class="controls"><input id="q" oninput="render()" placeholder="Search method or concept..."><select id="order" onchange="render()"><option>Original order</option><option>A → Z</option></select></div><div id="list"></div></section>`;render()}
+function render(){let q=(document.getElementById("q")?.value||"").toLowerCase(),a=D[current].methods.filter(m=>m.join(" ").toLowerCase().includes(q));if(document.getElementById("order")?.value==="A → Z")a.sort((x,y)=>x[0].localeCompare(y[0]));document.getElementById("list").innerHTML=a.map((m,i)=>`<div class="method"><div class="mhead"><div><b>${m[0]}</b><div class="small">${m[2]}</div></div><button onclick="tog(this)">Show</button></div><div class="body"><div class="sig">${esc(m[1])}</div><div class="example">${esc(m[3])}</div><div class="result"><b>Output / Result:</b> ${esc(m[4])}</div></div></div>`).join("")||"<p>No matching methods.</p>"}
+function tog(b){let m=b.closest(".method");m.classList.toggle("open");b.textContent=m.classList.contains("open")?"Hide":"Show"}
+function comparison(){current="";nav();app.innerHTML=`<section class="panel"><h2>String vs StringBuffer vs StringBuilder</h2><table><tr><th>Feature</th><th>String</th><th>StringBuffer</th><th>StringBuilder</th></tr><tr><td>Mutability</td><td>Immutable</td><td>Mutable</td><td>Mutable</td></tr><tr><td>Thread safety</td><td>Safe because immutable</td><td>Synchronized methods</td><td>Not synchronized</td></tr><tr><td>Performance for repeated changes</td><td>Lower</td><td>Usually lower than Builder</td><td>Usually better</td></tr><tr><td>Use when</td><td>Text does not need repeated modification</td><td>Mutable text with synchronization needs</td><td>Repeated changes in a single-threaded context</td></tr></table><div class="grid" style="margin-top:15px"><div class="card"><h3>String</h3><div class="box">"Java" → new String</div><p>Modification creates a new String.</p></div><div class="card"><h3>StringBuffer</h3><div class="box">Java → Java!</div><p>Same mutable buffer can be changed.</p></div><div class="card"><h3>StringBuilder</h3><div class="box">Java → Java!</div><p>Same mutable builder can be changed.</p></div></div><div class="tip"><b>Teaching shortcut:</b> String = immutable, StringBuffer = mutable + synchronized, StringBuilder = mutable + faster in typical single-threaded use.</div></section>`}
+function esc(s){return String(s).replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")}
+nav();show("String");
+</script>
+</body>
+</html>
