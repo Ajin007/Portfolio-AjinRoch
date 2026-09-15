@@ -196,6 +196,7 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
 .tab-btn.active[data-tab="iter"]{background:var(--mauve)}
 .tab-btn.active[data-tab="gsec"]{background:var(--ink)}
 .tab-btn.active[data-tab="lab"]{background:var(--pink)}
+.tab-btn.active[data-tab="more"]{background:var(--teal)}
 
 .ctrl{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-end;margin-bottom:8px}
 .ctrl .fld{display:flex;flex-direction:column;gap:4px}
@@ -275,6 +276,7 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
   <button class="tab-btn" data-tab="iter">⑥ Iterate &amp; Modify</button>
   <button class="tab-btn" data-tab="gsec">⑦ Your Gsec Code</button>
   <button class="tab-btn" data-tab="lab">⑧ Lab Ex.12 (P1)</button>
+  <button class="tab-btn" data-tab="more">⑨ More List &amp; LinkedList Programs</button>
 </nav>
 
 <main>
@@ -652,6 +654,45 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
       <tr><td>9</td><td>Printing an object without <code>toString()</code></td><td><code>Gsec@1b6d3586</code> instead of the data.</td></tr>
       <tr><td>10</td><td>Indexed <code>get(i)</code> loop over a LinkedList</td><td>O(n²). Use for-each.</td></tr>
     </table>
+  </div>
+</section>
+
+<!-- ============ TAB 9 : MORE PROGRAMS ============ -->
+<section class="tab" id="tab-more">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Extra practice</span>
+    <h2>Two more programs — a formatted list of records, and a stateful LinkedList</h2>
+    <p>The first is plain <code>List&lt;ItemType&gt;</code> work with a <code>toString()</code> that formats columns instead of just concatenating fields. The second uses <code>LinkedList</code> not for its O(1) ends, but for the plain <code>List</code> operations it also supports — while a separate <code>currentIndex</code> field tracks "which song is playing", a piece of state no collection can hold for you.</p>
+  </div>
+
+  <div class="card">
+    <h2>Inventory — a formatted <code>List&lt;ItemType&gt;</code></h2>
+    <p><code>ItemType.toString()</code> uses <code>String.format("%-20s%-20.1f%-20.1f", ...)</code> — left-justified, fixed-width columns — so that printing the whole list lines up like a table. Without an override here, every row would print as <code>ItemType@6bc7c054</code>; with it, <code>System.out.println(item)</code> inside the loop is the entire display logic.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--teal)"></span>&nbsp;ItemType.java + InventoryManager.java</div><div class="codebody" id="code-m1"></div></div>
+    <div class="runbar"><button class="btn run" id="run-m1">▶ Run</button><span class="note">sample rental items, same logic as the Scanner version</span></div>
+    <div class="console" id="con-m1"></div>
+    <div class="callout tip" style="margin-bottom:0">
+      <b>💡 %-20.1f, read left to right</b>
+      <p><code>-</code> left-justifies inside the field, <code>20</code> is the minimum field width, <code>.1</code> keeps one digit after the decimal point. Drop the override and the same loop still runs — it just prints hash codes instead of a table, because <code>List.add()</code>/<code>get()</code>/the for-each loop never needed <code>toString()</code> at all; only <code>println</code> does.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Playlist — LinkedList as storage, a separate field as the cursor</h2>
+    <p>The list itself never knows "which song is playing" — that is <code>currentIndex</code>, a plain <code>int</code> the class maintains by hand. Watch what <code>removeSong()</code> has to do to that field: delete a song <strong>before</strong> the current one and the cursor must shift back, or the wrong song plays next.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;Playlist.java</div><div class="codebody" id="code-m2"></div></div>
+    <div class="runbar"><button class="btn run" id="run-m2">▶ Run</button><span class="note">addSong / nextSong / removeSong, called in this order</span></div>
+    <div class="console" id="con-m2"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="callout warn">
+        <b>⚠ removeSong's index arithmetic</b>
+        <p><code>idx &lt;= currentIndex &amp;&amp; currentIndex &gt; 0</code> only decrements the cursor when the removed song sat <strong>at or before</strong> it — everything after <code>idx</code> in the backing list shifts down by one position, so <code>currentIndex</code> would otherwise point one song too far.</p>
+      </div>
+      <div class="callout ok">
+        <b>✓ nextSong() wraps, it never throws</b>
+        <p><code>if (currentIndex &gt;= playlist.size()) currentIndex = 0;</code> loops back to the first song instead of walking off the end — the same wrap-around idea a real player's "repeat" behaviour needs.</p>
+      </div>
+    </div>
   </div>
 </section>
 </main>
@@ -1893,6 +1934,116 @@ const LAB=[
   });
   document.getElementById('labRunAll').addEventListener('click',()=>LAB.forEach(x=>document.getElementById('run-'+x.id).click()));
 })();
+
+/* ============================================================
+   TAB 9 · More List & LinkedList programs
+   ============================================================ */
+function wireRun(codeId,btnId,conId,codeLines,fn){
+  renderCode(codeId,codeLines);
+  const btn=document.getElementById(btnId);
+  if(!btn)return;
+  btn.addEventListener('click',()=>{
+    const o=mkOut();
+    try{fn(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+    paint(conId,o);});
+  btn.click();
+}
+function pad(s,w){s=String(s);return s.length>=w?s:s+' '.repeat(w-s.length);}
+
+/* ---- m1 : ItemType + InventoryManager — a formatted List ---- */
+wireRun('code-m1','run-m1','con-m1',[
+'class ItemType {',
+'    private String name;',
+'    private double deposit;',
+'    private double costPerDay;',
+'',
+'    public ItemType(String name, double deposit, double costPerDay) {',
+'        this.name = name; this.deposit = deposit; this.costPerDay = costPerDay;',
+'    }',
+'',
+'    public String toString() {',
+'        return String.format("%-20s%-20.1f%-20.1f", name, deposit, costPerDay);',
+'    }',
+'}',
+'',
+'class InventoryManager {',
+'    public static List<ItemType> readItems(Scanner sc, int n) {',
+'        List<ItemType> items = new ArrayList<>();',
+'        for (int i = 0; i < n; i++) {',
+'            String name = sc.nextLine();',
+'            double deposit = Double.parseDouble(sc.nextLine());',
+'            double costPerDay = Double.parseDouble(sc.nextLine());',
+'            items.add(new ItemType(name, deposit, costPerDay));',
+'        }',
+'        return items;',
+'    }',
+'',
+'    public static void displayItems(List<ItemType> items) {',
+'        System.out.format("%-20s%-20s%-20s%n", "Name", "Deposit", "Cost Per Day");',
+'        for (ItemType item : items) System.out.println(item);   // uses ItemType.toString()',
+'    }',
+'',
+'    public static void processInventory(Scanner sc) {',
+'        int n = Integer.parseInt(sc.nextLine());',
+'        List<ItemType> items = readItems(sc, n);',
+'        displayItems(items);',
+'    }',
+'}'
+],o=>{
+  o.dim('$ java InventoryManager   (sample items, same logic as the Scanner version)');
+  const items=[['Tent',1500.0,120.0],['Sleeping Bag',500.0,60.0],['Cooking Stove',300.0,45.5]];
+  o(pad('Name',20)+pad('Deposit',20)+pad('Cost Per Day',20));
+  items.forEach(([n,d,c])=>o(pad(n,20)+pad(d.toFixed(1),20)+pad(c.toFixed(1),20)));
+  o.info('Every column lines up because %-20s and %-20.1f pad EVERY value out to 20 characters, left-justified — a plain "+" concatenation could never keep the columns aligned once names have different lengths.');
+});
+
+/* ---- m2 : Playlist — LinkedList storage + a hand-kept cursor ---- */
+wireRun('code-m2','run-m2','con-m2',[
+'class Playlist {',
+'    private LinkedList<String> playlist = new LinkedList<>();',
+'    private int currentIndex = -1;',
+'',
+'    public void addSong(String song) {',
+'        playlist.add(song);',
+'        if (currentIndex == -1) currentIndex = 0;',
+'    }',
+'',
+'    public void removeSong(String song) {',
+'        int idx = playlist.indexOf(song);',
+'        if (idx != -1) {',
+'            playlist.remove(idx);',
+'            if (playlist.isEmpty()) currentIndex = -1;',
+'            else if (idx <= currentIndex && currentIndex > 0) currentIndex--;',
+'        }',
+'    }',
+'',
+'    public void showPlaylist() {',
+'        if (playlist.isEmpty()) { System.out.println("EMPTY"); return; }',
+'        for (String s : playlist) System.out.print(s + " ");',
+'        System.out.println();',
+'    }',
+'',
+'    public void nextSong() {',
+'        if (playlist.isEmpty()) { System.out.println("EMPTY"); return; }',
+'        currentIndex++;',
+'        if (currentIndex >= playlist.size()) currentIndex = 0;   // wrap around',
+'        System.out.println(playlist.get(currentIndex));',
+'    }',
+'}'
+],o=>{
+  o.dim('$ java PlaylistDemo   (calls made in this order)');
+  const list=[];let cur=-1;
+  function add(s){o.dim('addSong("'+s+'")');list.push(s);if(cur===-1)cur=0;}
+  function next(){o.dim('nextSong()');if(!list.length){o('EMPTY');return;}cur++;if(cur>=list.length)cur=0;o(list[cur]);}
+  function remove(s){o.dim('removeSong("'+s+'")');const idx=list.indexOf(s);if(idx!==-1){list.splice(idx,1);if(!list.length)cur=-1;else if(idx<=cur&&cur>0)cur--;}}
+  function show(){o.dim('showPlaylist()');o(list.length?list.join(' ')+' ':'EMPTY');}
+  add('Blinding Lights');add('Levitating');add('Peaches');
+  next();next();
+  remove('Levitating');
+  show();
+  next();
+  o.info('Removing "Levitating" (index 1) while currentIndex was 2 shifted the cursor back to 1, so it still points at "Peaches" — not at "Blinding Lights", which never moved. The final nextSong() then walks off the end of the now 2-song list and wraps to index 0.');
+});
 
 renderCode('syn1',[
 'import java.util.*;',

@@ -258,6 +258,7 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
 @media(max-width:960px){.twocol{grid-template-columns:1fr}}
 
 .tab-btn.active[data-tab="recap"]{background:var(--pink)}
+.tab-btn.active[data-tab="cmp"]{background:var(--teal)}
 .bktrow{display:grid;grid-template-columns:74px 1fr;gap:8px;align-items:center;padding:3px 0;border-bottom:1px solid #1c2140}
 .bktrow .idx{font-family:var(--mono);font-size:11px;color:var(--dim);text-align:right}
 .bktrow.hot{background:rgba(99,207,192,.07);border-radius:6px}
@@ -286,6 +287,7 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
   <button class="tab-btn" data-tab="iter">⑥ Iterator</button>
   <button class="tab-btn" data-tab="gsec">⑦ Your Gsec Code</button>
   <button class="tab-btn" data-tab="recap">⑧ Lab Ex.12 (P2) &amp; Recap</button>
+  <button class="tab-btn" data-tab="cmp">⑨ Comparable · Comparator · TreeMap</button>
 </nav>
 
 <main>
@@ -685,6 +687,146 @@ footer{max-width:1280px;margin:0 auto;padding:20px 26px 40px;color:var(--dim);fo
       <tr><td>8</td><td>Assuming <code>put()</code> refuses duplicate keys</td><td>It silently replaces the value and returns the old one.</td></tr>
       <tr><td>9</td><td>Using <code>containsValue()</code> for lookups</td><td>O(n) — the map gives you nothing there.</td></tr>
       <tr><td>10</td><td>Null key in a TreeMap</td><td>NullPointerException — it must compare keys.</td></tr>
+    </table>
+  </div>
+</section>
+
+<!-- ============ TAB 9 : COMPARABLE / COMPARATOR / TREEMAP ============ -->
+<section class="tab" id="tab-cmp">
+  <div class="card">
+    <span class="tagline" style="color:var(--teal);border-color:rgba(99,207,192,.4)">Ordering &amp; identity</span>
+    <h2>Three separate questions, three separate mechanisms</h2>
+    <p><strong>"Is this the same object as that one?"</strong> is answered by <code>equals()</code>. <strong>"What should I print for it?"</strong> is answered by <code>toString()</code>. <strong>"Which one comes first?"</strong> is answered by either <code>compareTo()</code> (the object's own, natural ordering — <code>Comparable</code>) or a separate <code>Comparator</code> object (someone else's opinion on ordering, imposed from outside). A <code>TreeSet</code> or <code>TreeMap</code> needs the third answer on every insert, because it stores elements in sorted order — that is the whole reason it is a tree and not a bucket table.</p>
+    <div class="grid3">
+      <div><span class="pill p-red">equals() / hashCode()</span><p style="margin-top:8px">"Are you the same student?" Used by <code>HashSet</code>/<code>HashMap</code> to detect duplicates and find keys. Covered in tab ⑤.</p></div>
+      <div><span class="pill p-blue">Comparable&lt;T&gt; / compareTo()</span><p style="margin-top:8px">"What is your <em>natural</em> order?" Written <strong>inside</strong> the class. A <code>TreeSet&lt;T&gt;</code> or <code>TreeMap&lt;K,?&gt;</code> uses it automatically when none is given.</p></div>
+      <div><span class="pill p-amber">Comparator&lt;T&gt;</span><p style="margin-top:8px">"Order these some <em>other</em> way." Written <strong>outside</strong> the class — a lambda, an anonymous class, or its own class — and passed in wherever sorting happens.</p></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>toString &amp; equals — a second worked example</h2>
+    <p>Tab ⑤ rebuilt <code>equals()</code>/<code>hashCode()</code> on <code>Gsec</code> using <code>registerNumber</code>. Here is the same idea on a completely different class, so the pattern — not the example — is what sticks: a <code>Book</code> identified by its ISBN.</p>
+    <div class="twocol">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--red)"></span>&nbsp;Book.java — before and after</div><div class="codebody" id="code-book"></div></div>
+      <div>
+        <div class="callout bug">
+          <b>⛔ Without the overrides</b>
+          <p><code>System.out.println(book)</code> prints <code>Book@1a2b3c4d</code> — the class name plus the hex hash of the memory address, because <code>Object.toString()</code> knows nothing about your fields. And <code>book1.equals(book2)</code> is <code>false</code> even when both hold ISBN <code>"978-0"</code>, because <code>Object.equals()</code> only asks "is this literally the same object in memory?" — two separately-built copies never are.</p>
+        </div>
+        <div class="callout ok">
+          <b>✓ After overriding both</b>
+          <p><code>toString()</code> now returns a string <strong>you</strong> composed from the fields, so printing is readable. <code>equals()</code> now compares the field that defines identity — the ISBN — so two copies of the same book compare equal, <code>List.contains()</code> finds them, and (paired with <code>hashCode()</code>) a <code>HashSet&lt;Book&gt;</code> correctly rejects a duplicate. Run it below.</p>
+        </div>
+      </div>
+    </div>
+    <div class="runbar"><button class="btn run" id="run-c1">▶ Run</button></div>
+    <div class="console" id="con-c1"></div>
+  </div>
+
+  <div class="card">
+    <h2>Comparable — the ranking program</h2>
+    <p>A class implements <code>Comparable&lt;T&gt;</code> and writes <strong>one</strong> method, <code>compareTo(T other)</code>, returning negative / zero / positive to mean "before / equal / after". That one method is then all a <code>TreeSet</code>, a <code>TreeMap</code>'s keys, or <code>Collections.sort()</code> ever need — this is <code>Revenue</code>, ordered naturally by <code>amount</code>, exactly as it appears in the syllabus exercise.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;Revenue.java — Comparable, TreeSet, descendingIterator</div><div class="codebody" id="code-c2"></div></div>
+    <div class="runbar"><button class="btn run" id="run-c2">▶ Run</button><span class="note">sample input, since this page has no stdin — same logic as the Scanner version</span></div>
+    <div class="console" id="con-c2"></div>
+    <div class="callout tip" style="margin-bottom:0">
+      <b>Why a TreeSet, not a TreeMap, here</b>
+      <p>The category is unique per entry and lives <em>inside</em> the object — there is no separate key, so one sorted set is enough. <code>TreeSet.add()</code> calls <code>compareTo()</code> to find where the new <code>Revenue</code> belongs; <code>descendingIterator()</code> then walks the tree back to front, no sorting step needed because the set was never unsorted.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Comparator — the same data, a different order, no change to the class</h2>
+    <p>Suppose you also need the categories <strong>alphabetically</strong>, for a different report. Editing <code>compareTo()</code> would break the ranking view above — <code>Comparable</code> only lets a class have <strong>one</strong> natural order. A <code>Comparator&lt;Revenue&gt;</code> lives outside the class instead, so you can have as many orderings as you need.</p>
+    <div class="twocol">
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--amber)"></span>&nbsp;three ways to write the same Comparator</div><div class="codebody" id="code-c3"></div></div>
+      <div>
+        <table>
+          <tr><th>Form</th><th>When to reach for it</th></tr>
+          <tr><td>separate <code>implements Comparator&lt;T&gt;</code> class</td><td>the ordering is reused across the codebase, or is complex</td></tr>
+          <tr><td>anonymous class</td><td>pre-Java-8 style, still perfectly valid, used once</td></tr>
+          <tr><td>lambda — <code>(a,b) -&gt; ...</code></td><td>short custom comparisons</td></tr>
+          <tr><td><code>Comparator.comparing(Revenue::getRevenueCategory)</code></td><td>sorting by one field — the idiomatic Java 8 form</td></tr>
+          <tr><td><code>.reversed()</code> / <code>.thenComparing(...)</code></td><td>flip an order, or break ties with a second field</td></tr>
+        </table>
+        <div class="callout tip" style="margin-bottom:0">
+          <b>💡 TreeSet with a Comparator</b>
+          <p><code>new TreeSet&lt;&gt;(comparator)</code> ignores <code>compareTo()</code> entirely — a Comparator passed at construction time always wins. This is also how you put a class with <strong>no</strong> <code>Comparable</code> at all into a <code>TreeSet</code>.</p>
+        </div>
+      </div>
+    </div>
+    <div class="runbar"><button class="btn run" id="run-c3">▶ Run</button></div>
+    <div class="console" id="con-c3"></div>
+  </div>
+
+  <div class="card">
+    <h2>TreeMap, NavigableMap &amp; descendingMap() — the rank list program</h2>
+    <p>A <code>TreeMap&lt;Integer,String&gt;</code> keeps its keys sorted <strong>ascending</strong> at all times — that part needs no ranking logic at all, it falls out of the data structure. <code>NavigableMap</code> is the interface <code>TreeMap</code> implements on top of plain <code>Map</code>, and it is where the ordering-aware extras live: <code>firstKey()</code>/<code>lastKey()</code>, <code>higherKey()</code>/<code>lowerKey()</code>, <code>headMap()</code>/<code>tailMap()</code>, and — used below — <code>descendingMap()</code>, a <strong>reverse-order view</strong> of the same map (no copying, no re-sorting).</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;RankList.java — TreeMap + NavigableMap.descendingMap()</div><div class="codebody" id="code-c4"></div></div>
+    <div class="runbar"><button class="btn run" id="run-c4">▶ Run</button><span class="note">sample marks, since this page has no stdin — same logic as the Scanner version</span></div>
+    <div class="console" id="con-c4"></div>
+    <div class="grid2" style="margin-top:14px">
+      <div class="callout warn">
+        <b>⚠ Highest mark, but Rank 1 — read the loop carefully</b>
+        <p><code>p1.put(mark, name)</code> makes <strong>marks</strong> the key, so <code>descendingMap()</code> walks marks highest → lowest. If two students score the <strong>same</strong> mark, the second <code>put()</code> with that key silently <strong>overwrites</strong> the first name — a <code>TreeMap</code> allows no duplicate keys. A real leaderboard needs <code>TreeMap&lt;Integer, List&lt;String&gt;&gt;</code> so tied marks keep every name.</p>
+      </div>
+      <div class="callout ok">
+        <b>✓ getOrDefault(), in a loop, doing addition</b>
+        <p>The idiom <code>map.put(k, map.getOrDefault(k, 0) + 1)</code> reads the running value (or a safe starting value if <code>k</code> has never been seen), adds to it, and stores the result back — one line, no <code>containsKey()</code> check, no <code>NullPointerException</code> from unboxing a missing key. Run the program above and expand the note under the console for that exact idiom counting how many students land in each grade band.</p>
+        </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="tagline" style="color:var(--mauve);border-color:rgba(183,156,240,.4)">More map idioms from the lab set</span>
+    <h2>LinkedHashMap running totals, and the merge() one-liner</h2>
+    <p>Three more programs that lean on the same handful of <code>Map</code> moves: keep <strong>insertion order</strong> with <code>LinkedHashMap</code> while still doing O(1) lookups, accumulate a running value with <code>getOrDefault</code> or <code>merge</code>, and track a running "best so far" alongside the loop instead of sorting afterwards.</p>
+  </div>
+
+  <div class="card">
+    <h2>Top spender — LinkedHashMap running totals</h2>
+    <p><code>BookstoreTracker</code> reads <code>"name amount"</code> lines, keeps a running total per customer, and tracks the top spender <strong>as it goes</strong> rather than sorting the map at the end. Order of the printed lines is the order each customer <strong>first</strong> appeared — that is the one thing a <code>LinkedHashMap</code> buys over a <code>HashMap</code> here.</p>
+    <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--mauve)"></span>&nbsp;BookstoreTracker.java</div><div class="codebody" id="code-c5"></div></div>
+    <div class="runbar"><button class="btn run" id="run-c5">▶ Run</button><span class="note">sample transactions, same logic as the Scanner version</span></div>
+    <div class="console" id="con-c5"></div>
+    <div class="callout tip" style="margin-bottom:0">
+      <b>containsKey() then get() — one lookup too many</b>
+      <p><code>if (spending.containsKey(name)) spending.put(name, spending.get(name)+amount);</code> does <strong>two</strong> hash lookups on the hit path. <code>spending.merge(name, amount, Integer::sum)</code> does the identical job — insert-if-absent, add-if-present — in one call and one lookup.</p>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <h2>Highest &amp; lowest — a single pass, no sorting</h2>
+      <p>Ratings go into a <code>LinkedHashMap</code> purely so insertion order is preserved for printing; the highest/lowest search does not need the map sorted at all — it tracks two running values while iterating <code>entrySet()</code> once.</p>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--blue)"></span>&nbsp;CourseRatings.java</div><div class="codebody" id="code-c6"></div></div>
+      <div class="runbar"><button class="btn run" id="run-c6">▶ Run</button></div>
+      <div class="console" id="con-c6"></div>
+      <p style="margin-top:10px"><code>r &gt; hiR</code> and <code>r &lt; loR</code> are both <strong>strict</strong> comparisons, so on a tie the <em>first-seen</em> course keeps the title — an easy thing to get backwards under exam pressure.</p>
+    </div>
+    <div class="card">
+      <h2>First non-repeating character — HashMap + merge()</h2>
+      <p>Two passes over the same string: the first builds a frequency count with <code>freq.merge(c, 1, Integer::sum)</code>; the second walks the string <strong>again, in original order</strong>, and returns the first character whose count is exactly 1. The map alone cannot answer "which came first" — only the second pass over the original string can.</p>
+      <div class="codewrap"><div class="codebar"><span class="dot" style="background:var(--green)"></span>&nbsp;FirstUnique.java</div><div class="codebody" id="code-c7"></div></div>
+      <div class="runbar"><button class="btn run" id="run-c7">▶ Run</button></div>
+      <div class="console" id="con-c7"></div>
+      <div class="callout warn" style="margin-bottom:0">
+        <b>⚠ Why not stop at the first pass?</b>
+        <p><code>freq.keySet()</code> iterates in <strong>bucket order</strong>, not the order characters appeared in the string — a <code>HashMap</code> makes no promise about that. The second loop re-reads <code>s.toCharArray()</code>, the original source, specifically to recover that order.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Comparable vs Comparator vs equals/hashCode — the three-second lookup</h2>
+    <table>
+      <tr><th></th><th>equals() / hashCode()</th><th>Comparable / compareTo()</th><th>Comparator</th></tr>
+      <tr><td>question answered</td><td>are these the same?</td><td>what is this object's natural order?</td><td>what order do I want <em>right now</em>?</td></tr>
+      <tr><td>where written</td><td>inside the class</td><td>inside the class</td><td>anywhere — outside the class</td></tr>
+      <tr><td>how many per class</td><td>one</td><td>one (the "natural" order)</td><td>as many as you like</td></tr>
+      <tr><td>used by</td><td>HashSet, HashMap keys</td><td>TreeSet, TreeMap keys, Collections.sort()</td><td>TreeSet(cmp), Collections.sort(list,cmp), Stream.sorted(cmp)</td></tr>
+      <tr><td>method signature</td><td><code>boolean equals(Object o)</code> / <code>int hashCode()</code></td><td><code>int compareTo(T o)</code></td><td><code>int compare(T a, T b)</code></td></tr>
     </table>
   </div>
 </section>
@@ -1823,6 +1965,305 @@ const LAB=[
     document.getElementById('run-'+x.id).click();});
   document.getElementById('labRunAll').addEventListener('click',()=>LAB.forEach(x=>document.getElementById('run-'+x.id).click()));
 })();
+
+/* ============================================================
+   TAB 9 · Comparable / Comparator / TreeMap · NavigableMap
+   ============================================================ */
+function wireRun(codeId,btnId,conId,codeLines,fn){
+  renderCode(codeId,codeLines);
+  const btn=document.getElementById(btnId);
+  if(!btn)return;
+  btn.addEventListener('click',()=>{
+    const o=mkOut();
+    try{fn(o);}catch(e){o.fail((e.cls||'Error')+': '+(e.msg||e.message));}
+    paint(conId,o);});
+  btn.click();
+}
+
+/* ---- c1 : Book — toString + equals, a second worked example ---- */
+wireRun('code-book','run-c1','con-c1',[
+'class Book {',
+'    String isbn, title;',
+'    Book(String isbn, String title) { this.isbn = isbn; this.title = title; }',
+'    // no toString(), no equals() yet',
+'}',
+'',
+'Book b1 = new Book("978-0-13-468599-1", "Effective Java");',
+'Book b2 = new Book("978-0-13-468599-1", "Effective Java");   // a separate copy, same ISBN',
+'',
+'System.out.println(b1);              // Object.toString()',
+'System.out.println(b1.equals(b2));   // Object.equals()',
+'',
+'// ---------------- after adding the overrides ----------------',
+'',
+'class Book {',
+'    String isbn, title;',
+'    Book(String isbn, String title) { this.isbn = isbn; this.title = title; }',
+'',
+'    public String toString() {',
+'        return "Book{isbn=" + isbn + ", title=" + title + "}";',
+'    }',
+'    public boolean equals(Object o) {',
+'        if (this == o) return true;',
+'        if (!(o instanceof Book)) return false;',
+'        return isbn.equals(((Book) o).isbn);',
+'    }',
+'    public int hashCode() { return isbn.hashCode(); }',
+'}',
+'',
+'System.out.println(b1);              // now YOUR toString()',
+'System.out.println(b1.equals(b2));   // now YOUR equals()'
+],o=>{
+  o.dim('$ java BookDemo');
+  o.head('-- before the overrides --');
+  o.fail('b1            : Book@1a3f9c2');
+  o.fail('b1.equals(b2) : false');
+  o.info('Two separately-built Book objects, same ISBN, still "different" — Object.equals() only compares memory addresses.');
+  o.head('-- after the overrides --');
+  o('b1            : Book{isbn=978-0-13-468599-1, title=Effective Java}');
+  o('b1.equals(b2) : true');
+  o.info('Same idea as Gsec/registerNumber in tab ⑤, on a class with no age field at all: pick the field that actually identifies the object, base equals() AND hashCode() on it, and toString() on whatever a human needs to see.');
+});
+
+/* ---- c2 : Revenue — Comparable, TreeSet, descendingIterator ---- */
+wireRun('code-c2','run-c2','con-c2',[
+'import java.util.Iterator;',
+'import java.util.Scanner;',
+'import java.util.TreeSet;',
+'',
+'class Revenue implements Comparable<Revenue> {',
+'    String revenueCategory;',
+'    int amount;',
+'',
+'    public Revenue(String revenueCategory, int amount) {',
+'        this.revenueCategory = revenueCategory;',
+'        this.amount = amount;',
+'    }',
+'    public String getRevenueCategory() { return revenueCategory; }',
+'    public int getAmount() { return amount; }',
+'',
+'    public int compareTo(Revenue r) {           // the NATURAL order: by amount',
+'        if (this.amount > r.amount) return 1;',
+'        else if (this.amount == r.amount) return 0;',
+'        else return -1;',
+'    }',
+'}',
+'',
+'public class Main {',
+'    public static void main(String[] args) {',
+'        Scanner s = new Scanner(System.in);',
+'        int total = 0;',
+'        TreeSet<Revenue> ts = new TreeSet<>();       // sorted by compareTo() as each add() runs',
+'',
+'        while (true) {',
+'            String revenueCategory = s.nextLine();',
+'            int amount = Integer.parseInt(s.nextLine());',
+'            ts.add(new Revenue(revenueCategory, amount));',
+'            if (s.nextLine().equals("no")) break;',
+'        }',
+'',
+'        System.out.println("Top spending categories:");',
+'        Iterator<Revenue> i = ts.descendingIterator();  // highest amount first',
+'        while (i.hasNext()) {',
+'            Revenue r = i.next();',
+'            System.out.println(r.getRevenueCategory() + " - " + r.getAmount());',
+'            total += r.getAmount();',
+'        }',
+'        System.out.println("Total amount earned: " + total);',
+'    }',
+'}'
+],o=>{
+  o.dim('$ java Main   (sample input — same logic as the Scanner loop)');
+  const data=[['Groceries',420],['Electronics',950],['Apparel',310],['Books',180]];
+  const sorted=data.slice().sort((a,b)=>a[1]-b[1]);          // TreeSet's natural (ascending) order
+  o.info('TreeSet.add() calls compareTo() on every insert, so the set is ALWAYS sorted — ascending, by amount: '+sorted.map(r=>r[0]+'('+r[1]+')').join(' < '));
+  o.head('Top spending categories:');
+  let total=0;
+  sorted.slice().reverse().forEach(r=>{o(r[0]+' - '+r[1]);total+=r[1];});
+  o('Total amount earned: '+total);
+});
+
+/* ---- c3 : Comparator — same data, category order, class untouched ---- */
+wireRun('code-c3','run-c3','con-c3',[
+'// 1) a separate class',
+'class ByCategory implements Comparator<Revenue> {',
+'    public int compare(Revenue a, Revenue b) {',
+'        return a.getRevenueCategory().compareTo(b.getRevenueCategory());',
+'    }',
+'}',
+'Collections.sort(list, new ByCategory());',
+'',
+'// 2) anonymous class',
+'Collections.sort(list, new Comparator<Revenue>() {',
+'    public int compare(Revenue a, Revenue b) {',
+'        return a.getRevenueCategory().compareTo(b.getRevenueCategory());',
+'    }',
+'});',
+'',
+'// 3) lambda',
+'list.sort((a, b) -> a.getRevenueCategory().compareTo(b.getRevenueCategory()));',
+'',
+'// 4) Comparator.comparing -- the idiomatic Java 8 form',
+'list.sort(Comparator.comparing(Revenue::getRevenueCategory));',
+'',
+'// a TreeSet built with this Comparator instead of natural order (compareTo)',
+'TreeSet<Revenue> byCat = new TreeSet<>(Comparator.comparing(Revenue::getRevenueCategory));',
+'byCat.addAll(list);'
+],o=>{
+  o.dim('$ java ComparatorDemo   (same four Revenue rows as tab above)');
+  const data=[['Groceries',420],['Electronics',950],['Apparel',310],['Books',180]];
+  o('natural order   (Comparable, by amount)     : '+data.slice().sort((a,b)=>a[1]-b[1]).map(r=>r[0]).join(', '));
+  o('Comparator order (by revenueCategory, A→Z)  : '+data.slice().sort((a,b)=>a[0].localeCompare(b[0])).map(r=>r[0]).join(', '));
+  o.info('All four forms above produce the identical alphabetical order — they are the same comparison written four ways. Nothing in Revenue.java changed; compareTo() still governs the TreeSet in tab above.');
+});
+
+/* ---- c4 : TreeMap + NavigableMap.descendingMap() — rank list ---- */
+wireRun('code-c4','run-c4','con-c4',[
+'import java.util.Map;',
+'import java.util.TreeMap;',
+'import java.util.NavigableMap;',
+'import java.util.Scanner;',
+'',
+'public class Main {',
+'    public static void main(String[] args) {',
+'        TreeMap<Integer, String> p1 = new TreeMap<>();     // sorted ascending by mark, always',
+'        Scanner sc = new Scanner(System.in);',
+'        int num = sc.nextInt();',
+'        while (num != 0) {',
+'            int mark = sc.nextInt();',
+'            String name = sc.next();',
+'            p1.put(mark, name);          // SAME mark twice -> the 2nd name overwrites the 1st',
+'            num--;',
+'        }',
+'',
+'        NavigableMap<Integer, String> rank = p1.descendingMap();   // reverse-order VIEW, no copy',
+'        System.out.println("The ranks based on their marks:");',
+'        int count = 0;',
+'        for (NavigableMap.Entry<Integer, String> entry : rank.entrySet()) {',
+'            count++;',
+'            System.out.println("Rank " + count + ": " + entry.getValue());',
+'        }',
+'',
+'        // getOrDefault(), in a loop, doing addition -- grade-band counts',
+'        Map<String, Integer> band = new TreeMap<>();',
+'        for (int mark : p1.keySet()) {',
+'            String b = mark >= 90 ? "A" : mark >= 75 ? "B" : mark >= 60 ? "C" : "D";',
+'            band.put(b, band.getOrDefault(b, 0) + 1);   // absent -> starts at 0, then +1',
+'        }',
+'        System.out.println("Grade bands: " + band);',
+'    }',
+'}'
+],o=>{
+  o.dim('$ java Main   (sample marks — same logic as the Scanner loop)');
+  const rows=[[78,'Divya'],[91,'Arun'],[66,'Meena'],[91,'Ravi'],[84,'Kavya']];   // 91 appears twice on purpose
+  const p1=new Map();
+  rows.forEach(([mark,name])=>{
+    if(p1.has(mark))o.warn('put('+mark+', "'+name+'") overwrote "'+p1.get(mark)+'" — TreeMap keeps ONE name per mark');
+    p1.set(mark,name);});
+  const marks=Array.from(p1.keys()).sort((a,b)=>b-a);   // descendingMap() order
+  o.head('The ranks based on their marks:');
+  marks.forEach((m,i)=>o('Rank '+(i+1)+': '+p1.get(m)+'   (mark '+m+')'));
+  const band={};
+  Array.from(p1.keys()).forEach(m=>{const b=m>=90?'A':m>=75?'B':m>=60?'C':'D';band[b]=(band[b]||0)+1;});
+  const bandStr='{'+Object.keys(band).sort().map(k=>k+'='+band[k]).join(', ')+'}';
+  o('Grade bands: '+bandStr);
+  o.info('band.getOrDefault(b,0)+1 is the running-total idiom: first time band "B" is seen there is no entry yet, so getOrDefault hands back 0 instead of throwing or returning null; every time after that it hands back the real running count. Exactly the same shape as brandCount.merge(...) in tab ⑦, written without merge().');
+});
+
+/* ---- c5 : BookstoreTracker — LinkedHashMap running totals ---- */
+wireRun('code-c5','run-c5','con-c5',[
+'class BookstoreTracker {',
+'    public void computeSpending(Scanner sc, int n) {',
+'        LinkedHashMap<String, Integer> spending = new LinkedHashMap<>();  // keeps first-seen order',
+'        String topCustomer = "";',
+'        int maxSpent = 0;',
+'',
+'        for (int i = 0; i < n; i++) {',
+'            String[] parts = sc.nextLine().split(" ");',
+'            String name = parts[0];',
+'            int amount = Integer.parseInt(parts[1]);',
+'',
+'            if (spending.containsKey(name))',
+'                spending.put(name, spending.get(name) + amount);   // 2 lookups on the hit path',
+'            else',
+'                spending.put(name, amount);',
+'            // one-liner instead:  spending.merge(name, amount, Integer::sum);',
+'',
+'            if (spending.get(name) > maxSpent) {          // track the leader AS WE GO',
+'                maxSpent = spending.get(name);',
+'                topCustomer = name;',
+'            }',
+'        }',
+'',
+'        for (Map.Entry<String, Integer> entry : spending.entrySet())',
+'            System.out.println(entry.getKey() + " " + entry.getValue());',
+'        System.out.println("Top Spender: " + topCustomer + " " + maxSpent);',
+'    }',
+'}'
+],o=>{
+  o.dim('$ java BookstoreTracker   (sample transactions, in this order)');
+  const tx=[['Asha',120],['Ravi',80],['Asha',50],['Meena',200],['Ravi',40]];
+  tx.forEach(([n,a])=>o.dim('  '+n+' '+a));
+  const spending=new Map();let top='',maxSpent=0;
+  tx.forEach(([name,amount])=>{
+    spending.set(name,(spending.get(name)||0)+amount);
+    if(spending.get(name)>maxSpent){maxSpent=spending.get(name);top=name;}});
+  Array.from(spending.entries()).forEach(([k,v])=>o(k+' '+v));
+  o('Top Spender: '+top+' '+maxSpent);
+  o.info('Printed order is Asha, Ravi, Meena — the order each name FIRST appeared, not spending order and not alphabetical. That is LinkedHashMap’s one promise over HashMap.');
+});
+
+/* ---- c6 : CourseRatings — highest & lowest in one pass ---- */
+wireRun('code-c6','run-c6','con-c6',[
+'LinkedHashMap<String, Double> ratings = new LinkedHashMap<>();',
+'// ... read name/rating pairs until "done" ...',
+'',
+'String hi = null, lo = null;',
+'double hiR = 0, loR = 0;',
+'boolean first = true;',
+'for (Map.Entry<String, Double> e : ratings.entrySet()) {',
+'    double r = e.getValue();',
+'    if (first) { hi = lo = e.getKey(); hiR = loR = r; first = false; }',
+'    else {',
+'        if (r > hiR) { hiR = r; hi = e.getKey(); }   // strict -> first-seen wins ties',
+'        if (r < loR) { loR = r; lo = e.getKey(); }',
+'    }',
+'}',
+'System.out.println("Highest Rated Course: " + hi);',
+'System.out.println("Lowest Rated Course: " + lo);'
+],o=>{
+  o.dim('$ java CourseRatings   (sample ratings, in this order)');
+  const ratings=[['Java',4.5],['DBMS',4.2],['OS',3.8],['CN',4.5]];  // CN ties Java on purpose
+  ratings.forEach(([n,r])=>o.dim('  '+n+' '+r));
+  let hi=null,lo=null,hiR=0,loR=0,first=true;
+  ratings.forEach(([name,r])=>{
+    if(first){hi=lo=name;hiR=loR=r;first=false;}
+    else{if(r>hiR){hiR=r;hi=name;}if(r<loR){loR=r;lo=name;}}});
+  o('Highest Rated Course: '+hi);
+  o('Lowest Rated Course: '+lo);
+  o.warn('CN also scored 4.5, tying Java — but "r > hiR" is strict, so CN never displaces the first course that reached that score. Java keeps the title.');
+});
+
+/* ---- c7 : FirstUnique — HashMap + merge(), two passes ---- */
+wireRun('code-c7','run-c7','con-c7',[
+'Map<Character, Integer> freq = new HashMap<>();',
+'for (char c : s.toCharArray()) freq.merge(c, 1, Integer::sum);   // pass 1: count',
+'',
+'for (char c : s.toCharArray()) {                                 // pass 2: original order',
+'    if (freq.get(c) == 1) { System.out.println(c); return; }',
+'}',
+'System.out.println(-1);'
+],o=>{
+  const s='success';
+  o.dim('$ java FirstUnique   (input: "'+s+'")');
+  const freq={};
+  for(const c of s)freq[c]=(freq[c]||0)+1;
+  o('freq after pass 1 : {'+Object.keys(freq).sort().map(k=>k+'='+freq[k]).join(', ')+'}');
+  let ans=null;
+  for(const c of s){if(freq[c]===1){ans=c;break;}}
+  o(ans!==null?ans:-1);
+  o.info('"s" appears 3 times and "c" appears 2 times, so pass 2 skips both and stops at the first character whose count is exactly 1 — "u". freq.merge(c,1,Integer::sum) is put-or-add in one call, same idiom as brandCount.merge(...) in tab ⑦.');
+});
 
 renderCode('syn1',[
 'Set<String> s = new HashSet<>();',
