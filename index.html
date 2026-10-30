@@ -117,45 +117,61 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .jc-new b{background:#1a1300;color:var(--gold);border-radius:99px;padding:2px 8px;font-size:9px}
 /* ── CourseHub Full-Stack Lab ── */
 .hub{margin-top:24px;max-width:1080px;width:100%}
-.hub-card{position:relative;overflow:hidden;display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:center;padding:30px;border-radius:var(--r);border:1px solid var(--line);border-top:2px solid var(--teal);
-background:radial-gradient(ellipse 520px 320px at 100% 0%,rgba(70,214,224,.13),transparent 65%),radial-gradient(ellipse 420px 260px at 0% 100%,rgba(77,159,255,.07),transparent 65%),linear-gradient(180deg,var(--panel),var(--panel2))}
+.hub-card{--acc:var(--teal);--acc-rgb:70,214,224;--acc-hi:#8AF0F6;--acc-ink:#03252a;--acc-deep:#06161a;position:relative;overflow:hidden;display:grid;grid-template-columns:1.35fr 1fr;gap:28px;align-items:center;padding:30px;border-radius:var(--r);border:1px solid var(--line);border-top:2px solid var(--acc);
+background:radial-gradient(ellipse 520px 320px at 100% 0%,rgba(var(--acc-rgb),.13),transparent 65%),radial-gradient(ellipse 420px 260px at 0% 100%,rgba(77,159,255,.07),transparent 65%),linear-gradient(180deg,var(--panel),var(--panel2))}
 .hub-card::before{content:"";position:absolute;inset:0;pointer-events:none;opacity:.35;
-background-image:linear-gradient(rgba(70,214,224,.06) 1px,transparent 1px),linear-gradient(90deg,rgba(70,214,224,.06) 1px,transparent 1px);background-size:28px 28px;
+background-image:linear-gradient(rgba(var(--acc-rgb),.06) 1px,transparent 1px),linear-gradient(90deg,rgba(var(--acc-rgb),.06) 1px,transparent 1px);background-size:28px 28px;
 -webkit-mask-image:radial-gradient(ellipse at 80% 30%,#000 10%,transparent 70%);mask-image:radial-gradient(ellipse at 80% 30%,#000 10%,transparent 70%)}
 .hub-main,.hub-flow{position:relative}
 .hub-top{display:flex;align-items:center;gap:14px;flex-wrap:wrap}
 .hub-badge{width:52px;height:52px;flex:none;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:24px;
-background:radial-gradient(circle at 30% 25%,rgba(70,214,224,.32),transparent 70%),#06161a;border:1px solid rgba(70,214,224,.38)}
+background:radial-gradient(circle at 30% 25%,rgba(var(--acc-rgb),.32),transparent 70%),var(--acc-deep);border:1px solid rgba(var(--acc-rgb),.38)}
 .hub-top .num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--dim);letter-spacing:.18em}
-.hub-pill{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:#03252a;background:var(--teal);border-radius:99px;padding:3px 9px;font-weight:500}
+.hub-pill{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.14em;color:var(--acc-ink);background:var(--acc);border-radius:99px;padding:3px 9px;font-weight:500}
 .hub-main h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,3vw,28px);line-height:1.15;margin:16px 0 10px;letter-spacing:-.01em}
-.hub-main h2 em{font-style:normal;color:var(--teal)}
+.hub-main h2 em{font-style:normal;color:var(--acc)}
 .hub-main p{color:var(--mut);font-size:13.5px;line-height:1.65;max-width:560px}
 .hub-stack{display:flex;flex-wrap:wrap;gap:6px;margin-top:16px}
 .hub-stack span{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.06em;color:var(--mut);border:1px solid var(--line2);background:rgba(7,11,20,.5);border-radius:99px;padding:4px 10px}
 .hub-actions{display:flex;align-items:center;gap:18px;flex-wrap:wrap;margin-top:22px}
-a.hub-cta{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;font-weight:500;color:#03252a;
-background:linear-gradient(180deg,#8AF0F6,var(--teal));border-radius:99px;padding:13px 24px;box-shadow:0 8px 24px -8px rgba(70,214,224,.7);transition:.18s}
-a.hub-cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px rgba(70,214,224,.9)}
-a.hub-cta:focus-visible{outline:2px solid var(--teal);outline-offset:3px}
+a.hub-cta{display:inline-flex;align-items:center;gap:10px;text-decoration:none;font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.1em;font-weight:500;color:var(--acc-ink);
+background:linear-gradient(180deg,var(--acc-hi),var(--acc));border-radius:99px;padding:13px 24px;box-shadow:0 8px 24px -8px rgba(var(--acc-rgb),.7);transition:.18s}
+a.hub-cta:hover{transform:translateY(-2px);box-shadow:0 12px 30px -8px rgba(var(--acc-rgb),.9)}
+a.hub-cta:focus-visible{outline:2px solid var(--acc);outline-offset:3px}
 a.hub-cta .arr{transition:transform .18s}
 a.hub-cta:hover .arr{transform:translateX(4px)}
 .hub-note{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.1em;color:var(--dim)}
 .hub-flow{background:rgba(7,11,20,.72);border:1px solid var(--line);border-radius:14px;padding:18px 18px 14px}
-.hub-flow .f-head{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;color:var(--teal);margin-bottom:12px;display:flex;align-items:center;gap:8px}
-.hub-flow .f-head .dot{background:var(--teal);box-shadow:0 0 8px var(--teal)}
+.hub-flow .f-head{font-family:'JetBrains Mono',monospace;font-size:9.5px;letter-spacing:.16em;color:var(--acc);margin-bottom:12px;display:flex;align-items:center;gap:8px}
+.hub-flow .f-head .dot{background:var(--acc);box-shadow:0 0 8px var(--acc)}
 .f-track{position:relative}
 .f-list{list-style:none;position:relative}
-.f-list::before{content:"";position:absolute;left:15px;top:16px;bottom:16px;width:2px;background:linear-gradient(var(--blue),var(--teal),var(--green))}
+.f-list::before{content:"";position:absolute;left:15px;top:16px;bottom:16px;width:2px;background:linear-gradient(var(--blue),var(--acc),var(--green))}
 .f-list li{position:relative;display:flex;align-items:center;gap:12px;padding:7px 0}
 .f-ic{width:32px;height:32px;flex:none;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:15px;background:var(--panel2);border:1px solid var(--line2);position:relative;z-index:1}
 .f-t{font-family:'Space Grotesk',sans-serif;font-size:13.5px;font-weight:600}
 .f-s{font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--dim);letter-spacing:.04em;margin-top:1px}
-.f-pulse{position:absolute;left:12px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--teal);box-shadow:0 0 10px 2px var(--teal);z-index:0;animation:fPulse 3.2s ease-in-out infinite}
+.f-pulse{position:absolute;left:12px;top:16px;width:8px;height:8px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px 2px var(--acc);z-index:0;animation:fPulse 3.2s ease-in-out infinite}
 @keyframes fPulse{0%{transform:translateY(0);opacity:0}10%{opacity:1}90%{opacity:1}100%{transform:translateY(var(--travel,138px));opacity:0}}
+/* Spring Boot, layer by layer — same card, Spring green, with a layer stack */
+.hub-card.sb{--acc:#7FD858;--acc-rgb:127,216,88;--acc-hi:#B9F29E;--acc-ink:#0D2205;--acc-deep:#0A1606}
+.sb-stack{list-style:none;display:flex;flex-direction:column;gap:5px}
+.sb-stack li{--c:var(--acc);display:flex;align-items:center;gap:11px;padding:6px 10px 6px 6px;border-radius:9px;border:1px solid var(--line);background:var(--panel);animation:lyOn 4.2s ease-in-out infinite}
+.sb-stack li:nth-child(1){--c:#9AA4BD;animation-delay:0s}
+.sb-stack li:nth-child(2){--c:#7FA6F0;animation-delay:.5s}
+.sb-stack li:nth-child(3){--c:#5B8CFF;animation-delay:1s}
+.sb-stack li:nth-child(4){--c:#B18CFF;animation-delay:1.5s}
+.sb-stack li:nth-child(5){--c:#6FD08C;animation-delay:2s}
+.sb-stack li:nth-child(6){--c:#F0A848;animation-delay:2.5s}
+.sb-stack li:nth-child(7){--c:#46C6D4;animation-delay:3s}
+.sb-stack .ly-n{width:22px;height:22px;flex:none;border-radius:6px;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-size:10px;font-weight:500;color:#070B14;background:var(--c)}
+.sb-stack .ly-t{font-family:'Space Grotesk',sans-serif;font-size:13px;font-weight:600}
+.sb-stack .ly-s{margin-left:auto;font-family:'JetBrains Mono',monospace;font-size:9.5px;color:var(--dim);letter-spacing:.03em;text-align:right}
+@keyframes lyOn{0%,22%,100%{border-color:var(--line);background:var(--panel)}6%,14%{border-color:var(--c);background:color-mix(in srgb,var(--c) 12%,var(--panel))}}
+@media(max-width:360px){.sb-stack .ly-s{display:none}}
 @media(max-width:920px){.hub-card{grid-template-columns:1fr;max-width:520px;margin:0 auto;padding:26px}}
 @media(max-width:520px){.hub-card{padding:22px 18px}a.hub-cta{width:100%;justify-content:center}.hub-actions{gap:12px}}
-@media(prefers-reduced-motion:reduce){.f-pulse{animation:none;opacity:0}a.hub-cta{transition:none}a.hub-cta:hover{transform:none}}
+@media(prefers-reduced-motion:reduce){.f-pulse{animation:none;opacity:0}.sb-stack li{animation:none}a.hub-cta{transition:none}a.hub-cta:hover{transform:none}}
 </style>
 </head>
 <body>
@@ -213,6 +229,39 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
         <li><div class="f-ic">🍃</div><div><div class="f-t">Spring Boot</div><div class="f-s">Controller → Service → Repo</div></div></li>
         <li><div class="f-ic">🐬</div><div><div class="f-t">MySQL</div><div class="f-s">course_platform.enrollment</div></div></li>
       </ul></div>
+    </div>
+  </div>
+</section>
+
+<section class="hub" aria-labelledby="sbTitle">
+  <div class="hub-card sb">
+    <div class="hub-main">
+      <div class="hub-top">
+        <div class="hub-badge" aria-hidden="true">🍃</div>
+        <div>
+          <div class="num">BUILD LAB 06</div>
+          <span class="hub-pill">NEW · BACKEND DEEP DIVE</span>
+        </div>
+      </div>
+      <h2 id="sbTitle">Spring Boot, <em>Layer by Layer</em></h2>
+      <p>Follow one HTTP request from the client down to the database and back. Learn how the container and dependency injection wire your beans, how JPA repositories turn method names into SQL, how the service layer applies business rules, and which status code each REST mapping should return.</p>
+      <div class="hub-stack"><span>IOC · DI</span><span>REST CONTROLLERS</span><span>SPRING DATA JPA</span><span>HIBERNATE</span><span>POSTGRESQL</span></div>
+      <div class="hub-actions">
+        <a class="hub-cta" href="Spring%20Boot,%20layer%20by%20layer.html">OPEN SPRING BOOT LAB <span class="arr">→</span></a>
+        <span class="hub-note">CRUD · DERIVED QUERIES · STATUS CODES</span>
+      </div>
+    </div>
+    <div class="hub-flow" aria-hidden="true">
+      <div class="f-head"><span class="dot"></span>ONE REQUEST · SEVEN LAYERS</div>
+      <ol class="sb-stack">
+        <li><span class="ly-n">1</span><span class="ly-t">Client</span><span class="ly-s">POST /api/movies</span></li>
+        <li><span class="ly-n">2</span><span class="ly-t">Dispatcher</span><span class="ly-s">DispatcherServlet</span></li>
+        <li><span class="ly-n">3</span><span class="ly-t">Controller</span><span class="ly-s">@RestController</span></li>
+        <li><span class="ly-n">4</span><span class="ly-t">Service</span><span class="ly-s">@Service · rules</span></li>
+        <li><span class="ly-n">5</span><span class="ly-t">Repository</span><span class="ly-s">JpaRepository</span></li>
+        <li><span class="ly-n">6</span><span class="ly-t">Hibernate</span><span class="ly-s">entity → SQL</span></li>
+        <li><span class="ly-n">7</span><span class="ly-t">PostgreSQL</span><span class="ly-s">INSERT INTO movies</span></li>
+      </ol>
     </div>
   </div>
 </section>

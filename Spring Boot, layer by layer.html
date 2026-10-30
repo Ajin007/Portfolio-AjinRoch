@@ -1,0 +1,2252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Spring Boot, layer by layer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@600;700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;0,700;1,400&family=JetBrains+Mono:wght@400;600&display=swap">
+<script>
+(function(){try{var t=localStorage.getItem('sb-theme');if(t==='dark'||t==='light'){document.documentElement.setAttribute('data-theme',t);}}catch(e){}})();
+</script>
+<style>
+:root{
+  --sans:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  --cond:"IBM Plex Sans Condensed","IBM Plex Sans","Arial Narrow",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --paper:#EDF1F6;--surface:#FFFFFF;--surface-2:#F4F7FB;--code-bg:#F3F6FB;
+  --ink:#14213D;--ink-2:#3B4966;--muted:#5F6B84;--line:#D3DBE6;--line-2:#B9C4D4;
+  --grid:rgba(20,33,61,.05);--head-bg:rgba(237,241,246,.9);
+  --focus:#2457C5;--btn:#14213D;--btn-ink:#FFFFFF;
+  --l-client:#59627A;--l-disp:#4A73BA;--l-ctrl:#2457C5;--l-svc:#7445C2;--l-repo:#2B7A3B;--l-jpa:#A86306;--l-db:#0E7380;--l-cfg:#AE2F66;
+  --ok:#2B7A3B;--bad:#B83227;
+  --t-kw:#1F4FB0;--t-an:#A0306A;--t-str:#2E7D32;--t-com:#6F7C93;--t-num:#9A5600;--t-type:#6A3FB5;--t-ph:#AE2F66;--t-key:#1F4FB0;--t-tag:#1F4FB0;
+  --con-bg:#15233C;--con-ink:#BFCBE2;--con-new:#FFFFFF;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --paper:#0D1727;--surface:#132138;--surface-2:#182943;--code-bg:#0F1C30;
+    --ink:#E2E9F4;--ink-2:#B4C0D5;--muted:#8D9AB2;--line:#23365A;--line-2:#334A70;
+    --grid:rgba(226,233,244,.035);--head-bg:rgba(13,23,39,.88);
+    --focus:#86ABFF;--btn:#E2E9F4;--btn-ink:#0D1727;
+    --l-client:#A9B3C8;--l-disp:#95B2EA;--l-ctrl:#7BA2FF;--l-svc:#B596F6;--l-repo:#66C978;--l-jpa:#F2AC47;--l-db:#4CC6D3;--l-cfg:#F27FAB;
+    --ok:#66C978;--bad:#FF8073;
+    --t-kw:#86ABFF;--t-an:#F27FAB;--t-str:#8FD79A;--t-com:#7F8DA8;--t-num:#F2B866;--t-type:#BFA3FF;--t-ph:#F27FAB;--t-key:#86ABFF;--t-tag:#86ABFF;
+    --con-bg:#0A1322;--con-ink:#A9B7D0;--con-new:#FFFFFF;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --paper:#0D1727;--surface:#132138;--surface-2:#182943;--code-bg:#0F1C30;
+  --ink:#E2E9F4;--ink-2:#B4C0D5;--muted:#8D9AB2;--line:#23365A;--line-2:#334A70;
+  --grid:rgba(226,233,244,.035);--head-bg:rgba(13,23,39,.88);
+  --focus:#86ABFF;--btn:#E2E9F4;--btn-ink:#0D1727;
+  --l-client:#A9B3C8;--l-disp:#95B2EA;--l-ctrl:#7BA2FF;--l-svc:#B596F6;--l-repo:#66C978;--l-jpa:#F2AC47;--l-db:#4CC6D3;--l-cfg:#F27FAB;
+  --ok:#66C978;--bad:#FF8073;
+  --t-kw:#86ABFF;--t-an:#F27FAB;--t-str:#8FD79A;--t-com:#7F8DA8;--t-num:#F2B866;--t-type:#BFA3FF;--t-ph:#F27FAB;--t-key:#86ABFF;--t-tag:#86ABFF;
+  --con-bg:#0A1322;--con-ink:#A9B7D0;--con-new:#FFFFFF;
+  color-scheme:dark;
+}
+:root{box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 72px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;font-family:var(--sans);font-size:16px;line-height:1.6;color:var(--ink);background-color:var(--paper);
+  background-image:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px);background-size:28px 28px;
+  -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--head-bg);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+a{color:var(--l-ctrl)}
+:focus-visible{outline:2px solid var(--focus);outline-offset:2px;border-radius:4px}
+.lc-client{--lc:var(--l-client)}.lc-disp{--lc:var(--l-disp)}.lc-ctrl{--lc:var(--l-ctrl)}.lc-svc{--lc:var(--l-svc)}.lc-repo{--lc:var(--l-repo)}.lc-jpa{--lc:var(--l-jpa)}.lc-db{--lc:var(--l-db)}.lc-cfg{--lc:var(--l-cfg)}.lc-ink{--lc:var(--ink-2)}
+.wrap{max-width:1240px;margin:0 auto;padding:0 20px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;background:var(--head-bg);backdrop-filter:saturate(1.2) blur(10px);-webkit-backdrop-filter:saturate(1.2) blur(10px);border-bottom:1px solid var(--line)}
+#theme-btn{white-space:nowrap}
+@media (max-width:480px){.brand{font-size:.95rem;gap:9px}}
+.topbar{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:56px}
+.brand{display:inline-flex;align-items:center;gap:12px;font-family:var(--cond);font-weight:700;font-size:1.08rem;color:var(--ink);text-decoration:none;letter-spacing:.005em}
+.mark{display:inline-flex;gap:2px;align-items:flex-end}
+.mark i{display:block;width:4px;border-radius:2px;background:var(--lc)}
+.mark i:nth-child(1){height:10px}.mark i:nth-child(2){height:13px}.mark i:nth-child(3){height:16px}.mark i:nth-child(4){height:19px}.mark i:nth-child(5){height:16px}.mark i:nth-child(6){height:13px}.mark i:nth-child(7){height:10px}
+
+/* buttons */
+.btn{font:inherit;font-size:.875rem;font-weight:600;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);padding:7px 13px;border-radius:9px;cursor:pointer;line-height:1.3}
+.btn:hover{border-color:var(--ink-2)}
+.btn.primary{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.btn:disabled{opacity:.4;cursor:default}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--line-2);border-radius:11px;padding:3px;gap:2px;background:var(--surface-2)}
+.seg button{font:inherit;font-size:.875rem;font-weight:500;border:0;background:transparent;color:var(--ink-2);padding:6px 11px;border-radius:8px;cursor:pointer;line-height:1.3}
+.seg button:hover{color:var(--ink)}
+.seg button[aria-pressed="true"]{background:var(--surface);color:var(--ink);font-weight:600;box-shadow:0 0 0 1px var(--line-2),0 1px 2px rgba(10,20,40,.08)}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--mono);font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);cursor:pointer;line-height:1.35}
+.chip:hover{color:var(--ink);border-color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--btn);color:var(--btn-ink);border-color:var(--btn)}
+.chip.sans{font-family:var(--sans);font-size:.82rem;font-weight:500}
+
+/* hero */
+.hero{padding-top:44px;padding-bottom:34px;scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
+h1{font-family:var(--cond);font-weight:700;font-size:clamp(2.1rem,1.3rem + 3vw,3.25rem);line-height:1.04;letter-spacing:-.012em;margin:0 0 14px;max-width:19ch}
+.lede{font-size:1.125rem;line-height:1.55;color:var(--ink-2);max-width:64ch;margin:0 0 26px}
+.viz{background:var(--surface);border:1px solid var(--line);border-radius:16px;box-shadow:0 22px 48px -34px rgba(10,22,48,.55)}
+.viz-controls{display:flex;flex-wrap:wrap;gap:10px 14px;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line)}
+.ctl-label{font-size:.78rem;color:var(--muted);margin-right:-6px}
+.player{display:inline-flex;gap:6px;margin-left:auto;flex-wrap:wrap}
+.viz-body{display:grid;grid-template-columns:minmax(0,1fr)}
+@media (min-width:1180px){.viz-body{grid-template-columns:minmax(0,1fr) 370px}}
+.seq-scroll{overflow-x:auto;padding:10px 8px 6px;-webkit-overflow-scrolling:touch}
+#seq{display:block;min-width:824px;width:100%;height:auto}
+.step-detail{border-top:1px solid var(--line);padding:18px 20px 22px;min-height:300px}
+@media (min-width:1180px){.step-detail{border-top:0;border-left:1px solid var(--line);max-height:720px;overflow:auto}}
+.sd-top{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:6px}
+.sd-count{font-size:.82rem;color:var(--muted);font-weight:500}
+.sd-title{font-family:var(--cond);font-size:1.4rem;line-height:1.15;margin:4px 0 8px}
+.step-detail p{margin:0 0 12px;color:var(--ink-2)}
+.sd-data{font-size:.86rem;margin:10px 0 0;color:var(--ink-2)}
+.sd-end{margin-top:14px!important;padding-top:12px;border-top:1px dashed var(--line-2);font-weight:500;color:var(--ink)!important}
+.status{display:inline-block;font-family:var(--cond);font-weight:700;font-size:1.3rem;padding:4px 12px;border-radius:8px;margin-top:12px}
+.s-ok{color:var(--ok);background:color-mix(in srgb,var(--ok) 13%,transparent)}
+.s-bad{color:var(--bad);background:color-mix(in srgb,var(--bad) 12%,transparent)}
+.hint{font-size:.82rem;color:var(--muted);margin:10px 4px 0}
+
+/* sequence svg */
+.lh-box{fill:color-mix(in srgb,var(--lc) 9%,var(--surface));stroke:var(--lc);stroke-width:1.3}
+.lh-name{font:600 13px var(--sans);fill:var(--ink);text-anchor:middle}
+.lh-sub{font:400 9.4px var(--mono);fill:var(--muted);text-anchor:middle}
+.life{stroke:var(--line-2);stroke-width:1;stroke-dasharray:3 4}
+.srow{cursor:pointer;transition:opacity .25s ease}
+.srow.ghost{opacity:.2}.srow.done{opacity:.6}.srow.cur{opacity:1}
+.srow .band{fill:transparent}
+.srow.cur .band{fill:color-mix(in srgb,var(--lc) 11%,transparent)}
+.srow:hover .band{fill:color-mix(in srgb,var(--lc) 7%,transparent)}
+.srow:focus{outline:none}.srow:focus-visible .band{stroke:var(--focus);stroke-width:1.5}
+.arr{stroke:var(--ink-2);stroke-width:1.4;fill:none}
+.arr.ret{stroke-dasharray:5 4}
+.srow.cur .arr{stroke:var(--lc);stroke-width:2.3}
+.lbl{font:500 11.5px var(--mono);fill:var(--ink);paint-order:stroke;stroke:var(--surface);stroke-width:4px;stroke-linejoin:round}
+.srow.cur .lbl{font-weight:600;fill:var(--lc)}
+.nc{fill:var(--surface-2);stroke:var(--line-2)}
+.nt{font:600 10.5px var(--sans);fill:var(--ink-2);text-anchor:middle}
+.srow.cur .nc{fill:var(--lc);stroke:var(--lc)}.srow.cur .nt{fill:var(--surface)}
+.mk{fill:var(--lc)}.mk-plain{fill:var(--ink-2)}
+.pkt{transition:transform .55s cubic-bezier(.45,0,.2,1)}
+.pkt circle{fill:var(--lc);stroke:var(--surface);stroke-width:2}
+.pkt .halo{fill:color-mix(in srgb,var(--lc) 25%,transparent);stroke:none}
+
+/* layout */
+.mnav{display:flex;gap:6px;overflow-x:auto;padding:4px 20px 14px;margin:0 auto;max-width:1240px;scrollbar-width:thin}
+.mnav a{flex:0 0 auto;font-size:.82rem;font-weight:500;color:var(--ink-2);text-decoration:none;border:1px solid var(--line-2);background:var(--surface);border-radius:999px;padding:5px 11px}
+@media (min-width:1100px){.mnav{display:none}}
+.docs{display:grid;grid-template-columns:minmax(0,1fr);gap:36px;padding-bottom:90px}
+@media (min-width:1100px){.docs{grid-template-columns:212px minmax(0,1fr)}}
+.side{display:none}
+@media (min-width:1100px){.side{display:block}}
+.side nav{position:sticky;top:calc(env(safe-area-inset-top,0px) + 78px)}
+.side p{font-size:.78rem;color:var(--muted);margin:0 0 8px 10px}
+.side ol{list-style:none;margin:0;padding:0}
+.side a{display:flex;gap:10px;padding:6px 10px;border-radius:8px;color:var(--ink-2);text-decoration:none;font-size:.9rem;line-height:1.35}
+.side a:hover{color:var(--ink);background:color-mix(in srgb,var(--surface) 70%,transparent)}
+.side a .n{font-family:var(--cond);font-weight:700;color:var(--muted);min-width:1.3em}
+.side a.on{background:var(--surface);color:var(--ink);box-shadow:inset 3px 0 0 var(--ink),0 0 0 1px var(--line)}
+main{min-width:0}
+.sec{padding:44px 0 10px;border-top:1px solid var(--line);scroll-margin-top:calc(env(safe-area-inset-top,0px) + 64px)}
+.sec:first-child{border-top:0;padding-top:8px}
+.sec h2{font-family:var(--cond);font-weight:700;font-size:clamp(1.65rem,1.2rem + 1.3vw,2.2rem);line-height:1.1;margin:0 0 14px;display:flex;gap:14px;align-items:baseline}
+.sec h2 .n{color:var(--muted);font-size:.75em;min-width:1.4em}
+.sec h3{font-size:1.15rem;line-height:1.3;font-weight:600;margin:34px 0 10px}
+.sec > p,.prose{max-width:74ch}
+p{margin:0 0 14px}
+.intro{font-size:1.06rem;color:var(--ink-2)}
+code{font-family:var(--mono);font-size:.84em;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:.04em .34em;overflow-wrap:anywhere}
+pre code{background:none;border:0;padding:0;font-size:inherit;overflow-wrap:normal}
+.small{font-size:.88rem;color:var(--muted)}
+
+/* code */
+.codebox{border:1px solid var(--line);border-radius:12px;background:var(--code-bg);overflow:hidden;margin:14px 0}
+.cb-head{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:5px 6px 5px 14px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted);font-family:var(--mono)}
+.copy{font:500 .75rem var(--sans);border:1px solid var(--line-2);background:var(--surface);color:var(--ink-2);border-radius:7px;padding:3px 9px;cursor:pointer}
+pre.code{margin:12px 0;padding:13px 16px;overflow-x:auto;font-family:var(--mono);font-size:13px;line-height:1.62;tab-size:4;color:var(--ink);background:var(--code-bg);border:1px solid var(--line);border-radius:10px}
+.codebox pre.code{margin:0;border:0;border-radius:0}
+.t-kw{color:var(--t-kw);font-weight:600}.t-an{color:var(--t-an);font-weight:600}.t-str{color:var(--t-str)}.t-com{color:var(--t-com);font-style:italic}.t-num{color:var(--t-num)}.t-type{color:var(--t-type)}.t-ph{color:var(--t-ph);font-weight:600}.t-key{color:var(--t-key)}.t-tag{color:var(--t-tag)}
+
+/* tags */
+.tag{display:inline-flex;align-items:center;gap:6px;font-size:.76rem;font-weight:600;padding:2px 10px 2px 8px;border-radius:999px;background:color-mix(in srgb,var(--lc) 13%,transparent);color:var(--lc);white-space:nowrap;line-height:1.5}
+.tag::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--lc)}
+
+/* ideas */
+.ideas{display:grid;grid-template-columns:minmax(0,1fr);border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin:18px 0}
+.idea{padding:20px 22px;border-bottom:1px solid var(--line);min-width:0}
+.idea h3{margin:0 0 8px!important;font-size:1.08rem}
+.idea p{color:var(--ink-2);font-size:.95rem}
+.idea pre.code{font-size:12.5px}
+@media (min-width:900px){.ideas{grid-template-columns:1fr 1fr}.idea:nth-child(odd){border-right:1px solid var(--line)}.idea:nth-last-child(-n+2){border-bottom:0}}
+@media (max-width:899px){.idea:last-child{border-bottom:0}}
+.mini{width:100%;border-collapse:collapse;font-size:.84rem;margin-top:6px}
+.mini td,.mini th{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.mini th{color:var(--muted);font-weight:600}
+.mini tr:last-child td{border-bottom:0}
+.rule{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:.84rem;margin:10px 0 12px}
+.rule span{border:1px solid var(--line-2);border-radius:8px;padding:4px 9px;background:var(--surface-2)}
+.rule b{color:var(--muted);font-weight:600}
+
+/* strips (mvc) */
+.strip{display:flex;flex-wrap:wrap;align-items:stretch;gap:6px 0;margin:10px 0 18px}
+.strip .st{padding:8px 12px;border:1px solid var(--line-2);border-top:3px solid var(--lc);background:var(--surface);border-radius:9px;font-size:.86rem;line-height:1.35}
+.strip .st small{display:block;color:var(--muted);font-size:.76rem}
+.strip .ar{align-self:center;padding:0 7px;color:var(--muted);font-size:1rem}
+.strip-label{font-weight:600;font-size:.92rem;margin:16px 0 0}
+
+/* layer stack */
+.stack{display:grid;gap:0;border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);margin:14px 0}
+.stack .lay{display:grid;grid-template-columns:170px minmax(0,1fr) minmax(0,1fr);gap:16px;padding:12px 16px;border-left:5px solid var(--lc);border-bottom:1px solid var(--line);font-size:.9rem}
+.stack .lay:last-child{border-bottom:0}
+.stack .lay b{font-weight:600}
+.stack .lay span{color:var(--ink-2)}
+.stack .lay em{color:var(--muted);font-style:normal}
+.stack .lay.hd{background:var(--surface-2);font-size:.78rem;color:var(--muted);font-weight:600;border-left-color:transparent;padding-top:8px;padding-bottom:8px}
+@media (max-width:720px){.stack .lay{grid-template-columns:1fr;gap:2px}.stack .lay.hd{display:none}}
+
+/* notes */
+.note{border-left:3px solid var(--line-2);background:var(--surface);padding:12px 16px;border-radius:0 10px 10px 0;margin:16px 0;max-width:82ch;font-size:.94rem;color:var(--ink-2)}
+.note strong{color:var(--ink)}
+.note.ind{border-left-color:var(--l-repo)}
+.note.warn{border-left-color:var(--l-jpa)}
+.note p:last-child{margin-bottom:0}
+
+/* boot */
+.boot{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;border:1px solid var(--line);border-radius:16px;background:var(--surface);padding:16px;margin:18px 0}
+@media (min-width:980px){.boot{grid-template-columns:220px minmax(0,1fr)}}
+.boot-list{list-style:none;margin:0;padding:0;display:grid;gap:2px;align-content:start}
+.boot-list button{display:flex;gap:10px;width:100%;text-align:left;font:inherit;font-size:.86rem;line-height:1.35;color:var(--ink-2);background:transparent;border:0;border-radius:8px;padding:7px 9px;cursor:pointer}
+.boot-list button .n{font-family:var(--cond);font-weight:700;color:var(--muted);min-width:1.4em}
+.boot-list button:hover{background:var(--surface-2);color:var(--ink)}
+.boot-list button[aria-current="step"]{background:var(--surface-2);color:var(--ink);font-weight:600;box-shadow:inset 3px 0 0 var(--ink)}
+@media (max-width:979px){.boot-list{grid-auto-flow:column;grid-auto-columns:max-content;overflow-x:auto;padding-bottom:4px}.boot-list button{white-space:nowrap}}
+.boot-map{display:grid;grid-template-columns:minmax(0,1fr);gap:10px}
+@media (min-width:720px){.boot-map{grid-template-columns:172px minmax(0,1fr) 112px}}
+.bm-col{display:grid;gap:8px;align-content:start}
+.bn{overflow-wrap:anywhere;border:1px solid var(--line-2);border-radius:10px;padding:7px 10px;background:var(--surface);font-size:.82rem;font-weight:600;line-height:1.25;color:var(--muted);transition:background .3s,border-color .3s,color .3s,box-shadow .3s}
+.bn small{display:block;font-weight:400;font-size:.72rem;color:var(--muted);margin-top:2px}
+.bn.done{color:var(--ink);border-color:color-mix(in srgb,var(--lc) 55%,var(--line-2))}
+.bn.on{color:var(--ink);border-color:var(--lc);background:color-mix(in srgb,var(--lc) 14%,var(--surface));box-shadow:0 0 0 3px color-mix(in srgb,var(--lc) 20%,transparent)}
+.ctx{border:1.5px dashed var(--line-2);border-radius:14px;padding:10px;background:var(--surface-2)}
+.ctx-t{font-size:.78rem;font-weight:600;color:var(--muted);margin:0 0 8px 2px}
+.ctx-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(138px,1fr));gap:8px}
+.boot-detail{margin-top:14px}
+.boot-detail h3{margin:0 0 6px!important;font-family:var(--cond);font-size:1.35rem}
+.boot-detail p{color:var(--ink-2);max-width:78ch}
+.console{background:var(--con-bg);color:var(--con-ink);font-family:var(--mono);font-size:12px;line-height:1.65;border-radius:10px;padding:12px 14px;margin:12px 0 0;overflow-x:auto;min-height:120px;max-height:230px;overflow-y:auto}
+.console div{white-space:pre;opacity:.55}
+.console div.new{opacity:1;color:var(--con-new)}
+.console .lv{color:#7FD3A0}.console .wn{color:#F2B866}
+.boot-ctl{display:flex;gap:8px;margin-top:12px;align-items:center}
+.boot-ctl .small{margin-left:auto}
+
+/* svg diagram */
+.dgwrap{overflow-x:auto;margin:16px 0;border:1px solid var(--line);border-radius:14px;background:var(--surface);padding:10px}
+.dg{display:block;width:100%;min-width:640px;height:auto}
+.dg rect{fill:var(--surface-2);stroke:var(--line-2);stroke-width:1.2}
+.dg .cfg rect{stroke:var(--l-cfg);fill:color-mix(in srgb,var(--l-cfg) 8%,var(--surface))}
+.dg .key rect{stroke:var(--ink);stroke-width:1.8;fill:var(--surface)}
+.dg .out rect{stroke:var(--l-ctrl);fill:color-mix(in srgb,var(--l-ctrl) 7%,var(--surface))}
+.dg .t1{font:600 13px var(--sans);fill:var(--ink);text-anchor:middle}
+.dg .t2{font:400 11px var(--sans);fill:var(--muted);text-anchor:middle}
+.dg .t3{font:500 11px var(--mono);fill:var(--ink-2);text-anchor:middle}
+.dg .ln{stroke:var(--ink-2);stroke-width:1.4;fill:none}
+.dg .ahf{fill:var(--ink-2)}
+.dg .lab{font:italic 400 11px var(--sans);fill:var(--muted)}
+
+/* file frames */
+.files{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin:16px 0 0}
+@media (min-width:980px){.files{grid-template-columns:1fr 1fr}}
+.file{border:1px solid var(--line);border-radius:12px;background:var(--code-bg);overflow:hidden;min-width:0}
+.file-head{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:8px 14px;border-bottom:1px solid var(--line);font-size:.8rem;color:var(--muted)}
+.file-head b{font-family:var(--mono);color:var(--ink);font-weight:600;font-size:.82rem}
+.file-body{overflow-x:auto;padding:4px 0}
+.fl{display:block;min-width:100%;width:max-content;text-align:left;border:0;border-left:3px solid transparent;background:transparent;color:var(--ink);font-family:var(--mono);font-size:12.5px;line-height:1.55;padding:6px 14px 6px 11px;cursor:pointer;white-space:pre;margin:0}
+.fl:hover{background:color-mix(in srgb,var(--lc,var(--l-cfg)) 6%,transparent)}
+.fl[aria-pressed="true"]{border-left-color:var(--lc,var(--l-cfg));background:color-mix(in srgb,var(--lc,var(--l-cfg)) 12%,transparent)}
+.fl.static{cursor:default}.fl.static:hover{background:transparent}
+.panel{border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:16px 18px;margin-top:14px}
+.panel h4{margin:0 0 4px;font-family:var(--mono);font-size:.92rem;font-weight:600;overflow-wrap:anywhere}
+.panel .k{font-size:.78rem;font-weight:600;color:var(--muted);margin:12px 0 3px}
+.panel p{margin:0;color:var(--ink-2);max-width:80ch}
+.err{font-family:var(--mono);font-size:12.5px;background:color-mix(in srgb,var(--bad) 8%,var(--surface));color:var(--ink);border:1px solid color-mix(in srgb,var(--bad) 30%,transparent);border-radius:8px;padding:8px 10px;white-space:pre-wrap;word-break:break-word;margin-top:4px}
+
+/* entity map */
+.emap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;margin-top:16px}
+@media (min-width:980px){.emap{grid-template-columns:1.12fr 1fr}}
+.ml{padding-top:3px;padding-bottom:3px}
+.ml.hit{border-left-color:var(--lc);background:color-mix(in srgb,var(--lc) 14%,transparent)}
+.ml.dim{opacity:.55}
+.ddl-res{display:grid;grid-template-columns:minmax(0,1fr);gap:12px;margin-top:12px}
+@media (min-width:860px){.ddl-res{grid-template-columns:1fr 1fr}}
+.kv{display:grid;grid-template-columns:130px minmax(0,1fr);gap:6px 12px;font-size:.9rem}
+.kv dt{color:var(--muted);font-weight:600;font-size:.82rem}
+.kv dd{margin:0;color:var(--ink-2)}
+.yes{color:var(--ok);font-weight:600}.no{color:var(--bad);font-weight:600}
+
+/* pipeline */
+.pick-group{display:grid;gap:6px;margin:10px 0}
+.pick-group .gl{font-size:.8rem;font-weight:600;color:var(--muted)}
+.pipe{display:grid;gap:8px;margin-top:14px}
+.stage{display:grid;grid-template-columns:minmax(0,1fr);gap:6px 18px;border:1px solid var(--line);border-left:5px solid var(--lc);border-radius:10px;background:var(--surface);padding:12px 14px;position:relative}
+@media (min-width:860px){.stage{grid-template-columns:220px minmax(0,1fr)}}
+.stage .who{font-weight:600;font-size:.95rem;line-height:1.3}
+.stage .who small{display:block;font-weight:400;font-size:.78rem;color:var(--muted);margin-top:3px;line-height:1.4}
+.stage .out p{margin:0 0 6px;font-size:.9rem;color:var(--ink-2)}
+.stage .out pre.code{margin:6px 0 0;font-size:12.5px;padding:9px 12px}
+.stage.skip{opacity:.5}
+.stage.reveal{animation:rv .45s ease both}
+@keyframes rv{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.down{display:flex;justify-content:flex-start;padding-left:24px;color:var(--muted);font-size:.8rem;height:14px;align-items:center}
+
+/* hierarchy */
+.tree{font-family:var(--mono);font-size:12.8px;line-height:1.5;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px 16px;overflow-x:auto;margin:14px 0}
+.tree ul{list-style:none;margin:0;padding-left:20px;border-left:1px dashed var(--line-2)}
+.tree > ul{padding-left:0;border-left:0}
+.tree li{margin:6px 0;position:relative}
+.tree li::before{content:"";position:absolute;left:-20px;top:.75em;width:14px;border-top:1px dashed var(--line-2)}
+.tree > ul > li::before{display:none}
+.tree b{font-weight:600;color:var(--ink)}
+.tree span{font-family:var(--sans);font-size:.8rem;color:var(--muted);margin-left:8px}
+.tree .yours b{color:var(--l-repo)}
+
+/* flowchart */
+.fc{display:grid;gap:10px;margin:16px 0;font-size:.88rem}
+.fc .box{border:1px solid var(--line-2);border-radius:10px;padding:8px 12px;background:var(--surface);text-align:center;line-height:1.35}
+.fc .box code{font-size:.84em}
+.fc .q{border-style:dashed;border-color:var(--ink-2);background:var(--surface-2);font-weight:600}
+.fc .ins{border-color:var(--l-db);background:color-mix(in srgb,var(--l-db) 9%,var(--surface))}
+.fc .upd{border-color:var(--l-jpa);background:color-mix(in srgb,var(--l-jpa) 9%,var(--surface))}
+.fc .row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fc .col{display:grid;gap:8px;align-content:start}
+.fc .br{font-size:.78rem;color:var(--muted);text-align:center;font-weight:600}
+.fc .row2b{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.fc .dn{text-align:center;color:var(--muted);line-height:1}
+
+/* anatomy */
+.anat{display:flex;flex-wrap:wrap;gap:0;font-family:var(--mono);font-size:clamp(13px,1.45vw,17px);background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:16px 16px 12px;margin:14px 0;row-gap:12px}
+.anat .tk{display:inline-flex;flex-direction:column;align-items:flex-start}
+.anat .tk > span{border-bottom:3px solid var(--tc);padding:0 1px 3px;color:var(--ink);font-weight:600}
+.anat .tk small{font-family:var(--sans);font-size:.68rem;color:var(--muted);margin-top:4px;max-width:12ch;line-height:1.25;padding-right:6px}
+.anat .plain > span{border-bottom-color:transparent;font-weight:400;color:var(--muted)}
+.tc-subj{--tc:var(--l-repo)}.tc-kw{--tc:var(--line-2)}.tc-prop{--tc:var(--l-ctrl)}.tc-op{--tc:var(--l-jpa)}.tc-dir{--tc:var(--l-svc)}
+.legend{display:flex;flex-wrap:wrap;gap:12px;font-size:.8rem;color:var(--muted);margin-top:-4px}
+.legend i{display:inline-block;width:14px;height:3px;background:var(--tc);vertical-align:middle;margin-right:5px}
+
+/* builder */
+.bld{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;border:1px solid var(--line);border-radius:12px;background:var(--surface);padding:14px;margin:14px 0}
+.bld label{display:grid;gap:4px;font-size:.78rem;font-weight:600;color:var(--muted)}
+select,input[type="search"]{font:inherit;font-size:.9rem;padding:7px 10px;border-radius:8px;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);width:100%}
+select:disabled{opacity:.45}
+.bout{display:grid;grid-template-columns:minmax(0,1fr);gap:0 14px}
+@media (min-width:980px){.bout{grid-template-columns:1fr 1fr}}
+.bout h4{font-size:.82rem;color:var(--muted);margin:12px 0 0;font-weight:600}
+.mname{font-family:var(--mono);font-size:clamp(13px,1.4vw,16px);overflow-wrap:anywhere;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 12px;margin:6px 0 0}
+.mname span{border-bottom:3px solid var(--tc);padding-bottom:1px}
+
+/* tables */
+.tbl{overflow-x:auto;border:1px solid var(--line);border-radius:12px;background:var(--surface);margin:14px 0}
+.tbl table{border-collapse:collapse;width:100%;font-size:.88rem}
+.tbl th{text-align:left;font-weight:600;color:var(--ink-2);background:var(--surface-2);padding:9px 12px;border-bottom:1px solid var(--line);white-space:nowrap;font-size:.82rem}
+.tbl td{padding:9px 12px;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+.tbl tr:last-child td{border-bottom:0}
+.tbl td:first-child{color:var(--ink);font-weight:500}
+.tbl td code{font-size:.8em;white-space:nowrap}
+.tbl .wrapc code{white-space:normal}
+.verb{font-family:var(--mono);font-size:.78rem;font-weight:600;padding:2px 7px;border-radius:6px;background:color-mix(in srgb,var(--lc) 14%,transparent);color:var(--lc)}
+.watch{font:600 .8rem var(--sans);border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:8px;padding:4px 10px;cursor:pointer;white-space:nowrap}
+
+/* url anatomy */
+.url{font-family:var(--mono);font-size:clamp(12.5px,1.4vw,15px);background:var(--code-bg);border:1px solid var(--line);border-radius:12px;padding:12px 14px;overflow-x:auto;margin:14px 0 0}
+.url .ln{white-space:nowrap;line-height:2.2}
+.url .ln + .ln{border-top:1px dashed var(--line-2)}
+.ub{font:inherit;border:0;border-bottom:2px solid var(--lc);background:transparent;color:var(--ink);padding:1px 3px;cursor:pointer;border-radius:4px 4px 0 0}
+.ub:hover{background:color-mix(in srgb,var(--lc) 10%,transparent)}
+.ub[aria-pressed="true"]{background:color-mix(in srgb,var(--lc) 20%,transparent);font-weight:600}
+.url .dimt{color:var(--muted)}
+
+/* compare */
+.cmp td:nth-child(2){color:var(--muted)}
+.cmp td:nth-child(3){color:var(--ink)}
+
+/* annotations */
+.ann-tools{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+.ann-tools input{max-width:260px}
+.ann-count{font-size:.82rem;color:var(--muted)}
+.ann-list{display:grid;grid-template-columns:minmax(0,1fr);gap:8px}
+@media (min-width:900px){.ann-list{grid-template-columns:1fr 1fr}}
+.ann{border:1px solid var(--line);border-left:4px solid var(--lc);border-radius:10px;background:var(--surface);padding:11px 14px;min-width:0}
+.ann-h{display:flex;justify-content:space-between;gap:8px;align-items:baseline;flex-wrap:wrap}
+.ann h4{font-family:var(--mono);font-size:.92rem;margin:0;color:var(--ink);overflow-wrap:anywhere}
+.ann .rb{font-size:.76rem;color:var(--muted)}
+.ann p{font-size:.88rem;color:var(--ink-2);margin:4px 0 0}
+.ann pre.code{font-size:11.8px;padding:7px 10px;margin:8px 0 0}
+.empty{padding:16px;color:var(--muted);font-size:.9rem}
+
+/* steps list (industry) */
+.seq{counter-reset:q;list-style:none;margin:14px 0;padding:0;display:grid;gap:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden}
+.seq li{counter-increment:q;display:grid;grid-template-columns:44px minmax(0,1fr);gap:4px;padding:11px 16px 11px 10px;border-bottom:1px solid var(--line);font-size:.92rem;color:var(--ink-2)}
+.seq li:last-child{border-bottom:0}
+.seq li::before{content:counter(q);font-family:var(--cond);font-weight:700;font-size:1.15rem;color:var(--muted);text-align:center;line-height:1.35}
+.seq li b{color:var(--ink);font-weight:600}
+.nums{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:0;border:1px solid var(--line);border-radius:14px;background:var(--surface);overflow:hidden;margin:14px 0}
+.nums div{padding:14px 16px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);margin:0 -1px -1px 0}
+.nums b{display:block;font-family:var(--cond);font-size:1.7rem;line-height:1.1;color:var(--ink)}
+.nums span{font-size:.82rem;color:var(--ink-2)}
+.nums code{font-size:.72rem}
+
+footer{border-top:1px solid var(--line);padding:22px 0 40px;color:var(--muted);font-size:.85rem}
+
+@media (prefers-reduced-motion: no-preference){html{scroll-behavior:smooth}}
+@media (prefers-reduced-motion: reduce){*,*::before,*::after{transition:none!important;animation:none!important}}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap topbar">
+    <a class="brand" href="#flow" data-go="flow"><span class="mark" aria-hidden="true"><i class="lc-client"></i><i class="lc-disp"></i><i class="lc-ctrl"></i><i class="lc-svc"></i><i class="lc-repo"></i><i class="lc-jpa"></i><i class="lc-db"></i></span>Spring Boot, layer by layer</a>
+    <button class="btn" id="theme-btn" type="button">Dark theme</button>
+  </div>
+</header>
+
+<section class="hero wrap" id="flow">
+  <h1>Follow one request through Spring Boot</h1>
+  <p class="lede">Pick a CRUD operation and press Play. A StreamHub movie travels from the browser to PostgreSQL and back, and every arrow names the class, annotation or SQL statement doing the work.</p>
+  <div class="viz">
+    <div class="viz-controls">
+      <span class="ctl-label" id="op-label">Operation</span>
+      <div class="seg" role="group" aria-labelledby="op-label" id="op-seg"></div>
+      <span class="ctl-label" id="sc-label">Scenario</span>
+      <div class="seg" role="group" aria-labelledby="sc-label" id="sc-seg"></div>
+      <div class="player">
+        <button class="btn" type="button" id="p-back">Back</button>
+        <button class="btn primary" type="button" id="p-play">Play</button>
+        <button class="btn" type="button" id="p-next">Next</button>
+        <button class="btn" type="button" id="p-restart">Restart</button>
+      </div>
+    </div>
+    <div class="viz-body">
+      <div class="seq-scroll"><svg id="seq" role="img" aria-label="Sequence diagram of the selected request"></svg></div>
+      <aside class="step-detail" id="step-detail" aria-live="polite"></aside>
+    </div>
+  </div>
+  <p class="hint">Click any arrow to jump to that step. Solid arrows are calls going down the layers; dashed arrows are values coming back up.</p>
+</section>
+
+<nav class="mnav" aria-label="Sections">
+  <a href="#core" data-go="core">1 Core ideas</a><a href="#startup" data-go="startup">2 Startup</a><a href="#config" data-go="config">3 pom &amp; properties</a><a href="#entity" data-go="entity">4 Entity → table</a><a href="#sql" data-go="sql">5 Who writes SQL</a><a href="#repository" data-go="repository">6 @Repository</a><a href="#custom" data-go="custom">7 Custom methods</a><a href="#service" data-go="service">8 @Service</a><a href="#controller" data-go="controller">9 @RestController</a><a href="#crud" data-go="crud">10 CRUD map</a><a href="#industry" data-go="industry">11 In industry</a><a href="#annotations" data-go="annotations">12 Annotations</a>
+</nav>
+
+<div class="wrap docs">
+<aside class="side">
+  <nav aria-label="Sections">
+    <p>Build order</p>
+    <ol>
+      <li><a href="#core" data-go="core"><span class="n">1</span>The core ideas</a></li>
+      <li><a href="#startup" data-go="startup"><span class="n">2</span>What happens at startup</a></li>
+      <li><a href="#config" data-go="config"><span class="n">3</span>pom.xml and properties</a></li>
+      <li><a href="#entity" data-go="entity"><span class="n">4</span>From @Entity to a table</a></li>
+      <li><a href="#sql" data-go="sql"><span class="n">5</span>Who writes the SQL</a></li>
+      <li><a href="#repository" data-go="repository"><span class="n">6</span>@Repository built-ins</a></li>
+      <li><a href="#custom" data-go="custom"><span class="n">7</span>Custom query methods</a></li>
+      <li><a href="#service" data-go="service"><span class="n">8</span>@Service</a></li>
+      <li><a href="#controller" data-go="controller"><span class="n">9</span>@RestController</a></li>
+      <li><a href="#crud" data-go="crud"><span class="n">10</span>The CRUD map</a></li>
+      <li><a href="#industry" data-go="industry"><span class="n">11</span>How teams build it</a></li>
+      <li><a href="#annotations" data-go="annotations"><span class="n">12</span>Annotation reference</a></li>
+    </ol>
+  </nav>
+</aside>
+<main>
+
+<!-- 1 CORE -->
+<section class="sec" id="core">
+  <h2><span class="n">1</span>The core ideas</h2>
+  <p class="intro">Spring Boot looks like magic until you see that it does four ordinary jobs: it creates your objects, hands them to each other, configures common libraries from what it finds, and routes each HTTP call to one of your methods.</p>
+
+  <div class="ideas">
+    <div class="idea">
+      <h3>The container creates your objects</h3>
+      <p>Every class marked <code>@RestController</code>, <code>@Service</code>, <code>@Repository</code> or <code>@Component</code> becomes a <em>bean</em>: Spring creates one instance at startup and keeps it in the <code>ApplicationContext</code>. Beans are singletons by default, so the servlet-project problem of two servlets holding two different repositories cannot happen.</p>
+<pre class="code" data-lang="java"><script type="text/plain">
+// The servlet project: you assembled everything by hand
+MovieRepository repo = new MovieRepository();
+MovieService service = new MovieServiceImpl(repo);
+MovieController controller = new MovieController(service);
+
+// Spring Boot: you write none of this.
+// The container builds and connects all three at startup.
+</script></pre>
+    </div>
+    <div class="idea">
+      <h3>Dependency injection hands them over</h3>
+      <p>A bean declares what it needs in its constructor; Spring finds the matching bean and passes it in. The framework calls your code instead of your code assembling the framework. That reversal is <em>inversion of control</em>.</p>
+<pre class="code" data-lang="java"><script type="text/plain">
+@Service
+public class MovieServiceImpl implements MovieService {
+
+    private final MovieRepository movieRepository;
+
+    // One constructor: no @Autowired needed
+    public MovieServiceImpl(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;   // injected
+    }
+}
+</script></pre>
+    </div>
+    <div class="idea">
+      <h3>Annotations are labels, and something reads them</h3>
+      <p>An annotation does nothing by itself. It is metadata that one specific library looks for, either once at startup or on every call.</p>
+      <table class="mini">
+        <tr><th>Label</th><th>Read by</th><th>When</th></tr>
+        <tr><td><code>@SpringBootApplication</code></td><td>SpringApplication</td><td>Startup</td></tr>
+        <tr><td><code>@RestController</code>, <code>@Service</code></td><td>Component scanner</td><td>Startup</td></tr>
+        <tr><td><code>extends JpaRepository</code></td><td>Spring Data JPA</td><td>Startup</td></tr>
+        <tr><td><code>@Entity</code>, <code>@Column</code></td><td>Hibernate</td><td>Startup and every query</td></tr>
+        <tr><td><code>@GetMapping</code>, <code>@PathVariable</code></td><td>Spring MVC</td><td>Startup and every request</td></tr>
+        <tr><td><code>@Transactional</code></td><td>Transaction proxy</td><td>Every method call</td></tr>
+        <tr><td><code>@Valid</code>, <code>@NotBlank</code></td><td>Hibernate Validator</td><td>Every request</td></tr>
+      </table>
+    </div>
+    <div class="idea">
+      <h3>Auto-configuration fills the gaps</h3>
+      <p>For each common library Boot carries a rule: if the jar is on the classpath (pom.xml), and the settings it needs exist (application.properties), and you have not defined that bean yourself, then create a sensible default.</p>
+      <div class="rule"><span>postgresql jar</span><b>+</b><span>spring.datasource.url</span><b>+</b><span>no DataSource of yours</span><b>=</b><span>HikariCP pool, 10 connections</span></div>
+      <p>Define your own bean of the same type and Boot steps back. That is what “opinionated defaults” means in practice: every default can be replaced.</p>
+    </div>
+  </div>
+
+  <h3>MVC in Spring Boot: pages or JSON</h3>
+  <p class="prose">Model–View–Controller splits data (model), presentation (view) and request handling (controller). Spring MVC supports two styles. StreamHub uses the second, because React and Angular are the view.</p>
+  <p class="strip-label">Classic server-rendered MVC</p>
+  <div class="strip">
+    <div class="st lc-client">Browser</div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-disp">DispatcherServlet<small>front controller</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-ctrl">@Controller<small>returns a view name</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-repo">Model<small>movie data</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-svc">View<small>Thymeleaf template</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-client">HTML page</div>
+  </div>
+  <p class="strip-label">REST, the StreamHub way</p>
+  <div class="strip">
+    <div class="st lc-client">React or Angular</div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-disp">DispatcherServlet<small>front controller</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-ctrl">@RestController<small>returns an object</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-repo">Model<small>Movie object</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-jpa">Jackson<small>object → JSON</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-client">The frontend renders the view</div>
+  </div>
+  <p class="prose"><code>@RestController</code> is <code>@Controller</code> plus <code>@ResponseBody</code>: whatever the method returns is written into the response body as JSON, instead of being treated as the name of a template.</p>
+  <div class="note"><strong>DispatcherServlet is the front controller.</strong> In the servlet project you mapped one servlet per URL. Spring MVC registers a single <code>DispatcherServlet</code> for every URL and routes internally to your <code>@GetMapping</code> and <code>@PostMapping</code> methods. It still lives the same servlet lifecycle (<code>init</code>, <code>service</code>, <code>destroy</code>) inside an embedded Tomcat.</div>
+
+  <h3>Layered architecture: each layer calls only the one below</h3>
+  <div class="stack">
+    <div class="lay hd"><b>Layer</b><span>Its job</span><em>Never does</em></div>
+    <div class="lay lc-ctrl"><b>Controller</b><span>Speaks HTTP: URLs, verbs, status codes, JSON in and out.</span><em>Business rules or SQL.</em></div>
+    <div class="lay lc-svc"><b>Service</b><span>Owns the rules: validation, duplicates, transactions.</span><em>Sees <code>HttpStatus</code> or <code>ResponseEntity</code>.</em></div>
+    <div class="lay lc-repo"><b>Repository</b><span>Moves data: save, find, delete, custom queries.</span><em>Makes business decisions.</em></div>
+    <div class="lay lc-jpa"><b>Entity</b><span>The shape of a row: Java class ↔ table.</span><em>Knows about HTTP or other layers.</em></div>
+    <div class="lay lc-db"><b>Database</b><span>Stores rows, enforces constraints (not null, unique).</span><em>Knows Java exists.</em></div>
+  </div>
+</section>
+
+<!-- 2 STARTUP -->
+<section class="sec" id="startup">
+  <h2><span class="n">2</span>What happens when you press Run</h2>
+  <p class="intro">Most of Spring Boot’s work happens before the first request arrives. Step through a real start of StreamHub: each box lights up when its object is created, and the console shows the matching log line.</p>
+  <div class="boot">
+    <ol class="boot-list" id="boot-list"></ol>
+    <div>
+      <div class="boot-map">
+        <div class="bm-col">
+          <div class="bn lc-cfg" data-n="pom">pom.xml<small>what libraries exist</small></div>
+          <div class="bn lc-cfg" data-n="props">application.properties<small>how they behave</small></div>
+          <div class="bn lc-ink" data-n="code">Your classes<small>@Entity, @Service…</small></div>
+          <div class="bn lc-ink" data-n="cp">Classpath<small>jars from ~/.m2</small></div>
+        </div>
+        <div class="ctx">
+          <p class="ctx-t">ApplicationContext — the container</p>
+          <div class="ctx-g">
+            <div class="bn lc-cfg" data-n="env">Environment<small>all settings, resolved</small></div>
+            <div class="bn lc-disp" data-n="tomcat">Embedded Tomcat<small>port 8080, 200 threads</small></div>
+            <div class="bn lc-disp" data-n="disp">DispatcherServlet<small>URL → method table</small></div>
+            <div class="bn lc-disp" data-n="jackson">ObjectMapper<small>Jackson, JSON ↔ objects</small></div>
+            <div class="bn lc-db" data-n="ds">DataSource<small>HikariCP, 10 connections</small></div>
+            <div class="bn lc-jpa" data-n="emf">EntityManagerFactory<small>Hibernate</small></div>
+            <div class="bn lc-repo" data-n="repo">MovieRepository<small>proxy → SimpleJpaRepository</small></div>
+            <div class="bn lc-svc" data-n="svc">MovieServiceImpl<small>@Service singleton</small></div>
+            <div class="bn lc-ctrl" data-n="ctrl">MovieController<small>@RestController singleton</small></div>
+          </div>
+        </div>
+        <div class="bm-col">
+          <div class="bn lc-db" data-n="db">PostgreSQL<small>database streamhub, table movies</small></div>
+        </div>
+      </div>
+      <div class="boot-detail" id="boot-detail" aria-live="polite"></div>
+      <div class="console" id="boot-console" role="log" aria-label="Startup log"></div>
+      <div class="boot-ctl">
+        <button class="btn" type="button" id="b-back">Back</button>
+        <button class="btn primary" type="button" id="b-next">Next step</button>
+        <span class="small" id="b-count"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 3 CONFIG -->
+<section class="sec" id="config">
+  <h2><span class="n">3</span>pom.xml and application.properties</h2>
+  <p class="intro">Two files, two jobs. <strong>pom.xml decides what exists</strong>: which libraries Maven puts on the classpath at build time. <strong>application.properties decides how they behave</strong> when the app runs. Auto-configuration is where the two meet.</p>
+  <div class="dgwrap">
+    <svg class="dg" viewBox="0 0 820 240" role="img" aria-label="pom.xml flows through Maven to the classpath; application.properties flows into the Environment; both feed auto-configuration, which creates beans.">
+      <defs><marker id="cfg-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="ahf"/></marker></defs>
+      <g class="cfg"><rect x="20" y="20" width="175" height="58" rx="10"/><text x="107" y="45" class="t1">pom.xml</text><text x="107" y="64" class="t2">build time: what exists</text></g>
+      <g><rect x="235" y="20" width="175" height="58" rx="10"/><text x="322" y="45" class="t1">Maven</text><text x="322" y="64" class="t2">downloads jars into ~/.m2</text></g>
+      <g><rect x="450" y="20" width="175" height="58" rx="10"/><text x="537" y="45" class="t1">Classpath</text><text x="537" y="64" class="t2">libraries the app can load</text></g>
+      <g class="cfg"><rect x="20" y="162" width="175" height="58" rx="10"/><text x="107" y="187" class="t1">application.properties</text><text x="107" y="206" class="t2">run time: how it behaves</text></g>
+      <g><rect x="235" y="162" width="175" height="58" rx="10"/><text x="322" y="187" class="t1">Environment</text><text x="322" y="206" class="t2">file + env vars + profile</text></g>
+      <g class="key"><rect x="450" y="162" width="175" height="58" rx="10"/><text x="537" y="187" class="t1">Auto-configuration</text><text x="537" y="206" class="t2">checks both, then decides</text></g>
+      <g class="out"><rect x="660" y="96" width="145" height="124" rx="10"/><text x="732" y="120" class="t1">Beans</text><text x="732" y="144" class="t3">Tomcat</text><text x="732" y="162" class="t3">DataSource</text><text x="732" y="180" class="t3">EntityManagerFactory</text><text x="732" y="198" class="t3">ObjectMapper</text></g>
+      <line class="ln" x1="195" y1="49" x2="233" y2="49" marker-end="url(#cfg-ah)"/>
+      <line class="ln" x1="410" y1="49" x2="448" y2="49" marker-end="url(#cfg-ah)"/>
+      <line class="ln" x1="537" y1="78" x2="537" y2="160" marker-end="url(#cfg-ah)"/>
+      <text x="547" y="118" class="lab">is the jar present?</text>
+      <line class="ln" x1="195" y1="191" x2="233" y2="191" marker-end="url(#cfg-ah)"/>
+      <line class="ln" x1="410" y1="191" x2="448" y2="191" marker-end="url(#cfg-ah)"/>
+      <text x="300" y="150" class="lab">are the settings present?</text>
+      <line class="ln" x1="625" y1="191" x2="658" y2="191" marker-end="url(#cfg-ah)"/>
+    </svg>
+  </div>
+  <p class="prose">Click any part of either file to see what it changes and the exact error you get when it is missing or wrong.</p>
+  <div class="files">
+    <div class="file lc-cfg"><div class="file-head"><b>pom.xml</b><span>build time</span></div><div class="file-body" id="pom-file"></div></div>
+    <div class="file lc-cfg"><div class="file-head"><b>src/main/resources/application.properties</b><span>run time</span></div><div class="file-body" id="props-file"></div></div>
+  </div>
+  <div class="panel" id="cfg-panel" aria-live="polite"></div>
+</section>
+
+<!-- 4 ENTITY -->
+<section class="sec" id="entity">
+  <h2><span class="n">4</span>From @Entity to a table</h2>
+  <p class="intro">An <code>@Entity</code> class is a description of a table written in Java. At startup Hibernate reads its annotations and, depending on <code>ddl-auto</code>, turns them into a <code>CREATE TABLE</code>. Click a line on either side to see how it maps.</p>
+  <div class="emap">
+    <div class="file lc-jpa"><div class="file-head"><b>entity/Movie.java</b><span>what you write</span></div><div class="file-body" id="ent-java"></div></div>
+    <div class="file lc-db"><div class="file-head"><b>DDL Hibernate generates</b><span>PostgreSQL</span></div><div class="file-body" id="ent-ddl"></div></div>
+  </div>
+  <div class="panel" id="ent-panel" aria-live="polite"></div>
+  <p class="small">Hibernate 6 may print the columns in a different order from the fields (it groups them by type). Column order has no effect on how SQL works.</p>
+<pre class="code" data-lang="java" data-title="entity/Genre.java"><script type="text/plain">
+public enum Genre {
+    ACTION, COMEDY, DRAMA, THRILLER, SCI_FI
+}
+</script></pre>
+
+  <h3>spring.jpa.hibernate.ddl-auto: what Hibernate does to the schema</h3>
+  <p class="prose">This one property decides whether your tables survive a restart. ddl-auto only ever goes from Java to the database: it creates tables from classes, never classes from tables.</p>
+  <div class="seg" role="group" aria-label="ddl-auto value" id="ddl-seg"></div>
+  <div class="ddl-res"><div class="panel" id="ddl-panel" style="margin-top:0"></div><div id="ddl-sql"></div></div>
+</section>
+
+<!-- 5 SQL -->
+<section class="sec" id="sql">
+  <h2><span class="n">5</span>Who writes the SQL</h2>
+  <p class="intro">Your service calls a repository method and a SQL statement reaches PostgreSQL. Four libraries sit between those two points, and each has exactly one job.</p>
+  <div class="note"><strong>The one-line mental model.</strong> JPA is to Hibernate what <code>List</code> is to <code>ArrayList</code>. JPA (<code>jakarta.persistence</code>) is the specification: annotations, the <code>EntityManager</code> interface and the JPQL query language, with no code that talks to a database. Hibernate is the implementation that generates and runs SQL. Spring Data JPA sits on top and writes the repository class for you.</div>
+  <p class="prose">Pick a call and read down the pipeline. Notice where the language changes: Spring Data and JPA speak in <em>classes and fields</em> (<code>Movie</code>, <code>m.releaseYear</code>); from Hibernate down it is <em>tables and columns</em> (<code>movies</code>, <code>release_year</code>).</p>
+  <div id="pipe-picks"></div>
+  <div class="pipe" id="pipe" aria-live="polite"></div>
+</section>
+
+<!-- 6 REPOSITORY -->
+<section class="sec" id="repository">
+  <h2><span class="n">6</span>@Repository and its built-in methods</h2>
+  <p class="intro">Three lines give you more than 25 working data-access methods. The two type arguments tell Spring Data which entity the repository manages and the Java type of its <code>@Id</code>.</p>
+<pre class="code" data-lang="java" data-title="repository/MovieRepository.java"><script type="text/plain">
+@Repository
+public interface MovieRepository extends JpaRepository<Movie, Long> {
+    // JpaRepository<Movie, Long>  =  <entity type, type of its @Id field>
+}
+</script></pre>
+
+  <h3>Where the methods come from</h3>
+  <div class="tree">
+    <ul>
+      <li><b>Repository&lt;T, ID&gt;</b><span>marker: tells Spring Data “build an implementation of this”</span>
+        <ul>
+          <li><b>CrudRepository</b><span>save, saveAll, findById, existsById, findAll, findAllById, count, deleteById, delete, deleteAll</span>
+            <ul><li><b>ListCrudRepository</b><span>the same methods, returning List instead of Iterable</span></li></ul></li>
+          <li><b>PagingAndSortingRepository</b><span>findAll(Sort), findAll(Pageable)</span>
+            <ul><li><b>ListPagingAndSortingRepository</b><span>findAll(Sort) returning List</span></li></ul></li>
+        </ul>
+      </li>
+      <li><b>QueryByExampleExecutor</b><span>findAll(Example): query by a sample object</span></li>
+      <li><b>JpaRepository&lt;T, ID&gt;</b><span>combines the three List interfaces above and adds flush, saveAndFlush, saveAllAndFlush, deleteAllInBatch, getReferenceById</span>
+        <ul><li class="yours"><b>MovieRepository</b><span>yours: inherits everything above, plus the custom methods you add</span></li></ul></li>
+    </ul>
+  </div>
+  <div class="note"><strong>Where is the implementation class?</strong> You never write <code>MovieRepositoryImpl</code>. At startup Spring Data creates a proxy object that implements your interface and forwards every built-in call to <code>SimpleJpaRepository&lt;Movie, Long&gt;</code>, a real class inside the spring-data-jpa jar. Print <code>movieRepository.getClass()</code> and you will see a generated name such as <code>jdk.proxy2.$Proxy118</code>.</div>
+  <div class="note"><strong>Is @Repository required here?</strong> No. Extending <code>JpaRepository</code> is enough for Spring Data to find the interface; teams often keep the annotation as documentation. On a hand-written DAO class (like your HashMap repository) <code>@Repository</code> does real work: it registers the bean and translates raw <code>SQLException</code>s into Spring’s <code>DataAccessException</code> family.</div>
+
+  <h3>Built-in methods and the SQL each one sends</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Method</th><th>Returns</th><th>SQL sent</th><th>Watch out for</th></tr></thead>
+    <tbody>
+      <tr><td><code>save(movie)</code></td><td><code>Movie</code></td><td>INSERT if id is null; otherwise SELECT, then UPDATE at commit</td><td>Use the returned object: merge returns a managed copy.</td></tr>
+      <tr><td><code>saveAll(movies)</code></td><td><code>List&lt;Movie&gt;</code></td><td>One INSERT per movie</td><td>IDENTITY ids switch off JDBC insert batching.</td></tr>
+      <tr><td><code>findById(id)</code></td><td><code>Optional&lt;Movie&gt;</code></td><td><code>select … where m1_0.id=?</code></td><td>Checks the persistence context first. Never returns null.</td></tr>
+      <tr><td><code>findAll()</code></td><td><code>List&lt;Movie&gt;</code></td><td><code>select … from movies m1_0</code></td><td>Loads every row. Page large tables.</td></tr>
+      <tr><td><code>findAll(Sort)</code></td><td><code>List&lt;Movie&gt;</code></td><td><code>… order by m1_0.rating desc</code></td><td><code>Sort.by("rating").descending()</code> uses field names.</td></tr>
+      <tr><td><code>findAll(Pageable)</code></td><td><code>Page&lt;Movie&gt;</code></td><td>Page query with <code>offset ? rows fetch first ? rows only</code>, plus a <code>count</code> query</td><td>Pages start at 0, not 1.</td></tr>
+      <tr><td><code>findAllById(ids)</code></td><td><code>List&lt;Movie&gt;</code></td><td><code>… where m1_0.id in (?,?,?)</code></td><td>Missing ids are skipped silently.</td></tr>
+      <tr><td><code>existsById(id)</code></td><td><code>boolean</code></td><td><code>select count(*) … where m1_0.id=?</code></td><td>Cheaper than <code>findById</code> for a yes/no answer.</td></tr>
+      <tr><td><code>count()</code></td><td><code>long</code></td><td><code>select count(*) from movies m1_0</code></td><td>Exact count; slow on huge tables.</td></tr>
+      <tr><td><code>deleteById(id)</code></td><td><code>void</code></td><td>SELECT by id, then <code>delete from movies where id=?</code></td><td>A missing id does nothing: no exception.</td></tr>
+      <tr><td><code>delete(movie)</code></td><td><code>void</code></td><td><code>delete from movies where id=?</code></td><td>The object needs an id.</td></tr>
+      <tr><td><code>deleteAll()</code></td><td><code>void</code></td><td>One SELECT, then one DELETE per row</td><td><code>deleteAllInBatch()</code> sends a single DELETE.</td></tr>
+      <tr><td><code>deleteAllInBatch()</code></td><td><code>void</code></td><td><code>delete from movies</code></td><td>Bypasses the persistence context.</td></tr>
+      <tr><td><code>getReferenceById(id)</code></td><td><code>Movie</code> proxy</td><td>None until a field is read</td><td>Fails on first access if the id does not exist.</td></tr>
+      <tr><td><code>saveAndFlush(movie)</code></td><td><code>Movie</code></td><td>INSERT or UPDATE sent immediately</td><td>Surfaces constraint errors inside the method.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>How save() decides between INSERT and UPDATE</h3>
+  <div class="fc">
+    <div class="box"><code>movieRepository.save(movie)</code></div>
+    <div class="dn" aria-hidden="true">↓</div>
+    <div class="box q">Is <code>movie.getId()</code> null?</div>
+    <div class="row2">
+      <div class="col">
+        <div class="br">Yes: a new movie</div>
+        <div class="box"><code>entityManager.persist(movie)</code></div>
+        <div class="dn" aria-hidden="true">↓</div>
+        <div class="box ins"><b>INSERT</b> right away (IDENTITY needs the id now); the id is written back into the same object</div>
+      </div>
+      <div class="col">
+        <div class="br">No: an existing movie</div>
+        <div class="box"><code>entityManager.merge(movie)</code></div>
+        <div class="dn" aria-hidden="true">↓</div>
+        <div class="box q">Already loaded in this transaction?</div>
+        <div class="row2b"><div class="box">Yes: no SELECT</div><div class="box">No: SELECT by id, then copy your values onto it</div></div>
+        <div class="dn" aria-hidden="true">↓</div>
+        <div class="box upd"><b>UPDATE</b> at commit, and only if a value actually changed (dirty checking)</div>
+      </div>
+    </div>
+  </div>
+  <p class="prose">This is why the update in section 8 loads the movie with <code>findById</code> first: the 404 check happens up front, and the later <code>save()</code> needs no second SELECT. It is also why the id should be a wrapper type (<code>Long</code>): <code>null</code> is how Spring Data recognises a new object.</p>
+</section>
+
+<!-- 7 CUSTOM -->
+<section class="sec" id="custom">
+  <h2><span class="n">7</span>Custom query methods</h2>
+  <p class="intro">When the built-ins are not enough, you add method signatures to the same interface, with no implementation. Spring Data inspects each one at startup and picks a strategy: parse the method name, use your <code>@Query</code>, or send your native SQL as written.</p>
+
+  <h3>Anatomy of a derived method name</h3>
+  <div class="anat" aria-label="findTop5ByGenreAndRatingGreaterThanEqualOrderByRatingDesc broken into parts">
+    <span class="tk tc-subj"><span>findTop5</span><small>subject, max 5 rows</small></span>
+    <span class="tk tc-kw"><span>By</span><small>conditions start</small></span>
+    <span class="tk tc-prop"><span>Genre</span><small>m.genre = ?1</small></span>
+    <span class="tk tc-kw"><span>And</span><small>both must match</small></span>
+    <span class="tk tc-prop"><span>Rating</span><small>field m.rating</small></span>
+    <span class="tk tc-op"><span>GreaterThanEqual</span><small>&gt;= ?2</small></span>
+    <span class="tk tc-kw"><span>OrderBy</span><small>sorting starts</small></span>
+    <span class="tk tc-prop"><span>Rating</span><small>sort field</small></span>
+    <span class="tk tc-dir"><span>Desc</span><small>highest first</small></span>
+    <span class="tk plain"><span>(Genre genre, Double rating)</span><small>parameters in order</small></span>
+  </div>
+  <div class="legend"><span class="tc-subj"><i></i>subject</span><span class="tc-prop"><i></i>entity field</span><span class="tc-op"><i></i>operator</span><span class="tc-dir"><i></i>direction</span><span class="tc-kw"><i></i>connector</span></div>
+  <p class="prose" style="margin-top:12px">Field names are the Java field names from <code>Movie</code>, capitalised (<code>releaseYear</code> → <code>ReleaseYear</code>), never column names. Parameters bind by position, so their order must match the order of the conditions.</p>
+
+  <h3>Build one yourself</h3>
+  <p class="prose">Choose the parts; the method name, JPQL and SQL update together. Spring validates the name at startup, so a typo such as <code>findByTitel</code> stops the application with <code>No property 'titel' found for type 'Movie'</code> before any request is served.</p>
+  <div class="bld">
+    <label>Return<select id="b-subj">
+      <option value="find">find… returns List</option>
+      <option value="findFirst">findFirst… returns Optional</option>
+      <option value="findTop5">findTop5… returns List</option>
+      <option value="count">count… returns long</option>
+      <option value="exists">exists… returns boolean</option>
+      <option value="delete">delete… returns void</option>
+    </select></label>
+    <label>Field<select id="b-p1"></select></label>
+    <label>Condition<select id="b-o1"></select></label>
+    <label>Join<select id="b-conn"><option value="">none</option><option value="And">And</option><option value="Or">Or</option></select></label>
+    <label>Second field<select id="b-p2"></select></label>
+    <label>Second condition<select id="b-o2"></select></label>
+    <label>Order by<select id="b-ord"><option value="">none</option><option value="RatingDesc">rating, highest first</option><option value="TitleAsc">title, A to Z</option><option value="ReleaseYearDesc">release year, newest first</option></select></label>
+  </div>
+  <div class="mname" id="b-name" aria-live="polite"></div>
+  <div class="bout">
+    <div><h4>Signature in MovieRepository</h4><div id="b-sig"></div><h4>Calling it from the service</h4><div id="b-call"></div></div>
+    <div><h4>JPQL Spring Data builds</h4><div id="b-jpql"></div><h4>SQL Hibernate sends</h4><div id="b-sql"></div></div>
+  </div>
+  <p class="small" id="b-note"></p>
+
+  <h3>Keyword cheat sheet</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Keyword</th><th>Example method</th><th>JPQL it produces</th></tr></thead>
+    <tbody>
+      <tr><td>And, Or</td><td><code>findByGenreAndAvailableTrue</code></td><td><code>m.genre = ?1 and m.available = true</code></td></tr>
+      <tr><td>Is, Equals</td><td><code>findByTitle</code>, <code>findByTitleIs</code></td><td><code>m.title = ?1</code></td></tr>
+      <tr><td>Not</td><td><code>findByGenreNot</code></td><td><code>m.genre &lt;&gt; ?1</code></td></tr>
+      <tr><td>Between</td><td><code>findByReleaseYearBetween</code></td><td><code>m.releaseYear between ?1 and ?2</code></td></tr>
+      <tr><td>LessThan, LessThanEqual</td><td><code>findByRatingLessThan</code></td><td><code>m.rating &lt; ?1</code></td></tr>
+      <tr><td>GreaterThan, GreaterThanEqual</td><td><code>findByRatingGreaterThanEqual</code></td><td><code>m.rating &gt;= ?1</code></td></tr>
+      <tr><td>After, Before</td><td><code>findByCreatedAtAfter</code></td><td><code>m.createdAt &gt; ?1</code></td></tr>
+      <tr><td>IsNull, IsNotNull</td><td><code>findByRatingIsNull</code></td><td><code>m.rating is null</code></td></tr>
+      <tr><td>Like, NotLike</td><td><code>findByTitleLike("In%")</code></td><td><code>m.title like ?1</code> (you supply the %)</td></tr>
+      <tr><td>StartingWith, EndingWith, Containing</td><td><code>findByTitleContaining</code></td><td><code>m.title like ?1</code> bound as <code>%value%</code></td></tr>
+      <tr><td>IgnoreCase</td><td><code>findByTitleIgnoreCase</code></td><td><code>upper(m.title) = upper(?1)</code></td></tr>
+      <tr><td>In, NotIn</td><td><code>findByGenreIn(List&lt;Genre&gt;)</code></td><td><code>m.genre in ?1</code></td></tr>
+      <tr><td>True, False</td><td><code>findByAvailableTrue</code></td><td><code>m.available = true</code></td></tr>
+      <tr><td>OrderBy…Asc, Desc</td><td><code>findByGenreOrderByRatingDesc</code></td><td><code>… order by m.rating desc</code></td></tr>
+      <tr><td>First, Top, TopN</td><td><code>findFirstByOrderByCreatedAtDesc</code></td><td>Row limit set on the query</td></tr>
+      <tr><td>Distinct</td><td><code>findDistinctByGenre</code></td><td><code>select distinct m …</code></td></tr>
+      <tr><td>countBy, existsBy, deleteBy</td><td><code>countByGenre</code></td><td><code>select count(m) … where m.genre = ?1</code></td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Three ways to write a custom query, side by side</h3>
+<pre class="code" data-lang="java" data-title="repository/MovieRepository.java (complete)"><script type="text/plain">
+@Repository
+public interface MovieRepository extends JpaRepository<Movie, Long> {
+
+    // 1. Derived queries: Spring reads the method name
+    Optional<Movie> findByTitleIgnoreCase(String title);
+    List<Movie> findByGenre(Genre genre);
+    List<Movie> findByTitleContainingIgnoreCase(String keyword);
+    List<Movie> findTop5ByGenreOrderByRatingDesc(Genre genre);
+    boolean existsByTitleIgnoreCase(String title);
+    long countByAvailableTrue();
+
+    // 2. JPQL: written against the Movie class and its fields
+    @Query("SELECT m FROM Movie m WHERE m.releaseYear BETWEEN :startYear AND :endYear")
+    List<Movie> findReleasedBetween(@Param("startYear") Integer startYear,
+                                    @Param("endYear") Integer endYear);
+
+    // 3. Native SQL: sent to PostgreSQL exactly as written
+    @Query(value = "SELECT * FROM movies WHERE rating >= :min ORDER BY random() LIMIT 1",
+           nativeQuery = true)
+    Optional<Movie> pickRandomGoodMovie(@Param("min") Double min);
+
+    // 4. Modifying JPQL: UPDATE or DELETE, returns the number of rows changed
+    @Modifying
+    @Transactional
+    @Query("UPDATE Movie m SET m.available = false WHERE m.genre = :genre")
+    int retireGenre(@Param("genre") Genre genre);
+}
+</script></pre>
+  <div class="tbl"><table>
+    <thead><tr><th></th><th>Derived name</th><th>@Query JPQL</th><th>@Query native</th><th>Specification</th></tr></thead>
+    <tbody>
+      <tr><td>Effort</td><td>Lowest: just a name</td><td>Medium</td><td>Medium</td><td>Highest: extra classes</td></tr>
+      <tr><td>Checked at startup</td><td>Yes, every field name</td><td>Yes, the JPQL is parsed</td><td>No: errors appear on the first call</td><td>At compile time with the generated metamodel</td></tr>
+      <tr><td>Moves to MySQL unchanged</td><td>Yes</td><td>Yes</td><td>No</td><td>Yes</td></tr>
+      <tr><td>Readable past 2 conditions</td><td>Poor: names get very long</td><td>Good</td><td>Good</td><td>Good</td></tr>
+      <tr><td>Database-specific features</td><td>No</td><td>Limited</td><td>Yes: <code>random()</code>, window functions, <code>jsonb</code></td><td>No</td></tr>
+      <tr><td>Best for</td><td>Simple lookups</td><td>Fixed multi-condition queries and joins</td><td>Reports and PostgreSQL-only features</td><td>Search screens where any filter may be left blank</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note ind"><strong>Recommendation.</strong> Use derived names for one or two conditions. Move to JPQL when the name stops reading like a sentence. Reach for native SQL only for something JPQL cannot express, and for Specifications when users can combine optional filters. Any <code>@Modifying</code> query needs a transaction and skips the persistence context, so objects already loaded in the same transaction keep their old values unless you set <code>clearAutomatically = true</code>.</div>
+</section>
+
+<!-- 8 SERVICE -->
+<section class="sec" id="service">
+  <h2><span class="n">8</span>@Service: the business rules</h2>
+  <p class="intro">The service is where StreamHub’s rules live: a title is required, ratings run from 0 to 10, titles are unique. It calls the repository, knows nothing about HTTP, and draws the transaction boundary.</p>
+<pre class="code" data-lang="java" data-title="service/MovieService.java"><script type="text/plain">
+public interface MovieService {
+    Movie createMovie(Movie movie);
+    List<Movie> getAllMovies();
+    Movie getMovieById(Long id);
+    Movie updateMovie(Long id, Movie changes);
+    void deleteMovie(Long id);
+    List<Movie> searchByTitle(String keyword);
+}
+</script></pre>
+<pre class="code" data-lang="java" data-title="service/impl/MovieServiceImpl.java"><script type="text/plain">
+@Service
+public class MovieServiceImpl implements MovieService {
+
+    private final MovieRepository movieRepository;
+
+    public MovieServiceImpl(MovieRepository movieRepository) {
+        this.movieRepository = movieRepository;
+    }
+
+    @Override
+    @Transactional
+    public Movie createMovie(Movie movie) {
+        validate(movie);
+        if (movieRepository.existsByTitleIgnoreCase(movie.getTitle())) {
+            throw new DuplicateMovieException(movie.getTitle());
+        }
+        return movieRepository.save(movie);              // INSERT
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Movie> getAllMovies() {
+        return movieRepository.findAll();                // empty list is a valid answer
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public Movie getMovieById(Long id) {
+        return movieRepository.findById(id)
+                .orElseThrow(() -> new MovieNotFoundException(id));
+    }
+
+    @Override
+    @Transactional
+    public Movie updateMovie(Long id, Movie changes) {
+        Movie existing = getMovieById(id);               // 404 if missing
+        validate(changes);
+        existing.setTitle(changes.getTitle());
+        existing.setGenre(changes.getGenre());
+        existing.setReleaseYear(changes.getReleaseYear());
+        existing.setRating(changes.getRating());
+        existing.setAvailable(changes.getAvailable());
+        return movieRepository.save(existing);           // UPDATE happens at commit
+    }
+
+    @Override
+    @Transactional
+    public void deleteMovie(Long id) {
+        if (!movieRepository.existsById(id)) {
+            throw new MovieNotFoundException(id);
+        }
+        movieRepository.deleteById(id);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Movie> searchByTitle(String keyword) {
+        return movieRepository.findByTitleContainingIgnoreCase(keyword);
+    }
+
+    private void validate(Movie movie) {
+        if (movie.getTitle() == null || movie.getTitle().isBlank()) {
+            throw new InvalidMovieException("Title is required");
+        }
+        if (movie.getGenre() == null) {
+            throw new InvalidMovieException("Genre is required");
+        }
+        if (movie.getRating() != null && (movie.getRating() < 0 || movie.getRating() > 10)) {
+            throw new InvalidMovieException("Rating must be between 0 and 10");
+        }
+    }
+}
+</script></pre>
+<pre class="code" data-lang="java" data-title="exception/MovieNotFoundException.java (Duplicate and Invalid follow the same shape)"><script type="text/plain">
+public class MovieNotFoundException extends RuntimeException {
+    public MovieNotFoundException(Long id) {
+        super("Movie " + id + " not found");
+    }
+}
+
+public class DuplicateMovieException extends RuntimeException {
+    public DuplicateMovieException(String title) {
+        super("Movie already exists: " + title);
+    }
+}
+</script></pre>
+
+  <h3>The rule pipeline inside createMovie()</h3>
+  <div class="strip">
+    <div class="st lc-svc">validate(movie)<small>fails: InvalidMovieException, 400</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-repo">existsByTitleIgnoreCase()<small>true: DuplicateMovieException, 409</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-repo">save(movie)<small>INSERT, id generated</small></div><span class="ar" aria-hidden="true">→</span>
+    <div class="st lc-ctrl">return saved<small>controller answers 201</small></div>
+  </div>
+  <p class="prose">The cheapest check runs first: validation needs no database, so an invalid movie costs zero SQL statements. Watch the Create, Invalid rating scenario in the visualizer to see it.</p>
+
+  <h3>Why it is written this way</h3>
+  <div class="tbl wrapc"><table>
+    <thead><tr><th>Choice</th><th>Why</th><th>Trade-off</th></tr></thead>
+    <tbody>
+      <tr><td>Interface plus implementation</td><td>The controller depends on <code>MovieService</code>, so tests can mock it, and Spring can wrap the implementation in a transaction proxy.</td><td>One more file. Many teams skip the interface when only one implementation will ever exist.</td></tr>
+      <tr><td>Constructor injection into a <code>final</code> field</td><td>The dependency can never be null or replaced later, and a unit test can pass a fake with plain <code>new</code>.</td><td>None worth worrying about. Field injection with <code>@Autowired</code> is the older style.</td></tr>
+      <tr><td><code>@Transactional</code> on service methods</td><td>One business operation is one transaction, even when it makes several repository calls (exists check, then save).</td><td>A pooled connection is held for the whole method, so keep slow work such as HTTP calls outside it.</td></tr>
+      <tr><td><code>readOnly = true</code> on reads</td><td>Hibernate skips change tracking for the objects it loads.</td><td>Changes made inside a read-only method are silently not written.</td></tr>
+      <tr><td>Exceptions extend <code>RuntimeException</code></td><td><code>@Transactional</code> rolls back on unchecked exceptions by default.</td><td>A checked exception commits unless you add <code>rollbackFor</code>.</td></tr>
+      <tr><td>Throws domain exceptions, never returns <code>ResponseEntity</code></td><td>The same service can serve REST, a scheduled job or a message listener.</td><td>Someone must map each exception to a status: the controller here, a <code>@RestControllerAdvice</code> in industry.</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note warn"><strong>Two @Transactional traps.</strong> Import <code>org.springframework.transaction.annotation.Transactional</code>; the <code>jakarta.transaction</code> version has no <code>readOnly</code>. And a call from one method to another inside the same class skips the proxy: when <code>updateMovie()</code> calls <code>getMovieById()</code>, that inner <code>readOnly</code> is ignored. Here that is exactly right, because the outer write transaction is already open.</div>
+</section>
+
+<!-- 9 CONTROLLER -->
+<section class="sec" id="controller">
+  <h2><span class="n">9</span>@RestController: the HTTP edge</h2>
+  <p class="intro">The controller translates between HTTP and Java and nothing else. Every part of a request maps to one annotation; click a part to see which.</p>
+  <div class="url" id="url-anat"></div>
+  <div class="panel" id="url-panel" aria-live="polite"></div>
+<pre class="code" data-lang="java" data-title="controller/MovieController.java"><script type="text/plain">
+@RestController
+@RequestMapping("/api/movies")
+@CrossOrigin(origins = {"http://localhost:3000", "http://localhost:4200"})
+public class MovieController {
+
+    private final MovieService movieService;
+
+    public MovieController(MovieService movieService) {
+        this.movieService = movieService;
+    }
+
+    @PostMapping
+    public ResponseEntity<?> createMovie(@RequestBody Movie movie) {
+        try {
+            Movie saved = movieService.createMovie(movie);
+            return ResponseEntity.status(HttpStatus.CREATED).body(saved);             // 201
+        } catch (InvalidMovieException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());                  // 400
+        } catch (DuplicateMovieException e) {
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());   // 409
+        }
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Movie>> getAllMovies() {
+        return ResponseEntity.ok(movieService.getAllMovies());                        // 200
+    }
+
+    @GetMapping("/{id}")
+    public ResponseEntity<?> getMovieById(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(movieService.getMovieById(id));                  // 200
+        } catch (MovieNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());  // 404
+        }
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie movie) {
+        try {
+            return ResponseEntity.ok(movieService.updateMovie(id, movie));            // 200
+        } catch (MovieNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());  // 404
+        } catch (InvalidMovieException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());                  // 400
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
+        try {
+            movieService.deleteMovie(id);
+            return ResponseEntity.noContent().build();                                // 204
+        } catch (MovieNotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());  // 404
+        }
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<List<Movie>> searchMovies(@RequestParam String title) {
+        return ResponseEntity.ok(movieService.searchByTitle(title));                  // 200
+    }
+}
+</script></pre>
+
+  <h3>Mapping annotations and the status each should return</h3>
+  <div class="tbl"><table>
+    <thead><tr><th>Annotation</th><th>Use it to</th><th>Request body</th><th>Success</th><th>Same result if repeated?</th></tr></thead>
+    <tbody>
+      <tr><td><code>@GetMapping</code></td><td>Read one or many</td><td>None</td><td>200 OK</td><td>Yes</td></tr>
+      <tr><td><code>@PostMapping</code></td><td>Create</td><td>The new movie</td><td>201 Created</td><td>No: each call creates another row</td></tr>
+      <tr><td><code>@PutMapping</code></td><td>Replace the whole movie</td><td>Every field</td><td>200 OK</td><td>Yes</td></tr>
+      <tr><td><code>@PatchMapping</code></td><td>Change some fields</td><td>Only the changed fields</td><td>200 OK</td><td>Usually</td></tr>
+      <tr><td><code>@DeleteMapping</code></td><td>Remove</td><td>None</td><td>204 No Content</td><td>Yes (the second call gets 404, the state is the same)</td></tr>
+    </tbody>
+  </table></div>
+  <div class="note"><strong>Things Spring answers before your code runs.</strong> <code>/api/movies/abc</code> cannot become a <code>Long</code>, so the response is 400. A missing <code>?title=</code> on <code>/search</code> is 400. Malformed JSON is 400. A wrong verb, such as <code>PATCH</code> on an endpoint that has none, is 405 Method Not Allowed.</div>
+  <div class="note"><strong>Why @CrossOrigin is there.</strong> React (port 3000) and Angular (port 4200) run on a different origin from port 8080, so the browser blocks their calls unless the server allows them. The annotation is the quick fix; in Phase 3 this moves into one CORS configuration alongside Spring Security.</div>
+</section>
+
+<!-- 10 CRUD -->
+<section class="sec" id="crud">
+  <h2><span class="n">10</span>The CRUD map</h2>
+  <p class="intro">One row per endpoint, read left to right from the top layer to the bottom. Press Watch to replay that row in the visualizer at the top of the page.</p>
+  <div class="tbl"><table>
+    <thead><tr><th>Operation</th><th>Request</th><th>Controller</th><th>Service</th><th>Repository</th><th>SQL</th><th>Success</th><th>Errors</th><th></th></tr></thead>
+    <tbody>
+      <tr><td>Create</td><td><span class="verb lc-ctrl">POST</span> <code>/api/movies</code></td><td><code>createMovie</code></td><td>validate, duplicate check</td><td><code>existsByTitleIgnoreCase</code>, <code>save</code></td><td>SELECT, INSERT</td><td>201</td><td>400, 409</td><td><button class="watch" type="button" data-op="create" data-sc="ok">Watch</button></td></tr>
+      <tr><td>Read all</td><td><span class="verb lc-repo">GET</span> <code>/api/movies</code></td><td><code>getAllMovies</code></td><td>read-only transaction</td><td><code>findAll</code></td><td>SELECT</td><td>200 (may be <code>[]</code>)</td><td>none</td><td><button class="watch" type="button" data-op="readAll" data-sc="ok">Watch</button></td></tr>
+      <tr><td>Read one</td><td><span class="verb lc-repo">GET</span> <code>/api/movies/{id}</code></td><td><code>getMovieById</code></td><td><code>orElseThrow</code></td><td><code>findById</code></td><td>SELECT by id</td><td>200</td><td>404</td><td><button class="watch" type="button" data-op="readOne" data-sc="nf">Watch</button></td></tr>
+      <tr><td>Update</td><td><span class="verb lc-jpa">PUT</span> <code>/api/movies/{id}</code></td><td><code>updateMovie</code></td><td>load, validate, copy fields</td><td><code>findById</code>, <code>save</code></td><td>SELECT, UPDATE at commit</td><td>200</td><td>400, 404</td><td><button class="watch" type="button" data-op="update" data-sc="ok">Watch</button></td></tr>
+      <tr><td>Delete</td><td><span class="verb lc-cfg">DELETE</span> <code>/api/movies/{id}</code></td><td><code>deleteMovie</code></td><td>existence check</td><td><code>existsById</code>, <code>deleteById</code></td><td>SELECT count, SELECT, DELETE</td><td>204</td><td>404</td><td><button class="watch" type="button" data-op="del" data-sc="ok">Watch</button></td></tr>
+      <tr><td>Search</td><td><span class="verb lc-repo">GET</span> <code>/api/movies/search?title=</code></td><td><code>searchMovies</code></td><td>pass-through</td><td><code>findByTitleContainingIgnoreCase</code></td><td>SELECT … LIKE</td><td>200</td><td>400 if title is missing</td><td><button class="watch" type="button" data-op="search" data-sc="ok">Watch</button></td></tr>
+    </tbody>
+  </table></div>
+  <h3>Try it against your running app</h3>
+<pre class="code" data-lang="bash" data-title="terminal"><script type="text/plain">
+# Create (201)
+curl -i -X POST http://localhost:8080/api/movies \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Interstellar","genre":"SCI_FI","releaseYear":2014,"rating":8.7}'
+
+# Read all (200)
+curl -i http://localhost:8080/api/movies
+
+# Read one (200, or 404 for an unknown id)
+curl -i http://localhost:8080/api/movies/8
+
+# Update (200)
+curl -i -X PUT http://localhost:8080/api/movies/8 \
+  -H "Content-Type: application/json" \
+  -d '{"title":"Interstellar","genre":"SCI_FI","releaseYear":2014,"rating":9.0,"available":true}'
+
+# Search (200)
+curl -i "http://localhost:8080/api/movies/search?title=inter"
+
+# Delete (204)
+curl -i -X DELETE http://localhost:8080/api/movies/8
+</script></pre>
+  <p class="small">On Windows, run these in Git Bash, or use Postman with the same method, URL and JSON body. The <code>-i</code> flag prints the status line and headers so you can check each status code.</p>
+</section>
+
+<!-- 11 INDUSTRY -->
+<section class="sec" id="industry">
+  <h2><span class="n">11</span>How teams build it</h2>
+  <p class="intro">Everything above is how Spring Boot works. This section is how professional teams arrange the same pieces, and what each upgrade costs.</p>
+
+  <h3>The order a team builds a new CRUD feature</h3>
+  <ol class="seq">
+    <li><div><b>Agree the API contract.</b> URL, request and response JSON, status codes, often written as an OpenAPI file that the React and Angular developers review.</div></li>
+    <li><div><b>Write the migration.</b> <code>V3__create_movies.sql</code> in <code>src/main/resources/db/migration</code>, run by Flyway. The schema is versioned in Git like code.</div></li>
+    <li><div><b>Map the entity.</b> <code>Movie</code> mirrors that table; <code>ddl-auto=validate</code> fails startup if the two disagree.</div></li>
+    <li><div><b>Add the repository.</b> Extend <code>JpaRepository</code>; add custom queries only when a use case needs them.</div></li>
+    <li><div><b>Define DTOs and a mapper.</b> <code>MovieRequest</code> and <code>MovieResponse</code> as Java records, with validation annotations on the request.</div></li>
+    <li><div><b>Write the service and its unit tests.</b> Business rules plus <code>@Transactional</code>, tested with Mockito and no database.</div></li>
+    <li><div><b>Write a thin controller.</b> <code>@Valid</code> on the request body, tested with <code>@WebMvcTest</code> and a mocked service.</div></li>
+    <li><div><b>Register error handling.</b> New exceptions get a mapping in the shared <code>@RestControllerAdvice</code>.</div></li>
+    <li><div><b>Open a pull request.</b> CI (GitHub Actions, Phase 4) builds and runs every test; a reviewer approves; the branch merges.</div></li>
+  </ol>
+
+  <h3>Package layout: two options</h3>
+  <div class="files">
+<pre class="code" data-lang="tree" data-title="Option A: package by layer"><script type="text/plain">
+com.streamhub
+├── StreamhubApplication.java
+├── config/       CorsConfig
+├── controller/   MovieController
+├── dto/          MovieRequest, MovieResponse
+├── entity/       Movie, Genre
+├── exception/    MovieNotFoundException, GlobalExceptionHandler
+├── mapper/       MovieMapper
+├── repository/   MovieRepository
+└── service/      MovieService
+    └── impl/     MovieServiceImpl
+</script></pre>
+<pre class="code" data-lang="tree" data-title="Option B: package by feature"><script type="text/plain">
+com.streamhub
+├── StreamhubApplication.java
+├── movie/
+│   ├── MovieController, MovieService, MovieServiceImpl
+│   ├── MovieRepository, Movie, Genre
+│   └── dto/  MovieRequest, MovieResponse
+├── user/
+│   └── ...
+└── common/
+    ├── config/
+    └── exception/   GlobalExceptionHandler
+</script></pre>
+  </div>
+  <p class="prose">Option A matches most tutorials and makes each layer easy to find while you are learning. Option B keeps everything about one feature in one folder, which makes it far easier to split the monolith into Auth, Content and User services in Phase 5. A reasonable path: start with A, and switch to B once StreamHub has three or more features.</p>
+
+  <h3>Learning version and industry version</h3>
+  <div class="tbl wrapc cmp"><table>
+    <thead><tr><th>Concern</th><th>What these examples do</th><th>What teams usually do</th><th>Why, and what it costs</th></tr></thead>
+    <tbody>
+      <tr><td>Request and response shape</td><td>The <code>Movie</code> entity goes in and out as JSON</td><td><code>MovieRequest</code> and <code>MovieResponse</code> records plus a mapper</td><td>Clients cannot set <code>id</code> or <code>createdAt</code>, and table changes do not break the API. Costs mapping code (MapStruct can generate it).</td></tr>
+      <tr><td>Validation</td><td>Manual <code>if</code> checks in the service</td><td><code>@NotBlank</code>, <code>@Size</code>, <code>@Min</code> on the DTO, <code>@Valid</code> in the controller</td><td>Field rules become declarative and return 400 automatically. Rules that need the database (duplicates) still live in the service.</td></tr>
+      <tr><td>Error handling</td><td><code>try</code>/<code>catch</code> in every controller method</td><td>One <code>@RestControllerAdvice</code> returning <code>ProblemDetail</code> JSON (RFC 9457)</td><td>One consistent error format and no repeated catch blocks. Costs visibility: the status for each exception is no longer next to the endpoint, which is why try/catch is a good way to learn the mapping first.</td></tr>
+      <tr><td>Schema changes</td><td><code>ddl-auto=update</code></td><td>Flyway or Liquibase migrations with <code>ddl-auto=validate</code></td><td>Every change is versioned, reviewed and repeatable on every machine. Costs one SQL file per change.</td></tr>
+      <tr><td>Listing</td><td><code>findAll()</code></td><td><code>findAll(Pageable)</code> with a maximum page size</td><td>Response time and memory stay flat as the table grows. Clients must handle pages.</td></tr>
+      <tr><td>Empty result</td><td>Sometimes 404 for an empty list</td><td>200 with <code>[]</code></td><td>404 means the resource does not exist; an empty collection is still a valid answer.</td></tr>
+      <tr><td>Secrets and environments</td><td>One properties file</td><td><code>${DB_PASSWORD}</code> from the environment or a secrets manager; <code>application-dev</code> and <code>application-prod</code> profiles</td><td>No password in Git; the same jar runs everywhere. Costs some setup per environment.</td></tr>
+      <tr><td>SQL logging</td><td><code>spring.jpa.show-sql=true</code></td><td><code>logging.level.org.hibernate.SQL=DEBUG</code> in dev only</td><td>Goes through the logger, so it can be switched off per environment.</td></tr>
+      <tr><td>Open session in view</td><td>Default (on, with a startup warning)</td><td><code>spring.jpa.open-in-view=false</code></td><td>Database work ends with the service method, so hidden lazy-loading queries during JSON writing become visible errors.</td></tr>
+      <tr><td>Testing</td><td>Manual checks in Postman</td><td><code>@WebMvcTest</code>, <code>@DataJpaTest</code>, Testcontainers PostgreSQL</td><td>Every pull request proves the API still works. Costs test code, roughly as much as the feature itself.</td></tr>
+      <tr><td>Id generation</td><td><code>IDENTITY</code></td><td><code>SEQUENCE</code> when bulk inserts matter</td><td>Hibernate can batch inserts with sequences; IDENTITY forces one round trip per row.</td></tr>
+    </tbody>
+  </table></div>
+
+  <h3>Defaults worth knowing</h3>
+  <div class="nums">
+    <div><b>200</b><span>Tomcat worker threads at most <code>server.tomcat.threads.max</code></span></div>
+    <div><b>10</b><span>HikariCP connections in the pool <code>spring.datasource.hikari.maximum-pool-size</code></span></div>
+    <div><b>30 s</b><span>wait for a free connection before an error <code>…hikari.connection-timeout</code></span></div>
+    <div><b>20</b><span>default page size for Pageable parameters (maximum 2000)</span></div>
+    <div><b>8080</b><span>default port <code>server.port</code></span></div>
+  </div>
+  <p class="prose">Read the first two together: up to 200 requests can run at once, but only 10 can hold a database connection. A slow query or a long transaction keeps a connection busy; once all 10 are taken, every other request waits, for up to 30 seconds. That single fact explains why teams keep transactions short and never call another web service from inside <code>@Transactional</code>.</p>
+  <div class="note ind"><strong>Spring Boot 4.</strong> Boot 4.0 (November 2025) keeps every concept on this page. The visible changes are renames and upgrades: <code>spring-boot-starter-web</code> becomes <code>spring-boot-starter-webmvc</code>, Hibernate moves to 7.x and Jackson to 3.x. These examples use Boot 3.5.9 with Hibernate 6.</div>
+</section>
+
+<!-- 12 ANNOTATIONS -->
+<section class="sec" id="annotations">
+  <h2><span class="n">12</span>Annotation reference</h2>
+  <p class="intro">Every annotation on this page, grouped by the layer it belongs to, with the library that reads it. Filter by layer or search by name.</p>
+  <div class="ann-tools">
+    <div class="chips" id="ann-chips" role="group" aria-label="Filter by layer"></div>
+    <input type="search" id="ann-q" placeholder="Search, e.g. Column" aria-label="Search annotations">
+    <span class="ann-count" id="ann-count" aria-live="polite"></span>
+  </div>
+  <div class="ann-list" id="ann-list"></div>
+</section>
+
+</main>
+</div>
+<footer><div class="wrap">Built for the StreamHub curriculum. Examples use Java 21, Spring Boot 3.5.9, Hibernate 6 and PostgreSQL; the same ideas apply to MySQL with its driver and URL.</div></footer>
+
+<script>
+(function(){
+'use strict';
+var $ = function(s, r){ return (r || document).querySelector(s); };
+var $$ = function(s, r){ return Array.prototype.slice.call((r || document).querySelectorAll(s)); };
+function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+var reduceMotion = !!(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches);
+
+/* ---------- tiny syntax highlighter ---------- */
+var LANGS = {
+  java: { flags:'g', rules:[
+    ['com', /\/\/[^\n]*|\/\*[\s\S]*?\*\//.source],
+    ['str', /"(?:[^"\\\n]|\\.)*"|'(?:[^'\\\n]|\\.)'/.source],
+    ['an',  /@[A-Za-z_]\w*/.source],
+    ['kw',  /\b(?:public|private|protected|class|interface|enum|extends|implements|return|new|if|else|throw|throws|try|catch|final|static|void|import|package|null|true|false|this|for|while|boolean|int|long|double|default)\b/.source],
+    ['type',/\b[A-Z][A-Za-z0-9_]*\b/.source],
+    ['num', /\b\d+(?:\.\d+)?[LDF]?\b/.source]
+  ]},
+  sql: { flags:'gi', rules:[
+    ['com', /--[^\n]*/.source],
+    ['str', /'(?:[^'\n]|'')*'/.source],
+    ['kw',  /\b(?:select|from|where|and|or|insert|into|values|update|set|delete|create|table|alter|add|column|drop|if|exists|cascade|primary|key|not|null|unique|check|in|like|escape|order|by|desc|asc|fetch|first|rows|row|only|offset|between|count|upper|generated|default|as|identity|bigint|varchar|integer|boolean|float|timestamp|limit|random|true|false|distinct|is)\b/.source],
+    ['ph',  /\?\d*|:[A-Za-z_]\w*/.source],
+    ['num', /\b\d+(?:\.\d+)?\b/.source]
+  ]},
+  props: { flags:'gm', rules:[
+    ['com', /#[^\n]*/.source],
+    ['ph',  /\$\{[^}\n]*\}/.source],
+    ['key', /^[\w.\-\[\]]+(?=\s*=)/.source]
+  ]},
+  xml: { flags:'g', rules:[
+    ['com', /<!--[\s\S]*?-->/.source],
+    ['tag', /<\/?[\w.\-:]+|\/?>/.source]
+  ]},
+  http: { flags:'gm', rules:[
+    ['kw',  /^(?:GET|POST|PUT|PATCH|DELETE|HTTP\/1\.1)\b/.source],
+    ['key', /^[A-Za-z][\w-]*(?=:\s)/.source],
+    ['str', /"(?:[^"\\\n]|\\.)*"/.source],
+    ['num', /\b\d+(?:\.\d+)?\b/.source]
+  ]},
+  bash: { flags:'gm', rules:[
+    ['com', /^#[^\n]*/.source],
+    ['str', /'[^'\n]*'|"(?:[^"\\\n]|\\.)*"/.source],
+    ['kw',  /\bcurl\b/.source],
+    ['an',  /(?:^|\s)-[A-Za-z]\b/.source]
+  ]},
+  log: { flags:'g', rules:[
+    ['kw',  /\b(?:INFO|WARN)\b/.source],
+    ['an',  /HHH\d+/.source]
+  ]}
+};
+function hl(src, lang){
+  var R = LANGS[lang];
+  if(!R) return esc(src);
+  var re = new RegExp(R.rules.map(function(r){ return '(' + r[1] + ')'; }).join('|'), R.flags);
+  var out = '', last = 0, m;
+  while((m = re.exec(src)) !== null){
+    if(m[0] === ''){ re.lastIndex++; continue; }
+    out += esc(src.slice(last, m.index));
+    var gi = 1; while(m[gi] === undefined) gi++;
+    out += '<span class="t-' + R.rules[gi-1][0] + '">' + esc(m[0]) + '</span>';
+    last = re.lastIndex;
+  }
+  return out + esc(src.slice(last));
+}
+function codeBlock(src, lang){ return '<pre class="code"><code>' + hl(src, lang) + '</code></pre>'; }
+
+function copyText(text, btn){
+  function done(){ btn.textContent = 'Copied'; setTimeout(function(){ btn.textContent = 'Copy'; }, 1500); }
+  function fallback(){
+    var ta = document.createElement('textarea'); ta.value = text; ta.setAttribute('readonly', '');
+    ta.style.position = 'fixed'; ta.style.opacity = '0'; document.body.appendChild(ta); ta.select();
+    var ok = false; try { ok = document.execCommand('copy'); } catch(e) {}
+    document.body.removeChild(ta);
+    if(ok) done(); else { btn.textContent = 'Select the text to copy'; setTimeout(function(){ btn.textContent = 'Copy'; }, 2200); }
+  }
+  try {
+    if(navigator.clipboard && navigator.clipboard.writeText){ navigator.clipboard.writeText(text).then(done, fallback); }
+    else fallback();
+  } catch(e){ fallback(); }
+}
+function initStaticCode(){
+  $$('pre.code[data-lang]').forEach(function(pre){
+    var s = pre.querySelector('script[type="text/plain"]');
+    if(!s) return;
+    var src = s.textContent.replace(/^\s*\n/, '').replace(/\s+$/, '');
+    pre.innerHTML = '<code>' + hl(src, pre.getAttribute('data-lang')) + '</code>';
+    var title = pre.getAttribute('data-title');
+    if(title){
+      var box = document.createElement('div'); box.className = 'codebox';
+      var head = document.createElement('div'); head.className = 'cb-head';
+      var t = document.createElement('span'); t.textContent = title; head.appendChild(t);
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'copy'; b.textContent = 'Copy';
+      b.addEventListener('click', function(){ copyText(src, b); });
+      head.appendChild(b);
+      pre.parentNode.insertBefore(box, pre); box.appendChild(head); box.appendChild(pre);
+    }
+  });
+}
+
+/* ---------- theme + nav ---------- */
+function initTheme(){
+  var btn = $('#theme-btn');
+  var mq = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+  function current(){ var a = document.documentElement.getAttribute('data-theme'); return a || (mq && mq.matches ? 'dark' : 'light'); }
+  function label(){ btn.textContent = current() === 'dark' ? 'Light theme' : 'Dark theme'; }
+  label();
+  btn.addEventListener('click', function(){
+    var next = current() === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem('sb-theme', next); } catch(e) {}
+    label();
+  });
+  if(mq && mq.addEventListener) mq.addEventListener('change', label);
+}
+function goTo(id){
+  var el = document.getElementById(id);
+  if(el) el.scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth', block: 'start' });
+}
+function initNav(){
+  $$('[data-go]').forEach(function(a){
+    a.addEventListener('click', function(e){ e.preventDefault(); goTo(a.getAttribute('data-go')); });
+  });
+  var links = $$('.side a[data-go]');
+  if('IntersectionObserver' in window){
+    var io = new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(en.isIntersecting){ links.forEach(function(l){ l.classList.toggle('on', l.getAttribute('data-go') === en.target.id); }); }
+      });
+    }, { rootMargin: '-25% 0px -65% 0px' });
+    $$('section.sec').forEach(function(s){ io.observe(s); });
+  }
+  var h = (location.hash || '').slice(1);
+  if(h && document.getElementById(h)) setTimeout(function(){ document.getElementById(h).scrollIntoView(); }, 60);
+}
+
+/* ---------- hero: request flow ---------- */
+var LANES = [
+  { name:'Client',     sub:'React / Angular',  cls:'client', short:'Client' },
+  { name:'Dispatcher', sub:'Spring MVC',       cls:'disp',   short:'DispatcherServlet' },
+  { name:'Controller', sub:'MovieController',  cls:'ctrl',   short:'Controller' },
+  { name:'Service',    sub:'MovieServiceImpl', cls:'svc',    short:'Service' },
+  { name:'Repository', sub:'MovieRepository',  cls:'repo',   short:'Repository' },
+  { name:'Hibernate',  sub:'JPA provider',     cls:'jpa',    short:'Hibernate' },
+  { name:'PostgreSQL', sub:'movies table',     cls:'db',     short:'PostgreSQL' }
+];
+var COLS = 'm1_0.id,m1_0.available,m1_0.created_at,m1_0.genre,m1_0.rating,m1_0.release_year,m1_0.title';
+var LIKE_JPQL = "select m from Movie m where upper(m.title) like upper(?1) escape '\\'";
+var LIKE_SQL = "select " + COLS + " from movies m1_0 where upper(m1_0.title) like upper(?) escape '\\'";
+
+function st(f, t, label, title, text, o){
+  var s = { f:f, t:t, label:label, title:title, text:text || '' };
+  if(o) for(var k in o) s[k] = o[k];
+  return s;
+}
+function req(http, label){
+  return st(0, 1, label, 'The browser sends the request', 'React or Angular sends the request to port 8080. Tomcat accepts it on one of its worker threads and hands it to <code>DispatcherServlet</code>, the single front controller every Spring MVC request passes through.', { code:http, lang:'http' });
+}
+function resp(http, status, kind, extra){
+  return st(1, 0, status, 'The response goes back', '<code>DispatcherServlet</code> writes the status line, headers and body; Tomcat sends them to the browser and the worker thread returns to the pool.' + (extra || ''), { code:http, lang:'http', status:status, sk:kind });
+}
+function textBody(status, msg){ return 'HTTP/1.1 ' + status + '\nContent-Type: text/plain;charset=UTF-8\n\n' + msg; }
+var TEXT_NOTE = ' The body is a plain <code>String</code>, so Spring writes it as <code>text/plain</code> rather than JSON.';
+
+function findByIdSteps(id){
+  return [
+    st(3, 4, 'findById(' + id + ')', 'A built-in repository method', 'Inherited from <code>CrudRepository</code>; the proxy forwards it to <code>SimpleJpaRepository.findById()</code>. You never wrote it.'),
+    st(4, 5, 'em.find(Movie, ' + id + ')', 'Straight to the EntityManager', 'No JPQL needed: <code>entityManager.find()</code> looks up by primary key. Hibernate checks its persistence context first and only queries the database on a miss.', { code:'entityManager.find(Movie.class, ' + id + 'L);', lang:'java' }),
+    st(5, 6, 'SELECT … where id=?', 'Lookup by primary key', 'The primary key is indexed, so this is the cheapest query a table can answer. Hibernate lists every mapped column rather than using <code>select *</code>.', { code:'select ' + COLS + ' from movies m1_0 where m1_0.id=?', lang:'sql', data:'bind 1 = ' + id })
+  ];
+}
+function notFoundTail(id){
+  return [
+    st(6, 5, '0 rows', 'Not found', 'PostgreSQL has no row with id ' + id + '.', { data:'0 rows' }),
+    st(5, 3, 'Optional.empty()', 'Nothing to wrap', 'Spring Data returns an empty <code>Optional</code>. It never returns <code>null</code>.'),
+    st(3, 3, 'throw NotFound', 'The service raises a domain exception', '<code>orElseThrow</code> turns “empty” into <code>MovieNotFoundException</code>. It extends <code>RuntimeException</code>, so the transaction is rolled back too.', { code:'throw new MovieNotFoundException(id);   // "Movie ' + id + ' not found"', lang:'java' }),
+    st(3, 2, 'MovieNotFoundException', 'Caught in the controller', 'The exception climbs out of the service into the matching <code>catch</code> block.', { code:'} catch (MovieNotFoundException e) {\n    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());   // 404', lang:'java' }),
+    st(2, 1, '404 + message', 'The controller picks the status', 'Nothing was changed, nothing was returned.' + TEXT_NOTE),
+    resp(textBody('404 Not Found', 'Movie ' + id + ' not found'), '404 Not Found', 'bad')
+  ];
+}
+
+var HERO = {
+  create: { label:'Create', scen:[['ok','Valid movie'],['dup','Title already exists'],['bad','Invalid rating']] },
+  readAll:{ label:'Read all', scen:[['ok','Three movies']] },
+  readOne:{ label:'Read one', scen:[['ok','Movie exists'],['nf','Movie not found']] },
+  update: { label:'Update', scen:[['ok','Movie exists'],['nf','Movie not found']] },
+  del:    { label:'Delete', scen:[['ok','Movie exists'],['nf','Movie not found']] },
+  search: { label:'Search', scen:[['ok','Two matches']] }
+};
+
+function buildSteps(op, sc){
+  var s = [], summary = '';
+  if(op === 'create'){
+    var rating = sc === 'bad' ? '12' : '8.7';
+    var title = sc === 'dup' ? 'Inception' : 'Interstellar';
+    var year = sc === 'dup' ? '2010' : '2014';
+    var body = '{"title":"' + title + '","genre":"SCI_FI","releaseYear":' + year + ',"rating":' + (sc === 'dup' ? '8.8' : rating) + '}';
+    s.push(req('POST /api/movies HTTP/1.1\nHost: localhost:8080\nContent-Type: application/json\n\n' + body, 'POST /api/movies'));
+    s.push(st(1, 1, 'find handler, read JSON', 'DispatcherServlet finds your method', '<code>HandlerMapping</code> looks up <code>POST /api/movies</code> in the URL table built at startup and finds <code>MovieController.createMovie()</code>. The parameter has <code>@RequestBody</code>, so Jackson turns the JSON into a <code>Movie</code> object. Its <code>id</code> is <code>null</code>: the movie is new.', { code:'@PostMapping            // class: @RequestMapping("/api/movies")\npublic ResponseEntity<?> createMovie(@RequestBody Movie movie)', lang:'java', data:'Movie{id=null, title="' + title + '", genre=SCI_FI, rating=' + (sc === 'dup' ? '8.8' : rating) + '}' }));
+    s.push(st(1, 2, 'createMovie(movie)', 'The controller method runs', 'The controller makes no decisions about movies. It passes the object to the service inside a <code>try</code> block so it can turn exceptions into status codes.', { code:'try {\n    Movie saved = movieService.createMovie(movie);', lang:'java' }));
+    s.push(st(2, 3, 'createMovie(movie)', 'The service takes over', '<code>createMovie()</code> is marked <code>@Transactional</code>, so Spring’s proxy opens a database transaction before the first line runs. Everything until the method returns is one unit: it all commits or it all rolls back.', { code:'@Override\n@Transactional\npublic Movie createMovie(Movie movie) {\n    validate(movie);', lang:'java' }));
+    if(sc === 'bad'){
+      s.push(st(3, 3, 'validate() fails', 'A business rule is broken', 'A rating of 12 is outside 0 to 10, so <code>InvalidMovieException</code> is thrown before any repository call. No SQL reaches the database at all.', { code:'if (movie.getRating() != null && (movie.getRating() < 0 || movie.getRating() > 10)) {\n    throw new InvalidMovieException("Rating must be between 0 and 10");\n}', lang:'java' }));
+      s.push(st(3, 2, 'InvalidMovieException', 'The exception reaches the controller', 'The transaction proxy rolls back (there is nothing to undo) and rethrows. The controller’s matching <code>catch</code> block picks it up.', { code:'} catch (InvalidMovieException e) {\n    return ResponseEntity.badRequest().body(e.getMessage());   // 400', lang:'java' }));
+      s.push(st(2, 1, '400 + message', 'The controller picks the status', '400 Bad Request means the client sent something the API cannot accept.' + TEXT_NOTE));
+      s.push(resp(textBody('400 Bad Request', 'Rating must be between 0 and 10'), '400 Bad Request', 'bad'));
+      summary = '0 SQL statements: validation failed before the repository was touched. The cheapest check runs first.';
+      return { steps:s, summary:summary };
+    }
+    s.push(st(3, 3, 'validate(movie)', 'Business rule: validation', 'Plain Java checks: a title, a genre, and a rating between 0 and 10. No database work yet.', { code:'if (movie.getTitle() == null || movie.getTitle().isBlank()) {\n    throw new InvalidMovieException("Title is required");\n}\n// genre required, rating 0 to 10 ...', lang:'java', data:'valid' }));
+    s.push(st(3, 4, 'existsByTitleIgnoreCase()', 'Duplicate check through the repository', 'A derived query method you declared on <code>MovieRepository</code>. Spring Data parsed the name once, at startup; now it only binds the value.', { code:'if (movieRepository.existsByTitleIgnoreCase(movie.getTitle())) {', lang:'java' }));
+    s.push(st(4, 5, 'JPQL', 'Spring Data hands Hibernate a query', 'The parsed name became a JPA query written against the <code>Movie</code> class and its fields, not against tables yet.', { code:'select m.id from Movie m where upper(m.title) = upper(?1)', lang:'sql' }));
+    s.push(st(5, 6, 'SELECT … fetch first 1', 'Hibernate writes the SQL', 'Hibernate translates JPQL into PostgreSQL SQL (class to table, field to column), borrows a connection from HikariCP and sends a <code>PreparedStatement</code>. Values travel separately from the SQL text, which is what blocks SQL injection.', { code:'select m1_0.id from movies m1_0 where upper(m1_0.title)=upper(?) fetch first ? rows only', lang:'sql', data:'bind 1 = "' + title + '", 2 = 1' }));
+    if(sc === 'dup'){
+      s.push(st(6, 5, '1 row', 'A match exists', 'A movie titled “Inception” is already stored with id 3.', { data:'1 row: id 3' }));
+      s.push(st(5, 3, 'true', 'The answer comes back as a boolean', 'Spring Data turns “a row exists” into <code>true</code> and returns it through the repository proxy.', { data:'true' }));
+      s.push(st(3, 3, 'throw Duplicate', 'Business rule broken: titles are unique', 'The service throws and the transaction proxy rolls back. The unique constraint on <code>title</code> would also have rejected the INSERT; checking first lets the API answer with a clear 409 instead of a database error.', { code:'    throw new DuplicateMovieException(movie.getTitle());\n}', lang:'java' }));
+      s.push(st(3, 2, 'DuplicateMovieException', 'The exception reaches the controller', 'It lands in the <code>catch</code> block for duplicates.', { code:'} catch (DuplicateMovieException e) {\n    return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());   // 409', lang:'java' }));
+      s.push(st(2, 1, '409 + message', 'The controller picks the status', '409 Conflict means the request clashes with data that already exists.' + TEXT_NOTE));
+      s.push(resp(textBody('409 Conflict', 'Movie already exists: Inception'), '409 Conflict', 'bad'));
+      summary = '1 SQL statement, then a business rule stopped the flow. Nothing was written.';
+      return { steps:s, summary:summary };
+    }
+    s.push(st(6, 5, '0 rows', 'No match', 'PostgreSQL finds no movie with that title.', { data:'0 rows' }));
+    s.push(st(5, 3, 'false', 'The answer comes back as a boolean', 'Spring Data turns “no row” into <code>false</code> and returns it through the repository proxy.', { data:'false' }));
+    s.push(st(3, 4, 'save(movie)', 'Save the movie', '<code>save()</code> is inherited from <code>JpaRepository</code>. Spring Data checks <code>movie.getId()</code>: it is <code>null</code>, so the movie is new and it calls <code>entityManager.persist()</code>.', { code:'return movieRepository.save(movie);', lang:'java' }));
+    s.push(st(4, 5, 'persist(movie)', 'persist()', 'Hibernate adds the object to its <em>persistence context</em>, the set of objects it manages for this transaction.', { code:'entityManager.persist(movie);', lang:'java' }));
+    s.push(st(5, 6, 'INSERT', 'The INSERT runs immediately', 'With <code>GenerationType.IDENTITY</code> the database creates the id, so Hibernate must insert now instead of waiting for the commit. <code>displayLabel</code> is not in the column list because it is <code>@Transient</code>.', { code:'insert into movies (available,created_at,genre,rating,release_year,title) values (?,?,?,?,?,?)', lang:'sql', data:'bind true, 2026-10-26 10:15:02, SCI_FI, 8.7, 2014, "Interstellar"' }));
+    s.push(st(6, 5, 'id = 8', 'The database returns the new id', 'Hibernate writes 8 into <code>movie.id</code>. The same Java object is now a managed entity.', { data:'generated id = 8' }));
+    s.push(st(5, 3, 'Movie (id 8)', 'save() returns the movie', 'The managed movie travels back through the repository proxy to the service.', { data:'Movie{id=8, title="Interstellar", …}' }));
+    s.push(st(3, 3, 'commit', 'The transaction commits', 'The method finished without an exception, so the <code>@Transactional</code> proxy commits. Had a <code>RuntimeException</code> been thrown, the INSERT would have been rolled back.', { code:'}   // end of createMovie(): the proxy calls commit()', lang:'java' }));
+    s.push(st(3, 2, 'Movie (id 8)', 'Back in the controller', 'The service returns a plain <code>Movie</code>. It never mentions HTTP.', { code:'return ResponseEntity.status(HttpStatus.CREATED).body(saved);   // 201', lang:'java' }));
+    s.push(st(2, 1, '201 + Movie', 'The controller chooses the status', '<code>ResponseEntity</code> carries the status (201 Created) and the body. A Jackson-backed <code>HttpMessageConverter</code> turns the <code>Movie</code> into JSON.'));
+    s.push(resp('HTTP/1.1 201 Created\nContent-Type: application/json\n\n{"id":8,"title":"Interstellar","genre":"SCI_FI","releaseYear":2014,"rating":8.7,"available":true,"createdAt":"2026-10-26T10:15:02"}', '201 Created', 'ok'));
+    summary = '2 SQL statements and 1 transaction. The controller never saw SQL, and the service never saw HTTP.';
+  }
+  else if(op === 'readAll'){
+    s.push(req('GET /api/movies HTTP/1.1\nHost: localhost:8080', 'GET /api/movies'));
+    s.push(st(1, 1, 'find handler', 'DispatcherServlet finds your method', '<code>GET /api/movies</code> matches <code>getAllMovies()</code>. A GET has no body, so there is nothing to convert.', { code:'@GetMapping\npublic ResponseEntity<List<Movie>> getAllMovies()', lang:'java' }));
+    s.push(st(1, 2, 'getAllMovies()', 'The controller method runs', 'No <code>try</code> block: listing movies cannot fail with a business exception.', { code:'return ResponseEntity.ok(movieService.getAllMovies());', lang:'java' }));
+    s.push(st(2, 3, 'getAllMovies()', 'A read-only transaction', '<code>@Transactional(readOnly = true)</code> lets Hibernate skip change tracking for everything it loads.', { code:'@Transactional(readOnly = true)\npublic List<Movie> getAllMovies() {\n    return movieRepository.findAll();\n}', lang:'java' }));
+    s.push(st(3, 4, 'findAll()', 'A built-in repository method', 'You never wrote <code>findAll()</code>. The repository proxy forwards it to <code>SimpleJpaRepository</code>, a real class inside spring-data-jpa.'));
+    s.push(st(4, 5, 'JPQL', 'A query over the Movie class', 'Spring Data asks for every <code>Movie</code>, still in class terms.', { code:'select m from Movie m', lang:'sql' }));
+    s.push(st(5, 6, 'SELECT', 'Hibernate writes the SQL', 'Every mapped column is listed explicitly, so Hibernate knows exactly which column fills which field.', { code:'select ' + COLS + ' from movies m1_0', lang:'sql' }));
+    s.push(st(6, 5, '3 rows', 'Rows come back', 'PostgreSQL returns three rows.', { data:'3 rows' }));
+    s.push(st(5, 5, 'rows → objects', 'Hibernate maps rows to objects', 'For each row Hibernate calls the no-argument constructor of <code>Movie</code> and fills its fields from the columns: the mapping from section 4, run in reverse.', { data:'List<Movie> of size 3' }));
+    s.push(st(5, 3, 'List<Movie> (3)', 'The list returns to the service', 'Through the repository proxy, unchanged.'));
+    s.push(st(3, 2, 'List<Movie> (3)', 'Back in the controller', 'An empty table would produce an empty list here, and the right answer is still <code>200 OK</code> with <code>[]</code>: an empty collection is a valid result, not a missing resource.'));
+    s.push(st(2, 1, '200 + list', 'Jackson writes a JSON array', '<code>ResponseEntity.ok()</code> means status 200.'));
+    s.push(resp('HTTP/1.1 200 OK\nContent-Type: application/json\n\n[{"id":3,"title":"Inception",…},{"id":5,"title":"The Dark Knight",…},{"id":7,"title":"Nightcrawler",…}]', '200 OK', 'ok'));
+    summary = '1 SQL statement for the whole list. With thousands of rows you would switch to findAll(Pageable).';
+  }
+  else if(op === 'readOne'){
+    var id1 = sc === 'nf' ? 42 : 7;
+    s.push(req('GET /api/movies/' + id1 + ' HTTP/1.1\nHost: localhost:8080', 'GET /api/movies/' + id1));
+    s.push(st(1, 1, 'match /{id}', 'DispatcherServlet finds your method', 'The pattern <code>/api/movies/{id}</code> matches, and <code>@PathVariable</code> converts the text <code>"' + id1 + '"</code> into a <code>Long</code>. A request for <code>/api/movies/abc</code> would fail right here with 400; your code would never run.', { code:'@GetMapping("/{id}")\npublic ResponseEntity<?> getMovieById(@PathVariable Long id)', lang:'java', data:'id = ' + id1 + 'L' }));
+    s.push(st(1, 2, 'getMovieById(' + id1 + ')', 'The controller method runs', 'The call sits in a <code>try</code> block because the service may report that the movie does not exist.', { code:'try {\n    return ResponseEntity.ok(movieService.getMovieById(id));', lang:'java' }));
+    s.push(st(2, 3, 'getMovieById(' + id1 + ')', 'The service asks the repository', '<code>findById</code> returns an <code>Optional</code>; <code>orElseThrow</code> converts “empty” into a domain exception.', { code:'return movieRepository.findById(id)\n        .orElseThrow(() -> new MovieNotFoundException(id));', lang:'java' }));
+    s = s.concat(findByIdSteps(id1));
+    if(sc === 'nf'){ s = s.concat(notFoundTail(id1)); summary = '1 SQL statement, an empty Optional, and 404 Not Found.'; return { steps:s, summary:summary }; }
+    s.push(st(6, 5, '1 row', 'Found', 'Row 7 exists.', { data:'1 row: Nightcrawler' }));
+    s.push(st(5, 3, 'Optional[Movie 7]', 'Hibernate builds the object', 'The row becomes a managed <code>Movie</code>, which Spring Data wraps in an <code>Optional</code>.'));
+    s.push(st(3, 2, 'Movie 7', 'The service returns the movie', '<code>orElseThrow</code> unwraps the value; no exception this time.'));
+    s.push(st(2, 1, '200 + Movie', 'Status 200 OK', 'Jackson serialises the movie into JSON.'));
+    s.push(resp('HTTP/1.1 200 OK\nContent-Type: application/json\n\n{"id":7,"title":"Nightcrawler","genre":"THRILLER","releaseYear":2014,"rating":7.8,"available":true,"createdAt":"2026-10-20T09:41:10"}', '200 OK', 'ok'));
+    summary = '1 SQL statement by primary key. Ask for id 7 again in the same transaction and Hibernate answers from memory with no SQL.';
+  }
+  else if(op === 'update'){
+    var id2 = sc === 'nf' ? 42 : 7;
+    s.push(req('PUT /api/movies/' + id2 + ' HTTP/1.1\nHost: localhost:8080\nContent-Type: application/json\n\n{"title":"Nightcrawler","genre":"THRILLER","releaseYear":2014,"rating":8.1,"available":true}', 'PUT /api/movies/' + id2));
+    s.push(st(1, 1, 'match /{id}, read JSON', 'DispatcherServlet finds your method', '<code>@PathVariable</code> gives ' + id2 + ' and <code>@RequestBody</code> gives a <code>Movie</code> built from the JSON. That object is <em>not</em> managed by Hibernate; it is just data from the client.', { code:'@PutMapping("/{id}")\npublic ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestBody Movie movie)', lang:'java' }));
+    s.push(st(1, 2, 'updateMovie(' + id2 + ', movie)', 'The controller method runs', 'Two things can go wrong, so there are two <code>catch</code> blocks: not found (404) and invalid data (400).', { code:'try {\n    return ResponseEntity.ok(movieService.updateMovie(id, movie));', lang:'java' }));
+    s.push(st(2, 3, 'updateMovie(' + id2 + ', changes)', 'The service loads the current movie first', 'The movie must exist before it can change. One write transaction stays open for the whole method.', { code:'@Transactional\npublic Movie updateMovie(Long id, Movie changes) {\n    Movie existing = getMovieById(id);   // 404 if missing', lang:'java' }));
+    s = s.concat(findByIdSteps(id2));
+    if(sc === 'nf'){ s = s.concat(notFoundTail(id2)); summary = '1 SQL statement and no UPDATE attempted: 404 Not Found.'; return { steps:s, summary:summary }; }
+    s.push(st(6, 5, '1 row', 'Found', 'Row 7 exists with rating 7.8.', { data:'1 row' }));
+    s.push(st(5, 3, 'managed Movie 7', 'A managed entity', 'Hibernate keeps a snapshot of the values it loaded. From now on it can tell whether anything changes.', { data:'snapshot: rating = 7.8' }));
+    s.push(st(3, 3, 'validate, copy fields', 'Apply the changes', 'The service copies the client’s values onto the managed object. These are ordinary setter calls: no SQL yet.', { code:'validate(changes);\nexisting.setTitle(changes.getTitle());\nexisting.setRating(changes.getRating());   // 7.8 → 8.1\n// genre, releaseYear, available …', lang:'java', data:'rating = 8.1 (changed)' }));
+    s.push(st(3, 4, 'save(existing)', 'save() on an existing movie', 'The id is 7, so Spring Data calls <code>merge()</code>. The movie is already managed in this transaction, so merge needs no extra SELECT.', { code:'return movieRepository.save(existing);', lang:'java' }));
+    s.push(st(4, 5, 'merge(existing)', 'merge(): nothing to send yet', 'Hibernate sees the object is already in its persistence context and simply returns it.', { code:'entityManager.merge(existing);', lang:'java' }));
+    s.push(st(5, 3, 'Movie 7', 'Returned to the service', 'Still no SQL. The UPDATE waits for the commit.'));
+    s.push(st(3, 3, 'commit → flush', 'Dirty checking at commit', 'Before committing, Hibernate compares each managed object with its snapshot. <code>rating</code> changed from 7.8 to 8.1, so it must write an UPDATE. Had nothing changed, no UPDATE would be sent at all.'));
+    s.push(st(5, 6, 'UPDATE', 'Hibernate writes the UPDATE', 'All updatable columns are set, not only <code>rating</code> (add <code>@DynamicUpdate</code> to change that). <code>created_at</code> is absent because of <code>updatable = false</code>.', { code:'update movies set available=?,genre=?,rating=?,release_year=?,title=? where id=?', lang:'sql', data:'bind true, THRILLER, 8.1, 2014, "Nightcrawler", 7' }));
+    s.push(st(6, 5, '1 row updated', 'The database confirms', 'One row changed; the transaction commits.', { data:'1 row updated' }));
+    s.push(st(3, 2, 'Movie 7', 'Back in the controller', 'The updated movie is returned as the body.'));
+    s.push(st(2, 1, '200 + Movie', 'Status 200 OK', 'Jackson serialises the movie into JSON.'));
+    s.push(resp('HTTP/1.1 200 OK\nContent-Type: application/json\n\n{"id":7,"title":"Nightcrawler","genre":"THRILLER","releaseYear":2014,"rating":8.1,"available":true,"createdAt":"2026-10-20T09:41:10"}', '200 OK', 'ok'));
+    summary = '2 SQL statements: a SELECT, then an UPDATE at commit. save() did not cause the UPDATE; dirty checking did.';
+  }
+  else if(op === 'del'){
+    var id3 = sc === 'nf' ? 42 : 7;
+    s.push(req('DELETE /api/movies/' + id3 + ' HTTP/1.1\nHost: localhost:8080', 'DELETE /api/movies/' + id3));
+    s.push(st(1, 1, 'match /{id}', 'DispatcherServlet finds your method', 'Same URL pattern as read and update; the DELETE verb is what selects this method.', { code:'@DeleteMapping("/{id}")\npublic ResponseEntity<?> deleteMovie(@PathVariable Long id)', lang:'java' }));
+    s.push(st(1, 2, 'deleteMovie(' + id3 + ')', 'The controller method runs', 'On success there is nothing to send back, so the controller plans a 204.', { code:'try {\n    movieService.deleteMovie(id);\n    return ResponseEntity.noContent().build();   // 204', lang:'java' }));
+    s.push(st(2, 3, 'deleteMovie(' + id3 + ')', 'The service checks existence first', 'Spring Data 3’s <code>deleteById()</code> silently ignores a missing id, so without this check the API could never answer 404.', { code:'if (!movieRepository.existsById(id)) {\n    throw new MovieNotFoundException(id);\n}\nmovieRepository.deleteById(id);', lang:'java' }));
+    s.push(st(3, 4, 'existsById(' + id3 + ')', 'A built-in existence check', 'Inherited from <code>CrudRepository</code>.'));
+    s.push(st(4, 5, 'JPQL count', 'A count query', 'Spring Data only needs to know whether the row exists.', { code:'select count(*) from Movie x where x.id = :id', lang:'sql' }));
+    s.push(st(5, 6, 'SELECT count(*)', 'Hibernate writes the SQL', 'A count by primary key is cheap.', { code:'select count(*) from movies m1_0 where m1_0.id=?', lang:'sql', data:'bind 1 = ' + id3 }));
+    if(sc === 'nf'){
+      s.push(st(6, 5, '0', 'Not found', 'No row has id 42.', { data:'count = 0' }));
+      s.push(st(5, 3, 'false', 'existsById returns false', 'Spring Data turns 0 into <code>false</code>.'));
+      s.push(st(3, 3, 'throw NotFound', 'The service raises a domain exception', '<code>deleteById</code> is never called.', { code:'throw new MovieNotFoundException(id);   // "Movie 42 not found"', lang:'java' }));
+      s.push(st(3, 2, 'MovieNotFoundException', 'Caught in the controller', 'The matching <code>catch</code> block builds the 404.', { code:'} catch (MovieNotFoundException e) {\n    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());   // 404', lang:'java' }));
+      s.push(st(2, 1, '404 + message', 'The controller picks the status', 'Nothing was deleted.' + TEXT_NOTE));
+      s.push(resp(textBody('404 Not Found', 'Movie 42 not found'), '404 Not Found', 'bad'));
+      summary = '1 SQL statement and 404 Not Found. Without the existsById check this request would have returned 204 for a movie that never existed.';
+      return { steps:s, summary:summary };
+    }
+    s.push(st(6, 5, '1', 'The row exists', 'Count is 1.', { data:'count = 1' }));
+    s.push(st(5, 3, 'true', 'existsById returns true', 'The service moves on to the delete.'));
+    s.push(st(3, 4, 'deleteById(7)', 'Delete through the repository', 'Spring Data first loads the entity with <code>findById</code>, then hands it to <code>entityManager.remove()</code>.'));
+    s.push(st(4, 5, 'find + remove', 'Hibernate needs the object', 'The count query loaded nothing into the persistence context, so Hibernate must load row 7 before it can remove it.', { code:'Movie m = entityManager.find(Movie.class, 7L);\nentityManager.remove(m);', lang:'java' }));
+    s.push(st(5, 6, 'SELECT … where id=?', 'Load the row', 'The second query for the same row.', { code:'select ' + COLS + ' from movies m1_0 where m1_0.id=?', lang:'sql', data:'bind 1 = 7' }));
+    s.push(st(6, 5, '1 row', 'Loaded', 'Row 7 is now a managed object.', { data:'1 row' }));
+    s.push(st(5, 3, 'removed (pending)', 'Marked for deletion', '<code>remove()</code> only schedules the DELETE. It is sent when the transaction flushes.'));
+    s.push(st(3, 3, 'commit → flush', 'The transaction commits', 'Hibernate flushes pending work before committing.'));
+    s.push(st(5, 6, 'DELETE', 'Hibernate writes the DELETE', 'The scheduled removal becomes SQL.', { code:'delete from movies where id=?', lang:'sql', data:'bind 1 = 7' }));
+    s.push(st(6, 5, '1 row deleted', 'The database confirms', 'One row removed.', { data:'1 row deleted' }));
+    s.push(st(3, 2, 'void', 'Nothing to return', 'The service method is <code>void</code>.'));
+    s.push(st(2, 1, '204', 'Status 204 No Content', '<code>ResponseEntity.noContent().build()</code> has a status and no body.'));
+    s.push(resp('HTTP/1.1 204 No Content', '204 No Content', 'ok'));
+    summary = '3 SQL statements for one delete: count, select, delete. Calling findById once and then delete(entity) would need only two.';
+  }
+  else if(op === 'search'){
+    s.push(req('GET /api/movies/search?title=night HTTP/1.1\nHost: localhost:8080', 'GET /search?title=night'));
+    s.push(st(1, 1, 'literal /search wins', 'DispatcherServlet finds your method', 'The literal path <code>/api/movies/search</code> is more specific than the pattern <code>/api/movies/{id}</code>, so Spring never tries to turn “search” into an id. <code>@RequestParam</code> reads <code>title=night</code>; if it were missing, Spring would answer 400 by itself.', { code:'@GetMapping("/search")\npublic ResponseEntity<List<Movie>> searchMovies(@RequestParam String title)', lang:'java', data:'title = "night"' }));
+    s.push(st(1, 2, 'searchMovies("night")', 'The controller method runs', 'A straight pass-through to the service.', { code:'return ResponseEntity.ok(movieService.searchByTitle(title));', lang:'java' }));
+    s.push(st(2, 3, 'searchByTitle("night")', 'The service delegates', 'No rules to apply, but the service still owns the transaction boundary.', { code:'return movieRepository.findByTitleContainingIgnoreCase(keyword);', lang:'java' }));
+    s.push(st(3, 4, 'findByTitleContainingIgnoreCase()', 'A custom derived method', '<code>Containing</code> becomes <code>LIKE</code> with % on both sides; <code>IgnoreCase</code> wraps both sides in <code>upper()</code>. The name was parsed at startup.'));
+    s.push(st(4, 5, 'JPQL', 'The parsed query', 'Still in class and field terms.', { code:LIKE_JPQL, lang:'sql' }));
+    s.push(st(5, 6, 'SELECT … like', 'Hibernate writes the SQL', 'Spring Data adds the % signs to the bound value, not to the SQL text, so the input stays safely parameterised.', { code:LIKE_SQL, lang:'sql', data:'bind 1 = "%night%"' }));
+    s.push(st(6, 5, '2 rows', 'Two matches', '“The Dark Knight” and “Nightcrawler” both contain “night”, ignoring case.', { data:'2 rows' }));
+    s.push(st(5, 3, 'List<Movie> (2)', 'Rows become objects', 'Hibernate builds two <code>Movie</code> objects.'));
+    s.push(st(3, 2, 'List<Movie> (2)', 'Back in the controller', 'No match would mean <code>[]</code> with 200, not 404.'));
+    s.push(st(2, 1, '200 + list', 'Status 200 OK', 'Jackson writes a JSON array.'));
+    s.push(resp('HTTP/1.1 200 OK\nContent-Type: application/json\n\n[{"id":5,"title":"The Dark Knight",…},{"id":7,"title":"Nightcrawler",…}]', '200 OK', 'ok'));
+    summary = '1 SQL statement with LIKE. A pattern that starts with % cannot use a normal B-tree index, so large tables need a trigram index or full-text search.';
+  }
+  return { steps:s, summary:summary };
+}
+
+var hero = { op:'create', sc:'ok', steps:[], summary:'', idx:0, timer:null };
+var GEO = { L:40, CW:112, top:74, RH:30 };
+function lx(i){ return GEO.L + GEO.CW * i + GEO.CW / 2; }
+function rowY(k){ return GEO.top + k * GEO.RH + 18; }
+
+function arrowEnds(stp, y){
+  if(stp.f === stp.t){ var x = lx(stp.f); return { x1:x + 3, y1:y - 7, x2:x + 3, y2:y + 7, self:true }; }
+  var down = stp.f < stp.t;
+  return { x1:lx(stp.f) + (down ? 4 : -4), y1:y, x2:lx(stp.t) + (down ? -6 : 6), y2:y, self:false };
+}
+function renderSeq(){
+  var svg = $('#seq'), steps = hero.steps;
+  var W = GEO.L + GEO.CW * LANES.length + 8;
+  var H = GEO.top + steps.length * GEO.RH + 14;
+  svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H);
+  var h = '<defs>';
+  LANES.forEach(function(ln){ h += '<marker id="mk-' + ln.cls + '" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk lc-' + ln.cls + '"/></marker>'; });
+  h += '<marker id="mk-plain" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="6.5" markerHeight="6.5" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" class="mk-plain"/></marker></defs>';
+  LANES.forEach(function(ln, i){
+    var x = lx(i);
+    h += '<line class="life" x1="' + x + '" y1="58" x2="' + x + '" y2="' + (H - 4) + '"/>';
+    h += '<g class="lc-' + ln.cls + '"><rect class="lh-box" x="' + (x - 52) + '" y="8" width="104" height="48" rx="9"/><text class="lh-name" x="' + x + '" y="29">' + esc(ln.name) + '</text><text class="lh-sub" x="' + x + '" y="46">' + esc(ln.sub) + '</text></g>';
+  });
+  steps.forEach(function(stp, k){
+    var y = rowY(k), lane = LANES[stp.f === stp.t ? stp.f : stp.t], a = arrowEnds(stp, y);
+    var ret = stp.f > stp.t;
+    h += '<g class="srow lc-' + lane.cls + '" data-k="' + k + '" tabindex="0" role="button" aria-label="Step ' + (k + 1) + ': ' + esc(stp.title) + '">';
+    h += '<rect class="band" x="0" y="' + (y - 15) + '" width="' + W + '" height="' + GEO.RH + '" rx="6"/>';
+    h += '<circle class="nc" cx="18" cy="' + y + '" r="10"/><text class="nt" x="18" y="' + (y + 3.6) + '">' + (k + 1) + '</text>';
+    if(a.self){
+      var x0 = lx(stp.f);
+      h += '<path class="arr" d="M' + (x0 + 3) + ',' + (y - 8) + ' h24 v15 h-18" data-mk="1"/>';
+      h += '<text class="lbl" x="' + (x0 + 34) + '" y="' + (y + 4) + '">' + esc(stp.label) + '</text>';
+    } else {
+      h += '<line class="arr' + (ret ? ' ret' : '') + '" x1="' + a.x1 + '" y1="' + y + '" x2="' + a.x2 + '" y2="' + y + '" data-mk="1"/>';
+      var cx = (a.x1 + a.x2) / 2;
+      h += '<text class="lbl" x="' + cx + '" y="' + (y - 5) + '" text-anchor="middle">' + esc(stp.label) + '</text>';
+    }
+    h += '</g>';
+  });
+  h += '<g class="pkt" id="pkt"><circle class="halo" r="11"/><circle r="5.5"/></g>';
+  svg.innerHTML = h;
+  $$('.srow', svg).forEach(function(g){
+    var k = +g.getAttribute('data-k');
+    g.addEventListener('click', function(){ stopPlay(); setStep(k); });
+    g.addEventListener('keydown', function(e){ if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); stopPlay(); setStep(k); } });
+  });
+}
+function updateSeq(animate){
+  var svg = $('#seq');
+  $$('.srow', svg).forEach(function(g){
+    var k = +g.getAttribute('data-k');
+    var state = k < hero.idx ? 'done' : (k === hero.idx ? 'cur' : 'ghost');
+    g.setAttribute('class', 'srow ' + state + ' ' + g.getAttribute('class').split(' ').filter(function(c){ return c.indexOf('lc-') === 0; })[0]);
+    var arr = g.querySelector('.arr');
+    var cls = g.getAttribute('class').match(/lc-(\w+)/)[1];
+    arr.setAttribute('marker-end', state === 'cur' ? 'url(#mk-' + cls + ')' : 'url(#mk-plain)');
+  });
+  var stp = hero.steps[hero.idx], y = rowY(hero.idx), a = arrowEnds(stp, y);
+  var pkt = $('#pkt'), laneCls = LANES[stp.f === stp.t ? stp.f : stp.t].cls;
+  pkt.setAttribute('class', 'pkt lc-' + laneCls);
+  var endX = a.self ? lx(stp.f) + 27 : a.x2, endY = a.self ? y + 7 : y;
+  var startX = a.self ? lx(stp.f) + 3 : a.x1, startY = a.self ? y - 8 : y;
+  if(!animate || reduceMotion){
+    pkt.style.transition = 'none'; pkt.style.transform = 'translate(' + endX + 'px,' + endY + 'px)';
+    void pkt.getBoundingClientRect(); pkt.style.transition = '';
+  } else {
+    pkt.style.transition = 'none'; pkt.style.transform = 'translate(' + startX + 'px,' + startY + 'px)';
+    void pkt.getBoundingClientRect();
+    pkt.style.transition = '';
+    requestAnimationFrame(function(){ pkt.style.transform = 'translate(' + endX + 'px,' + endY + 'px)'; });
+  }
+}
+function renderDetail(){
+  var stp = hero.steps[hero.idx], n = hero.steps.length;
+  var lane = LANES[stp.f === stp.t ? stp.f : stp.t];
+  var h = '<div class="sd-top"><span class="sd-count">Step ' + (hero.idx + 1) + ' of ' + n + '</span><span class="tag lc-' + lane.cls + '">' + esc(lane.short) + '</span></div>';
+  h += '<h3 class="sd-title">' + esc(stp.title) + '</h3>';
+  if(stp.text) h += '<p>' + stp.text + '</p>';
+  if(stp.code) h += codeBlock(stp.code, stp.lang || 'java');
+  if(stp.data) h += '<p class="sd-data"><b>Value at this point:</b> <code>' + esc(stp.data) + '</code></p>';
+  if(stp.status) h += '<div class="status ' + (stp.sk === 'ok' ? 's-ok' : 's-bad') + '">' + esc(stp.status) + '</div>';
+  if(hero.idx === n - 1 && hero.summary) h += '<p class="sd-end">' + esc(hero.summary) + '</p>';
+  $('#step-detail').innerHTML = h;
+  $('#p-back').disabled = hero.idx === 0;
+  $('#p-next').disabled = hero.idx === n - 1;
+  if(!hero.timer) $('#p-play').textContent = hero.idx === n - 1 ? 'Replay' : 'Play';
+}
+function setStep(k, animate){
+  hero.idx = Math.max(0, Math.min(k, hero.steps.length - 1));
+  updateSeq(animate !== false);
+  renderDetail();
+}
+function stopPlay(){ if(hero.timer){ clearInterval(hero.timer); hero.timer = null; } renderDetail(); }
+function play(){
+  if(hero.timer){ stopPlay(); return; }
+  if(hero.idx >= hero.steps.length - 1) setStep(0);
+  $('#p-play').textContent = 'Pause';
+  hero.timer = setInterval(function(){
+    if(hero.idx >= hero.steps.length - 1){ stopPlay(); return; }
+    setStep(hero.idx + 1);
+    $('#p-play').textContent = 'Pause';
+  }, 1700);
+}
+function renderOpButtons(){
+  var seg = $('#op-seg'); seg.innerHTML = '';
+  Object.keys(HERO).forEach(function(k){
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = HERO[k].label;
+    b.setAttribute('aria-pressed', String(k === hero.op));
+    b.addEventListener('click', function(){ loadHero(k, HERO[k].scen[0][0]); });
+    seg.appendChild(b);
+  });
+  var sseg = $('#sc-seg'); sseg.innerHTML = '';
+  HERO[hero.op].scen.forEach(function(sc){
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = sc[1];
+    b.setAttribute('aria-pressed', String(sc[0] === hero.sc));
+    b.addEventListener('click', function(){ loadHero(hero.op, sc[0]); });
+    sseg.appendChild(b);
+  });
+}
+function loadHero(op, sc){
+  if(hero.timer){ clearInterval(hero.timer); hero.timer = null; }
+  hero.op = op; hero.sc = sc;
+  var r = buildSteps(op, sc); hero.steps = r.steps; hero.summary = r.summary; hero.idx = 0;
+  renderOpButtons(); renderSeq(); setStep(0, false);
+}
+function initHero(){
+  $('#p-back').addEventListener('click', function(){ stopPlay(); setStep(hero.idx - 1); });
+  $('#p-next').addEventListener('click', function(){ stopPlay(); setStep(hero.idx + 1); });
+  $('#p-play').addEventListener('click', play);
+  $('#p-restart').addEventListener('click', function(){ stopPlay(); setStep(0); });
+  loadHero('create', 'ok');
+  $$('.watch').forEach(function(b){
+    b.addEventListener('click', function(){ loadHero(b.getAttribute('data-op'), b.getAttribute('data-sc')); goTo('flow'); setTimeout(play, reduceMotion ? 0 : 650); });
+  });
+}
+
+/* ---------- 2: startup ---------- */
+var BOOT = [
+  { t:'Maven builds the classpath', on:['pom','cp'], make:['pom','cp'],
+    p:'Before any of your code runs, Maven reads <code>pom.xml</code>, downloads each starter and every library it depends on into <code>~/.m2/repository</code>, and puts them on the classpath. This is build time: application.properties has not been read yet.',
+    log:['$ mvn spring-boot:run', '[INFO] Scanning for projects...', '[INFO] Building streamhub 0.0.1-SNAPSHOT'] },
+  { t:'main() starts Spring', on:['code'], make:['code'],
+    p:'<code>StreamhubApplication.main()</code> calls <code>SpringApplication.run()</code>. The class carries <code>@SpringBootApplication</code>, which is three annotations in one: <code>@Configuration</code>, <code>@EnableAutoConfiguration</code> and <code>@ComponentScan</code>.',
+    log:[' :: Spring Boot ::                (v3.5.9)', 'INFO  Starting StreamhubApplication using Java 21'] },
+  { t:'Settings are loaded', on:['props','env'], make:['props','env'],
+    p:'application.properties, any active profile file such as <code>application-dev.properties</code>, environment variables and command-line arguments are merged into one <code>Environment</code>. <code>${DB_PASSWORD}</code> is resolved here. Line order inside the file does not matter, and a misspelled key is ignored without any warning.',
+    log:['INFO  No active profile set, falling back to 1 default profile: "default"'] },
+  { t:'Component scan finds your classes', on:['code','repo','svc','ctrl'], make:[],
+    p:'Starting from the main class’s package (<code>com.streamhub</code>) and every package below it, Spring registers each <code>@RestController</code>, <code>@Service</code> and <code>@Component</code> as a bean <em>definition</em>: a recipe, not an object yet. Spring Data separately finds every interface that extends <code>JpaRepository</code>. A class outside <code>com.streamhub</code> is never found.',
+    log:['INFO  Bootstrapping Spring Data JPA repositories in DEFAULT mode.', 'INFO  Finished Spring Data repository scanning in 41 ms. Found 1 JPA repository interface.'] },
+  { t:'Auto-configuration: the web layer', on:['cp','tomcat','disp','jackson'], make:['tomcat','disp','jackson'],
+    p:'<code>spring-boot-starter-web</code> is on the classpath, so Boot creates an embedded Tomcat (up to 200 worker threads), a <code>DispatcherServlet</code> and a Jackson <code>ObjectMapper</code>. <code>server.port</code> decides the port.',
+    log:['INFO  Tomcat initialized with port 8080 (http)'] },
+  { t:'Auto-configuration: the connection pool', on:['props','ds','db'], make:['ds','db'],
+    p:'The PostgreSQL driver jar plus <code>spring.datasource.url</code>, <code>username</code> and <code>password</code> produce a HikariCP <code>DataSource</code>: a pool of up to 10 open connections that every query borrows and returns. In the real log these lines appear while Hibernate starts, because the pool opens its first connection when someone first needs one.',
+    log:['INFO  HikariPool-1 - Starting...', 'INFO  HikariPool-1 - Added connection org.postgresql.jdbc.PgConnection@6d2f1b2a', 'INFO  HikariPool-1 - Start completed.'] },
+  { t:'Hibernate boots and reads @Entity', on:['emf','code','db'], make:['emf'],
+    p:'Hibernate builds the <code>EntityManagerFactory</code>, scans every <code>@Entity</code>, detects the PostgreSQL dialect from the live connection, then applies <code>spring.jpa.hibernate.ddl-auto</code>. With <code>update</code> it creates the <code>movies</code> table if it is missing.',
+    log:['INFO  HHH000412: Hibernate ORM core version 6.6.x', 'Hibernate: create table movies (id bigint generated by default as identity, ...)', "INFO  Initialized JPA EntityManagerFactory for persistence unit 'default'"] },
+  { t:'Spring Data builds the repository', on:['repo','emf'], make:['repo'],
+    p:'<code>MovieRepository</code> is only an interface, so Spring Data creates a proxy object backed by <code>SimpleJpaRepository</code>, and parses every derived method name now. A typo such as <code>findByTitel</code> stops the application at this step with <code>No property \'titel\' found for type \'Movie\'</code>.',
+    log:['# no log line: this step is silent unless a method name is wrong'] },
+  { t:'Beans are wired, bottom up', on:['repo','svc','ctrl'], make:['svc','ctrl'],
+    p:'<code>MovieServiceImpl</code>’s constructor needs a <code>MovieRepository</code>, so the repository is created first and passed in. <code>MovieController</code> needs a <code>MovieService</code>, so it comes last. Each bean is a singleton: one instance shared by every request.',
+    log:['WARN  spring.jpa.open-in-view is enabled by default. Therefore, database queries may be performed during view rendering. Explicitly configure spring.jpa.open-in-view to disable this warning'] },
+  { t:'Tomcat opens the port', on:['tomcat','disp','ctrl'], make:[],
+    p:'Spring MVC reads every <code>@GetMapping</code> and <code>@PostMapping</code> and builds the URL table, for example <code>POST /api/movies</code> → <code>MovieController.createMovie()</code>. Tomcat starts listening, and the application is ready for the request shown at the top of this page.',
+    log:["INFO  Tomcat started on port 8080 (http) with context path '/'", 'INFO  Started StreamhubApplication in 3.41 seconds (process running for 3.92)'] }
+];
+var boot = { idx:0 };
+function renderBoot(){
+  var made = {};
+  BOOT.forEach(function(b, k){ if(k <= boot.idx) b.make.forEach(function(n){ made[n] = true; }); });
+  var on = {}; BOOT[boot.idx].on.forEach(function(n){ on[n] = true; });
+  $$('#startup .bn').forEach(function(el){
+    var n = el.getAttribute('data-n');
+    el.classList.toggle('on', !!on[n]);
+    el.classList.toggle('done', !!made[n] && !on[n]);
+  });
+  $$('#boot-list button').forEach(function(b, k){ if(k === boot.idx) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current'); });
+  var b = BOOT[boot.idx];
+  $('#boot-detail').innerHTML = '<h3>' + esc(b.t) + '</h3><p>' + b.p + '</p>';
+  var lines = '';
+  BOOT.forEach(function(x, k){
+    if(k > boot.idx) return;
+    x.log.forEach(function(l){
+      var h = esc(l).replace(/^INFO/, '<span class="lv">INFO</span>').replace(/^WARN/, '<span class="wn">WARN</span>');
+      lines += '<div class="' + (k === boot.idx ? 'new' : '') + '">' + h + '</div>';
+    });
+  });
+  var con = $('#boot-console'); con.innerHTML = lines; con.scrollTop = con.scrollHeight;
+  $('#b-back').disabled = boot.idx === 0;
+  $('#b-next').disabled = boot.idx === BOOT.length - 1;
+  $('#b-count').textContent = 'Step ' + (boot.idx + 1) + ' of ' + BOOT.length;
+}
+function initBoot(){
+  var ol = $('#boot-list');
+  BOOT.forEach(function(b, k){
+    var li = document.createElement('li');
+    var bt = document.createElement('button'); bt.type = 'button';
+    bt.innerHTML = '<span class="n">' + (k + 1) + '</span><span>' + esc(b.t) + '</span>';
+    bt.addEventListener('click', function(){ boot.idx = k; renderBoot(); });
+    li.appendChild(bt); ol.appendChild(li);
+  });
+  $('#b-back').addEventListener('click', function(){ if(boot.idx > 0){ boot.idx--; renderBoot(); } });
+  $('#b-next').addEventListener('click', function(){ if(boot.idx < BOOT.length - 1){ boot.idx++; renderBoot(); } });
+  renderBoot();
+}
+
+/* ---------- 3: pom + properties ---------- */
+var POM = [
+  { name:'spring-boot-starter-parent', code:'<parent>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-parent</artifactId>\n    <version>3.5.9</version>\n</parent>',
+    what:'A bill of materials: tested, compatible versions for hundreds of libraries, so the dependencies below need no <code>&lt;version&gt;</code>. It also sets UTF-8 encoding and default plugin settings.',
+    errs:[['Without it', null, 'Every dependency needs its own version, and keeping Spring, Hibernate and Jackson compatible becomes your job.']] },
+  { name:'Project coordinates', code:'<groupId>com.streamhub</groupId>\n<artifactId>streamhub</artifactId>\n<version>0.0.1-SNAPSHOT</version>',
+    what:'Your project’s identity. Together they name the jar Maven builds: <code>streamhub-0.0.1-SNAPSHOT.jar</code>. The groupId usually matches your base package, <code>com.streamhub</code>.', errs:[] },
+  { name:'java.version', code:'<properties>\n    <java.version>21</java.version>\n</properties>',
+    what:'The Java release the compiler targets. Spring Boot 3 needs at least Java 17.',
+    errs:[['If the JDK running Maven is older than 21', 'error: release version 21 not supported', null]] },
+  { name:'spring-boot-starter-web', code:'<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-web</artifactId>\n</dependency>',
+    what:'Spring MVC with <code>DispatcherServlet</code>, an embedded Tomcat, and Jackson for JSON. This is what turns the app into a web server.',
+    errs:[['Without it', null, '<code>@RestController</code> and <code>@GetMapping</code> do not compile. A Spring Boot app with no web layer starts, runs <code>main()</code> and exits, because nothing keeps it listening.']] },
+  { name:'spring-boot-starter-data-jpa', code:'<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-data-jpa</artifactId>\n</dependency>',
+    what:'Spring Data JPA (repositories), Hibernate (the JPA implementation), HikariCP (the connection pool) and the <code>jakarta.persistence</code> API with <code>@Entity</code>, <code>@Id</code> and the rest.',
+    errs:[['Without it', null, '<code>@Entity</code> and <code>JpaRepository</code> do not compile.']] },
+  { name:'postgresql (driver)', code:'<dependency>\n    <groupId>org.postgresql</groupId>\n    <artifactId>postgresql</artifactId>\n    <scope>runtime</scope>\n</dependency>',
+    what:'The JDBC driver that speaks PostgreSQL’s network protocol. <code>runtime</code> scope: your code never imports it, but the app needs it to run. For MySQL, use <code>com.mysql:mysql-connector-j</code> instead.',
+    errs:[['Without it, startup fails with', 'Cannot load driver class: org.postgresql.Driver', null]] },
+  { name:'spring-boot-starter-validation', code:'<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-validation</artifactId>\n</dependency>',
+    what:'Hibernate Validator, which enforces <code>@NotBlank</code>, <code>@Size</code> and <code>@DecimalMax</code> on any parameter marked <code>@Valid</code>.',
+    errs:[['Without it', null, '<code>@NotBlank</code> and <code>@Valid</code> do not compile: the <code>jakarta.validation</code> API is not on the classpath.']] },
+  { name:'spring-boot-starter-test', code:'<dependency>\n    <groupId>org.springframework.boot</groupId>\n    <artifactId>spring-boot-starter-test</artifactId>\n    <scope>test</scope>\n</dependency>',
+    what:'JUnit 5, Mockito, AssertJ and MockMvc. <code>test</code> scope: visible only to <code>src/test</code>, never packaged into the jar.', errs:[] },
+  { name:'spring-boot-maven-plugin', code:'<build>\n    <plugins>\n        <plugin>\n            <groupId>org.springframework.boot</groupId>\n            <artifactId>spring-boot-maven-plugin</artifactId>\n        </plugin>\n    </plugins>\n</build>',
+    what:'Packages an executable jar with Tomcat inside, so <code>java -jar target/streamhub-0.0.1-SNAPSHOT.jar</code> starts the whole app. It also adds the <code>mvn spring-boot:run</code> goal.',
+    errs:[['Without it, running the jar fails with', 'no main manifest attribute, in target/streamhub-0.0.1-SNAPSHOT.jar', null]] }
+];
+var PROPS = [
+  { code:'spring.application.name=streamhub', what:'The application name shown in logs, and later used by monitoring and service discovery in Phase 5.', errs:[['Without it', null, 'Harmless: the logs just show no name.']] },
+  { code:'server.port=8080', what:'The port Tomcat listens on. 8080 is already the default, so this line only documents it.', errs:[['If another program holds the port', 'Web server failed to start. Port 8080 was already in use.', null]] },
+  { code:'spring.datasource.url=jdbc:postgresql://localhost:5432/streamhub', what:'Where the database is: driver type, host, port and database name. Boot also works out the driver class from the <code>jdbc:postgresql</code> prefix, so <code>driver-class-name</code> is optional.',
+    errs:[['If the line is missing', "Failed to configure a DataSource: 'url' attribute is not specified and no embedded datasource could be configured.", null], ['If the database name is wrong', 'FATAL: database "streamhb" does not exist', null]] },
+  { code:'spring.datasource.username=postgres', what:'The database user HikariCP logs in as.', errs:[] },
+  { code:'spring.datasource.password=${DB_PASSWORD}', what:'The password, read from the <code>DB_PASSWORD</code> environment variable instead of being typed into a file that ends up in Git. <code>${DB_PASSWORD:postgres}</code> adds a fallback for local runs.',
+    errs:[['If the environment variable is not set', "Could not resolve placeholder 'DB_PASSWORD' in value \"${DB_PASSWORD}\"", null], ['If the key is misspelled (spring.datasource.passsword), it is silently ignored and login fails', 'FATAL: password authentication failed for user "postgres"', null]] },
+  { code:'spring.jpa.hibernate.ddl-auto=update', what:'What Hibernate does to the schema at startup. Section 4 compares all five values.', dflt:'<code>none</code> for PostgreSQL and MySQL; <code>create-drop</code> for an embedded H2 database.', errs:[] },
+  { code:'spring.jpa.show-sql=true', what:'Prints every SQL statement Hibernate sends. The best learning switch there is.', ind:'Teams use <code>logging.level.org.hibernate.SQL=DEBUG</code> instead, which goes through the logger and can be enabled per environment, plus <code>logging.level.org.hibernate.orm.jdbc.bind=TRACE</code> to see the bound values.', errs:[] },
+  { code:'spring.jpa.properties.hibernate.format_sql=true', what:'Pretty-prints that SQL across several lines. Anything under <code>spring.jpa.properties.*</code> is handed straight to Hibernate.', errs:[] },
+  { code:'spring.jpa.open-in-view=false', what:'Closes the database session when the service method ends, instead of keeping it open until the JSON is written.', dflt:'<code>true</code>, with a warning at every startup.', ind:'Set to <code>false</code>, so accidental lazy loading shows up as an error during development rather than as hidden extra queries in production.', errs:[] },
+  { code:'# spring.jpa.database-platform=org.hibernate.dialect.PostgreSQLDialect', what:'Not needed with Boot 3 and Hibernate 6: the dialect is detected from the live connection, and setting it explicitly logs warning HHH90000025 asking you to remove it. A dialect is a local Java class, not a network call. <code>MySQL8Dialect</code> is deprecated in Hibernate 6; it is now just <code>MySQLDialect</code>.', errs:[] }
+];
+function renderCfgPanel(item, isPom){
+  var h = '<h4>' + esc(isPom ? item.name : item.code) + '</h4>';
+  h += '<p class="k">What it changes</p><p>' + item.what + '</p>';
+  (item.errs || []).forEach(function(e){
+    h += '<p class="k">' + esc(e[0]) + '</p>';
+    if(e[1]) h += '<div class="err">' + esc(e[1]) + '</div>';
+    if(e[2]) h += '<p>' + e[2] + '</p>';
+  });
+  if(item.dflt) h += '<p class="k">Default</p><p>' + item.dflt + '</p>';
+  if(item.ind) h += '<p class="k">In industry</p><p>' + item.ind + '</p>';
+  $('#cfg-panel').innerHTML = h;
+}
+function initConfig(){
+  var all = [];
+  function add(container, list, isPom, lang){
+    list.forEach(function(item){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'fl';
+      b.innerHTML = hl(item.code, lang);
+      b.setAttribute('aria-pressed', 'false');
+      b.setAttribute('aria-label', isPom ? item.name : item.code);
+      b.addEventListener('click', function(){
+        all.forEach(function(x){ x.setAttribute('aria-pressed', 'false'); });
+        b.setAttribute('aria-pressed', 'true');
+        renderCfgPanel(item, isPom);
+      });
+      container.appendChild(b); all.push(b);
+    });
+  }
+  add($('#pom-file'), POM, true, 'xml');
+  add($('#props-file'), PROPS, false, 'props');
+  all[0].click();
+}
+
+/* ---------- 4: entity ---------- */
+var EJ = [
+  ['@Entity','ent'], ['@Table(name = "movies")','ent'], ['public class Movie {','ent'], ['',null],
+  ['    @Id','id'], ['    @GeneratedValue(strategy = GenerationType.IDENTITY)','id'], ['    private Long id;','id'], ['',null],
+  ['    @Column(nullable = false, unique = true, length = 150)','title'], ['    private String title;','title'], ['',null],
+  ['    @Enumerated(EnumType.STRING)','genre'], ['    @Column(nullable = false, length = 20)','genre'], ['    private Genre genre;','genre'], ['',null],
+  ['    @Column(name = "release_year")','year'], ['    private Integer releaseYear;','year'], ['',null],
+  ['    private Double rating;','rating'], ['',null],
+  ['    @Column(nullable = false)','avail'], ['    private Boolean available = true;','avail'], ['',null],
+  ['    @Transient','trans'], ['    private String displayLabel;','trans'], ['',null],
+  ['    @CreationTimestamp','created'], ['    @Column(name = "created_at", updatable = false)','created'], ['    private LocalDateTime createdAt;','created'], ['',null],
+  ['    // no-arg constructor, getters and setters','ctor'], ['}','ent']
+];
+var ED = [
+  ['create table movies (','ent'],
+  ['    id bigint generated by default as identity,','id'],
+  ['    title varchar(150) not null unique,','title'],
+  ['    genre varchar(20) not null','genre'],
+  ["        check (genre in ('ACTION','COMEDY','DRAMA','THRILLER','SCI_FI')),",'genre'],
+  ['    release_year integer,','year'],
+  ['    rating float(53),','rating'],
+  ['    available boolean not null,','avail'],
+  ['    created_at timestamp(6),','created'],
+  ['    primary key (id)','id'],
+  [')','ent'],
+  ['-- displayLabel: no column, because of @Transient','trans']
+];
+var EN = {
+  ent:['@Entity and @Table', '<code>@Entity</code> tells Hibernate that each <code>Movie</code> object is one row. <code>@Table(name = "movies")</code> sets the table name; without it the table would be named <code>movie</code>, after the class.'],
+  id:['@Id and @GeneratedValue', '<code>@Id</code> marks the primary key. <code>GenerationType.IDENTITY</code> lets PostgreSQL number the rows (<code>generated by default as identity</code>), so Hibernate runs the INSERT first and reads the new id back. Use the wrapper type <code>Long</code>: <code>null</code> means “not saved yet”, which is how <code>save()</code> chooses INSERT over UPDATE.'],
+  title:['@Column on title', '<code>nullable = false</code> becomes <code>not null</code>. <code>unique = true</code> becomes a unique constraint, so the database itself rejects a second “Inception”. <code>length = 150</code> becomes <code>varchar(150)</code>; without it a String column is <code>varchar(255)</code>.'],
+  genre:['@Enumerated(EnumType.STRING)', '<code>STRING</code> stores the name (<code>THRILLER</code>) rather than the position (<code>3</code>), and Hibernate 6 adds a check constraint listing the allowed values. Avoid the default <code>ORDINAL</code>: inserting a new constant in the middle of the enum silently changes the meaning of every number already stored.'],
+  year:['Naming: releaseYear → release_year', 'Spring Boot’s default naming strategy converts camelCase to snake_case, so this <code>@Column(name)</code> only documents what would happen anyway. The same strategy also rewrites explicit names: <code>@Column(name = "releaseYear")</code> still ends up as <code>release_year</code>.'],
+  rating:['A field with no annotation', 'Every field is a column unless it is marked <code>@Transient</code>. <code>Double</code> maps to <code>float(53)</code>, PostgreSQL’s double precision, and because it is a wrapper type the column allows null.'],
+  avail:['@Column(nullable = false) on a Boolean', '<code>Boolean</code> maps to <code>boolean</code>. The <code>= true</code> initial value lives only in Java; the column has no database default unless you add one with <code>columnDefinition</code>.'],
+  trans:['@Transient', 'A <code>@Transient</code> field exists only in the Java object: no column, never saved, never loaded. Use it for values calculated from other fields.'],
+  created:['@CreationTimestamp and updatable = false', '<code>@CreationTimestamp</code> comes from Hibernate, not JPA, and fills in the time on INSERT. <code>updatable = false</code> keeps the column out of every UPDATE; look for <code>created_at</code> missing from the UPDATE in the visualizer’s Update flow.'],
+  ctor:['Constructor, getters and setters', 'JPA needs a no-argument constructor to build objects from rows, and uses your getters and setters (or the fields directly) to move values in and out. Nothing here appears in the DDL.']
+};
+function initEntity(){
+  var lines = [];
+  function build(container, data, lang, side){
+    data.forEach(function(row){
+      if(!row[1] && row[0] === ''){ var sp = document.createElement('div'); sp.style.height = '10px'; container.appendChild(sp); return; }
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'fl ml lc-' + (side === 'j' ? 'jpa' : 'db');
+      b.setAttribute('data-m', row[1]); b.innerHTML = hl(row[0], lang);
+      b.addEventListener('click', function(){ selectEnt(row[1]); });
+      container.appendChild(b); lines.push(b);
+    });
+  }
+  function selectEnt(m){
+    lines.forEach(function(l){ var hit = l.getAttribute('data-m') === m; l.classList.toggle('hit', hit); l.classList.toggle('dim', !hit); l.setAttribute('aria-pressed', String(hit)); });
+    var n = EN[m];
+    var ddlCount = ED.filter(function(r){ return r[1] === m; }).length;
+    $('#ent-panel').innerHTML = '<h4>' + esc(n[0]) + '</h4><p style="margin-top:6px">' + n[1] + '</p>' + (ddlCount === 0 ? '<p class="k">In the DDL</p><p>No line: this part of the class never reaches the database.</p>' : '');
+  }
+  build($('#ent-java'), EJ, 'java', 'j');
+  build($('#ent-ddl'), ED, 'sql', 'd');
+  selectEnt('id');
+}
+var DDL = {
+  'none':        { start:'Nothing. Hibernate assumes the tables already exist.', stop:'Nothing.', keep:true, use:'Production, with Flyway or Liquibase owning the schema.', out:'-- no DDL is generated or run', err:false },
+  'validate':    { start:'Compares every @Entity with the real tables and refuses to start on any mismatch.', stop:'Nothing.', keep:true, use:'Production, as a safety net next to migrations.', out:'Schema-validation: missing column [rating] in table [movies]', err:true },
+  'update':      { start:'Creates missing tables and adds missing columns. Never drops or changes an existing column.', stop:'Nothing.', keep:true, use:'Local learning. The risk: rename a field and you get a new, empty column while the old one stays behind.', out:'alter table if exists movies add column rating float(53)', err:false },
+  'create':      { start:'Drops every mapped table, then creates them from scratch.', stop:'Nothing.', keep:false, use:'Demos that reload sample data on every start.', out:'drop table if exists movies cascade\ncreate table movies (id bigint generated by default as identity, …)', err:false },
+  'create-drop': { start:'Same as create: drop, then create.', stop:'Drops the tables again when the application shuts down cleanly.', keep:false, use:'Automated tests that need a clean schema for each run. It is also the default for an embedded H2 database.', out:'-- at startup\ndrop table if exists movies cascade\ncreate table movies (…)\n-- at shutdown\ndrop table if exists movies cascade', err:false }
+};
+function initDDL(){
+  var seg = $('#ddl-seg');
+  function show(k){
+    $$('button', seg).forEach(function(b){ b.setAttribute('aria-pressed', String(b.textContent === k)); });
+    var d = DDL[k];
+    $('#ddl-panel').innerHTML = '<h4>ddl-auto=' + esc(k) + '</h4><dl class="kv" style="margin-top:10px"><dt>On startup</dt><dd>' + esc(d.start) + '</dd><dt>On shutdown</dt><dd>' + esc(d.stop) + '</dd><dt>Data survives a restart</dt><dd class="' + (d.keep ? 'yes' : 'no') + '">' + (d.keep ? 'Yes' : 'No') + '</dd><dt>Use it for</dt><dd>' + esc(d.use) + '</dd></dl>';
+    $('#ddl-sql').innerHTML = '<p class="small" style="margin:0 0 4px">' + (d.err ? 'What a mismatch looks like' : 'What Hibernate runs') + '</p>' + (d.err ? '<div class="err">' + esc(d.out) + '</div>' : codeBlock(d.out, 'sql'));
+  }
+  Object.keys(DDL).forEach(function(k){
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = k;
+    b.addEventListener('click', function(){ show(k); }); seg.appendChild(b);
+  });
+  show('update');
+}
+
+/* ---------- 5: who writes the SQL ---------- */
+var PIPE = [
+  { g:'Built-in methods', label:'save(new movie)', call:'movieRepository.save(new Movie("Interstellar", Genre.SCI_FI, 2014, 8.7));',
+    sd:'Built-in <code>SimpleJpaRepository.save()</code>. The id is <code>null</code>, so the movie is new: it calls <code>entityManager.persist()</code>.',
+    jpa:'entityManager.persist(movie);', jl:'java', jn:'No JPQL here: persist works on the object itself.',
+    sql:'insert into movies (available,created_at,genre,rating,release_year,title) values (?,?,?,?,?,?)', bind:'true, 2026-10-26 10:15:02, SCI_FI, 8.7, 2014, "Interstellar"',
+    res:'PostgreSQL generates id 8 and Hibernate writes it into <code>movie.id</code>. With IDENTITY the INSERT runs immediately, not at commit.' },
+  { g:'Built-in methods', label:'save(existing movie)', call:'movieRepository.save(movie);   // movie.getId() == 7, built from a PUT body',
+    sd:'Built-in <code>save()</code>. The id is 7, so the movie is not new: it calls <code>entityManager.merge()</code>.',
+    jpa:'entityManager.merge(movie);', jl:'java', jn:'merge copies the detached object’s values onto a managed copy.',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.id=?\nupdate movies set available=?,genre=?,rating=?,release_year=?,title=? where id=?', bind:'7, then the new values and 7',
+    res:'The SELECT loads row 7 because this object was not loaded earlier in the transaction. At commit, dirty checking finds the changed value and sends one UPDATE; if nothing had changed, no UPDATE would be sent. <code>created_at</code> is absent because of <code>updatable = false</code>.' },
+  { g:'Built-in methods', label:'findById(7)', call:'movieRepository.findById(7L);',
+    sd:'Built-in. Forwards to <code>entityManager.find()</code>.', jpa:'entityManager.find(Movie.class, 7L);', jl:'java', jn:'A primary-key lookup; the persistence context is checked first.',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.id=?', bind:'7',
+    res:'One row gives <code>Optional[Movie]</code>; no row gives <code>Optional.empty()</code>. Asking again in the same transaction needs no SQL at all.' },
+  { g:'Built-in methods', label:'findAll()', call:'movieRepository.findAll();',
+    sd:'Built-in. Builds a query for every <code>Movie</code>.', jpa:'select m from Movie m', jl:'sql',
+    sql:'select ' + COLS + ' from movies m1_0', bind:'(no parameters)',
+    res:'Every row becomes a <code>Movie</code> in a <code>List</code>. Fine for 50 rows, risky for 5 million.' },
+  { g:'Built-in methods', label:'findAll(Pageable)', call:'movieRepository.findAll(PageRequest.of(1, 5, Sort.by("rating").descending()));',
+    sd:'Built-in, from <code>ListPagingAndSortingRepository</code>. Runs the page query, then a count query to fill in the totals.',
+    jpa:'select m from Movie m order by m.rating desc\nselect count(m) from Movie m', jl:'sql',
+    sql:'select ' + COLS + ' from movies m1_0 order by m1_0.rating desc offset ? rows fetch first ? rows only\nselect count(m1_0.id) from movies m1_0', bind:'offset 5, page size 5',
+    res:'A <code>Page&lt;Movie&gt;</code> holding movies 6 to 10 (page 1 is the second page, since pages start at 0), plus <code>getTotalElements()</code> and <code>getTotalPages()</code>.' },
+  { g:'Built-in methods', label:'deleteById(7)', call:'movieRepository.deleteById(7L);',
+    sd:'Built-in. Spring Data 3 calls <code>findById</code> first; if the row exists it calls <code>entityManager.remove()</code>, and if not it quietly does nothing.',
+    jpa:'Movie movie = entityManager.find(Movie.class, 7L);\nentityManager.remove(movie);', jl:'java',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.id=?\ndelete from movies where id=?', bind:'7',
+    res:'Two statements. Because a missing id is silently ignored, the service checks existence first so the API can answer 404.' },
+  { g:'Derived from the method name', label:'findByGenre(ACTION)', call:'movieRepository.findByGenre(Genre.ACTION);',
+    sd:'Derived query. At startup Spring Data split the name into <code>find</code> | <code>By</code> | <code>Genre</code> and built the query once.',
+    jpa:'select m from Movie m where m.genre = ?1', jl:'sql',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.genre=?', bind:'"ACTION"',
+    res:'A <code>List&lt;Movie&gt;</code>, empty when nothing matches.' },
+  { g:'Derived from the method name', label:'findByTitleContainingIgnoreCase("night")', call:'movieRepository.findByTitleContainingIgnoreCase("night");',
+    sd:'Derived. <code>Containing</code> becomes <code>LIKE</code> with % on both sides of the value; <code>IgnoreCase</code> wraps both sides in <code>upper()</code>.',
+    jpa:LIKE_JPQL, jl:'sql', sql:LIKE_SQL, bind:'"%night%"',
+    res:'Matches “The Dark Knight” and “Nightcrawler”.' },
+  { g:'Derived from the method name', label:'findTop5ByGenreOrderByRatingDesc(DRAMA)', call:'movieRepository.findTop5ByGenreOrderByRatingDesc(Genre.DRAMA);',
+    sd:'Derived. <code>Top5</code> becomes a row limit and <code>OrderBy…Desc</code> becomes sorting.',
+    jpa:'select m from Movie m where m.genre = ?1 order by m.rating desc', jl:'sql', jn:'The limit of 5 is set on the query object, not written in JPQL.',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.genre=? order by m1_0.rating desc fetch first ? rows only', bind:'"DRAMA", 5',
+    res:'At most five movies, highest rated first.' },
+  { g:'Derived from the method name', label:'existsByTitleIgnoreCase("Inception")', call:'movieRepository.existsByTitleIgnoreCase("Inception");',
+    sd:'Derived <code>exists</code> query. Spring Data only needs to know whether one row matches, so it selects the id with a limit of 1.',
+    jpa:'select m.id from Movie m where upper(m.title) = upper(?1)', jl:'sql',
+    sql:'select m1_0.id from movies m1_0 where upper(m1_0.title)=upper(?) fetch first ? rows only', bind:'"Inception", 1',
+    res:'<code>true</code> or <code>false</code>. Cheaper than a <code>findBy</code> because no full row is loaded.' },
+  { g:'Written with @Query', label:'findReleasedBetween(2010, 2019)', call:'movieRepository.findReleasedBetween(2010, 2019);',
+    sd:'<code>@Query</code> found, so Spring Data uses your JPQL as written (it was parsed and checked at startup) and binds <code>:startYear</code> and <code>:endYear</code>.',
+    jpa:'SELECT m FROM Movie m WHERE m.releaseYear BETWEEN :startYear AND :endYear', jl:'sql',
+    sql:'select ' + COLS + ' from movies m1_0 where m1_0.release_year between ? and ?', bind:'2010, 2019',
+    res:'Movies released from 2010 to 2019, both years included.' },
+  { g:'Written with @Query', label:'pickRandomGoodMovie(8.0), native', call:'movieRepository.pickRandomGoodMovie(8.0);', native:true,
+    sd:'<code>nativeQuery = true</code>: the SQL goes to the database exactly as written.',
+    jpa:null, jn:'Skipped: native SQL bypasses JPQL entirely.',
+    sql:'SELECT * FROM movies WHERE rating >= ? ORDER BY random() LIMIT 1', bind:'8.0',
+    res:'<code>random()</code> is PostgreSQL syntax; MySQL needs <code>RAND()</code>. That loss of portability is the price of native queries.' },
+  { g:'Written with @Query', label:'retireGenre(THRILLER), @Modifying', call:'int changed = movieRepository.retireGenre(Genre.THRILLER);',
+    sd:'<code>@Modifying</code> tells Spring Data this <code>@Query</code> changes data, so it calls <code>executeUpdate()</code> and returns the number of rows changed. It needs a transaction.',
+    jpa:'UPDATE Movie m SET m.available = false WHERE m.genre = :genre', jl:'sql',
+    sql:'update movies set available=false where genre=?', bind:'"THRILLER"',
+    res:'Returns the number of rows changed. A bulk update skips the persistence context, so <code>Movie</code> objects already loaded in this transaction still say <code>available = true</code> unless you use <code>@Modifying(clearAutomatically = true)</code>.' }
+];
+function renderPipe(i){
+  var m = PIPE[i];
+  var stages = [
+    { lc:'svc', who:'Your code', sub:'MovieServiceImpl calls a repository method', out:codeBlock(m.call, 'java') },
+    { lc:'repo', who:'Spring Data JPA', sub:'The repository proxy decides how to answer', out:'<p>' + m.sd + '</p>' },
+    { lc:'jpa', who:'JPA API', sub:'jakarta.persistence: EntityManager and JPQL; speaks classes and fields', out:(m.jpa ? codeBlock(m.jpa, m.jl || 'sql') : '') + (m.jn ? '<p style="margin-top:6px">' + m.jn + '</p>' : ''), skip:!m.jpa },
+    { lc:'jpa', who:'Hibernate ORM', sub:'Writes PostgreSQL SQL, tracks loaded objects, detects changes', out:'<p>' + (m.native ? 'Passed through untouched; Hibernate only maps the result columns onto <code>Movie</code>.' : 'Generated from the entity mapping with the PostgreSQL dialect: <code>Movie</code> → <code>movies</code>, <code>releaseYear</code> → <code>release_year</code>.') + '</p>' + codeBlock(m.sql, 'sql') },
+    { lc:'db', who:'JDBC and HikariCP', sub:'Borrows a pooled connection, binds the ? values', out:'<p>Bound values: <code>' + esc(m.bind) + '</code>. Values never become part of the SQL text, which is what makes this safe from SQL injection.</p>' },
+    { lc:'db', who:'PostgreSQL', sub:'Executes and returns rows', out:'<p>' + m.res + '</p>' }
+  ];
+  var h = '';
+  stages.forEach(function(s, k){
+    if(k) h += '<div class="down" aria-hidden="true">↓</div>';
+    h += '<div class="stage lc-' + s.lc + (s.skip ? ' skip' : '') + (reduceMotion ? '' : ' reveal') + '" style="animation-delay:' + (k * 70) + 'ms"><div class="who">' + esc(s.who) + '<small>' + esc(s.sub) + '</small></div><div class="out">' + s.out + '</div></div>';
+  });
+  $('#pipe').innerHTML = h;
+}
+function initPipe(){
+  var host = $('#pipe-picks'), groups = {}, order = [], btns = [];
+  PIPE.forEach(function(m, i){ if(!groups[m.g]){ groups[m.g] = []; order.push(m.g); } groups[m.g].push(i); });
+  order.forEach(function(g){
+    var wrap = document.createElement('div'); wrap.className = 'pick-group';
+    wrap.innerHTML = '<span class="gl">' + esc(g) + '</span>';
+    var chips = document.createElement('div'); chips.className = 'chips'; chips.setAttribute('role', 'group'); chips.setAttribute('aria-label', g);
+    groups[g].forEach(function(i){
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'chip'; b.textContent = PIPE[i].label;
+      b.setAttribute('aria-pressed', 'false');
+      b.addEventListener('click', function(){ btns.forEach(function(x){ x.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true'); renderPipe(i); });
+      chips.appendChild(b); btns.push(b);
+    });
+    wrap.appendChild(chips); host.appendChild(wrap);
+  });
+  btns[6].setAttribute('aria-pressed', 'true'); renderPipe(6);
+}
+
+/* ---------- 7: derived query builder ---------- */
+var BP = {
+  title:       { cap:'Title', f:'title', c:'title', t:'str', jt:'String', s:'"night"' },
+  genre:       { cap:'Genre', f:'genre', c:'genre', t:'enum', jt:'Genre', s:'Genre.DRAMA', s2:'Genre.THRILLER' },
+  rating:      { cap:'Rating', f:'rating', c:'rating', t:'num', jt:'Double', s:'8.0', s2:'9.5' },
+  releaseYear: { cap:'ReleaseYear', f:'releaseYear', c:'release_year', t:'num', jt:'Integer', s:'2010', s2:'2019' },
+  available:   { cap:'Available', f:'available', c:'available', t:'bool' }
+};
+var BO = {
+  str:[ {k:'', l:'equals', kind:'cmp', op:'='}, {k:'IgnoreCase', l:'equals, ignoring case', kind:'cmp', op:'=', up:true},
+        {k:'Containing', l:'contains', kind:'like', w:'%v%'}, {k:'ContainingIgnoreCase', l:'contains, ignoring case', kind:'like', w:'%v%', up:true},
+        {k:'StartingWith', l:'starts with', kind:'like', w:'v%'}, {k:'EndingWith', l:'ends with', kind:'like', w:'%v'},
+        {k:'Not', l:'is not', kind:'cmp', op:'<>', sop:'!='}, {k:'IsNull', l:'is null', kind:'null'} ],
+  num:[ {k:'', l:'equals', kind:'cmp', op:'='}, {k:'GreaterThan', l:'greater than', kind:'cmp', op:'>'}, {k:'GreaterThanEqual', l:'at least', kind:'cmp', op:'>='},
+        {k:'LessThan', l:'less than', kind:'cmp', op:'<'}, {k:'LessThanEqual', l:'at most', kind:'cmp', op:'<='}, {k:'Between', l:'between two values', kind:'between'},
+        {k:'In', l:'in a list', kind:'in'}, {k:'IsNull', l:'is null', kind:'null'} ],
+  enm:[ {k:'', l:'equals', kind:'cmp', op:'='}, {k:'Not', l:'is not', kind:'cmp', op:'<>', sop:'!='}, {k:'In', l:'in a list', kind:'in'} ],
+  bool:[ {k:'True', l:'is true', kind:'bool', v:'true'}, {k:'False', l:'is false', kind:'bool', v:'false'} ]
+};
+function opsFor(p){ return p.t === 'str' ? BO.str : p.t === 'num' ? BO.num : p.t === 'enum' ? BO.enm : BO.bool; }
+var SUBJ = {
+  find:      { k:'find', ret:'List<Movie>', js:'select m from Movie m', ss:'select ' + COLS + ' from movies m1_0', ord:true },
+  findFirst: { k:'findFirst', ret:'Optional<Movie>', js:'select m from Movie m', ss:'select ' + COLS + ' from movies m1_0', ord:true, lim:1 },
+  findTop5:  { k:'findTop5', ret:'List<Movie>', js:'select m from Movie m', ss:'select ' + COLS + ' from movies m1_0', ord:true, lim:5 },
+  count:     { k:'count', ret:'long', js:'select count(m) from Movie m', ss:'select count(m1_0.id) from movies m1_0', ord:false },
+  exists:    { k:'exists', ret:'boolean', js:'select m.id from Movie m', ss:'select m1_0.id from movies m1_0', ord:false, lim:1 },
+  delete:    { k:'delete', ret:'void', js:'select m from Movie m', ss:'select ' + COLS + ' from movies m1_0', ord:false, del:true }
+};
+var ORD = {
+  RatingDesc:      { cap:'Rating', dir:'Desc', j:'m.rating desc', s:'m1_0.rating desc' },
+  TitleAsc:        { cap:'Title', dir:'Asc', j:'m.title asc', s:'m1_0.title asc' },
+  ReleaseYearDesc: { cap:'ReleaseYear', dir:'Desc', j:'m.releaseYear desc', s:'m1_0.release_year desc' }
+};
+function unq(s){ return s.replace(/^"|"$/g, '').replace(/^Genre\./, ''); }
+function cond(p, o, i){
+  var F = 'm.' + p.f, C = 'm1_0.' + p.c, r = { params:[], binds:[] };
+  if(o.kind === 'cmp'){
+    r.j = o.up ? 'upper(' + F + ') ' + o.op + ' upper(?' + i + ')' : F + ' ' + o.op + ' ?' + i;
+    r.s = o.up ? 'upper(' + C + ')' + (o.sop || o.op) + 'upper(?)' : C + (o.sop || o.op) + '?';
+    r.params.push({ t:p.jt, n:p.f, s:p.s }); r.binds.push(p.t === 'num' ? p.s : '"' + unq(p.s) + '"');
+  } else if(o.kind === 'like'){
+    r.j = (o.up ? 'upper(' + F + ') like upper(?' + i + ')' : F + ' like ?' + i) + " escape '\\'";
+    r.s = (o.up ? 'upper(' + C + ') like upper(?)' : C + ' like ?') + " escape '\\'";
+    r.params.push({ t:p.jt, n:p.f, s:p.s }); r.binds.push('"' + o.w.replace('v', unq(p.s)) + '"');
+  } else if(o.kind === 'between'){
+    r.j = F + ' between ?' + i + ' and ?' + (i + 1); r.s = C + ' between ? and ?';
+    r.params.push({ t:p.jt, n:p.f + 'From', s:p.s }, { t:p.jt, n:p.f + 'To', s:p.s2 }); r.binds.push(p.s, p.s2);
+  } else if(o.kind === 'in'){
+    r.j = F + ' in ?' + i; r.s = C + ' in (?,?)';
+    r.params.push({ t:'Collection<' + p.jt + '>', n:p.f + 's', s:'List.of(' + p.s + ', ' + p.s2 + ')' });
+    r.binds.push(p.t === 'enum' ? '"' + unq(p.s) + '"' : p.s, p.t === 'enum' ? '"' + unq(p.s2) + '"' : p.s2);
+  } else if(o.kind === 'null'){ r.j = F + ' is null'; r.s = C + ' is null'; }
+  else if(o.kind === 'bool'){ r.j = F + ' = ' + o.v; r.s = C + '=' + o.v; }
+  return r;
+}
+function fillOps(sel, p, keep){
+  var ops = opsFor(p), prev = keep != null ? keep : sel.value;
+  sel.innerHTML = ops.map(function(o, i){ return '<option value="' + i + '">' + esc(o.l) + (o.k ? ' (' + o.k + ')' : '') + '</option>'; }).join('');
+  if(prev != null && +prev < ops.length) sel.value = String(prev);
+}
+function bRender(){
+  var S = SUBJ[$('#b-subj').value];
+  var p1 = BP[$('#b-p1').value], o1 = opsFor(p1)[+$('#b-o1').value];
+  var conn = $('#b-conn').value;
+  $('#b-p2').disabled = !conn; $('#b-o2').disabled = !conn;
+  $('#b-ord').disabled = !S.ord;
+  var toks = [[S.k, 'subj'], ['By', 'kw'], [p1.cap, 'prop']]; if(o1.k) toks.push([o1.k, 'op']);
+  var c1 = cond(p1, o1, 1), where = c1.j, swhere = c1.s, params = c1.params.slice(), binds = c1.binds.slice();
+  var p2 = null, o2 = null;
+  if(conn){
+    p2 = BP[$('#b-p2').value]; o2 = opsFor(p2)[+$('#b-o2').value];
+    toks.push([conn, 'kw'], [p2.cap, 'prop']); if(o2.k) toks.push([o2.k, 'op']);
+    var c2 = cond(p2, o2, params.length + 1);
+    where += ' ' + conn.toLowerCase() + ' ' + c2.j; swhere += ' ' + conn.toLowerCase() + ' ' + c2.s;
+    params = params.concat(c2.params); binds = binds.concat(c2.binds);
+  }
+  var ordKey = $('#b-ord').value, ord = (S.ord && ordKey) ? ORD[ordKey] : null;
+  if(ord) toks.push(['OrderBy', 'kw'], [ord.cap, 'prop'], [ord.dir, 'dir']);
+  var used = {};
+  params.forEach(function(p){ if(used[p.n]){ used[p.n]++; p.n = p.n + used[p.n]; } else used[p.n] = 1; });
+  var name = toks.map(function(t){ return t[0]; }).join('');
+  $('#b-name').innerHTML = toks.map(function(t){ return '<span class="tc-' + t[1] + '">' + esc(t[0]) + '</span>'; }).join('');
+  var sig = (S.del ? '// needs a transaction: call it from a @Transactional service method\n' : '') + S.ret + ' ' + name + '(' + params.map(function(p){ return p.t + ' ' + p.n; }).join(', ') + ');';
+  $('#b-sig').innerHTML = codeBlock(sig, 'java');
+  var call = (S.ret === 'void' ? '' : S.ret + ' result = ') + 'movieRepository.' + name + '(' + params.map(function(p){ return p.s; }).join(', ') + ');';
+  $('#b-call').innerHTML = codeBlock(call, 'java');
+  var jpql = S.js + ' where ' + where + (ord ? ' order by ' + ord.j : '');
+  if(S.lim) jpql += '\n-- row limit ' + S.lim + ' is set on the query, not written in JPQL';
+  if(S.del) jpql += '\n-- then entityManager.remove() for every result';
+  $('#b-jpql').innerHTML = codeBlock(jpql, 'sql');
+  var sql = S.ss + ' where ' + swhere + (ord ? ' order by ' + ord.s : '') + (S.lim ? ' fetch first ? rows only' : '');
+  if(S.lim) binds.push(String(S.lim));
+  if(S.del) sql += '\ndelete from movies where id=?   -- once per matching row, at flush';
+  sql += '\n-- bound: ' + (binds.length ? binds.join(', ') : 'no parameters');
+  $('#b-sql').innerHTML = codeBlock(sql, 'sql');
+  var notes = [];
+  if(name.length > 40) notes.push('This name is ' + name.length + ' characters long, which is usually the point to switch to @Query.');
+  if(conn === 'Or') notes.push('And binds tighter than Or; with three or more conditions, write @Query and add the brackets yourself.');
+  if(!S.ord && ordKey) notes.push('Order by is ignored for count, exists and delete, so it is left out.');
+  if(S.del) notes.push('Derived deletes load every matching row and remove them one at a time. For thousands of rows, a @Modifying @Query DELETE is a single statement.');
+  if((o1.kind === 'like' && o1.w.charAt(0) === '%') || (o2 && o2.kind === 'like' && o2.w.charAt(0) === '%')) notes.push('A pattern starting with % cannot use a normal B-tree index.');
+  if(!notes.length) notes.push('Spring parses this name once, at startup; every call afterwards only binds new values.');
+  $('#b-note').textContent = notes.join(' ');
+}
+function initBuilder(){
+  var p1 = $('#b-p1'), p2 = $('#b-p2');
+  var opts = Object.keys(BP).map(function(k){ return '<option value="' + k + '">' + esc(BP[k].f) + ' (' + (BP[k].jt || 'Boolean') + ')</option>'; }).join('');
+  p1.innerHTML = opts; p2.innerHTML = opts;
+  p1.value = 'genre'; p2.value = 'rating';
+  fillOps($('#b-o1'), BP.genre, 0); fillOps($('#b-o2'), BP.rating, 2);
+  $('#b-conn').value = 'And'; $('#b-ord').value = 'RatingDesc';
+  p1.addEventListener('change', function(){ fillOps($('#b-o1'), BP[p1.value], 0); bRender(); });
+  p2.addEventListener('change', function(){ fillOps($('#b-o2'), BP[p2.value], 0); bRender(); });
+  ['#b-subj', '#b-o1', '#b-o2', '#b-conn', '#b-ord'].forEach(function(id){ $(id).addEventListener('change', bRender); });
+  bRender();
+}
+
+/* ---------- 9: URL anatomy ---------- */
+var URLP = {
+  verb:  { lc:'ctrl', ann:'@PutMapping("/{id}")', t:'The HTTP verb is part of the match. The same URL with DELETE goes to <code>deleteMovie()</code>, and with GET to <code>getMovieById()</code>.' },
+  host:  { lc:'cfg', ann:'server.port=8080', t:'Not an annotation: the port comes from application.properties (default 8080). In production a load balancer or API gateway usually sits in front.' },
+  base:  { lc:'ctrl', ann:'@RequestMapping("/api/movies")', t:'Placed on the class, so it prefixes every method in <code>MovieController</code>. Change it once and every endpoint moves.' },
+  path:  { lc:'ctrl', ann:'@PathVariable Long id', t:'The <code>{id}</code> in <code>@PutMapping("/{id}")</code> captures <code>7</code> and converts it to <code>Long</code>. Path variables identify <em>which</em> resource.' },
+  body:  { lc:'jpa', ann:'@RequestBody Movie movie', t:'Jackson reads the JSON, calls the no-argument constructor, then the setters. Spring Boot ignores unknown JSON fields by default; fields missing from the JSON stay <code>null</code>.' },
+  verb2: { lc:'repo', ann:'@GetMapping("/search")', t:'GET is for reading. It changes nothing, so browsers and proxies may safely repeat or cache it.' },
+  lit:   { lc:'ctrl', ann:'"/search", a literal path segment', t:'A literal segment outranks a pattern, so <code>/api/movies/search</code> never reaches <code>getMovieById()</code> with an id of “search”.' },
+  query: { lc:'svc', ann:'@RequestParam String title', t:'Query parameters filter or search a collection. Required by default, so leaving it out returns 400; use <code>required = false</code> or a <code>defaultValue</code> to make it optional.' },
+  resp:  { lc:'db', ann:'ResponseEntity<T>', t:'Status, headers and body in one object: <code>ResponseEntity.ok(body)</code>, <code>.status(HttpStatus.CREATED).body(saved)</code>, <code>.noContent().build()</code>.' }
+};
+function initUrl(){
+  function b(key, text){ return '<button type="button" class="ub lc-' + URLP[key].lc + '" data-u="' + key + '" aria-pressed="false">' + esc(text) + '</button>'; }
+  var h = '<div class="ln">' + b('verb', 'PUT') + ' <span class="dimt">http://</span>' + b('host', 'localhost:8080') + b('base', '/api/movies') + b('path', '/7') + '</div>';
+  h += '<div class="ln"><span class="dimt">body </span>' + b('body', '{"title":"Nightcrawler","rating":8.1, …}') + '</div>';
+  h += '<div class="ln">' + b('verb2', 'GET') + ' <span class="dimt">http://localhost:8080</span>' + b('base', '/api/movies') + b('lit', '/search') + b('query', '?title=night') + '</div>';
+  h += '<div class="ln"><span class="dimt">response </span>' + b('resp', '200 OK + JSON body') + '</div>';
+  var host = $('#url-anat'); host.innerHTML = h;
+  function show(key){
+    $$('.ub', host).forEach(function(x){ x.setAttribute('aria-pressed', String(x.getAttribute('data-u') === key)); });
+    var u = URLP[key];
+    $('#url-panel').innerHTML = '<h4>' + esc(u.ann) + '</h4><p style="margin-top:6px">' + u.t + '</p>';
+  }
+  $$('.ub', host).forEach(function(x){ x.addEventListener('click', function(){ show(x.getAttribute('data-u')); }); });
+  show('path');
+}
+
+/* ---------- 12: annotation reference ---------- */
+var AG = { boot:['Startup and beans','cfg'], web:['Web','ctrl'], svc:['Service','svc'], ent:['Entity mapping','jpa'], repo:['Repository','repo'], val:['Validation','disp'] };
+var ANN = [
+  ['@SpringBootApplication','boot','SpringApplication','Marks the main class. Combines @Configuration, @EnableAutoConfiguration and @ComponentScan.','@SpringBootApplication\npublic class StreamhubApplication { }'],
+  ['@ComponentScan','boot','Spring container','Which packages to search for beans. Defaults to the main class’s package and everything below it.',null],
+  ['@EnableAutoConfiguration','boot','Spring Boot','Turns on auto-configuration: default beans chosen from the classpath and properties.',null],
+  ['@Configuration','boot','Spring container','A class whose @Bean methods define beans.',null],
+  ['@Bean','boot','Spring container','A method whose return value becomes a bean. Used for classes you cannot annotate, such as library classes.','@Bean\npublic Clock clock() { return Clock.systemUTC(); }'],
+  ['@Component','boot','Component scanner','A generic bean. @Service, @Repository and @Controller are specialised versions of it.',null],
+  ['@Autowired','boot','Spring container','Asks for a dependency. Optional on a class with a single constructor, which is the preferred style.',null],
+  ['@Qualifier','boot','Spring container','Chooses one bean when several implement the same interface.','public MovieController(@Qualifier("cachedMovieService") MovieService service)'],
+  ['@Primary','boot','Spring container','Marks the default bean when several of one type exist.',null],
+  ['@Value','boot','Spring container','Injects a single property value.','@Value("${app.movie.max-results}")\nprivate int maxResults;'],
+  ['@ConfigurationProperties','boot','Spring Boot','Binds a whole group of properties, such as app.movie.*, to a typed class.','@ConfigurationProperties(prefix = "app.movie")'],
+  ['@Profile','boot','Spring container','Creates a bean only when a given profile is active.','@Profile("dev")'],
+  ['@PostConstruct','boot','Spring container','Runs once after the bean is built and its dependencies are injected (jakarta.annotation).',null],
+  ['@PreDestroy','boot','Spring container','Runs once before the container shuts down.',null],
+  ['@RestController','web','Spring MVC','@Controller plus @ResponseBody: return values are written as JSON.',null],
+  ['@Controller','web','Spring MVC','Returns view names for server-rendered pages such as Thymeleaf templates.',null],
+  ['@RequestMapping','web','Spring MVC','On a class, a URL prefix for every method; on a method, a general-purpose mapping.','@RequestMapping("/api/movies")'],
+  ['@GetMapping','web','Spring MVC','Handles GET, for reading. Success is 200.','@GetMapping("/{id}")'],
+  ['@PostMapping','web','Spring MVC','Handles POST, for creating. Success is 201.',null],
+  ['@PutMapping','web','Spring MVC','Handles PUT, for replacing a whole resource. Success is 200.','@PutMapping("/{id}")'],
+  ['@PatchMapping','web','Spring MVC','Handles PATCH, for changing some fields. Success is 200.','@PatchMapping("/{id}")'],
+  ['@DeleteMapping','web','Spring MVC','Handles DELETE, for removing. Success is 204.','@DeleteMapping("/{id}")'],
+  ['@PathVariable','web','Spring MVC','Takes a value from the URL path and converts it to the parameter type.','@PathVariable Long id'],
+  ['@RequestParam','web','Spring MVC','Takes a query-string value (?title=night). Required unless required = false or a defaultValue is given.','@RequestParam(defaultValue = "0") int page'],
+  ['@RequestBody','web','Jackson, via Spring MVC','Converts the JSON request body into a Java object.','@RequestBody Movie movie'],
+  ['@ResponseBody','web','Spring MVC','Writes the return value into the response body. Implied by @RestController.',null],
+  ['@ResponseStatus','web','Spring MVC','A fixed status for a method or an exception class.','@ResponseStatus(HttpStatus.NOT_FOUND)\npublic class MovieNotFoundException extends RuntimeException { }'],
+  ['@RestControllerAdvice','web','Spring MVC','A single home for @ExceptionHandler methods shared by every controller.',null],
+  ['@ExceptionHandler','web','Spring MVC','Turns one exception type into a response.','@ExceptionHandler(MovieNotFoundException.class)\npublic ProblemDetail notFound(MovieNotFoundException e) { … }'],
+  ['@CrossOrigin','web','Spring MVC','Lets browser apps on another origin call the API, such as React on 3000 and Angular on 4200.','@CrossOrigin(origins = "http://localhost:3000")'],
+  ['@RequestHeader','web','Spring MVC','Reads a request header, such as Authorization in Phase 3.','@RequestHeader("Authorization") String token'],
+  ['@Service','svc','Component scanner','Registers a business-logic bean. It behaves exactly like @Component; the name documents intent.',null],
+  ['@Transactional','svc','Transaction proxy','Runs the method in one database transaction and rolls back on RuntimeException. Import the org.springframework version.','@Transactional(readOnly = true)'],
+  ['@Entity','ent','Hibernate','This class maps to a table; one object is one row.',null],
+  ['@Table','ent','Hibernate','Table name, unique constraints and indexes.','@Table(name = "movies",\n       indexes = @Index(columnList = "genre"))'],
+  ['@Id','ent','Hibernate','The primary key field.',null],
+  ['@GeneratedValue','ent','Hibernate','Who generates the id: IDENTITY (the database), SEQUENCE, or UUID.','@GeneratedValue(strategy = GenerationType.IDENTITY)'],
+  ['@Column','ent','Hibernate','Column details: name, nullable, unique, length, precision, updatable, columnDefinition.','@Column(nullable = false, length = 150)'],
+  ['@Enumerated','ent','Hibernate','How an enum is stored. Choose STRING.','@Enumerated(EnumType.STRING)'],
+  ['@Transient','ent','Hibernate','The field is not persisted and gets no column.',null],
+  ['@Lob','ent','Hibernate','Large text or binary content, such as a long synopsis.',null],
+  ['@CreationTimestamp','ent','Hibernate (org.hibernate.annotations)','Fills in the time automatically on INSERT.',null],
+  ['@UpdateTimestamp','ent','Hibernate (org.hibernate.annotations)','Fills in the time automatically on every UPDATE.',null],
+  ['@Version','ent','Hibernate','Optimistic locking: the UPDATE checks the version, so a stale write fails instead of overwriting newer data.','@Version\nprivate Integer version;'],
+  ['@Embedded / @Embeddable','ent','Hibernate','A value object whose fields become columns of the owning table.',null],
+  ['@ManyToOne / @OneToMany','ent','Hibernate','Relationships between entities, for example many Reviews to one Movie.','@ManyToOne(fetch = FetchType.LAZY)\n@JoinColumn(name = "movie_id")\nprivate Movie movie;'],
+  ['@JoinColumn','ent','Hibernate','Names the foreign-key column of a relationship.',null],
+  ['@UniqueConstraint / @Index','ent','Hibernate DDL','Multi-column unique rules and indexes, declared inside @Table.',null],
+  ['@Repository','repo','Component scanner and exception translation','Marks a data-access bean. Optional on Spring Data interfaces; on hand-written DAOs it also translates SQLExceptions.',null],
+  ['@Query','repo','Spring Data JPA','Your own JPQL, or native SQL with nativeQuery = true.','@Query("SELECT m FROM Movie m WHERE m.rating >= :min")'],
+  ['@Param','repo','Spring Data','Binds a method parameter to a :name placeholder.','@Param("min") Double min'],
+  ['@Modifying','repo','Spring Data JPA','Marks a @Query as UPDATE or DELETE; the method returns the number of rows changed.',null],
+  ['@EnableJpaRepositories','repo','Spring Data','Customises repository scanning. Spring Boot configures it for you.',null],
+  ['@EntityScan','repo','Spring Boot','Finds @Entity classes that live outside the main class’s package.',null],
+  ['@Valid','val','Spring MVC and Hibernate Validator','Triggers validation of a @RequestBody; a failure returns 400 automatically.','public ResponseEntity<?> create(@Valid @RequestBody MovieRequest request)'],
+  ['@NotNull / @NotBlank','val','Hibernate Validator','@NotNull rejects null; @NotBlank also rejects empty and whitespace-only strings.','@NotBlank\nprivate String title;'],
+  ['@Size','val','Hibernate Validator','Length limits for strings and collections.','@Size(max = 150)'],
+  ['@DecimalMin / @DecimalMax','val','Hibernate Validator','Bounds for decimal numbers such as a rating. Use @Min and @Max for whole numbers.','@DecimalMin("0.0") @DecimalMax("10.0")\nprivate Double rating;'],
+  ['@Positive / @Email / @Pattern','val','Hibernate Validator','A positive number, an e-mail format, or a regular expression.',null]
+];
+var annState = { g:'all', q:'' };
+function renderAnn(){
+  var q = annState.q.trim().toLowerCase();
+  var list = ANN.filter(function(a){ return (annState.g === 'all' || a[1] === annState.g) && (!q || (a[0] + ' ' + a[3] + ' ' + a[2]).toLowerCase().indexOf(q) !== -1); });
+  $('#ann-count').textContent = list.length + (list.length === 1 ? ' annotation' : ' annotations');
+  $('#ann-list').innerHTML = list.length ? list.map(function(a){
+    return '<div class="ann lc-' + AG[a[1]][1] + '"><div class="ann-h"><h4>' + esc(a[0]) + '</h4><span class="tag lc-' + AG[a[1]][1] + '">' + esc(AG[a[1]][0]) + '</span></div><p class="rb">Read by: ' + esc(a[2]) + '</p><p>' + esc(a[3]) + '</p>' + (a[4] ? codeBlock(a[4], 'java') : '') + '</div>';
+  }).join('') : '<div class="empty">No annotation matches “' + esc(annState.q) + '”. Try a shorter word, such as Column or Mapping.</div>';
+}
+function initAnn(){
+  var chips = $('#ann-chips'), keys = ['all'].concat(Object.keys(AG));
+  keys.forEach(function(k){
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'chip sans';
+    b.textContent = k === 'all' ? 'All' : AG[k][0];
+    b.setAttribute('aria-pressed', String(k === 'all'));
+    b.addEventListener('click', function(){ annState.g = k; $$('button', chips).forEach(function(x){ x.setAttribute('aria-pressed', 'false'); }); b.setAttribute('aria-pressed', 'true'); renderAnn(); });
+    chips.appendChild(b);
+  });
+  $('#ann-q').addEventListener('input', function(e){ annState.q = e.target.value; renderAnn(); });
+  renderAnn();
+}
+
+/* ---------- boot everything ---------- */
+[initStaticCode, initTheme, initNav, initHero, initBoot, initConfig, initEntity, initDDL, initPipe, initBuilder, initUrl, initAnn].forEach(function(fn){
+  try { fn(); } catch(e){ if(window.console) console.error(fn.name, e); }
+});
+})();
+</script>
+</body>
+</html>
