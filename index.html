@@ -109,6 +109,18 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .jcore .sem.live::after{color:var(--gold)}
 .jcore .dot{background:var(--gold);box-shadow:0 0 8px var(--gold)}
 .jcore .sem.live .s-title{color:#fff9ea}
+/* ── Learning Adventures ── */
+.oracle-card.advn{border-top-color:var(--purple)}
+.advn .oracle-badge{background:radial-gradient(circle at 30% 25%,rgba(177,140,255,.32),transparent 70%),#100a1c;border-color:rgba(177,140,255,.38);font-size:24px}
+.advn .oracle-toggle{background:linear-gradient(180deg,#D6C4FF,var(--purple));box-shadow:0 6px 20px -8px rgba(177,140,255,.6)}
+.advn .oracle-toggle:hover{box-shadow:0 10px 26px -8px rgba(177,140,255,.85)}
+.advn .oracle-toggle:focus-visible{outline-color:var(--purple)}
+.advn .sem.live{border-color:rgba(177,140,255,.45);background:linear-gradient(180deg,rgba(177,140,255,.08),var(--bg))}
+.advn .sem.live:hover{border-color:var(--purple)}
+.advn .sem.live .s-num,.advn .sem.live .s-state{color:var(--purple)}
+.advn .sem.live::after{color:var(--purple)}
+.advn .dot{background:var(--purple);box-shadow:0 0 8px var(--purple)}
+.advn .sem.live .s-title{color:#f4efff}
 @media(max-width:920px){.grid{grid-template-columns:1fr;max-width:520px}}
 @media(prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}.plsql-overlay.on,.plsql-modal{animation:none}}
 .jc-new{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;color:#1a1300;background:linear-gradient(180deg,#FFE3A1,var(--gold));border-radius:99px;padding:10px 18px;box-shadow:0 6px 20px -8px rgba(255,209,102,.6);transition:.18s}
@@ -374,6 +386,53 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
   </div>
 </section>
 
+<section class="oracle">
+  <div class="oracle-card advn" id="advnCard">
+    <div class="oracle-head">
+      <div class="oracle-badge">🎮</div>
+      <div class="oracle-meta">
+        <div class="num">PROGRAM 05</div>
+        <h2>Learning Adventures — Game-Based Labs</h2>
+        <p>Four new playable learning worlds: a JavaScript adventure, a Java arena of legends, a full JavaScript lab from scratch to async, and a Himalayan explorer for young learners.</p>
+      </div>
+      <button class="oracle-toggle" id="advnToggle" aria-expanded="false" aria-controls="advnGrid">
+        <span class="lbl">OPEN THE 4 ADVENTURES</span>
+        <span class="chev">▾</span>
+      </button>
+    </div>
+    <div class="sem-wrap">
+      <div class="sem-inner">
+        <div class="sem-grid" id="advnGrid">
+          <a class="sem live" href="codeverse-javascript-adventure.html">
+            <div class="s-num">JAVASCRIPT · GAME</div>
+            <div class="s-title">CodeVerse — The JavaScript Adventure</div>
+            <div class="s-sub">Travel a world map, unlock characters and learn JavaScript as you play.</div>
+            <div class="s-state"><span class="dot"></span>PLAY NOW</div>
+          </a>
+          <a class="sem live" href="javaverse-arena-of-legends.html">
+            <div class="s-num">JAVA · GAME</div>
+            <div class="s-title">JavaVerse — Arena of Legends</div>
+            <div class="s-sub">Battle through the arena map and build a hero codex of Java concepts.</div>
+            <div class="s-state"><span class="dot"></span>PLAY NOW</div>
+          </a>
+          <a class="sem live" href="javascript-lab-scratch-to-advanced.html">
+            <div class="s-num">JAVASCRIPT · LAB</div>
+            <div class="s-title">JavaScript Lab — Scratch to Advanced</div>
+            <div class="s-sub">Classes, functional code, regex and async, step by step to a capstone project.</div>
+            <div class="s-state"><span class="dot"></span>OPEN LAB</div>
+          </a>
+          <a class="sem live" href="himalaya-explorer-icse-class4.html">
+            <div class="s-num">ICSE CLASS 4 · GEOGRAPHY</div>
+            <div class="s-title">Himalaya Explorer</div>
+            <div class="s-sub">Explore the Himalayan region on the map and finish with a champion quiz.</div>
+            <div class="s-state"><span class="dot"></span>START EXPLORING</div>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
 <div class="plsql-overlay" id="plsqlModal" role="dialog" aria-modal="true" aria-labelledby="plsqlTitle">
   <div class="plsql-modal">
     <div class="m-num">SEM 02 · PL/SQL</div>
@@ -440,6 +499,7 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
   }
   wireToggle('oracleCard','oracleToggle','HIDE SEMESTERS','EXPLORE SEMESTERS');
   wireToggle('jcoreCard','jcoreToggle','HIDE THE LABS','OPEN THE 9 LABS');
+  wireToggle('advnCard','advnToggle','HIDE THE ADVENTURES','OPEN THE 4 ADVENTURES');
 
   /* Mode choosers (PL/SQL + Java Foundations) */
   function wireChooser(btnId,modalId,closeId){
