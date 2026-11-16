@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>TablesVerse — Master the 1–20 Times Tables Forever</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=JetBrains+Mono:wght@700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0E1430;--bg2:#15204A;--panel:#1B2A5C;--panel2:#22346E;--line:#33478C;--ink:#F0F5FF;--ink2:#AEC0EE;--ink3:#6E80BE;
+--blue:#4F9BFF;--teal:#2DD4BF;--green:#34D399;--amber:#FBBF24;--coral:#FB7185;--violet:#A78BFF;--pink:#F472B6;
+--mono:'JetBrains Mono',monospace;--r:20px}
+*{box-sizing:border-box}html,body{margin:0}
+body{font-family:'Baloo 2',ui-rounded,'Segoe UI',system-ui,sans-serif;color:var(--ink);
+background:radial-gradient(900px 500px at 85% -10%,#2A3A8A,transparent),radial-gradient(700px 500px at 0 110%,#3A2A6E,transparent),var(--bg);min-height:100vh}
+button{font:inherit;cursor:pointer;color:inherit;border:0;background:none}
+.mono{font-family:var(--mono)}
+.top{position:sticky;top:0;z-index:40;display:flex;align-items:center;gap:12px;padding:8px 16px;background:rgba(14,20,48,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);flex-wrap:wrap}
+.logo{display:flex;align-items:center;gap:8px;font-weight:800;font-size:22px;letter-spacing:-.02em}
+.logo i{font-style:normal;background:linear-gradient(135deg,var(--amber),var(--coral));width:34px;height:34px;border-radius:11px;display:grid;place-items:center;color:#2A1500;font-size:18px}
+.logo b{color:var(--amber)}
+.hsp{flex:1}
+.stat{display:flex;gap:7px;flex-wrap:wrap}
+.chip{background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:5px 13px;font-weight:700;font-size:14px;display:flex;gap:5px;align-items:center}
+.nav{display:flex;gap:5px;flex-wrap:wrap}
+.nav button{border:1px solid var(--line);background:var(--panel);border-radius:11px;padding:7px 13px;font-weight:700;font-size:14.5px;color:var(--ink2)}
+.nav button.on{background:var(--blue);border-color:var(--blue);color:#06142E}
+.wrap{max-width:1140px;margin:0 auto;padding:16px}
+.screen{display:none;animation:fade .3s}.screen.on{display:block}@keyframes fade{from{opacity:0;transform:translateY(6px)}}
+.btn{border:2px solid var(--line);background:var(--panel);border-radius:14px;padding:10px 18px;font-weight:800;font-size:16px;transition:transform .1s}
+.btn:hover{transform:translateY(-1px)}.btn:active{transform:translateY(1px)}
+.btn.pri{background:linear-gradient(135deg,var(--blue),#3B7BE0);border-color:transparent;color:#06142E}
+.btn.green{background:linear-gradient(135deg,var(--green),#10B981);border-color:transparent;color:#042A1F}
+.btn.amber{background:linear-gradient(135deg,var(--amber),#F59E0B);border-color:transparent;color:#2A1A00}
+.btn.sm{padding:6px 12px;font-size:14px;border-radius:11px}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:16px}
+.muted{color:var(--ink3)}
+h2{margin:0 0 4px;font-size:clamp(22px,3vw,30px)}h3{margin:0 0 8px}
+/* mascot */
+.numo{width:100%;height:auto;display:block}
+/* HOME */
+.hero{display:grid;grid-template-columns:1.1fr .9fr;gap:20px;align-items:center;margin-top:10px}
+.hero h1{font-size:clamp(34px,6vw,60px);line-height:.98;margin:6px 0}
+.hero h1 b{background:linear-gradient(90deg,var(--amber),var(--coral),var(--violet));-webkit-background-clip:text;background-clip:text;color:transparent}
+.kick{color:var(--teal);font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:13px;margin:0}
+.lead{color:var(--ink2);font-size:18px;line-height:1.5;max-width:520px}
+.reframe{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:16px 0}
+.reframe .r{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:12px;text-align:center}
+.reframe .r b{display:block;font-size:30px;color:var(--amber)}.reframe .r small{color:var(--ink2);font-size:12.5px}
+.mcard{position:relative;background:radial-gradient(circle at 50% 30%,#2A3A8A,#15204A);border:1px solid var(--line);border-radius:28px;padding:20px;text-align:center}
+.mcard .numo{max-width:230px;margin:0 auto}
+.sb{display:inline-block;background:#fff;color:#15204A;border-radius:16px;padding:8px 14px;font-weight:700;margin-top:6px;position:relative}
+.sb::after{content:"";position:absolute;top:-9px;left:40px;border:6px solid transparent;border-bottom-color:#fff}
+/* MAP */
+.mapgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:12px;margin-top:14px}
+.tnode{position:relative;aspect-ratio:1;border-radius:20px;border:2px solid var(--line);background:linear-gradient(160deg,var(--panel2),var(--panel));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-weight:800;transition:transform .15s}
+.tnode:hover{transform:translateY(-3px);border-color:var(--amber)}
+.tnode .tn{font-size:34px;line-height:1}.tnode .tl{font-size:12px;color:var(--ink2);font-weight:700}
+.tnode .st{position:absolute;top:7px;right:9px;font-size:12px}
+.tnode .ring{position:absolute;inset:-2px;border-radius:20px;border:3px solid transparent;pointer-events:none}
+.tnode.m1 .ring{border-color:var(--coral)}.tnode.m2 .ring{border-color:var(--amber)}.tnode.m3 .ring{border-color:var(--green)}
+.tnode .pct{position:absolute;bottom:7px;font:700 11px var(--mono);color:var(--ink3)}
+.tnode .pct.done{color:var(--green)}
+.advtoggle{display:flex;gap:8px;align-items:center;margin-top:14px;color:var(--ink2);font-size:14px}
+/* LEARN */
+.lvtabs{display:flex;gap:6px;margin:12px 0}
+.lvtabs button{border:1px solid var(--line);background:var(--panel);border-radius:999px;padding:7px 16px;font-weight:700;color:var(--ink2)}
+.lvtabs button.on{background:var(--amber);border-color:var(--amber);color:#2A1A00}
+.learnrow{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center;background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px 14px;margin-bottom:8px;opacity:0;transform:translateX(-10px);transition:.4s}
+.learnrow.on{opacity:1;transform:none}
+.eq{font:800 22px var(--mono);white-space:nowrap}.eq .a{color:var(--blue)}.eq .b{color:var(--teal)}.eq .r{color:var(--amber)}
+.dots{display:flex;flex-wrap:wrap;gap:3px;max-width:100%}
+.dot{width:12px;height:12px;border-radius:50%;background:var(--violet);animation:pop .3s both}
+@keyframes pop{from{transform:scale(0)}}
+.skipline{position:relative;height:60px;margin:14px 0;border-radius:12px;background:var(--bg2);border:1px solid var(--line);overflow-x:auto;white-space:nowrap}
+.stop{display:inline-flex;flex-direction:column;align-items:center;width:64px;height:100%;justify-content:center;position:relative}
+.stop i{width:10px;height:10px;border-radius:50%;background:var(--line);margin-top:6px}
+.stop.on i{background:var(--amber);box-shadow:0 0 10px var(--amber)}
+.stop b{font:700 14px var(--mono);color:var(--ink2)}.stop.on b{color:var(--amber)}
+.hopper{position:absolute;top:4px;width:26px;transition:left .4s cubic-bezier(.4,1.4,.5,1);z-index:2}
+/* PRACTICE / ARENA */
+.quiz{max-width:560px;margin:0 auto;text-align:center}
+.qbig{font:800 clamp(40px,9vw,72px) var(--mono);margin:8px 0}
+.qbig .x{color:var(--ink3)}
+.ans{display:flex;gap:10px;justify-content:center;align-items:center;margin:10px 0}
+.ansin{width:150px;text-align:center;font:800 40px var(--mono);background:#0C1430;border:3px solid var(--line);border-radius:16px;color:#fff;padding:6px}
+.ansin.ok{border-color:var(--green)}.ansin.no{border-color:var(--coral)}
+.keypad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;max-width:300px;margin:12px auto}
+.keypad button{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px;font:800 24px var(--mono)}
+.keypad button:active{background:var(--blue);color:#06142E}
+.keypad .wide{grid-column:span 2}
+.fb{min-height:52px;font-weight:800;font-size:20px;margin:6px 0}
+.fb.ok{color:var(--green)}.fb.no{color:var(--coral)}
+.qbar{height:10px;border-radius:5px;background:var(--bg2);border:1px solid var(--line);overflow:hidden;margin:10px auto;max-width:400px}
+.qbar i{display:block;height:100%;background:linear-gradient(90deg,var(--blue),var(--teal));transition:width .3s}
+.combo{font-weight:800;color:var(--amber)}
+.arrayviz{display:inline-grid;gap:4px;margin:10px auto;padding:10px;background:var(--bg2);border:1px solid var(--line);border-radius:14px}
+.arrayviz i{width:16px;height:16px;border-radius:4px;background:var(--violet);animation:pop .25s both}
+/* TRICKS */
+.trgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:12px;margin-top:12px}
+.trick{background:var(--panel);border:1px solid var(--line);border-top:4px solid var(--c,var(--blue));border-radius:16px;padding:14px}
+.trick h4{margin:0 0 4px;font-size:17px}.trick p{margin:0 0 8px;color:var(--ink2);font-size:14px;line-height:1.45}
+.trick .demo{background:#0C1430;border:1px solid var(--line);border-radius:10px;padding:10px;font:700 15px var(--mono);text-align:center}
+.trick code{background:#0C1430;color:#9CD4FF;padding:1px 6px;border-radius:5px}
+/* fingers */
+.fingers{display:flex;gap:4px;justify-content:center;margin:6px 0}
+.finger{width:14px;height:44px;border-radius:7px;background:var(--teal);transition:.3s}
+.finger.fold{height:16px;background:var(--coral);align-self:flex-end}
+/* PROGRESS */
+.heat{display:grid;grid-template-columns:auto repeat(var(--n),1fr);gap:2px;margin-top:10px;font-size:10px}
+.heat .hd{font:700 10px var(--mono);color:var(--ink3);text-align:center;display:grid;place-items:center}
+.hc{aspect-ratio:1;border-radius:3px;background:#1C2342;display:grid;place-items:center;font:700 9px var(--mono);color:#0008}
+.hc.s0{background:#2A3157}.hc.s1{background:#5B3A5E}.hc.s2{background:#8A4A4A}.hc.s3{background:#9A7A3A}.hc.s4{background:#5A8A4A}.hc.s5{background:#2DD4A7;color:#042A1F}
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12.5px;color:var(--ink2)}
+.legend span{display:flex;gap:5px;align-items:center}.legend i{width:14px;height:14px;border-radius:3px}
+.insight{background:linear-gradient(135deg,rgba(167,139,255,.12),rgba(79,155,255,.12));border:1px solid var(--violet);border-radius:16px;padding:14px;margin-top:14px}
+/* LEARN v2: tap-to-reveal */
+.lhero{display:flex;gap:18px;align-items:center;background:linear-gradient(135deg,rgba(167,139,255,.14),rgba(79,155,255,.08));border:1px solid var(--line);border-radius:22px;padding:16px;margin:12px 0 14px;flex-wrap:wrap}
+.orb{position:relative;width:104px;height:104px;flex:none;display:grid;place-items:center}
+.orb span{font:900 44px var(--mono);color:var(--tc);text-shadow:0 0 24px var(--tc);animation:orbF 3s ease-in-out infinite}
+.orb svg{position:absolute;inset:0;transform:rotate(-90deg)}.orb circle{fill:none;stroke-width:8}.orb .bgc{stroke:var(--panel2)}
+.orb .pc{stroke:var(--tc);stroke-linecap:round;stroke-dasharray:100;stroke-dashoffset:100;transition:stroke-dashoffset .6s cubic-bezier(.3,1.4,.5,1);filter:drop-shadow(0 0 6px var(--tc))}
+@keyframes orbF{50%{transform:translateY(-4px) scale(1.04)}}
+.lmeta{flex:1;min-width:240px}.lcount{font:800 18px var(--mono);margin-bottom:4px}.lcount b{color:var(--amber);font-size:24px}
+.lctl{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:10px;align-items:start}
+.fcard{all:unset;box-sizing:border-box;cursor:pointer;position:relative;background:var(--bg2);border:1px solid var(--line);border-left:5px solid var(--cc);border-radius:16px;padding:12px 14px;animation:cardIn .5s cubic-bezier(.3,1.5,.5,1) both;transition:transform .15s,box-shadow .3s,border-color .3s;overflow:hidden;-webkit-tap-highlight-color:transparent}
+.fcard:hover{transform:translateY(-2px);box-shadow:0 8px 22px rgba(0,0,0,.35)}.fcard:active{transform:scale(.97)}
+.fcard:focus-visible{outline:2px solid var(--amber);outline-offset:2px}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.94)}}
+.fcard.key{border-color:#FFC94A;border-left-color:#FFC94A;background:linear-gradient(135deg,rgba(255,201,74,.13),var(--bg2) 60%);box-shadow:0 0 0 1px rgba(255,201,74,.25),0 0 18px rgba(255,201,74,.12)}
+.kb{position:absolute;top:8px;right:10px;font:800 10px var(--mono);font-style:normal;color:#2A1A00;background:linear-gradient(135deg,#FFE27A,#FFB020);padding:2px 7px;border-radius:999px;animation:kbG 2.2s ease-in-out infinite}
+@keyframes kbG{50%{box-shadow:0 0 12px #FFC94A}}
+.fq{display:flex;align-items:center;gap:8px;font:800 24px var(--mono)}.fq i{font-style:normal;color:var(--ink3)}
+.flip{perspective:400px;width:76px;height:40px;position:relative}
+.fr{position:absolute;inset:0;display:grid;place-items:center;border-radius:11px;backface-visibility:hidden;transition:transform .55s cubic-bezier(.3,1.5,.5,1)}
+.fb4{background:repeating-linear-gradient(45deg,var(--panel2) 0 8px,var(--panel) 8px 16px);color:var(--ink3);border:1px dashed var(--line);animation:shim 1.6s ease-in-out infinite}
+@keyframes shim{50%{color:var(--ink2);border-color:var(--violet)}}
+.fa{transform:rotateX(-180deg);background:var(--cc);color:#071022;text-shadow:none;box-shadow:0 0 20px var(--cc)}
+.fcard.key .fa{background:linear-gradient(135deg,#FFE27A,#FFB020);box-shadow:0 0 26px #FFB020}
+.fcard.open .fb4{transform:rotateX(180deg)}.fcard.open .fa{transform:rotateX(0);animation:numPop .6s cubic-bezier(.3,1.8,.5,1)}
+.fcard.pulse .fa{animation:numPop .6s cubic-bezier(.3,1.8,.5,1)}
+@keyframes numPop{0%{scale:.4}55%{scale:1.35}100%{scale:1}}
+.fx{max-height:0;opacity:0;transition:max-height .5s,opacity .4s,margin .4s}
+.fcard.open .fx{max-height:240px;opacity:1;margin-top:10px}
+.fdots{display:grid;grid-template-columns:repeat(var(--cols),8px);gap:2px}
+.fdots span{width:8px;height:8px;border-radius:50%;background:var(--cc);opacity:0}
+.fcard.open .fdots span{animation:pop .35s cubic-bezier(.3,1.6,.5,1) forwards;opacity:1}
+.kt{font-size:12.5px;color:var(--ink2);margin-top:8px;line-height:1.45}.kt b{color:#FFC94A}.kt.dim{color:var(--ink3)}
+.fgrid.keysonly .fcard:not(.key){opacity:.18;filter:grayscale(1);transform:scale(.97)}
+.fgrid.shuffle .fcard{animation:shuf .5s ease}@keyframes shuf{40%{transform:rotateY(90deg)}}
+.stop.k b{color:#FFC94A}.stop.k i{background:#FFC94A}
+.blast{position:fixed;width:0;height:0;pointer-events:none;z-index:80}
+.blast i{position:absolute;width:8px;height:8px;margin:-4px;border-radius:50%;animation:bp .85s cubic-bezier(.15,.7,.3,1) forwards}
+@keyframes bp{0%{transform:translate(0,0) scale(1.3);opacity:1}100%{transform:translate(var(--x),var(--y)) scale(0);opacity:0}}
+.blast .ring{position:absolute;width:20px;height:20px;margin:-10px;border-radius:50%;border:3px solid #fff;animation:rg .6s ease-out forwards}
+.blast .r2{border-color:#FFC94A;animation-delay:.12s;animation-duration:.8s}
+@keyframes rg{from{transform:scale(.3);opacity:1}to{transform:scale(7);opacity:0}}
+.blast u{position:absolute;text-decoration:none;color:#FFE27A;font-size:18px;margin:-10px;animation:bp 1s ease-out forwards;text-shadow:0 0 8px #FFB020}
+.ansin.ok{animation:numPop .5s cubic-bezier(.3,1.8,.5,1)}
+/* BUILD / STRATEGY LAB */
+.concept{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin:14px 0}
+.cstep{background:var(--panel2);border:1px solid var(--line);border-radius:16px;padding:14px;text-align:center}
+.cstep h4{margin:0 0 4px;font-size:13.5px}.cstep .sub{font-size:11.5px;color:var(--ink3);margin-bottom:10px}
+.cg{display:flex;gap:6px;justify-content:center;flex-wrap:wrap}
+.grp{display:grid;grid-template-columns:repeat(4,12px);gap:3px;padding:5px;border:1px dashed var(--violet);border-radius:8px}
+.grp i{width:12px;height:12px;border-radius:50%;background:var(--violet);animation:pop .4s backwards}
+.arr{display:grid;gap:3px;justify-content:center}.arr .row{display:flex;gap:3px}
+.arr i{width:13px;height:13px;border-radius:3px;background:var(--blue);animation:pop .4s backwards}
+.boxf{display:grid;place-items:center;height:100%}
+.boxf .b{background:linear-gradient(135deg,var(--amber),var(--coral));color:#2A1500;font:900 26px var(--mono);width:70px;height:54px;border-radius:12px;display:grid;place-items:center}
+@keyframes pop{from{transform:scale(0);opacity:0}}
+.ladder{display:flex;flex-direction:column;gap:0;margin:14px 0}
+.tier{display:block;padding:11px 0;border-left:3px solid var(--line);margin-left:20px;padding-left:22px;position:relative;opacity:.4;transition:.4s}
+.tier.on{opacity:1;border-color:var(--teal)}
+.tier .gem{position:absolute;left:-13px;width:24px;height:24px;background:var(--panel2);border:2px solid var(--line);transform:rotate(45deg);border-radius:4px;display:grid;place-items:center}
+.tier.on .gem{border-color:var(--teal);background:linear-gradient(135deg,var(--teal),var(--blue))}
+.tier .gem b{transform:rotate(-45deg);font-size:12px}
+.tier h4{margin:0;font-size:14px}.tier .d{font-size:12px;color:var(--ink3)}
+.diamonds{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin:14px 0}
+.dia{background:var(--panel2);border:1px solid var(--line);border-radius:18px;padding:16px;cursor:pointer;transition:.25s;position:relative;overflow:hidden}
+.dia:hover{border-color:var(--violet);transform:translateY(-2px)}
+.dia .gemi{width:40px;height:40px;background:linear-gradient(135deg,var(--violet),var(--blue));clip-path:polygon(50% 0,100% 50%,50% 100%,0 50%);display:grid;place-items:center;font-size:18px;margin-bottom:8px}
+.dia h4{margin:0 0 2px;font-size:14px}.dia .sub{font-size:12px;color:var(--ink3)}
+.dia .steps{max-height:0;opacity:0;transition:.3s;font-size:13px;line-height:1.7;margin-top:0}
+.dia.open{border-color:var(--violet);grid-column:1/-1}
+.dia.open .steps{max-height:360px;opacity:1;margin-top:12px}
+.dia .steps code{background:rgba(167,139,255,.15);padding:1px 6px;border-radius:6px;font:700 13px var(--mono);color:var(--violet)}
+.dia .eq{font:800 15px var(--mono);color:var(--teal);margin-top:6px}
+.fpick{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0}
+.fpick button{background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:700 13px var(--mono);padding:7px 12px;border-radius:10px;cursor:pointer;transition:.2s}
+.fpick button:hover,.fpick button.sel{border-color:var(--violet);background:rgba(167,139,255,.14)}
+.cin{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+.cin input{width:62px;background:var(--panel2);border:1px solid var(--line);color:var(--ink);font:800 16px var(--mono);padding:8px;border-radius:10px;text-align:center}
+.areabox{margin:14px 0}
+.agrid{display:inline-grid;gap:4px;background:var(--panel);padding:10px;border-radius:14px;border:1px solid var(--line)}
+.acell{border-radius:8px;display:grid;place-items:center;font:800 15px var(--mono);color:#06121f;padding:10px;min-width:60px}
+.acell small{display:block;font:600 10px var(--mono);opacity:.75}
+.asum{margin-top:12px;font:800 15px var(--mono);color:var(--ink)}
+.asum b{color:var(--teal)}
+.alabel{font:700 12px var(--mono);color:var(--ink3);text-align:center;padding:3px}
+.toast{position:fixed;left:50%;bottom:22px;transform:translate(-50%,30px);opacity:0;background:linear-gradient(135deg,var(--amber),var(--coral));color:#2A1500;font-weight:800;padding:10px 20px;border-radius:999px;transition:.3s;z-index:60}
+.toast.on{opacity:1;transform:translate(-50%,0)}
+.confetti{position:fixed;inset:0;pointer-events:none;z-index:70;overflow:hidden}.confetti i{position:absolute;top:-10px;width:9px;height:14px;border-radius:2px;animation:cf 2.6s ease-in forwards}@keyframes cf{to{top:105%;transform:rotate(720deg)}}
+@media(max-width:800px){.hero{grid-template-columns:1fr}.mapgrid{grid-template-columns:repeat(4,1fr)}.reframe{grid-template-columns:1fr}.hsp{display:none}}
+@media(max-width:520px){.mapgrid{grid-template-columns:repeat(3,1fr)}}
+@media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+
+/* ===== TOUCH / MOBILE / TABLET ===== */
+.nav .ic{margin-right:5px}
+html{-webkit-tap-highlight-color:transparent}button,input,.fcard,.dia,.tnode{touch-action:manipulation}
+.ansin.no{animation:shake .45s}@keyframes shake{20%,60%{transform:translateX(-9px)}40%,80%{transform:translateX(9px)}}
+.fab{display:none}
+@media(pointer:coarse){.btn.sm{min-height:42px}.lvtabs button{min-height:42px}.fpick button{min-height:42px;padding:8px 13px}.keypad button:active{transform:scale(.92)}}
+@media(min-width:701px) and (max-width:1100px){
+ .fgrid{grid-template-columns:repeat(auto-fill,minmax(290px,1fr))}
+ .keypad{max-width:380px}.keypad button{padding:20px;font-size:28px}
+ .nav button{padding:9px 14px}
+}
+@media(max-width:700px){
+ .top{flex-wrap:nowrap;padding:8px 12px;padding-top:max(8px,env(safe-area-inset-top));backdrop-filter:none;-webkit-backdrop-filter:none;background:rgba(14,20,48,.97)}
+ .logo{font-size:19px}.logo i{width:30px;height:30px;font-size:16px}
+ .stat{flex-wrap:nowrap;gap:5px;margin-left:auto}.stat .chip{padding:3px 9px;font-size:13px}
+ .nav{position:fixed;left:0;right:0;bottom:0;z-index:45;flex-wrap:nowrap;gap:2px;padding:6px 6px calc(6px + env(safe-area-inset-bottom));background:rgba(12,18,44,.95);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-top:1px solid var(--line);box-shadow:0 -8px 24px rgba(0,0,0,.35)}
+ .nav button{flex:1;border:0;background:none;display:flex;flex-direction:column;align-items:center;gap:1px;font-size:11px;padding:5px 2px;border-radius:14px;min-height:52px;justify-content:center}
+ .nav .ic{margin:0;font-size:21px;line-height:1;transition:transform .3s cubic-bezier(.3,1.8,.5,1)}
+ .nav button.on{background:rgba(79,155,255,.16);color:#8CC0FF}.nav button.on .ic{transform:translateY(-3px) scale(1.2)}
+ .wrap{padding:12px 12px calc(92px + env(safe-area-inset-bottom))}
+ .toast{bottom:auto;top:calc(62px + env(safe-area-inset-top));transform:translate(-50%,-30px);max-width:92vw;text-align:center;font-size:14px}
+ .toast.on{transform:translate(-50%,0)}
+ .hero .mcard{order:-1;padding:10px}.hero .mcard .numo{max-width:130px}
+ .hero h1{font-size:38px}
+ .reframe{grid-template-columns:repeat(3,1fr)!important;gap:8px}.reframe .r{padding:10px 6px}.reframe .r b{font-size:24px}.reframe small{font-size:11px}
+ .hero .btn{flex:1}
+ /* learn */
+ .lhero{flex-wrap:nowrap;align-items:flex-start;padding:12px;gap:12px;border-radius:18px}
+ .orb{width:70px;height:70px}.orb span{font-size:30px}
+ .lmeta{min-width:0}.lmeta .muted{font-size:13px}
+ .lcount{font-size:15px}.lcount b{font-size:21px}
+ .lctl{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin-left:-82px}
+ .lctl .btn{width:100%;justify-content:center;font-size:13.5px;padding:8px 6px}
+ .fgrid{grid-template-columns:1fr;gap:9px}
+ .fcard{padding:12px}.fq{font-size:23px}
+ .fab{display:flex;position:fixed;right:14px;bottom:calc(80px + env(safe-area-inset-bottom));z-index:46;align-items:center;gap:6px;border:0;border-radius:999px;padding:13px 18px;font:800 15px inherit;font-family:inherit;color:#2A1500;background:linear-gradient(135deg,#FFE27A,#FFB020);box-shadow:0 8px 24px rgba(255,176,32,.45);animation:fabIn .5s cubic-bezier(.3,1.6,.5,1) both}
+ .fab:active{transform:scale(.93)}
+ @keyframes fabIn{from{transform:translateY(40px) scale(.6);opacity:0}}
+ .skipline{height:64px}
+ /* practice */
+ .qbig{font-size:56px;margin:4px 0}
+ .ansin{width:140px;font-size:36px;caret-color:transparent}
+ .keypad{max-width:none;gap:8px;margin:10px 0}.keypad button{padding:15px 0;font-size:26px;border-radius:16px}
+ .keypad button:last-child{background:linear-gradient(135deg,var(--green),var(--teal));color:#04261C;border:0}
+ /* build */
+ .concept{grid-template-columns:none;grid-auto-flow:column;grid-auto-columns:76%;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:6px;-webkit-overflow-scrolling:touch}
+ .cstep{scroll-snap-align:center}
+ .diamonds{gap:10px}.dia{padding:13px}
+ .agrid{max-width:100%;overflow-x:auto}.acell{min-width:52px;padding:8px}
+ .cin input{width:70px}
+ /* progress */
+ .heat{gap:1px}
+}
+@media(max-width:380px){.nav .lb{font-size:10px}.stat .chip:nth-child(3){display:none}.lctl .btn{font-size:12.5px}}
+</style>
+</head>
+<body>
+<div class="top">
+  <button class="logo" data-go="home"><i>×</i>Tables<b>Verse</b></button>
+  <span class="hsp"></span>
+  <div class="stat">
+    <span class="chip">🔥 <b id="sStreak">1</b></span>
+    <span class="chip">⭐ <b id="sMastery">0%</b></span>
+    <span class="chip">🏅 <b id="sXp">0</b></span>
+  </div>
+  <div class="nav" id="nav">
+    <button data-go="map"><span class="ic">🗺</span><span class="lb">Tables</span></button>
+    <button data-go="tricks"><span class="ic">✨</span><span class="lb">Tricks</span></button>
+    <button data-go="build"><span class="ic">🔷</span><span class="lb">Build</span></button>
+    <button data-go="arena"><span class="ic">⚡</span><span class="lb">Arena</span></button>
+    <button data-go="progress"><span class="ic">📊</span><span class="lb">Progress</span></button>
+  </div>
+</div>
+<div class="wrap">
+  <!-- HOME -->
+  <section class="screen on" id="s-home">
+    <div class="hero">
+      <div>
+        <p class="kick">Learn it once · remember it forever</p>
+        <h1>Master the<br><b>1–20 times tables</b></h1>
+        <p class="lead">A 2D animated journey that uses real memory science — <b>active recall</b>, <b>spaced repetition</b> and <b>patterns over rote</b> — so the tables stick for life, not just for the test.</p>
+        <div class="reframe">
+          <div class="r"><b>400</b><small>facts in a 20×20 grid</small></div>
+          <div class="r"><b>÷2</b><small>3×7 = 7×3, so halve it</small></div>
+          <div class="r"><b>~20</b><small>"hard" facts left after tricks</small></div>
+        </div>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+          <button class="btn pri" data-go="map">▶ Start learning</button>
+          <button class="btn" data-go="tricks">See the memory tricks</button>
+        </div>
+      </div>
+      <div class="mcard">
+        <div class="numo" id="homeNumo"></div>
+        <div class="sb" id="homeSay">Hi! I'm Numo. Let's make tables feel easy. 🎯</div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:20px">
+      <h3>🧠 How this makes tables stick (the study flow)</h3>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px">
+        <div><b>1 · See the pattern</b><p class="muted" style="margin:3px 0 0">Every table is shown as dot-arrays + skip counting, so you <i>understand</i> before you memorize.</p></div>
+        <div><b>2 · Learn the trick</b><p class="muted" style="margin:3px 0 0">×9 fingers, ×11 split, ×5 clock… tricks shrink what you must memorize.</p></div>
+        <div><b>3 · Active recall</b><p class="muted" style="margin:3px 0 0">You answer, not re-read. Retrieval is what builds lasting memory.</p></div>
+        <div><b>4 · Spaced repetition</b><p class="muted" style="margin:3px 0 0">The Arena re-tests weak facts at growing intervals — the forgetting curve, defeated.</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- MAP -->
+  <section class="screen" id="s-map">
+    <h2>Pick a table</h2>
+    <p class="muted" id="mapSub"></p>
+    <div class="advtoggle"><label><input type="checkbox" id="advChk"> Advanced mode — practice up to ×20 (default is ×1–×12)</label></div>
+    <div class="mapgrid" id="mapGrid"></div>
+  </section>
+
+  <!-- LEARN -->
+  <section class="screen" id="s-learn">
+    <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+      <button class="btn sm" data-go="map">← Tables</button>
+      <h2 id="learnTitle" style="margin:0"></h2>
+      <span class="hsp"></span>
+      <span class="chip" id="learnMastery"></span>
+    </div>
+    <div class="lvtabs" id="lvTabs"></div>
+    <div id="learnBody"></div>
+  </section>
+
+  <!-- TRICKS -->
+  <section class="screen" id="s-tricks">
+    <h2>✨ Memory tricks</h2>
+    <p class="muted">Each trick removes facts you'd otherwise rote-memorize. Learn these and the tables almost teach themselves.</p>
+    <div class="trgrid" id="trGrid"></div>
+  </section>
+
+  <!-- BUILD -->
+  <section class="screen" id="s-build">
+    <h2>🔷 Build &amp; Strategy Lab</h2>
+    <p class="muted">See how multiplication really works in 2D — then learn to turn hard numbers into easy ones you already know.</p>
+    <div id="buildBody"></div>
+  </section>
+
+  <!-- ARENA -->
+  <section class="screen" id="s-arena">
+    <h2>⚡ Fluency Arena</h2>
+    <p class="muted">Mixed questions picked by <b>spaced repetition</b> — your weakest, most-due facts come up most. Build speed and streaks.</p>
+    <div id="arenaBody"></div>
+  </section>
+
+  <!-- PROGRESS -->
+  <section class="screen" id="s-progress">
+    <h2>📊 Your memory map</h2>
+    <p class="muted">Every fact's strength (0–5). Green = locked in long-term. This is your personal forgetting-curve defense.</p>
+    <div id="progBody"></div>
+  </section>
+</div>
+<div class="toast" id="toast"></div>
+<script>
+var $=function(id){return document.getElementById(id);};
+/* ---------------- mascot (original character: Numo) ---------------- */
+function numo(mood){mood=mood||'happy';
+ var eyes=mood==='think'?'<ellipse cx="80" cy="96" rx="11" ry="13" fill="#fff"/><ellipse cx="128" cy="96" rx="11" ry="13" fill="#fff"/><circle cx="83" cy="99" r="6" fill="#16204A"/><circle cx="131" cy="99" r="6" fill="#16204A"/>'
+ :mood==='wow'?'<circle cx="80" cy="96" r="15" fill="#fff"/><circle cx="128" cy="96" r="15" fill="#fff"/><circle cx="80" cy="97" r="7" fill="#16204A"/><circle cx="128" cy="97" r="7" fill="#16204A"/>'
+ :'<ellipse cx="80" cy="94" rx="12" ry="14" fill="#fff"/><ellipse cx="128" cy="94" rx="12" ry="14" fill="#fff"/><circle cx="82" cy="97" r="7" fill="#16204A"/><circle cx="130" cy="97" r="7" fill="#16204A"/><circle cx="85" cy="94" r="2.5" fill="#fff"/><circle cx="133" cy="94" r="2.5" fill="#fff"/>';
+ var mouth=mood==='wow'?'<ellipse cx="104" cy="126" rx="12" ry="14" fill="#7A1F3A"/>':'<path d="M86 122 Q104 '+(mood==='think'?'130':'140')+' 122 122" stroke="#16204A" stroke-width="5" fill="none" stroke-linecap="round"/>';
+ return '<svg class="numo" viewBox="0 0 208 220" aria-hidden="true"><defs><radialGradient id="ng" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#7DE3FF"/><stop offset=".6" stop-color="#4F9BFF"/><stop offset="1" stop-color="#3466CC"/></radialGradient></defs>'
+ +'<ellipse cx="104" cy="206" rx="46" ry="9" fill="rgba(0,0,0,.25)"/>'
+ +'<path d="M104 14 L120 40 L92 40Z" fill="#FBBF24"/><circle cx="104" cy="12" r="7" fill="#FBBF24"/>'
+ +'<path d="M30 120 Q20 150 44 160 Q36 132 52 120Z" fill="#3B74D6"/><path d="M178 120 Q188 150 164 160 Q172 132 156 120Z" fill="#3B74D6"/>'
+ +'<circle cx="104" cy="112" r="78" fill="url(#ng)" stroke="#2A4FA0" stroke-width="3"/>'
+ +'<path d="M48 86 Q104 60 160 86" stroke="#fff" stroke-width="3" opacity=".4" fill="none"/>'
+ +eyes+'<ellipse cx="66" cy="118" rx="9" ry="5" fill="#F9A8D4" opacity=".6"/><ellipse cx="142" cy="118" rx="9" ry="5" fill="#F9A8D4" opacity=".6"/>'+mouth
+ +'<text x="104" y="178" text-anchor="middle" font-family="JetBrains Mono,monospace" font-weight="700" font-size="22" fill="#fff" opacity=".85">×</text>'
+ +'</svg>';
+}
+/* ---------------- state / memory engine ---------------- */
+var S={xp:0,streak:1,last:null,adv:false,fx:{}}; // fx: factKey -> {s:strength0-5, due:ts, seen}
+try{var raw=JSON.parse(localStorage.getItem('tablesverse')||'null');if(raw)S=Object.assign(S,raw);}catch(e){}
+(function(){var t=new Date().toDateString();if(S.last!==t){var y=new Date(Date.now()-864e5).toDateString();S.streak=S.last===y?(S.streak||0)+1:1;S.last=t;}})();
+function save(){localStorage.setItem('tablesverse',JSON.stringify(S));renderTop();}
+function fkey(a,b){return a+'x'+b;}
+function fget(a,b){return S.fx[fkey(a,b)]||{s:0,due:0,seen:0};}
+function fset(a,b,correct){var k=fkey(a,b),f=S.fx[k]||{s:0,due:0,seen:0};f.seen=(f.seen||0)+1;
+ if(correct){f.s=Math.min(5,f.s+1);var days=[0,0,1,3,7,16,35][f.s]||35;f.due=Date.now()+days*864e5;S.xp+=5+f.s*2;}
+ else{f.s=Math.max(0,f.s-1);f.due=Date.now();S.xp+=1;}
+ S.fx[k]=f;save();}
+/* which facts count toward a table's mastery */
+function tableFacts(t){var hi=S.adv?20:12,arr=[];for(var b=1;b<=hi;b++)arr.push(b);return arr;}
+function tableMastery(t){var f=tableFacts(t),sum=0;f.forEach(function(b){sum+=fget(t,b).s;});return Math.round(sum/(f.length*5)*100);}
+function overallMastery(){var hi=S.adv?20:12,sum=0,n=0;for(var a=1;a<=20;a++)for(var b=1;b<=hi;b++){sum+=fget(a,b).s;n++;}return Math.round(sum/(n*5)*100);}
+function renderTop(){$('sStreak').textContent=S.streak;$('sXp').textContent=S.xp;$('sMastery').textContent=overallMastery()+'%';}
+/* ---------------- nav ---------------- */
+function go(scr){document.querySelectorAll('.screen').forEach(function(s){s.classList.toggle('on',s.id==='s-'+scr);});
+ document.querySelectorAll('#nav button').forEach(function(b){b.classList.toggle('on',b.dataset.go===scr);});
+ window.scrollTo(0,0);$('toast').classList.remove('on');
+ if(scr==='map')renderMap();if(scr==='tricks')renderTricks();if(scr==='build')renderBuild();if(scr==='arena')startArena();if(scr==='progress')renderProgress();}
+document.addEventListener('click',function(e){var g=e.target.closest('[data-go]');if(g)go(g.dataset.go);});
+function toast(m){var t=$('toast');t.textContent=m;t.classList.add('on');clearTimeout(t._t);t._t=setTimeout(function(){t.classList.remove('on');},2200);}
+function confetti(){var h=document.createElement('div');h.className='confetti';for(var i=0;i<46;i++){var s=document.createElement('i');s.style.left=Math.random()*100+'%';s.style.background=['#FBBF24','#34D399','#4F9BFF','#FB7185','#A78BFF'][i%5];s.style.animationDelay=Math.random()*.5+'s';h.appendChild(s);}document.body.appendChild(h);setTimeout(function(){h.remove();},2800);}
+/* ---------------- MAP ---------------- */
+function renderMap(){
+ $('advChk').checked=S.adv;
+ $('mapSub').textContent='20 tables · '+overallMastery()+'% mastered. Green ring = fully learned.';
+ $('mapGrid').innerHTML='';
+ for(var t=1;t<=20;t++){(function(t){var m=tableMastery(t),mc=m>=90?'m3':m>=50?'m2':m>0?'m1':'';
+  var el=document.createElement('button');el.className='tnode '+mc;
+  el.innerHTML='<span class="ring"></span><span class="st">'+(m>=90?'⭐⭐⭐':m>=50?'⭐⭐':m>0?'⭐':'')+'</span><span class="tn">'+t+'</span><span class="tl">×table</span><span class="pct '+(m>=90?'done':'')+'">'+m+'%</span>';
+  el.onclick=function(){openLearn(t);};$('mapGrid').appendChild(el);})(t);}
+}
+$('advChk').addEventListener('change',function(){S.adv=this.checked;save();renderMap();});
+/* ---------------- LEARN ---------------- */
+var CUR={t:1,tab:'learn'};
+function openLearn(t){CUR.t=t;go('learn');$('learnTitle').textContent='The '+t+' times table';$('learnMastery').textContent='⭐ '+tableMastery(t)+'% mastered';
+ var tabs=[['learn','📖 See it'],['trick','✨ Trick'],['practice','✍ Practice']];
+ $('lvTabs').innerHTML=tabs.map(function(x){return '<button data-lt="'+x[0]+'">'+x[1]+'</button>';}).join('');
+ $('lvTabs').querySelectorAll('button').forEach(function(b){b.onclick=function(){setLT(b.dataset.lt);};});
+ setLT('learn');}
+function setLT(tab){CUR.tab=tab;$('toast').classList.remove('on');$('lvTabs').querySelectorAll('button').forEach(function(b){b.classList.toggle('on',b.dataset.lt===tab);});
+ if(tab==='learn')learnSee();if(tab==='trick')learnTrick();if(tab==='practice')startPractice();}
+function hopperSvg(){return '<svg viewBox="0 0 208 220" width="26">'+numo('happy').replace('<svg class="numo" viewBox="0 0 208 220" aria-hidden="true">','').replace('</svg>','')+'</svg>';}
+/* ---- FX: blast + sound ---- */
+function buzz(p){try{if(navigator.vibrate)navigator.vibrate(p);}catch(e){}}
+var AC=null;
+function snd(i,big){if(S.mute)return;try{AC=AC||new (window.AudioContext||window.webkitAudioContext)();var P=[0,2,4,7,9,12,14,16,19,21,24,26,28,31,33,36,38,40,43,45];var f=392*Math.pow(2,(P[(i-1)%20]||0)/12);
+ [0,big?.09:null].forEach(function(dl,k){if(dl===null)return;var o=AC.createOscillator(),g=AC.createGain();o.type=k?'sine':'triangle';o.frequency.value=f*(k?2:1);g.gain.setValueAtTime(.0001,AC.currentTime+dl);g.gain.exponentialRampToValueAtTime(big?.22:.14,AC.currentTime+dl+.015);g.gain.exponentialRampToValueAtTime(.0001,AC.currentTime+dl+.45);o.connect(g);g.connect(AC.destination);o.start(AC.currentTime+dl);o.stop(AC.currentTime+dl+.5);});}catch(e){}}
+function blastAt(el,big){if(!el)return;var r=el.getBoundingClientRect(),cx=r.left+r.width/2,cy=r.top+r.height/2;
+ var L=document.createElement('div');L.className='blast';L.style.left=cx+'px';L.style.top=cy+'px';
+ var cols=big?['#FFD54A','#FFB020','#FFF3B0','#FF7A59']:['#A78BFF','#4F9BFF','#2DD4BF','#FBBF24','#FB7185'];
+ var ring='<b class="ring"></b>'+(big?'<b class="ring r2"></b>':'');var n=big?30:18,s='';
+ for(var i=0;i<n;i++){var a=Math.PI*2*i/n+Math.random()*.3,d=(big?95:65)+Math.random()*(big?60:35);
+  s+='<i style="--x:'+(Math.cos(a)*d).toFixed(0)+'px;--y:'+(Math.sin(a)*d).toFixed(0)+'px;background:'+cols[i%cols.length]+';'+(i%3===0?'border-radius:2px;width:6px;height:10px;':'')+'animation-delay:'+(Math.random()*.06).toFixed(2)+'s"></i>';}
+ if(big)for(var k=0;k<6;k++){var a2=Math.PI*2*k/6;s+='<u style="--x:'+(Math.cos(a2)*120).toFixed(0)+'px;--y:'+(Math.sin(a2)*120).toFixed(0)+'px">✦</u>';}
+ L.innerHTML=ring+s;document.body.appendChild(L);setTimeout(function(){L.remove();},1100);}
+/* ---- KEY FACTS: the anchors worth remembering in each table ---- */
+function keyFacts(t){var K={};
+ K[t]=['⬛ Square',t+'×'+t+' — a perfect square box. Squares are the landmarks every other fact leans on.'];
+ if(t!==5)K[5]=['✋ Half of ×10',t+'×10 = '+(t*10)+', halve it → '+(t*5)+'.'];
+ if(t!==10)K[10]=['0️⃣ Add a zero','Just stick a 0 on '+t+' → '+(t*10)+'.'];
+ var X={3:{4:['🔢 1-2-3-4','12 = 3 × 4 — the digits count 1,2,3,4.']},
+  4:{3:['🔢 1-2-3-4','12 = 3 × 4 — count 1,2,3,4.']},
+  6:{7:['🌌 Forty-two','6 × 7 = 42. Say "six-seven, forty-two" three times — it sticks.'],8:['🗓️ Six ate 48','"Six ate (8) forty-eight." 6 × 8 = 48.']},
+  7:{6:['🌌 Forty-two','7 × 6 = 42 — the same as 6 × 7.'],8:['🎵 5-6-7-8','56 = 7 × 8 — the digits count 5,6,7,8.']},
+  8:{6:['🗓️ Six ate 48','"Six ate (8) forty-eight."'],7:['🎵 5-6-7-8','56 = 7 × 8 — count 5,6,7,8.']},
+  9:{9:['⬛ 81','9×9 = 81 — digits flip of 18 (9×2). Every 9s answer\'s digits add to 9.']},
+  11:{11:['🪞 121','11×11 = 121 — a palindrome, reads the same both ways.']},
+  12:{12:['📦 A gross','12×12 = 144, called "a gross". Bakers & egg-crates love it.']},
+  15:{4:['⏰ An hour','15 × 4 = 60 — four quarter-hours make an hour.']},
+  20:{5:['💯 One hundred','20 × 5 = 100.']}};
+ if(X[t])for(var b in X[t])K[b]=X[t][b];return K;}
+function learnSee(){
+ var t=CUR.t,hi=S.adv?20:12,K=keyFacts(t),c=colorFor(t);
+ var nk=Object.keys(K).filter(function(b){return b<=hi;}).length;
+ var html='<div class="lhero" style="--tc:'+c+'"><div class="orb"><span>'+t+'</span><svg viewBox="0 0 120 120"><circle cx="60" cy="60" r="54" class="bgc"/><circle cx="60" cy="60" r="54" class="pc" id="lring" pathLength="100"/></svg></div>'
+  +'<div class="lmeta"><div class="lcount"><b id="lnum">0</b> / '+hi+' revealed</div><div class="muted">👆 <b>Say the answer in your head first</b>, then tap a card to check. ⭐ gold cards are the <b>'+nk+' key facts</b> — learn those and the rest follow.</div>'
+  +'<div class="lctl"><button class="btn sm pri" id="showAll">✨ Show all answers</button><button class="btn sm" id="hideAll">🙈 Hide all — test me</button><button class="btn sm" id="keyOnly">⭐ Key facts only</button><button class="btn sm" id="sndT">'+(S.mute?'🔇':'🔊')+'</button></div></div></div>'
+  +'<div class="fgrid" id="rows"></div>'
+  +'<h3 style="margin-top:18px">Skip counting (count by '+t+'s)</h3><div class="skipline" id="skip"><div class="hopper" id="hop">'+hopperSvg()+'</div></div>'
+  +'<div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px"><button class="btn sm pri" id="playSkip">▶ Hop the number line</button><button class="btn amber" onclick="setLT(\'practice\')">I\'m ready — practice →</button></div>';
+ $('learnBody').innerHTML=html;
+ var rows=$('rows'),done=false;
+ for(var b=1;b<=hi;b++){(function(b){var k=K[b];var r=document.createElement('button');r.className='fcard'+(k?' key':'');r.dataset.b=b;r.style.setProperty('--cc',colorFor(b));r.style.animationDelay=(b*.04)+'s';
+  var dots='';for(var d=0;d<Math.min(t*b,120);d++)dots+='<span style="animation-delay:'+(d*.006)+'s"></span>';
+  r.innerHTML=(k?'<em class="kb">⭐ KEY</em>':'')+'<div class="fq"><span>'+t+'</span><i>×</i><span>'+b+'</span><i>=</i><div class="flip"><div class="fr fb4">?</div><div class="fr fa">'+(t*b)+'</div></div></div>'
+   +'<div class="fx"><div class="fdots" style="--cols:'+Math.min(b,12)+'">'+dots+'</div>'+(k?'<div class="kt"><b>'+k[0]+'</b> '+k[1]+'</div>':'<div class="kt dim">'+t+' groups of '+b+(t>1&&b>1?' · same as '+b+' × '+t:'')+'</div>')+'</div>';
+  r.onclick=function(){reveal(r,true);};rows.appendChild(r);})(b);}
+ function count(){var n=rows.querySelectorAll('.fcard.open').length;var fb=$('fab');if(fb)fb.innerHTML=n===hi?'🙈 Test me':'✨ Show all';$('lnum').textContent=n;$('lring').style.strokeDashoffset=100-n/hi*100;
+  if(n===hi&&!done){done=true;setTimeout(function(){confetti();snd(15,true);toast('🎉 Whole '+t+'s table revealed! +10 XP');S.xp+=10;save();},350);}}
+ function reveal(r,user){var b=+r.dataset.b,big=r.classList.contains('key');
+  if(r.classList.contains('open')){r.classList.remove('pulse');void r.offsetWidth;r.classList.add('pulse');}
+  else{r.classList.add('open');}
+  blastAt(r.querySelector('.flip'),big);snd(b,big);buzz(big?[14,40,24]:12);
+  if(big&&user)toast('⭐ Key fact: '+t+' × '+b+' = '+(t*b));count();}
+ window._lvReveal=reveal;
+ var timers=[];function clearT(){timers.forEach(clearTimeout);timers=[];}
+ $('showAll').onclick=function(){clearT();var cards=[].slice.call(rows.children).filter(function(r){return !r.classList.contains('open');});
+  cards.forEach(function(r,i){timers.push(setTimeout(function(){reveal(r,false);},i*110));});};
+ $('hideAll').onclick=function(){clearT();done=false;[].forEach.call(rows.children,function(r){r.classList.remove('open','pulse');});count();rows.classList.add('shuffle');setTimeout(function(){rows.classList.remove('shuffle');},500);};
+ var fab=document.createElement('button');fab.className='fab';fab.id='fab';$('learnBody').appendChild(fab);
+ fab.onclick=function(){if(rows.querySelectorAll('.fcard.open').length===hi)$('hideAll').onclick();else $('showAll').onclick();};
+ $('keyOnly').onclick=function(){var on=rows.classList.toggle('keysonly');this.classList.toggle('pri',on);};
+ $('sndT').onclick=function(){S.mute=!S.mute;save();this.textContent=S.mute?'🔇':'🔊';};
+ count();
+ // skip line
+ var sk=$('skip');for(var b2=1;b2<=hi;b2++){var st=document.createElement('div');st.className='stop'+(K[b2]?' k':'');st.dataset.i=b2;st.innerHTML='<b>'+(t*b2)+'</b><i></i>';sk.appendChild(st);}
+ $('playSkip').onclick=function(){var stops=sk.querySelectorAll('.stop');var hop=$('hop');var k=0;stops.forEach(function(s){s.classList.remove('on');});
+  var jv=setInterval(function(){if(k>=stops.length){clearInterval(jv);return;}stops[k].classList.add('on');var left=stops[k].offsetLeft+19;hop.style.left=left+'px';snd(k+1,!!K[k+1]);if(K[k+1])blastAt(stops[k].querySelector('b'),false);k++;},480);};
+}
+function toastNum(n){/* subtle */}
+function colorFor(b){return ['#A78BFF','#4F9BFF','#2DD4BF','#34D399','#FBBF24','#FB7185','#F472B6','#60A5FA','#A3E635','#F59E0B'][(b-1)%10];}
+/* ---------------- TRICK per table ---------------- */
+function tableTrick(t){
+ var T={
+  1:['×1 = itself','Anything × 1 stays the same. Zero effort — this whole row is free.','5 × 1 = 5'],
+  2:['Doubling','×2 just means double it (add the number to itself).','7 × 2 = 7+7 = 14'],
+  3:['Double + one more group','×3 = ×2 then add one more of the number.','6 × 3 = (6×2)+6 = 12+6 = 18'],
+  4:['Double, then double again','×4 = double twice.','7 × 4 = (7→14→28)'],
+  5:['Half then ×10 · the clock','×5 ends in 0 or 5. Trick: ×10 then halve. Or read a clock — 5,10,15…','8 × 5 = (8×10)/2 = 40'],
+  6:['×3 doubled','×6 = ×3 then double. Even × 6 ends in the same even digit pattern.','7 × 6 = (7×3=21)×2 = 42'],
+  7:['The tricky one — use anchors','7 has no neat rule, so anchor the hard ones: 7×8=56 ("5 6 7 8").','7 × 8 = 56'],
+  8:['Double three times','×8 = double, double, double.','6 × 8 = 6→12→24→48'],
+  9:['Finger trick + digits make 9','Fold the Nth finger: left=tens, right=units. The two digits always add to 9.','4 × 9 = 36 (3+6=9)'],
+  10:['Add a zero','×10 just appends a 0.','7 × 10 = 70'],
+  11:['Repeat / split-and-add','×11 single digit: repeat it (4→44). Two digits: split & add the middle.','3 × 11 = 33'],
+  12:['×10 + ×2','Split 12 into 10 and 2, multiply each, add.','7 × 12 = 70 + 14 = 84'],
+  13:['×10 + ×3','Split 13 → ×10 and ×3.','6 × 13 = 60 + 18 = 78'],
+  14:['×10 + ×4 (or ×7 doubled)','Split, or double the 7s row.','5 × 14 = 50 + 20 = 70'],
+  15:['×10 + half','×15 = ×10 then add half of that.','6 × 15 = 60 + 30 = 90'],
+  16:['×8 doubled','×16 = the 8s row doubled.','5 × 16 = (5×8=40)×2 = 80'],
+  17:['×10 + ×7','Split 17 → ×10 and ×7.','4 × 17 = 40 + 28 = 68'],
+  18:['×20 − ×2','18 = 20−2. Do ×20, subtract two of the number.','6 × 18 = 120 − 12 = 108'],
+  19:['×20 − itself','19 = 20−1. Do ×20, subtract one of the number.','6 × 19 = 120 − 6 = 114'],
+  20:['×2 then add a zero','×20 = double, then append 0.','7 × 20 = (14)0 = 140']
+ };return T[t]||T[12];
+}
+function learnTrick(){
+ var t=CUR.t,tr=tableTrick(t);
+ var extra='';
+ if(t===9)extra='<div class="card" style="margin-top:12px"><h4>Try the finger trick: 9 × <span id="f9n">4</span></h4><div class="fingers" id="f9"></div><div class="demo" id="f9r"></div><input type="range" id="f9s" min="1" max="10" value="4" style="width:100%;margin-top:10px"></div>';
+ if(t===11)extra='<div class="card" style="margin-top:12px"><h4>11 × a 2-digit number: split & add</h4><div class="demo">11 × 36 → <b>3 _ 6</b>, middle = 3+6 = 9 → <b>396</b>. (If the middle ≥10, carry it.)</div></div>';
+ if(t===5)extra='<div class="card" style="margin-top:12px"><h4>Clock pattern</h4><div class="demo">Every ×5 answer is a clock number: 5, 10, 15, 20, 25… It always ends in <b>5</b> (odd ×5) or <b>0</b> (even ×5).</div></div>';
+ $('learnBody').innerHTML='<div class="card" style="border-top:4px solid '+colorFor(t)+'"><h3 style="font-size:22px">'+tr[0]+'</h3><p style="font-size:16px;color:var(--ink2)">'+tr[1]+'</p><div class="demo" style="font-size:20px">'+tr[2]+'</div></div>'
+  +extra
+  +'<div class="insight" style="margin-top:12px"><b>🧩 Commutativity shortcut</b> — '+t+' × b is the <i>same</i> as b × '+t+'. So once you know the 2s, 5s and 9s, you already know their matching facts in every other table. That\'s why you really only have a handful of "new" facts per table.</div>'
+  +'<div style="margin-top:12px"><button class="btn amber" onclick="setLT(\'practice\')">Practice this table →</button></div>';
+ if(t===9){var draw=function(n){var f=$('f9');f.innerHTML='';for(var i=1;i<=10;i++)f.innerHTML+='<div class="finger'+(i===n?' fold':'')+'"></div>';var tens=n-1,units=10-n;$('f9r').innerHTML='left of fold = <b>'+tens+'</b> tens, right = <b>'+units+'</b> units → 9 × '+n+' = <b>'+(tens*10+units)+'</b>';$('f9n').textContent=n;};draw(4);$('f9s').oninput=function(){draw(+this.value);};}
+}
+/* ---------------- PRACTICE (single table, active recall) ---------------- */
+var PR={q:null,i:0,n:10,correct:0,list:[]};
+function startPractice(){var t=CUR.t,hi=S.adv?20:12,bs=[];for(var b=1;b<=hi;b++)bs.push(b);
+ // weight toward weaker facts
+ bs.sort(function(a,b){return fget(t,a).s-fget(t,b).s||Math.random()-.5;});
+ PR={q:null,i:0,n:Math.min(10,bs.length),correct:0,list:bs.slice(0,10).sort(function(){return Math.random()-.5;}),mode:'practice',t:t};
+ renderQuizShell('learnBody');nextQ();}
+function renderQuizShell(host){
+ $(host).innerHTML='<div class="quiz"><div class="qbar"><i id="qb"></i></div><div id="qmeta" class="muted"></div><div class="qbig" id="qtext"></div><div class="ans"><input class="ansin" id="ain" inputmode="numeric" autocomplete="off" placeholder="?"></div><div class="fb" id="qfb"></div><div id="qviz"></div><div class="keypad" id="kp"></div></div>';
+ var kp=$('kp');['1','2','3','4','5','6','7','8','9','⌫','0','✓'].forEach(function(k){var b=document.createElement('button');b.textContent=k;if(k==='✓')b.className='';b.onclick=function(){key(k);};kp.appendChild(b);});
+ $('ain').addEventListener('keydown',function(e){if(e.key==='Enter')submit();});
+ if(TOUCH){$('ain').readOnly=true;$('ain').setAttribute('inputmode','none');}else $('ain').focus();
+}
+var TOUCH=matchMedia('(pointer:coarse)').matches;
+function key(k){buzz(6);var ai=$('ain');if(k==='⌫')ai.value=ai.value.slice(0,-1);else if(k==='✓')submit();else ai.value=(ai.value+k).slice(0,4);if(!TOUCH)ai.focus();}
+function nextQ(){if(PR.i>=PR.n){return finishPractice();}
+ var t=PR.t,b=PR.list[PR.i];PR.q={a:t,b:b,ans:t*b};
+ $('qmeta').textContent='Question '+(PR.i+1)+' of '+PR.n+' · recall from memory';
+ // randomly flip orientation to reinforce commutativity
+ var flip=Math.random()<.4;
+ $('qtext').innerHTML=flip?('<span>'+b+'</span> <span class="x">×</span> <span>'+t+'</span>'):('<span>'+t+'</span> <span class="x">×</span> <span>'+b+'</span>');
+ $('ain').value='';$('ain').className='ansin';$('qfb').textContent='';$('qfb').className='fb';$('qviz').innerHTML='';$('qb').style.width=(PR.i/PR.n*100)+'%';$('ain').focus();PR.t0=Date.now();}
+function submit(){if(!PR.q)return;var val=parseInt($('ain').value,10);if(isNaN(val))return;
+ var ok=val===PR.q.ans;fset(PR.q.a,PR.q.b,ok);
+ $('ain').className='ansin '+(ok?'ok':'no');
+ if(ok){PR.correct++;blastAt($('ain'),Date.now()-PR.t0<2500);buzz(15);snd(PR.correct,Date.now()-PR.t0<2500);$('qfb').textContent='✓ '+(Date.now()-PR.t0<2500?'Fast! ':'')+'Correct';$('qfb').className='fb ok';}
+ else{$('qfb').innerHTML='✗ It\'s '+PR.q.ans+'. Picture '+PR.q.a+' groups of '+PR.q.b+':';$('qfb').className='fb no';showArray(PR.q.a,PR.q.b);buzz([50,60,50]);}
+ PR.q=null;PR.i++;setTimeout(nextQ,ok?650:1900);}
+function showArray(a,b){var v=$('qviz');v.innerHTML='<div class="arrayviz" style="grid-template-columns:repeat('+b+',1fr)"></div>';var g=v.firstChild;for(var i=0;i<a*b;i++){var c=document.createElement('i');c.style.animationDelay=(i*.012)+'s';c.style.background=colorFor(b);g.appendChild(c);}}
+function finishPractice(){var pct=Math.round(PR.correct/PR.n*100);$('qb').style.width='100%';
+ var m=tableMastery(PR.t);
+ $('learnBody').innerHTML='<div class="quiz card"><div style="max-width:180px;margin:0 auto">'+numo(pct>=80?'wow':'happy')+'</div><h2>'+PR.correct+' / '+PR.n+' correct</h2><p class="muted">Table '+PR.t+' is now <b>'+m+'%</b> mastered. '+(pct>=80?'Brilliant recall! 🎉':'Good work — the misses are now scheduled to come back in the Arena.')+'</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px"><button class="btn pri" onclick="startPractice()">↻ Again</button><button class="btn" data-go="map">Pick another table</button><button class="btn amber" data-go="arena">⚡ Mixed Arena</button></div></div>';
+ $('learnMastery').textContent='⭐ '+m+'% mastered';
+ if(pct>=80)confetti();if(pct===100)toast('Perfect! +'+(PR.n*3)+' XP');
+}
+/* ---------------- ARENA (spaced repetition, mixed) ---------------- */
+var AR={};
+function dueFacts(){var hi=S.adv?20:12,all=[],now=Date.now();
+ for(var a=1;a<=20;a++)for(var b=1;b<=hi;b++){var f=fget(a,b);all.push({a:a,b:b,s:f.s,due:f.due,over:now-f.due});}
+ // priority: due & weak first; include some fresh
+ all.sort(function(x,y){return (y.over>0?1:0)-(x.over>0?1:0) || x.s-y.s || y.over-x.over;});
+ return all;}
+function startArena(){
+ $('arenaBody').innerHTML='<div class="quiz card"><div style="max-width:150px;margin:0 auto">'+numo('happy')+'</div><h3>Ready to build fluency?</h3><p class="muted">20 mixed questions. Weak & overdue facts come up most. Keep a streak for bonus XP.</p><div style="margin-top:10px"><button class="btn pri" id="arGo">▶ Start the Arena</button></div></div>';
+ $('arGo').onclick=function(){
+  var pool=dueFacts().slice(0,40);AR={list:[],i:0,n:20,correct:0,combo:0,best:0};
+  for(var i=0;i<AR.n;i++){AR.list.push(pool[i%pool.length]);}
+  AR.list.sort(function(){return Math.random()-.5;});
+  renderQuizShell('arenaBody');$('qmeta').insertAdjacentHTML('beforebegin','<div class="combo" id="combo"></div>');arQ();};
+}
+function arQ(){if(AR.i>=AR.n)return arFinish();var f=AR.list[AR.i];AR.q={a:f.a,b:f.b,ans:f.a*f.b};
+ $('qmeta').textContent='Arena '+(AR.i+1)+'/'+AR.n;$('combo').textContent=AR.combo>1?'🔥 '+AR.combo+' streak':'';
+ var flip=Math.random()<.5;$('qtext').innerHTML=flip?('<span>'+f.b+'</span> <span class="x">×</span> <span>'+f.a+'</span>'):('<span>'+f.a+'</span> <span class="x">×</span> <span>'+f.b+'</span>');
+ $('ain').value='';$('ain').className='ansin';$('qfb').textContent='';$('qfb').className='fb';$('qviz').innerHTML='';$('qb').style.width=(AR.i/AR.n*100)+'%';$('ain').focus();
+ submit=arSubmit;}
+function arSubmit(){if(!AR.q)return;var val=parseInt($('ain').value,10);if(isNaN(val))return;var ok=val===AR.q.ans;fset(AR.q.a,AR.q.b,ok);
+ $('ain').className='ansin '+(ok?'ok':'no');
+ if(ok){AR.correct++;AR.combo++;blastAt($('ain'),AR.combo>=3);buzz(AR.combo>=3?[15,40,15]:15);snd(AR.combo,AR.combo>=3);AR.best=Math.max(AR.best,AR.combo);$('qfb').textContent='✓ Correct '+(AR.combo>2?'· 🔥'+AR.combo:'');$('qfb').className='fb ok';}
+ else{AR.combo=0;$('qfb').innerHTML='✗ '+AR.q.a+' × '+AR.q.b+' = '+AR.q.ans;$('qfb').className='fb no';showArray(AR.q.a,AR.q.b);buzz([50,60,50]);}
+ AR.q=null;AR.i++;setTimeout(arQ,ok?600:1700);}
+function arFinish(){var pct=Math.round(AR.correct/AR.n*100);$('qb').style.width='100%';
+ $('arenaBody').innerHTML='<div class="quiz card"><div style="max-width:170px;margin:0 auto">'+numo(pct>=80?'wow':'happy')+'</div><h2>'+AR.correct+' / '+AR.n+'</h2><p class="muted">Best streak: <b>🔥 '+AR.best+'</b> · overall mastery now <b>'+overallMastery()+'%</b>. Come back tomorrow — spaced repetition schedules your weak facts to return exactly when you\'re about to forget them.</p><div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:10px"><button class="btn pri" id="arAgain">↻ Again</button><button class="btn" data-go="progress">See memory map</button></div></div>';
+ $('arAgain').onclick=startArena;if(pct>=80)confetti();
+ submit=prSubmit; }
+var prSubmit=submit;
+/* ---------------- TRICKS hub ---------------- */
+var HUBTRICKS=[
+ ['×2 Doubling','blue','Double the number (add it to itself). The foundation for ×4, ×8, ×16.','8 × 2 = 8+8 = <b>16</b>'],
+ ['×4 Double-double','teal','Double twice. 7 → 14 → 28.','7 × 4 = <b>28</b>'],
+ ['×5 Half & ×10 / Clock','amber','×10 then halve. Or read a clock: 5,10,15… Always ends in 0 or 5.','6 × 5 = 60/2 = <b>30</b>'],
+ ['×9 Finger trick','coral','Fold the Nth finger: left digits = tens, right = units. Digits always sum to 9.','4 × 9 = <b>36</b> (3+6=9)'],
+ ['×10 Add a zero','green','Just append a 0.','7 × 10 = <b>70</b>'],
+ ['×11 Repeat / split','violet','1-digit: repeat it. 2-digit: split & add the middle.','7×11=<b>77</b> · 11×36=3_6→<b>396</b>'],
+ ['×12 = ×10 + ×2','blue','Split 12 into 10 and 2.','7 × 12 = 70+14 = <b>84</b>'],
+ ['Teens (×13–17) = ×10 + ×ones','teal','Split the teen: ×10 plus the ones digit.','6 × 13 = 60+18 = <b>78</b>'],
+ ['×15 = ×10 + half','pink','×10, then add half of that.','8 × 15 = 80+40 = <b>120</b>'],
+ ['×18/×19 = ×20 − a bit','amber','18=20−2, 19=20−1. Multiply by 20, subtract.','6 × 19 = 120−6 = <b>114</b>'],
+ ['×20 = ×2 + zero','green','Double, then append 0.','7 × 20 = 14→<b>140</b>'],
+ ['Commutativity ÷2','violet','a×b = b×a. Learn one, get the other free — it halves the whole job.','3×7 = 7×3 = <b>21</b>'],
+ ['Squares are anchors','coral','11²=121, 12²=144, 13²=169… memorize the diagonal; neighbours are square±a.','13² = <b>169</b>'],
+ ['The hard core','blue','After tricks, only ~15 facts are truly "hard" (6×7, 6×8, 7×8, 7×9, squares). Mnemonic: 56=7×8 → "5,6,7,8".','7 × 8 = <b>56</b>']
+];
+function renderTricks(){$('trGrid').innerHTML=HUBTRICKS.map(function(t){return '<div class="trick" style="--c:var(--'+t[1]+')"><h4>'+t[0]+'</h4><p>'+t[2]+'</p><div class="demo">'+t[3]+'</div></div>';}).join('');}
+/* ---------------- BUILD / STRATEGY LAB ---------------- */
+var BLD={a:7,b:8};
+function dots(n,cls){var s='';for(var i=0;i<n;i++)s+='<i style="animation-delay:'+(i*.04)+'s"></i>';return '<div class="'+cls+'">'+s+'</div>';}
+function conceptStrip(){
+ var a=3,b=4;
+ var groups='';for(var g=0;g<a;g++)groups+=dots(b,'grp');
+ var arrRows='';for(var r=0;r<a;r++){var row='';for(var c=0;c<b;c++)row+='<i style="animation-delay:'+((r*b+c)*.03)+'s"></i>';arrRows+='<div class="row">'+row+'</div>';}
+ return '<div class="concept">'
+  +'<div class="cstep"><h4>1 · Equal groups</h4><div class="sub">'+a+' groups of '+b+'</div><div class="cg">'+groups+'</div></div>'
+  +'<div class="cstep"><h4>2 · An array</h4><div class="sub">'+a+' rows × '+b+' columns</div><div class="arr">'+arrRows+'</div></div>'
+  +'<div class="cstep"><h4>3 · One area</h4><div class="sub">the whole rectangle</div><div class="boxf"><div class="b">'+(a*b)+'</div></div></div>'
+  +'</div>';
+}
+function split10(n){return n<=10?[n,0]:[10,n-10];}
+function strategies(a,b){
+ var out=[];
+ // distributive: break b at 5
+ if(b>5){var lo=5,hi=b-5;out.push(['🧩','Split it up','Break '+b+' into 5 + '+hi,
+   'Turn one hard fact into two easy ones.<br>'
+   +'<code>'+a+'×'+b+'</code> = <code>'+a+'×5</code> + <code>'+a+'×'+hi+'</code><br>'
+   +'= '+(a*5)+' + '+(a*hi)+'<div class="eq">= '+(a*b)+'</div>']);}
+ // double & halve
+ if(a%2===0){out.push(['⚖️','Double & halve','Halve '+a+', double '+b,
+   'Shrink one side, grow the other — the area stays the same.<br>'
+   +'<code>'+a+'×'+b+'</code> → <code>'+(a/2)+'×'+(b*2)+'</code><div class="eq">= '+(a*b)+'</div>']);}
+ else if(b%2===0){out.push(['⚖️','Double & halve','Halve '+b+', double '+a,
+   'Shrink one side, grow the other — the area stays the same.<br>'
+   +'<code>'+a+'×'+b+'</code> → <code>'+(a*2)+'×'+(b/2)+'</code><div class="eq">= '+(a*b)+'</div>']);}
+ // round up to 10
+ var near=(a>=b)?a:b,other=(a>=b)?b:a;
+ if(near>=6&&near<=9){var up=10-near;out.push(['🔟','Round to ten','Use '+other+'×10, then step back',
+   'Tens are easy — overshoot, then subtract.<br>'
+   +'<code>'+other+'×10</code> = '+(other*10)+', minus <code>'+other+'×'+up+'</code> = '+(other*up)
+   +'<br>'+(other*10)+' − '+(other*up)+'<div class="eq">= '+(a*b)+'</div>']);}
+ // squares neighbour
+ if(Math.abs(a-b)===1){var lowv=Math.min(a,b);
+   out.push(['🪞','Neighbour of a square','One step from a square',
+   'These two are neighbours, so lean on the square between them.<br>'
+   +'<code>'+a+'×'+b+'</code> = <code>'+lowv+'²</code> + '+lowv+' = '+(lowv*lowv)+' + '+lowv
+   +'<div class="eq">= '+(a*b)+'</div>']);}
+ // always: area box master key
+ out.push(['🗝️','Area box (master key)','Works for ANY numbers',
+   'The one that never fails — split each number into tens & ones and add the 4 pieces.<br>'
+   +'<span class="muted">See the full grid below ↓</span>','area']);
+ return out;
+}
+function areaHTML(a,b){
+ var as=split10(a),bs=split10(b);
+ if(a>20){as=[Math.floor(a/10)*10,a%10];}
+ if(b>20){bs=[Math.floor(b/10)*10,b%10];}
+ var ar=as.filter(function(x){return x>0;}),br=bs.filter(function(x){return x>0;});
+ var cols=['var(--violet)','var(--blue)'],rows=['var(--teal)','var(--amber)'];
+ var html='<div class="agrid" style="grid-template-columns:36px repeat('+br.length+',auto)">';
+ html+='<div></div>';br.forEach(function(bx,i){html+='<div class="alabel">'+bx+'</div>';});
+ var parts=[];
+ ar.forEach(function(ax,ri){
+  html+='<div class="alabel" style="writing-mode:horizontal-tb">'+ax+'</div>';
+  br.forEach(function(bx,ci){
+   var p=ax*bx;parts.push(p);
+   var col=ci===0?(ri===0?'#A78BFF':'#2DD4BF'):(ri===0?'#4F9BFF':'#FBBF24');
+   html+='<div class="acell" style="background:'+col+'"><small>'+ax+'×'+bx+'</small>'+p+'</div>';
+  });
+ });
+ html+='</div>';
+ var sum=parts.reduce(function(s,p){return s+p;},0);
+ html+='<div class="asum">'+parts.join(' + ')+' = <b>'+sum+'</b></div>';
+ return html;
+}
+var HARDFACTS=[[6,7],[6,8],[7,8],[7,9],[8,8],[8,9],[9,9],[12,12],[13,14],[17,18]];
+function renderBuild(){
+ var host=$('buildBody');var m=overallMastery();
+ var tiers=[
+  [0,'🔢','Counter','Add it up one by one — where everyone starts.'],
+  [10,'🦘','Skip-counter','Count in jumps: 7, 14, 21… the rhythm of a table.'],
+  [25,'⚖️','Doubler','Double the easy ones to reach the hard ones.'],
+  [45,'🧩','Splitter','Break a hard fact into two facts you already own.'],
+  [65,'🗝️','Boxer','The area box — decompose anything into tens & ones.'],
+  [85,'💎','Diamond','Pick the fastest method on sight. Numbers feel small now.']
+ ];
+ var ladder='<div class="ladder">'+tiers.map(function(t){
+   return '<div class="tier'+(m>=t[0]?' on':'')+'"><div class="gem"><b>'+t[1]+'</b></div>'
+    +'<div><h4>'+t[2]+' <span class="muted" style="font-size:11px">· unlock '+t[0]+'%</span></h4><div class="d">'+t[3]+'</div></div></div>';
+ }).join('')+'</div>';
+ var picks='<div class="fpick">'+HARDFACTS.map(function(f){
+   return '<button data-pick="'+f[0]+','+f[1]+'"'+((f[0]===BLD.a&&f[1]===BLD.b)?' class="sel"':'')+'>'+f[0]+'×'+f[1]+'</button>';
+ }).join('')+'</div>';
+ var custom='<div class="cin"><span class="muted">or try your own:</span>'
+   +'<input id="ba" type="number" min="1" max="99" value="'+BLD.a+'"> <b>×</b> '
+   +'<input id="bb" type="number" min="1" max="99" value="'+BLD.b+'">'
+   +'<button class="fpick" onclick="buildPick(+document.getElementById(\'ba\').value||1,+document.getElementById(\'bb\').value||1)" style="border:1px solid var(--violet);background:rgba(167,139,255,.14);color:var(--ink);padding:7px 14px;border-radius:10px;cursor:pointer;font:700 13px var(--mono)">Build it</button></div>';
+ var strat=strategies(BLD.a,BLD.b);
+ var dia='<div class="diamonds">'+strat.map(function(s,i){
+   return '<div class="dia" data-dia="'+i+'"><div class="gemi">'+s[0]+'</div><h4>'+s[1]+'</h4><div class="sub">'+s[2]+'</div>'
+     +'<div class="steps">'+s[3]+(s[4]==='area'?areaHTML(BLD.a,BLD.b):'')+'</div></div>';
+ }).join('')+'</div>';
+ host.innerHTML=conceptStrip()
+   +'<h3 style="margin:18px 0 2px">🪜 Evolve your method</h3>'
+   +'<p class="muted" style="margin:0 0 6px">As your mastery grows you climb from counting to seeing. You are at <b>'+m+'%</b>.</p>'
+   +ladder
+   +'<h3 style="margin:22px 0 2px">💎 Crack a hard one</h3>'
+   +'<p class="muted" style="margin:0 0 6px">Pick a tough fact, then tap a diamond to see a different way to make it easy.</p>'
+   +picks+custom
+   +'<div style="font:900 30px var(--mono);text-align:center;margin:8px 0;color:var(--teal)">'+BLD.a+' × '+BLD.b+' = '+(BLD.a*BLD.b)+'</div>'
+   +dia;
+ host.querySelectorAll('[data-pick]').forEach(function(b){b.addEventListener('click',function(){var p=b.dataset.pick.split(',');buildPick(+p[0],+p[1]);});});
+ host.querySelectorAll('[data-dia]').forEach(function(d){d.addEventListener('click',function(){
+   var open=d.classList.contains('open');
+   host.querySelectorAll('.dia').forEach(function(x){x.classList.remove('open');});
+   if(!open){d.classList.add('open');}
+ });});
+}
+function buildPick(a,b){a=Math.max(1,Math.min(99,a||1));b=Math.max(1,Math.min(99,b||1));BLD.a=a;BLD.b=b;renderBuild();}
+/* ---------------- PROGRESS ---------------- */
+function renderProgress(){
+ var hi=S.adv?20:12;
+ var head='<div class="hd"></div>';for(var b=1;b<=hi;b++)head+='<div class="hd">'+b+'</div>';
+ var rows='';for(var a=1;a<=20;a++){rows+='<div class="hd">'+a+'</div>';for(var b=1;b<=hi;b++){var f=fget(a,b);rows+='<div class="hc s'+f.s+'" title="'+a+'×'+b+'='+(a*b)+' · strength '+f.s+'/5"></div>';}}
+ // count hard facts remaining
+ var weak=0,tot=0;for(var a=1;a<=12;a++)for(var b=a;b<=12;b++){tot++;if(Math.min(fget(a,b).s,fget(b,a).s)<4)weak++;}
+ $('progBody').innerHTML='<div class="card"><h3>Fact strength heatmap</h3><div class="heat" style="--n:'+hi+'">'+head+rows+'</div>'
+  +'<div class="legend"><span><i style="background:#2A3157"></i>new</span><span><i style="background:#8A4A4A"></i>learning</span><span><i style="background:#9A7A3A"></i>getting there</span><span><i style="background:#2DD4A7"></i>locked in (long-term)</span></div></div>'
+  +'<div class="insight"><b>🎯 The big reframe</b><br>Of the '+(tot)+' unique core facts (1–12, after removing a×b = b×a duplicates), only <b>'+weak+'</b> are not yet locked in. You\'re not memorizing 144 — you\'re chipping away at a much smaller set. Clear them in the Arena and the tables are yours for good.</div>'
+  +'<div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap"><button class="btn pri" data-go="arena">⚡ Drill my weak facts</button><button class="btn" data-go="map">Browse tables</button></div>';
+}
+/* ---------------- init ---------------- */
+$('homeNumo').innerHTML=numo('happy');
+var SAYINGS=["Hi! I'm Numo. Let's make tables feel easy. 🎯","Tip: understand first, memorize second.","You only really need ~20 hard facts. Promise!","Little and often beats cramming. 🔁"];var si=0;
+setInterval(function(){si=(si+1)%SAYINGS.length;if($('homeSay'))$('homeSay').textContent=SAYINGS[si];},4000);
+renderTop();
+</script>
+</body>
+</html>

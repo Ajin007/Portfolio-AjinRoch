@@ -121,6 +121,11 @@ button.sem{font-family:inherit;text-align:left;cursor:pointer}
 .advn .sem.live::after{color:var(--purple)}
 .advn .dot{background:var(--purple);box-shadow:0 0 8px var(--purple)}
 .advn .sem.live .s-title{color:#f4efff}
+.plsql-modal.purple{border-top-color:var(--purple)}
+.plsql-modal.purple .m-num,.plsql-modal.purple .o-num,.plsql-modal.purple .o-go{color:var(--purple)}
+.plsql-modal.purple .plsql-opt:hover{border-color:var(--purple)}
+.plsql-modal.purple .plsql-opt:focus-visible{outline-color:var(--purple)}
+.plsql-modal.purple .o-ic{background:rgba(177,140,255,.1);border-color:rgba(177,140,255,.3)}
 @media(max-width:920px){.grid{grid-template-columns:1fr;max-width:520px}}
 @media(prefers-reduced-motion:reduce){a.card{transition:none}a.card:hover{transform:none}.plsql-overlay.on,.plsql-modal{animation:none}}
 .jc-new{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:.08em;text-decoration:none;color:#1a1300;background:linear-gradient(180deg,#FFE3A1,var(--gold));border-radius:99px;padding:10px 18px;box-shadow:0 6px 20px -8px rgba(255,209,102,.6);transition:.18s}
@@ -393,7 +398,7 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
       <div class="oracle-meta">
         <div class="num">PROGRAM 05</div>
         <h2>Learning Adventures — Game-Based Labs</h2>
-        <p>Four new playable learning worlds: a JavaScript adventure, a Java arena of legends, a full JavaScript lab from scratch to async, and a Himalayan explorer for young learners.</p>
+        <p>Playable learning worlds: JavaScript and TypeScript adventures, a Java arena of legends, a full JavaScript lab from scratch to async, and two games for young learners — Himalaya Explorer and TablesVerse.</p>
       </div>
       <button class="oracle-toggle" id="advnToggle" aria-expanded="false" aria-controls="advnGrid">
         <span class="lbl">OPEN THE 4 ADVENTURES</span>
@@ -403,12 +408,12 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
     <div class="sem-wrap">
       <div class="sem-inner">
         <div class="sem-grid" id="advnGrid">
-          <a class="sem live" href="codeverse-javascript-adventure.html">
-            <div class="s-num">JAVASCRIPT · GAME</div>
-            <div class="s-title">CodeVerse — The JavaScript Adventure</div>
-            <div class="s-sub">Travel a world map, unlock characters and learn JavaScript as you play.</div>
-            <div class="s-state"><span class="dot"></span>PLAY NOW</div>
-          </a>
+          <button class="sem live" id="codeVerseBtn" aria-haspopup="dialog" aria-controls="codeVerseModal">
+            <div class="s-num">JAVASCRIPT · TYPESCRIPT · GAMES</div>
+            <div class="s-title">CodeVerse &amp; TypeVerse</div>
+            <div class="s-sub">Two adventure worlds: learn JavaScript in CodeVerse, then TypeScript in TypeVerse.</div>
+            <div class="s-state"><span class="dot"></span>2 GAMES · CHOOSE</div>
+          </button>
           <a class="sem live" href="javaverse-arena-of-legends.html">
             <div class="s-num">JAVA · GAME</div>
             <div class="s-title">JavaVerse — Arena of Legends</div>
@@ -421,12 +426,12 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
             <div class="s-sub">Classes, functional code, regex and async, step by step to a capstone project.</div>
             <div class="s-state"><span class="dot"></span>OPEN LAB</div>
           </a>
-          <a class="sem live" href="himalaya-explorer-icse-class4.html">
-            <div class="s-num">ICSE CLASS 4 · GEOGRAPHY</div>
-            <div class="s-title">Himalaya Explorer</div>
-            <div class="s-sub">Explore the Himalayan region on the map and finish with a champion quiz.</div>
-            <div class="s-state"><span class="dot"></span>START EXPLORING</div>
-          </a>
+          <button class="sem live" id="kidsBtn" aria-haspopup="dialog" aria-controls="kidsModal">
+            <div class="s-num">KIDS · GEOGRAPHY · MATHS</div>
+            <div class="s-title">Himalaya Explorer &amp; TablesVerse</div>
+            <div class="s-sub">Explore the Himalayan region, or master the 1–20 times tables.</div>
+            <div class="s-state"><span class="dot"></span>2 GAMES · CHOOSE</div>
+          </button>
         </div>
       </div>
     </div>
@@ -481,6 +486,44 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
   </div>
 </div>
 
+<div class="plsql-overlay" id="codeVerseModal" role="dialog" aria-modal="true" aria-labelledby="codeVerseTitle">
+  <div class="plsql-modal purple">
+    <div class="m-num">PROGRAM 05 · CODE ADVENTURES</div>
+    <h3 id="codeVerseTitle">Choose your world</h3>
+    <p class="m-sub">Two game worlds built on the same model: start with JavaScript, then level up to TypeScript.</p>
+    <a class="plsql-opt" href="codeverse-javascript-adventure.html">
+      <div class="o-ic">🟨</div>
+      <div><div class="o-num">GAME 1</div><div class="o-title">CodeVerse · The JavaScript Adventure</div><div class="o-sub">Travel a world map, unlock characters and learn JavaScript as you play.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <a class="plsql-opt" href="typeverse-typescript-adventure.html">
+      <div class="o-ic">🟦</div>
+      <div><div class="o-num">GAME 2</div><div class="o-title">TypeVerse · The TypeScript Adventure</div><div class="o-sub">The same adventure style, now teaching TypeScript types step by step.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <button class="plsql-close" id="codeVerseClose">ESC · CLOSE</button>
+  </div>
+</div>
+
+<div class="plsql-overlay" id="kidsModal" role="dialog" aria-modal="true" aria-labelledby="kidsTitle">
+  <div class="plsql-modal purple">
+    <div class="m-num">PROGRAM 05 · YOUNG LEARNERS</div>
+    <h3 id="kidsTitle">Choose your game</h3>
+    <p class="m-sub">Two playful learning games for school kids: geography and multiplication.</p>
+    <a class="plsql-opt" href="himalaya-explorer-icse-class4.html">
+      <div class="o-ic">🏔️</div>
+      <div><div class="o-num">GAME 1 · ICSE CLASS 4</div><div class="o-title">Himalaya Explorer</div><div class="o-sub">Explore the Himalayan region on the map and finish with a champion quiz.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <a class="plsql-opt" href="tablesverse-times-tables.html">
+      <div class="o-ic">✖️</div>
+      <div><div class="o-num">GAME 2 · MATHS</div><div class="o-title">TablesVerse</div><div class="o-sub">Master the 1–20 times tables, forever.</div></div>
+      <div class="o-go">→</div>
+    </a>
+    <button class="plsql-close" id="kidsClose">ESC · CLOSE</button>
+  </div>
+</div>
+
 <script>
 (function(){
   function wireToggle(cardId,btnId,openLbl,closedLbl){
@@ -523,6 +566,8 @@ a.hub-cta:hover .arr{transform:translateX(4px)}
   }
   wireChooser('plsqlBtn','plsqlModal','plsqlClose');
   wireChooser('javaBtn','javaModal','javaClose');
+  wireChooser('codeVerseBtn','codeVerseModal','codeVerseClose');
+  wireChooser('kidsBtn','kidsModal','kidsClose');
 })();
 </script>
 
